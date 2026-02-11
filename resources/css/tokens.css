@@ -1,0 +1,63 @@
+/* ============================================
+   TOKENS MODULE
+   Design system variables and configuration
+   ============================================ */
+
+:root {
+    /* Color Palette */
+    --color-primary: #2563eb;
+    --color-primary-hover: #1d4ed8;
+    --color-primary-light: #dbeafe;
+
+    --color-secondary: #64748b;
+    --color-secondary-hover: #475569;
+
+    --color-success: #16a34a;
+    --color-success-light: #dcfce7;
+
+    --color-warning: #eab308;
+    --color-warning-light: #fef9c3;
+
+    --color-danger: #dc2626;
+    --color-danger-light: #fee2e2;
+
+    --color-info: #0891b2;
+    --color-info-light: #cffafe;
+
+    /* Purple for exercises */
+    --color-purple: #7c3aed;
+    --color-purple-hover: #6d28d9;
+    --color-purple-light: #ede9fe;
+
+    /* Neutral colors */
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
+    --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
+    --color-gray-900: #111827;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem; /* 4px */
+    --spacing-sm: 0.5rem; /* 8px */
+    --spacing-md: 1rem; /* 16px */
+    --spacing-lg: 1.5rem; /* 24px */
+    --spacing-xl: 2rem; /* 32px */
+    --spacing-2xl: 3rem; /* 48px */
+
+    /* Border Radius */
+    --radius-sm: 0.375rem; /* 6px */
+    --radius-md: 0.5rem; /* 8px */
+    --radius-lg: 0.75rem; /* 12px */
+    --radius-xl: 1rem; /* 16px */
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}

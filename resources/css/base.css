@@ -1,0 +1,10 @@
+/* ============================================
+   BASE MODULE
+   Global resets and element defaults
+   ============================================ */
+   
+/* Currently minimal as we rely on Tailwind's preflight */
+
+html, body {
+    height: 100%;
+}
