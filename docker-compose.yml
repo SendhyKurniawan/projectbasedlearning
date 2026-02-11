@@ -1,0 +1,60 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: pjbl-app
+        container_name: pjbl-app
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        networks:
+            - pjbl-network
+        depends_on:
+            db:
+                condition: service_healthy
+
+    web:
+        image: nginx:alpine
+        container_name: pjbl-web
+        restart: unless-stopped
+        ports:
+            - "8000:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        networks:
+            - pjbl-network
+        depends_on:
+            - app
+
+    db:
+        image: mysql:8.0
+        container_name: pjbl-db
+        restart: unless-stopped
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE:-pjbl}
+            MYSQL_ROOT_PASSWORD: root
+            # Create a dedicated user (cannot be root)
+            MYSQL_USER: pjbl
+            MYSQL_PASSWORD: password
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - dbdata:/var/lib/mysql
+        networks:
+            - pjbl-network
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+networks:
+    pjbl-network:
+        driver: bridge
+
+volumes:
+    dbdata:
+        driver: local
