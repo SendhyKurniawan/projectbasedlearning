@@ -122,4 +122,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Submission::class, 'mahasiswa_id');
     }
+
+    public function quizAttempts()
+    {
+        return $this->hasMany(\App\Models\QuizAttempt::class, 'mahasiswa_id');
+    }
 }

@@ -40,6 +40,8 @@ use Illuminate\Database\Eloquent\Model;
 class Assignment extends Model
 {
     protected $fillable = [
+        'assignment_number',
+        'submission_format',
         'course_id',
         'title',
         'description',
@@ -69,6 +71,11 @@ class Assignment extends Model
     public function submissions()
     {
         return $this->hasMany(\App\Models\Submission::class);
+    }
+
+    public function groups()
+    {
+        return $this->hasMany(\App\Models\Group::class);
     }
     
     public function requiredMaterial()

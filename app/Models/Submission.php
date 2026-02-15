@@ -44,6 +44,7 @@ class Submission extends Model
     protected $fillable = [
         'assignment_id',
         'mahasiswa_id',
+        'group_id',
         'file_path',
         'url_link',
         'notes',
@@ -74,6 +75,11 @@ class Submission extends Model
     public function mahasiswa()
     {
         return $this->belongsTo(\App\Models\User::class, 'mahasiswa_id');
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(\App\Models\Group::class);
     }
 
     // Accessors

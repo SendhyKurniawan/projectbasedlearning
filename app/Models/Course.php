@@ -70,4 +70,9 @@ class Course extends Model
             ->withPivot('final_grade', 'enrolled_at')
             ->withTimestamps();
     }
+
+    public function quizzes()
+    {
+        return $this->hasMany(\App\Models\Quiz::class);
+    }
 }

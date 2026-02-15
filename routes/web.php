@@ -71,6 +71,24 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::get('/assignments/{assignment}/submissions', [Dosen\AssignmentController::class, 'submissions'])->name('assignments.submissions');
     Route::post('/submissions/{submission}/grade', [Dosen\AssignmentController::class, 'grade'])->name('submissions.grade');
     
+    // Quiz Routes
+    Route::resource('quizzes', Dosen\QuizController::class)->except(['index', 'create', 'store']);
+    Route::get('/courses/{course}/quizzes', [Dosen\QuizController::class, 'index'])->name('quizzes.index');
+    Route::get('/courses/{course}/quizzes/create', [Dosen\QuizController::class, 'create'])->name('quizzes.create');
+    Route::post('/courses/{course}/quizzes', [Dosen\QuizController::class, 'store'])->name('quizzes.store');
+    
+    // Quiz Questions Routes
+    Route::get('/quizzes/{quiz}/questions', [Dosen\QuizController::class, 'questions'])->name('quizzes.questions.index');
+    Route::get('/quizzes/{quiz}/questions/create', [Dosen\QuizController::class, 'createQuestion'])->name('quizzes.questions.create');
+    Route::post('/quizzes/{quiz}/questions', [Dosen\QuizController::class, 'storeQuestion'])->name('quizzes.questions.store');
+    Route::get('/questions/{question}/edit', [Dosen\QuizController::class, 'editQuestion'])->name('quizzes.questions.edit');
+    Route::put('/questions/{question}', [Dosen\QuizController::class, 'updateQuestion'])->name('quizzes.questions.update');
+    Route::delete('/questions/{question}', [Dosen\QuizController::class, 'destroyQuestion'])->name('quizzes.questions.destroy');
+
+    // Quiz Attempts Routes
+    Route::get('/quizzes/{quiz}/attempts', [Dosen\QuizController::class, 'attempts'])->name('quizzes.attempts.index');
+    Route::get('/quizzes/{quiz}/attempts/{attempt}', [Dosen\QuizController::class, 'showAttempt'])->name('quizzes.attempts.show');
+
     // Code Exercise Routes
     Route::get('/courses/{course}/exercises/create', [Dosen\ExerciseController::class, 'create'])->name('exercises.create');
     Route::post('/courses/{course}/exercises', [Dosen\ExerciseController::class, 'store'])->name('exercises.store');
@@ -88,6 +106,13 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
 
     Route::resource('submissions', Mahasiswa\SubmissionController::class)->except(['index', 'show'])->middleware('check.assignment.unlocked');
     
+    // Quiz Routes
+    Route::get('/quizzes/{quiz}', [Mahasiswa\QuizController::class, 'show'])->name('quizzes.show');
+    Route::post('/quizzes/{quiz}/start', [Mahasiswa\QuizController::class, 'start'])->name('quizzes.start');
+    Route::get('/quizzes/{quiz}/take', [Mahasiswa\QuizController::class, 'take'])->name('quizzes.take');
+    Route::post('/quizzes/{quiz}/submit', [Mahasiswa\QuizController::class, 'submit'])->name('quizzes.submit');
+    Route::get('/quizzes/{quiz}/result', [Mahasiswa\QuizController::class, 'result'])->name('quizzes.result');
+
     // Code Exercise Routes
     Route::get('/exercises/{assignment}/solve', [Mahasiswa\ExerciseController::class, 'solve'])->name('exercises.solve')->middleware('check.assignment.unlocked');
     Route::post('/exercises/submit', [Mahasiswa\ExerciseController::class, 'submit'])->name('exercises.submit');
