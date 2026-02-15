@@ -244,7 +244,49 @@
                     @endif
                 @endforeach
                 
-                @if(count($learningPath) == 0)
+                {{-- Quizzes Section --}}
+                @if($quizzes->isNotEmpty())
+                    <div class="mb-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 px-1">Quizzes & Exams</h3>
+                        <div class="space-y-4">
+                            @foreach($quizzes as $quiz)
+                                @php
+                                    $attempt = $quizAttempts[$quiz->id] ?? null;
+                                    $isFinished = $attempt && $attempt->finished_at;
+                                @endphp
+                                <div class="card {{ $isFinished ? 'border-l-4 border-green-500' : 'border-l-4 border-yellow-500' }} transition-all hover:shadow-md">
+                                    <div class="flex items-start gap-4">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-14 h-14 rounded-full {{ $isFinished ? 'bg-green-100' : 'bg-yellow-100' }} flex items-center justify-center">
+                                                <svg class="w-7 h-7 {{ $isFinished ? 'text-green-600' : 'text-yellow-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="text-xs font-semibold text-gray-500 uppercase">{{ ucfirst($quiz->type) }}</span>
+                                                @if($isFinished)
+                                                    <span class="badge badge-success text-xs">Completed</span>
+                                                @else
+                                                    <span class="badge badge-warning text-xs">Available</span>
+                                                @endif
+                                            </div>
+                                            <h3 class="font-bold text-lg text-gray-900">{{ $quiz->title }}</h3>
+                                            <p class="text-sm text-gray-600 mb-3">{{ $quiz->duration_minutes }} Minutes &bull; {{ $quiz->questions->count() }} Questions</p>
+                                            
+                                            <a href="{{ route('mahasiswa.quizzes.show', $quiz) }}" class="btn btn-sm {{ $isFinished ? 'btn-success' : 'btn-primary' }}">
+                                                {{ $isFinished ? 'View Result' : 'Start Quiz' }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                @if(count($learningPath) == 0 && $quizzes->isEmpty())
                     <div class="empty-state">
                         <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>

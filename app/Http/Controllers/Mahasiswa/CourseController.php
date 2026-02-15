@@ -57,10 +57,17 @@ class CourseController extends Controller
             ->get()
             ->keyBy('assignment_id');
         
+        // Get Quizzes
+        $quizzes = $course->quizzes;
+        $quizAttempts = \App\Models\QuizAttempt::where('mahasiswa_id', $mahasiswa->id)
+            ->whereIn('quiz_id', $quizzes->pluck('id'))
+            ->get()
+            ->keyBy('quiz_id');
+
         // Build linear learning path
         $learningPath = $this->buildLearningPath($course, $viewedMaterialIds, $submissions);
         
-        return view('mahasiswa.courses.show', compact('course', 'learningPath', 'submissions'));
+        return view('mahasiswa.courses.show', compact('course', 'learningPath', 'submissions', 'quizzes', 'quizAttempts'));
     }
     
     private function buildLearningPath($course, $viewedMaterialIds, $submissions)

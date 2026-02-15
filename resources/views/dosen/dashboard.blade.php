@@ -50,11 +50,15 @@
                                 <div class="mt-4 flex gap-2">
                                     <a href="{{ route('dosen.materials.index', $course) }}" 
                                        class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
-                                        Manage Materials
+                                        Materials
                                     </a>
                                     <a href="{{ route('dosen.assignments.index', $course) }}" 
                                        class="text-sm bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
-                                        Manage Assignments
+                                        Assignments
+                                    </a>
+                                    <a href="{{ route('dosen.quizzes.index', $course) }}" 
+                                       class="text-sm bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded">
+                                        Quizzes
                                     </a>
                                 </div>
                             </div>

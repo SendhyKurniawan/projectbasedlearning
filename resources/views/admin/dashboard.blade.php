@@ -47,7 +47,7 @@
                     </div>
                     <div class="space-y-4">
                         @foreach($recent_users as $user)
-                            <div class="list-item flex justify-between items-center">
+                            <div class="flex justify-between items-center bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
                                 <div>
                                     <div class="font-semibold text-gray-900 dark:text-gray-100">{{ $user->name }}</div>
                                     <div class="text-sm text-gray-500">{{ $user->email }}</div>
