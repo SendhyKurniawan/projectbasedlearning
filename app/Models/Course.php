@@ -71,8 +71,5 @@ class Course extends Model
             ->withTimestamps();
     }
 
-    public function quizzes()
-    {
-        return $this->hasMany(\App\Models\Quiz::class);
-    }
+
 }

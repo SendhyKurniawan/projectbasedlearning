@@ -3,48 +3,64 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
-use App\Models\Quiz;
-use App\Models\QuizAttempt;
+use App\Models\Assignment;
+use App\Models\Submission;
 use App\Models\QuizOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class QuizController extends Controller
 {
-    public function show(Quiz $quiz)
+    public function show(Assignment $assignment)
     {
-        // Check availability (e.g. course enrollment) - assumes middleware handles course access
-        // Check if already taken?
-        $existingAttempt = QuizAttempt::where('quiz_id', $quiz->id)
+        // Check if student is enrolled in the course
+        $mahasiswa = auth()->user();
+        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+            return redirect()->route('mahasiswa.dashboard')
+                ->with('error', 'Anda tidak terdaftar di course ini.');
+        }
+
+        $existingSubmission = Submission::where('assignment_id', $assignment->id)
             ->where('mahasiswa_id', auth()->id())
             ->first();
 
-        if ($existingAttempt && $existingAttempt->finished_at) {
-            return redirect()->route('mahasiswa.quizzes.result', $quiz);
+        if ($existingSubmission && $existingSubmission->finished_at) {
+            return redirect()->route('mahasiswa.quizzes.result', $assignment);
         }
 
-        return view('mahasiswa.quizzes.show', compact('quiz', 'existingAttempt'));
+        return view('mahasiswa.quizzes.show', [
+            'assignment' => $assignment,
+            'existingSubmission' => $existingSubmission
+        ]);
     }
 
-    public function result(Quiz $quiz)
+    public function result(Assignment $assignment)
     {
-        $attempt = QuizAttempt::where('quiz_id', $quiz->id)
+        $submission = Submission::where('assignment_id', $assignment->id)
             ->where('mahasiswa_id', auth()->id())
             ->whereNotNull('finished_at')
             ->firstOrFail();
 
-        $quiz->load('questions.options');
+        $assignment->load('questions.options');
 
-        return view('mahasiswa.quizzes.result', compact('quiz', 'attempt'));
+        return view('mahasiswa.quizzes.result', [
+            'assignment' => $assignment,
+            'submission' => $submission
+        ]);
     }
 
-    public function start(Quiz $quiz)
+    public function start(Assignment $assignment)
     {
-        // Check strict deadlines if needed
-        
-        $attempt = QuizAttempt::firstOrCreate(
+        // Check if student is enrolled
+        $mahasiswa = auth()->user();
+        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+            return redirect()->route('mahasiswa.dashboard')
+                ->with('error', 'Anda tidak terdaftar di course ini.');
+        }
+
+        $submission = Submission::firstOrCreate(
             [
-                'quiz_id' => $quiz->id,
+                'assignment_id' => $assignment->id,
                 'mahasiswa_id' => auth()->id(),
             ],
             [
@@ -52,62 +68,42 @@ class QuizController extends Controller
             ]
         );
 
-        return redirect()->route('mahasiswa.quizzes.take', $quiz);
+        return redirect()->route('mahasiswa.quizzes.take', $assignment);
     }
 
-    public function take(Quiz $quiz)
+    public function take(Assignment $assignment)
     {
-        $attempt = QuizAttempt::where('quiz_id', $quiz->id)
+        $submission = Submission::where('assignment_id', $assignment->id)
             ->where('mahasiswa_id', auth()->id())
             ->firstOrFail();
 
-        if ($attempt->finished_at) {
-            return redirect()->route('mahasiswa.quizzes.show', $quiz)
-                ->with('info', 'You have already finished this quiz.');
+        if ($submission->finished_at) {
+            return redirect()->route('mahasiswa.quizzes.show', $assignment)
+                ->with('info', 'Anda sudah menyelesaikan kuis ini.');
         }
 
-        // Load questions without answers (for security, though in blade we just don't show them)
-        // Ideally we select specific columns, but for now lazy load is fine
-        $questions = $quiz->questions()->with('options')->get();
+        $questions = $assignment->questions()->with('options')->get();
 
-        return view('mahasiswa.quizzes.take', compact('quiz', 'attempt', 'questions'));
+        return view('mahasiswa.quizzes.take', [
+            'assignment' => $assignment,
+            'submission' => $submission,
+            'questions' => $questions
+        ]);
     }
 
-    public function submit(Request $request, Quiz $quiz)
+    public function submit(Request $request, Assignment $assignment)
     {
-        $attempt = QuizAttempt::where('quiz_id', $quiz->id)
+        $submission = Submission::where('assignment_id', $assignment->id)
             ->where('mahasiswa_id', auth()->id())
             ->firstOrFail();
 
-        if ($attempt->finished_at) {
-             return redirect()->route('mahasiswa.quizzes.show', $quiz);
+        if ($submission->finished_at) {
+             return redirect()->route('mahasiswa.quizzes.show', $assignment);
         }
 
-        // Calculate Score
-        $totalScore = 0;
-        $activeQuestions = $quiz->questions;
+        $activeQuestions = $assignment->questions;
 
-        DB::transaction(function () use ($request, $quiz, $attempt, &$totalScore, $activeQuestions) {
-            // Save answers logic - for now we calculate score directly for MC
-            // For Essay/Code, we might need a separate 'answers' table if we want to store user input persistently
-            // For MVP, lets assume we mark MC auto and Essay manual (but where to store essay?)
-            
-            // WAIT: The ERD v2 didn't strictly specify a 'quiz_answers' table for user input storage.
-            // But 'QuizAttempts' has 'total_score'.
-            // To properly grade Essay/Code, we MUST store the student's answer.
-            // I will assume for now we might be missing a 'quiz_answers' table in the migration I made based on user prompt?
-            // The prompt "ERD v2" listed "QuizAttempts" but didn't explicitly detail "QuizAnswers" table in the text, 
-            // but functionally it's required. 
-            // I'll check my migration again. I did NOT create a quiz_answers table.
-            // This is a gap. I should probably create it or store it in a JSON column in attempts?
-            // "QuizAttempts" is usually for the session.
-            
-            // Let's look at the ERD text again:
-            // "9️⃣ Quiz Attempts ... total_score"
-            // It doesn't list a separate answers table. 
-            // However, without it, we can't store the code/essay the student wrote.
-            // I will add a JSON 'answers' column to QuizAttempts to store the raw answers given by student.
-            
+        DB::transaction(function () use ($request, $assignment, $submission, $activeQuestions) {
             $answers = $request->input('answers', []);
             $calculatedScore = 0;
 
@@ -115,27 +111,24 @@ class QuizController extends Controller
                 $userAnswer = $answers[$question->id] ?? null;
 
                 if ($question->question_type === 'pilihan_ganda') {
-                     // Find selected option
                      if ($userAnswer) {
                          $selectedOption = QuizOption::find($userAnswer);
-                         if ($selectedOption && $selectedOption->question_id == $question->id && $selectedOption->is_correct) {
+                         if ($selectedOption && $selectedOption->assignment_id == $assignment->id && $selectedOption->is_correct) {
                              $calculatedScore += $question->score_weight;
                          }
                      }
-                } else {
-                    // Manual grade needed for Essay/Code
-                    // For now, we don't add score automatically
                 }
             }
 
-            $attempt->update([
+            $submission->update([
                 'finished_at' => now(),
-                'total_score' => $calculatedScore, // Provisional score (MC only)
+                'score' => $calculatedScore, // Provisional score (MC only)
                 'answers' => $answers,
+                'status' => 'submitted', // Or keep as is, but 'finished_at' is the key for quizzes
             ]);
         });
 
-        return redirect()->route('mahasiswa.quizzes.result', $quiz)
-            ->with('success', 'Quiz submitted! Your score (multiple choice only) is saved.');
+        return redirect()->route('mahasiswa.quizzes.result', $assignment)
+            ->with('success', 'Kuis berhasil dikumpulkan! Nilai (pilihan ganda) telah tersimpan.');
     }
 }

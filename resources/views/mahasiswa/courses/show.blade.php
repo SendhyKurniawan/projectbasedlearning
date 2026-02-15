@@ -251,8 +251,8 @@
                         <div class="space-y-4">
                             @foreach($quizzes as $quiz)
                                 @php
-                                    $attempt = $quizAttempts[$quiz->id] ?? null;
-                                    $isFinished = $attempt && $attempt->finished_at;
+                                    $submission = $submissions[$quiz->id] ?? null;
+                                    $isFinished = $submission && $submission->finished_at;
                                 @endphp
                                 <div class="card {{ $isFinished ? 'border-l-4 border-green-500' : 'border-l-4 border-yellow-500' }} transition-all hover:shadow-md">
                                     <div class="flex items-start gap-4">

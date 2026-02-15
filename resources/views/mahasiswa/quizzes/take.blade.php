@@ -2,17 +2,17 @@
     <div class="max-w-4xl mx-auto py-8">
         <div class="flex justify-between items-start mb-6">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $quiz->title }}</h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">Duration: {{ $quiz->duration_minutes }} Minutes</p>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $assignment->title }}</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Duration: {{ $assignment->duration_minutes }} Minutes</p>
             </div>
             <div class="text-right">
                 <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200 uppercase font-bold tracking-wide">
-                    {{ str_replace('_', ' ', $quiz->type) }}
+                    {{ str_replace('_', ' ', $assignment->type) }}
                 </span>
             </div>
         </div>
 
-        <form action="{{ route('mahasiswa.quizzes.submit', $quiz) }}" method="POST" id="quizForm" onsubmit="return handleQuizSubmit(this);">
+        <form action="{{ route('mahasiswa.quizzes.submit', $assignment) }}" method="POST" id="quizForm" onsubmit="return handleQuizSubmit(this);">
             @csrf
             
             <div class="space-y-8">

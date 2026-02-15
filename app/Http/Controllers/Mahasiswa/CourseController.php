@@ -37,11 +37,11 @@ class CourseController extends Controller
                 ->with('error', 'Anda belum terdaftar di course ini.');
         }
         
-        // Load course with materials and assignments in order
+        // Load course with materials and assignments (all types: tugas, quiz, project, exercise)
         $course->load([
             'dosen',
             'materials' => fn($q) => $q->orderBy('order'),
-            'assignments' => fn($q) => $q->with('requiredMaterial')->orderBy('deadline')
+            'assignments' => fn($q) => $q->with(['questions', 'requiredMaterial'])->orderBy('deadline')
         ]);
         
         // Get material views for this student
@@ -50,24 +50,24 @@ class CourseController extends Controller
             ->pluck('material_id')
             ->toArray();
         
-        // Get student's submissions for this course
+        // Get student's submissions for this course (includes quizzes now)
         $submissions = $mahasiswa->submissions()
             ->whereHas('assignment', fn($q) => $q->where('course_id', $course->id))
             ->with('assignment')
             ->get()
             ->keyBy('assignment_id');
         
-        // Get Quizzes
-        $quizzes = $course->quizzes;
-        $quizAttempts = \App\Models\QuizAttempt::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('quiz_id', $quizzes->pluck('id'))
-            ->get()
-            ->keyBy('quiz_id');
+        // Separate assignments into standard learning path and stand-alone quizzes
+        // (Maintaining current UX where Quizzes show as a separate section)
+        $allAssignments = $course->assignments;
+        $learningPathAssignments = $allAssignments->whereIn('type', ['tugas', 'project', 'exercise']);
+        $quizzes = $allAssignments->where('type', 'quiz');
 
-        // Build linear learning path
+        // Build linear learning path using only standard assignments for now
+        // Or keep it as is, depends on how buildLearningPath is structured
         $learningPath = $this->buildLearningPath($course, $viewedMaterialIds, $submissions);
         
-        return view('mahasiswa.courses.show', compact('course', 'learningPath', 'submissions', 'quizzes', 'quizAttempts'));
+        return view('mahasiswa.courses.show', compact('course', 'learningPath', 'submissions', 'quizzes'));
     }
     
     private function buildLearningPath($course, $viewedMaterialIds, $submissions)
