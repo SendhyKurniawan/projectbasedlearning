@@ -1,9 +1,9 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto py-8">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $quiz->title }} - Results</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $assignment->title }} - Results</h1>
             <p class="text-gray-600 dark:text-gray-400 mt-1">
-                Finished at: {{ $attempt->finished_at->format('d M Y, H:i') }}
+                Finished at: {{ $submission->finished_at->format('d M Y, H:i') }}
             </p>
         </div>
 
@@ -11,13 +11,13 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8 text-center">
             <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">Total Score</h2>
             <div class="text-5xl font-bold text-blue-600 dark:text-blue-400 mt-2">
-                {{ $attempt->total_score ?? 0 }} <span class="text-lg text-gray-500">/ {{ $quiz->questions->sum('score_weight') }}</span>
+                {{ $submission->score ?? 0 }} <span class="text-lg text-gray-500">/ {{ $assignment->questions->sum('score_weight') }}</span>
             </div>
             <p class="text-sm text-gray-500 mt-2">
                 (Score includes auto-graded questions only. Essay/Code questions may need manual grading.)
             </p>
             <div class="mt-6">
-                <a href="{{ route('mahasiswa.courses.show', $quiz->course) }}" class="inline-block px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
+                <a href="{{ route('mahasiswa.courses.show', $assignment->course) }}" class="inline-block px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
                     Back to Course
                 </a>
             </div>
@@ -27,9 +27,9 @@
         <div class="space-y-8">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white">Review Answers</h3>
             
-            @foreach($quiz->questions as $index => $question)
+            @foreach($assignment->questions as $index => $question)
                 @php
-                    $userAnswer = $attempt->answers[$question->id] ?? null;
+                    $userAnswer = $submission->answers[$question->id] ?? null;
                     $isCorrect = false;
                     $correctOption = null;
                     

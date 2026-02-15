@@ -22,15 +22,11 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Daftar Tugas</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Daftar Tugas & Quiz</h3>
                         <div class="flex gap-2">
-                            <a href="{{ route('dosen.exercises.create', $course) }}" 
-                               class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
-                                Create Exercise
-                            </a>
                             <a href="{{ route('dosen.assignments.create', $course) }}" 
                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                                + Tambah Tugas
+                                + Tambah Tugas / Quiz
                             </a>
                         </div>
                     </div>
@@ -79,11 +75,17 @@
                                 </div>
                                 
                                 <div class="flex flex-col gap-2 ml-4">
+                                    @if($assignment->type === 'quiz')
+                                        <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" 
+                                           class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm text-center">
+                                            Kelola Pertanyaan
+                                        </a>
+                                    @endif
                                     <a href="{{ route('dosen.assignments.submissions', $assignment) }}" 
                                        class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm text-center">
                                         Lihat Submissions
                                     </a>
-                                    <a href="{{ $assignment->type === 'exercise' ? route('dosen.exercises.edit', $assignment) : route('dosen.assignments.edit', $assignment) }}" 
+                                    <a href="{{ route('dosen.assignments.edit', $assignment) }}" 
                                        class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm text-center">
                                         Edit
                                     </a>

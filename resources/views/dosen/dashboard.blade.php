@@ -56,10 +56,7 @@
                                        class="text-sm bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
                                         Assignments
                                     </a>
-                                    <a href="{{ route('dosen.quizzes.index', $course) }}" 
-                                       class="text-sm bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded">
-                                        Quizzes
-                                    </a>
+
                                 </div>
                             </div>
                         @empty

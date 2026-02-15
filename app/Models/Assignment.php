@@ -51,6 +51,8 @@ class Assignment extends Model
         'exercise_config',
         'auto_grade',
         'required_material_id',
+        'duration_minutes',
+        'quiz_number',
     ];
 
     protected function casts(): array
@@ -71,6 +73,11 @@ class Assignment extends Model
     public function submissions()
     {
         return $this->hasMany(\App\Models\Submission::class);
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(\App\Models\QuizQuestion::class);
     }
 
     public function groups()

@@ -14,9 +14,33 @@
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <form action="{{ route('dosen.assignments.update', $assignment) }}" method="POST">
+                    <form action="{{ route('dosen.assignments.update', $assignment) }}" method="POST" x-data="{ type: '{{ old('type', $assignment->type) }}' }">
                         @csrf
                         @method('PUT')
+
+                        <!-- Assignment Type -->
+                        <div class="mb-4">
+                            <label for="type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Tipe Assignment <span class="text-red-500">*</span>
+                            </label>
+                            <select name="type" 
+                                    id="type" 
+                                    x-model="type"
+                                    class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    required>
+                                <option value="tugas">Tugas (Upload File)</option>
+                                <option value="quiz">Quiz (Pilihan Ganda)</option>
+                                <option value="quiz">Quiz (Essay)</option>
+                                <option value="project">Project (Upload File/Link)</option>
+                                <option value="exercise">Exercise (Coding)</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1" x-show="type === 'quiz'">
+                                * Setelah menyimpan, Anda akan diarahkan untuk mengisi pertanyaan.
+                            </p>
+                            @error('type')
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
 
                         <!-- Title -->
                         <div class="mb-4">
@@ -46,6 +70,38 @@
                             @error('description')
                                 <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
                             @enderror
+                        </div>
+
+                        <!-- Quiz Specific Fields -->
+                        <div x-show="type === 'quiz'" class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="quiz_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Nomor Quiz <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" 
+                                       name="quiz_number" 
+                                       id="quiz_number" 
+                                       value="{{ old('quiz_number', $assignment->quiz_number) }}"
+                                       class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       :required="type === 'quiz'">
+                                @error('quiz_number')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="duration_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Durasi (Menit) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" 
+                                       name="duration_minutes" 
+                                       id="duration_minutes" 
+                                       value="{{ old('duration_minutes', $assignment->duration_minutes) }}"
+                                       class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       :required="type === 'quiz'">
+                                @error('duration_minutes')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Deadline -->

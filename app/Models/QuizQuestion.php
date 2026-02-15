@@ -7,16 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class QuizQuestion extends Model
 {
     protected $fillable = [
-        'quiz_id',
+        'assignment_id',
         'question_text',
         'question_type', // essay, pilihan_ganda, code_snippet
         'correct_answer',
         'score_weight',
     ];
 
-    public function quiz()
+    public function assignment()
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Assignment::class);
     }
 
     public function options()

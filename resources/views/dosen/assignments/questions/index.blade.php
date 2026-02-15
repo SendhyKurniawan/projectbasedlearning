@@ -2,14 +2,14 @@
     <div class="max-w-6xl mx-auto py-6">
         <div class="flex justify-between items-center mb-6">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Questions - {{ $quiz->title }}</h2>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Questions - {{ $assignment->title }}</h2>
                 <p class="text-gray-600 dark:text-gray-400">Total Questions: {{ $questions->count() }}</p>
             </div>
             <div class="space-x-2">
-                <a href="{{ route('dosen.quizzes.index', $quiz->course) }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                <a href="{{ route('dosen.assignments.index', $assignment->course) }}" class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     &larr; Back
                 </a>
-                <a href="{{ route('dosen.quizzes.questions.create', $quiz) }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-md">
+                <a href="{{ route('dosen.assignments.questions.create', $assignment) }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-md">
                     + Add New Question
                 </a>
             </div>
@@ -65,8 +65,8 @@
                         </div>
                         
                         <div class="ml-4 flex flex-col gap-2">
-                            <a href="{{ route('dosen.quizzes.questions.edit', $question) }}" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 text-sm font-medium">Edit</a>
-                             <form action="{{ route('dosen.quizzes.questions.destroy', $question) }}" method="POST" onsubmit="return confirm('Delete this question?');">
+                            <a href="{{ route('dosen.assignments.questions.edit', $question) }}" class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400 text-sm font-medium">Edit</a>
+                             <form action="{{ route('dosen.assignments.questions.destroy', $question) }}" method="POST" onsubmit="return confirm('Delete this question?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-800 dark:hover:text-red-400 text-sm font-medium">Delete</button>
@@ -77,7 +77,7 @@
             @empty
                 <div class="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
                     <p class="text-gray-500 dark:text-gray-400 mb-4">No questions added yet.</p>
-                    <a href="{{ route('dosen.quizzes.questions.create', $quiz) }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-md">
+                    <a href="{{ route('dosen.assignments.questions.create', $assignment) }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-md">
                         Start Adding Questions
                     </a>
                 </div>

@@ -51,6 +51,21 @@ services:
             timeout: 5s
             retries: 5
 
+    phpmyadmin:
+        image: phpmyadmin:latest
+        container_name: pjbl-phpmyadmin
+        restart: unless-stopped
+        ports:
+            - "8081:80"
+        environment:
+            PMA_HOST: db
+            PMA_USER: root
+            PMA_PASSWORD: root
+        networks:
+            - pjbl-network
+        depends_on:
+            - db
+
 networks:
     pjbl-network:
         driver: bridge

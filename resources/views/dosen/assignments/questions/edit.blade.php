@@ -2,16 +2,16 @@
     <div class="p-6 max-w-4xl mx-auto">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">
-                Edit Question - {{ $quiz->title }}
+                Edit Question - {{ $question->assignment->title }}
             </h2>
-            <a href="{{ route('dosen.quizzes.edit', $quiz) }}" 
+            <a href="{{ route('dosen.assignments.questions.index', $question->assignment) }}" 
                class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition">
                 &larr; Cancel
             </a>
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6" x-data="{ type: '{{ old('question_type', $question->question_type) }}' }">
-            <form action="{{ route('dosen.quizzes.questions.update', [$quiz, $question]) }}" method="POST">
+            <form action="{{ route('dosen.assignments.questions.update', $question) }}" method="POST">
                 @csrf
                 @method('PUT')
                 
@@ -53,35 +53,35 @@
                     </div>
 
                     <!-- Multiple Choice Options -->
-                    <div x-show="type === 'pilihan_ganda'" class="space-y-4 border-t pt-4 dark:border-gray-700">
+                    <div x-show="type === 'pilihan_ganda'" class="space-y-4 border-t pt-4 dark:border-gray-700" style="display: none;">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Answer Options
                         </label>
                         
-                        @php
-                            $options = $question->options;
-                            // Ensure at least 4 slots
-                            $loopCount = max(4, $options->count());
-                        @endphp
-
-                        @for($i = 0; $i < $loopCount; $i++)
+                        @for($i = 0; $i < 4; $i++)
                             @php
-                                $opt = $options[$i] ?? null;
-                                $isCorrect = old("options.{$i}.is_correct", $opt ? $opt->is_correct : false);
-                                $text = old("options.{$i}.text", $opt ? $opt->option_text : '');
+                                $option = $question->options[$i] ?? null;
                             @endphp
                             <div class="flex items-center gap-3">
-                                <input type="radio" name="options[{{ $i }}][is_correct]" value="1" {{ $isCorrect ? 'checked' : '' }}
-                                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600">
-                                <input type="text" name="options[{{ $i }}][text]" value="{{ $text }}" placeholder="Option {{ $i + 1 }}"
+                                <input type="radio" name="correct_idx" @click="updateCorrect({{ $i }})" 
+                                       class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"
+                                       {{ $option && $option->is_correct ? 'checked' : ($i===0 && !$option ? 'checked' :'') }}>
+                                <input type="hidden" name="options[{{ $i }}][is_correct]" id="hidden_correct_{{ $i }}" value="{{ $option && $option->is_correct ? '1' : '0' }}">
+                                <input type="text" name="options[{{ $i }}][text]" value="{{ old("options.{$i}.text", $option ? $option->option_text : '') }}" placeholder="Option {{ $i + 1 }}"
                                        class="flex-1 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500">
                             </div>
                         @endfor
-                        <p class="text-xs text-gray-500">Select the radio button for the correct answer.</p>
+                        <script>
+                            function updateCorrect(index) {
+                                for(let j=0; j<4; j++) {
+                                    document.getElementById('hidden_correct_' + j).value = (j === index) ? '1' : '0';
+                                }
+                            }
+                        </script>
                     </div>
 
                     <!-- Correct Answer (Essay/Code) -->
-                    <div x-show="type !== 'pilihan_ganda'" class="space-y-4 border-t pt-4 dark:border-gray-700">
+                    <div x-show="type !== 'pilihan_ganda'" class="space-y-4 border-t pt-4 dark:border-gray-700" style="display: none;">
                          <label for="correct_answer" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Reference Answer / Key (Optional)
                         </label>

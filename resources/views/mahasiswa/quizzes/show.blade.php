@@ -8,33 +8,33 @@
                     </svg>
                 </div>
                 
-                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">{{ $quiz->title }}</h1>
-                <p class="text-gray-500 dark:text-gray-400 mb-8">{{ $quiz->course->nama_matkul }}</p>
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">{{ $assignment->title }}</h1>
+                <p class="text-gray-500 dark:text-gray-400 mb-8">{{ $assignment->course->nama_matkul }}</p>
 
                 <div class="inline-flex flex-wrap justify-center gap-4 mb-8">
                     <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         <span class="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-bold">Duration</span>
-                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ $quiz->duration_minutes }} Mins</span>
+                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ $assignment->duration_minutes }} Mins</span>
                     </div>
                     <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         <span class="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-bold">Questions</span>
-                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ $quiz->questions->count() }}</span>
+                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ $assignment->questions->count() }}</span>
                     </div>
                     <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         <span class="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-bold">Type</span>
-                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ Str::title(str_replace('_', ' ', $quiz->type)) }}</span>
+                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ Str::title($assignment->type) }}</span>
                     </div>
                 </div>
 
-                @if($existingAttempt && $existingAttempt->finished_at)
+                @if($existingSubmission && $existingSubmission->finished_at)
                     <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-6 mb-6">
                         <h3 class="text-lg font-bold text-green-800 dark:text-green-300 mb-2">Quiz Completed</h3>
                         <p class="text-green-700 dark:text-green-400">
-                             You finished this quiz on {{ $existingAttempt->finished_at->format('M d, Y H:i') }}.
+                             You finished this quiz on {{ $existingSubmission->finished_at->format('M d, Y H:i') }}.
                         </p>
-                        @if($existingAttempt->total_score !== null)
+                        @if($existingSubmission->score !== null)
                             <div class="mt-4 text-4xl font-extrabold text-green-600 dark:text-green-400">
-                                {{ $existingAttempt->total_score }} <span class="text-base font-normal text-gray-500 dark:text-gray-400">/ {{ $quiz->questions->sum('score_weight') }}</span>
+                                {{ $existingSubmission->score }} <span class="text-base font-normal text-gray-500 dark:text-gray-400">/ {{ $assignment->questions->sum('score_weight') }}</span>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">Score (Auto-graded only)</p>
                         @endif
@@ -42,16 +42,16 @@
                     <a href="{{ route('mahasiswa.dashboard') }}" class="inline-block px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                         Back to Dashboard
                     </a>
-                @elseif($existingAttempt && !$existingAttempt->finished_at)
+                @elseif($existingSubmission && !$existingSubmission->finished_at)
                     <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 mb-6">
                         <h3 class="text-lg font-bold text-yellow-800 dark:text-yellow-300 mb-2">Quiz in Progress</h3>
                         <p class="text-yellow-700 dark:text-yellow-400 mb-4">You have an ongoing attempt. Resume it now.</p>
-                        <a href="{{ route('mahasiswa.quizzes.take', $quiz) }}" class="inline-block px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-xl shadow-lg transition">
+                        <a href="{{ route('mahasiswa.quizzes.take', $assignment) }}" class="inline-block px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-xl shadow-lg transition">
                             Resume Quiz
                         </a>
                     </div>
                 @else
-                    <form action="{{ route('mahasiswa.quizzes.start', $quiz) }}" method="POST">
+                    <form action="{{ route('mahasiswa.quizzes.start', $assignment) }}" method="POST">
                         @csrf
                         <button type="submit" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl shadow-xl transform hover:scale-105 transition">
                             Start Quiz Now

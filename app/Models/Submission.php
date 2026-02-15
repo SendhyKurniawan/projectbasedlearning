@@ -55,13 +55,19 @@ class Submission extends Model
         'code_answer',
         'validation_result',
         'auto_graded',
+        'answers',
+        'started_at',
+        'finished_at',
     ];
 
     protected function casts(): array
     {
         return [
             'submitted_at' => 'datetime',
+            'started_at' => 'datetime',
+            'finished_at' => 'datetime',
             'validation_result' => 'array',
+            'answers' => 'array',
             'auto_graded' => 'boolean',
         ];
     }
