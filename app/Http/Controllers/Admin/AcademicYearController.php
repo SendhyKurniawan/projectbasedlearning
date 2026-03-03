@@ -13,7 +13,7 @@ class AcademicYearController extends Controller
      */
     public function index()
     {
-        $academicYears = AcademicYear::with('semesters')->latest()->get();
+        $academicYears = AcademicYear::withCount('semesters')->latest()->get();
         return view('admin.academic_years.index', compact('academicYears'));
     }
 

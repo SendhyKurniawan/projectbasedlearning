@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
@@ -12,13 +15,15 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\User::query();
+        $query = User::query();
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('nim', 'like', "%{$search}%")
+                  ->orWhere('nip', 'like', "%{$search}%");
             });
         }
 
@@ -26,9 +31,16 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
-        $users = $query->latest()->paginate(10);
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'active');
+        }
 
-        return view('admin.users.index', compact('users'));
+        $users = $query->latest()->paginate(15)->withQueryString();
+
+        // Count pending dosen accounts for badge notification
+        $pendingDosen = User::where('role', 'dosen')->where('is_active', false)->count();
+
+        return view('admin.users.index', compact('users', 'pendingDosen'));
     }
 
     /**
@@ -45,26 +57,21 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
-            'role' => ['required', 'string', 'in:admin,dosen,mahasiswa'],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'role'     => ['required', 'string', 'in:admin,dosen,mahasiswa'],
+            'nim'      => ['nullable', 'string', 'max:20', 'unique:users,nim'],
+            'nip'      => ['nullable', 'string', 'max:20', 'unique:users,nip'],
+            'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        $validated['password']  = Hash::make($validated['password']);
+        $validated['is_active'] = true;
 
-        \App\Models\User::create($validated);
+        User::create($validated);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User created successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
+            ->with('success', 'User berhasil dibuat.');
     }
 
     /**
@@ -72,7 +79,7 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        $user = \App\Models\User::findOrFail($id);
+        $user = User::findOrFail($id);
         return view('admin.users.edit', compact('user'));
     }
 
@@ -81,25 +88,50 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = \App\Models\User::findOrFail($id);
+        $user = User::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,'.$user->id],
-            'role' => ['required', 'string', 'in:admin,dosen,mahasiswa'],
-            'password' => ['nullable', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
+            'name'      => ['required', 'string', 'max:255'],
+            'email'     => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'role'      => ['required', 'string', 'in:admin,dosen,mahasiswa'],
+            'nim'       => ['nullable', 'string', 'max:20', 'unique:users,nim,' . $user->id],
+            'nip'       => ['nullable', 'string', 'max:20', 'unique:users,nip,' . $user->id],
+            'is_active' => ['boolean'],
+            'password'  => ['nullable', 'confirmed', Password::defaults()],
         ]);
 
-        if (isset($validated['password'])) {
-            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
 
+        $validated['is_active'] = $request->boolean('is_active');
+
         $user->update($validated);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully.');
+            ->with('success', 'User berhasil diperbarui.');
+    }
+
+    /**
+     * Toggle active/inactive status of a user (for approving dosen accounts).
+     */
+    public function toggleActive(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Tidak dapat mengubah status akun Anda sendiri.');
+        }
+
+        $user->update(['is_active' => !$user->is_active]);
+
+        $msg = $user->is_active
+            ? "Akun {$user->name} berhasil diaktifkan."
+            : "Akun {$user->name} berhasil dinonaktifkan.";
+
+        return back()->with('success', $msg);
     }
 
     /**
@@ -107,15 +139,15 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = \App\Models\User::findOrFail($id);
-        
+        $user = User::findOrFail($id);
+
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'Cannot delete yourself.');
+            return back()->with('error', 'Tidak dapat menghapus akun Anda sendiri.');
         }
 
         $user->delete();
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'User deleted successfully.');
+            ->with('success', 'User berhasil dihapus.');
     }
 }

@@ -66,7 +66,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500 dark:text-gray-400">
-                                            <span class="badge badge-info">{{ $course->students->count() }}</span>
+                                            <span class="badge badge-info">{{ $course->students_count }}</span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <a href="{{ route('admin.courses.edit', $course) }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 mr-3">Edit & Enroll</a>

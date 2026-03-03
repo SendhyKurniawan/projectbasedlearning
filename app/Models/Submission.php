@@ -38,6 +38,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Submission whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Submission whereValidationResult($value)
  * @mixin \Eloquent
+ * @mixin IdeHelperSubmission
  */
 class Submission extends Model
 {

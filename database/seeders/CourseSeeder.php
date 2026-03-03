@@ -18,15 +18,17 @@ class CourseSeeder extends Seeder
 
         // Create Courses
         $course1 = \App\Models\Course::create([
-            'name' => 'Pengembangan Website Dasar',
-            'code' => 'WEB101',
+            'nama_matkul' => 'Pengembangan Website Dasar',
+            'kode_matkul' => 'WEB101',
+            'sks' => 3,
             'description' => 'Mata kuliah dasar pengembangan website menggunakan HTML, CSS, dan JavaScript',
             'dosen_id' => $dosen1->id,
         ]);
 
         $course2 = \App\Models\Course::create([
-            'name' => 'Sistem Basis Data',
-            'code' => 'DB201',
+            'nama_matkul' => 'Sistem Basis Data',
+            'kode_matkul' => 'DB201',
+            'sks' => 4,
             'description' => 'Mata kuliah sistem basis data relasional dan SQL',
             'dosen_id' => $dosen2->id,
         ]);
@@ -59,6 +61,7 @@ class CourseSeeder extends Seeder
             'course_id' => $course1->id,
             'title' => 'Tugas 1: Membuat Halaman HTML Sederhana',
             'description' => 'Buat halaman HTML dengan struktur dasar',
+            'type' => 'tugas',
             'deadline' => now()->addDays(7),
             'max_score' => 100,
         ]);
@@ -67,6 +70,7 @@ class CourseSeeder extends Seeder
             'course_id' => $course1->id,
             'title' => 'Tugas 2: Styling dengan CSS',
             'description' => 'Buat halaman web dengan styling CSS',
+            'type' => 'tugas',
             'deadline' => now()->addDays(14),
             'max_score' => 100,
         ]);
@@ -74,9 +78,13 @@ class CourseSeeder extends Seeder
         // Enroll students to courses
         $students = \App\Models\User::where('role', 'mahasiswa')->get();
         foreach ($students as $student) {
-            $course1->students()->attach($student->id, ['enrolled_at' => now()]);
+            $course1->students()->attach($student->id, [
+                'enrolled_at' => now(),
+            ]);
             if ($student->id % 2 == 0) {
-                $course2->students()->attach($student->id, ['enrolled_at' => now()]);
+                $course2->students()->attach($student->id, [
+                    'enrolled_at' => now(),
+                ]);
             }
         }
     }

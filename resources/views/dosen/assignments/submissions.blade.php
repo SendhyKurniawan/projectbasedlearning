@@ -74,8 +74,19 @@
                                         <strong>File:</strong> 
                                         <a href="{{ Storage::url($submission->file_path) }}" 
                                            target="_blank"
-                                           class="text-blue-600 dark:text-blue-400 hover:underline">
+                                           class="text-blue-600 dark:text-blue-400 hover:underline break-all">
                                             {{ basename($submission->file_path) }}
+                                        </a>
+                                    </p>
+                                @endif
+
+                                @if($submission->url_link)
+                                    <p>
+                                        <strong>Link URL:</strong> 
+                                        <a href="{{ $submission->url_link }}" 
+                                           target="_blank"
+                                           class="text-blue-600 dark:text-blue-400 hover:underline break-all">
+                                            {{ $submission->url_link }}
                                         </a>
                                     </p>
                                 @endif

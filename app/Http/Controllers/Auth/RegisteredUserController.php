@@ -30,29 +30,43 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'name'     => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'role'     => ['required', 'in:mahasiswa,dosen'],
+            'nim'      => ['required_if:role,mahasiswa', 'nullable', 'string', 'max:20', 'unique:users,nim'],
+            'nip'      => ['required_if:role,dosen',     'nullable', 'string', 'max:20', 'unique:users,nip'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'nim.required_if' => 'NIM wajib diisi untuk mahasiswa.',
+            'nim.unique'      => 'NIM sudah terdaftar.',
+            'nip.required_if' => 'NIP wajib diisi untuk dosen.',
+            'nip.unique'      => 'NIP sudah terdaftar.',
         ]);
 
+        $isDosen = $request->role === 'dosen';
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => 'mahasiswa',
+            'name'      => $request->name,
+            'email'     => $request->email,
+            'password'  => Hash::make($request->password),
+            'role'      => $request->role,
+            'nim'       => $request->role === 'mahasiswa' ? $request->nim : null,
+            'nip'       => $request->role === 'dosen'     ? $request->nip : null,
+            // Dosen requires admin approval; set inactive until approved
+            'is_active' => !$isDosen,
         ]);
 
         event(new Registered($user));
 
+        if ($isDosen) {
+            // Do NOT auto-login; redirect to login with a pending-approval notice
+            return redirect()->route('login')
+                ->with('status', 'Akun dosen Anda berhasil dibuat dan sedang menunggu persetujuan admin. Anda akan dapat login setelah akun diaktifkan.');
+        }
+
+        // Mahasiswa: login immediately
         Auth::login($user);
 
-        $dashboard = match($user->role) {
-            'admin' => route('admin.dashboard', absolute: false),
-            'dosen' => route('dosen.dashboard', absolute: false),
-            'mahasiswa' => route('mahasiswa.dashboard', absolute: false),
-            default => '/',
-        };
-
-        return redirect($dashboard);
+        return redirect()->route('mahasiswa.dashboard');
     }
 }

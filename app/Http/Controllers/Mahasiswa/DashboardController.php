@@ -12,22 +12,25 @@ class DashboardController extends Controller
     public function index()
     {
         $mahasiswa = auth()->user();
-        $enrolled_courses = $mahasiswa->enrolledCourses()->withCount(['materials', 'assignments'])->get();
-        
-        // Get upcoming assignments
-        $upcoming_assignments = Assignment::whereHas('course.students', function($q) use ($mahasiswa) {
-            $q->where('mahasiswa_id', $mahasiswa->id);
-        })
-        ->where('deadline', '>=', now())
-        ->orderBy('deadline')
-        ->take(5)
-        ->get();
+
+        $enrolled_courses = $mahasiswa->enrolledCourses()
+            ->withCount(['materials', 'assignments'])
+            ->get();
+
+        // Use enrolled course IDs from already-loaded collection to avoid subquery
+        $enrolledCourseIds = $enrolled_courses->pluck('id');
+
+        // Get upcoming assignments using direct IN clause (faster than nested whereHas)
+        $upcoming_assignments = Assignment::whereIn('course_id', $enrolledCourseIds)
+            ->with('course')
+            ->where('deadline', '>=', now())
+            ->orderBy('deadline')
+            ->take(5)
+            ->get();
 
         $stats = [
             'enrolled_courses' => $enrolled_courses->count(),
-            'total_assignments' => Assignment::whereHas('course.students', function($q) use ($mahasiswa) {
-                $q->where('mahasiswa_id', $mahasiswa->id);
-            })->count(),
+            'total_assignments' => Assignment::whereIn('course_id', $enrolledCourseIds)->count(),
             'submitted_assignments' => $mahasiswa->submissions()->count(),
         ];
 

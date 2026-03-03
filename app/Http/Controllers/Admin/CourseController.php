@@ -12,7 +12,7 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Course::query()->with(['dosen', 'students']);
+        $query = \App\Models\Course::query()->with('dosen')->withCount('students');
 
         if ($request->filled('search')) {
             $search = $request->search;

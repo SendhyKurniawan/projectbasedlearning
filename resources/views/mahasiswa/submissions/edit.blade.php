@@ -46,36 +46,67 @@
                             @enderror
                         </div>
 
-                        <!-- Current File -->
-                        @if($submission->file_path)
+                        <!-- Current Submission File/Link -->
+                        @if($assignment->submission_format === 'url' && $submission->url_link)
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                                    <strong>Link URL saat ini:</strong> 
+                                    <a href="{{ $submission->url_link }}" 
+                                       target="_blank"
+                                       class="text-blue-600 dark:text-blue-400 hover:underline break-all">
+                                        {{ $submission->url_link }}
+                                    </a>
+                                </p>
+                            </div>
+                        @elseif($assignment->submission_format === 'pdf' && $submission->file_path)
                             <div class="mb-4">
                                 <p class="text-sm text-gray-700 dark:text-gray-300 mb-2">
                                     <strong>File saat ini:</strong> 
                                     <a href="{{ Storage::url($submission->file_path) }}" 
                                        target="_blank"
-                                       class="text-blue-600 dark:text-blue-400 hover:underline">
+                                       class="text-blue-600 dark:text-blue-400 hover:underline break-all">
                                         {{ basename($submission->file_path) }}
                                     </a>
                                 </p>
                             </div>
                         @endif
 
-                        <!-- New File Upload -->
-                        <div class="mb-6">
-                            <label for="file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Upload File Baru (Opsional, Max 10MB)
-                            </label>
-                            <input type="file" 
-                                   name="file" 
-                                   id="file"
-                                   class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                Kosongkan jika tidak ingin mengubah file
-                            </p>
-                            @error('file')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <!-- New File/Link Upload -->
+                        @if($assignment->submission_format === 'url')
+                            <div class="mb-6">
+                                <label for="url_link" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Ubah Link URL (Opsional)
+                                </label>
+                                <input type="url" 
+                                       name="url_link" 
+                                       id="url_link"
+                                       value="{{ old('url_link', $submission->url_link) }}"
+                                       placeholder="https://..."
+                                       class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Kosongkan jika tidak ingin mengubah link
+                                </p>
+                                @error('url_link')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @else
+                            <div class="mb-6">
+                                <label for="file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Upload File Baru (Opsional, Max 10MB)
+                                </label>
+                                <input type="file" 
+                                       name="file" 
+                                       id="file"
+                                       class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    Kosongkan jika tidak ingin mengubah file
+                                </p>
+                                @error('file')
+                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
 
                         <!-- Submit Buttons -->
                         <div class="flex gap-3">

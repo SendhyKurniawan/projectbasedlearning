@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('course_student', function (Blueprint $table) {
+        Schema::create('enrollments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('course_id')->constrained('courses')->onDelete('cascade');
-            $table->foreignId('student_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('mahasiswa_id')->constrained('users')->onDelete('cascade');
+            $table->decimal('final_grade', 5, 2)->nullable();
             $table->timestamp('enrolled_at')->useCurrent();
             $table->timestamps();
             
             // Prevent duplicate enrollments
-            $table->unique(['course_id', 'student_id']);
+            $table->unique(['course_id', 'mahasiswa_id']);
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('course_student');
+        Schema::dropIfExists('enrollments');
     }
 };

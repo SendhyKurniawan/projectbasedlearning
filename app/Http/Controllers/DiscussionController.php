@@ -15,7 +15,7 @@ class DiscussionController extends Controller
     {
         // Ideally discussions are filtered by course
         $courseId = $request->query('course_id');
-        $query = Discussion::with(['user', 'comments'])->latest();
+        $query = Discussion::with('user')->withCount('comments')->latest();
         
         if ($courseId) {
             $query->where('course_id', $courseId);

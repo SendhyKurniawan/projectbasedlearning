@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Assignment whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Assignment whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @mixin IdeHelperAssignment
  */
 class Assignment extends Model
 {

@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperDiscussionComment
+ */
 class DiscussionComment extends Model
 {
     protected $fillable = [

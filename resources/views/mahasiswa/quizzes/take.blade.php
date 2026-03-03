@@ -3,7 +3,7 @@
         <div class="flex justify-between items-start mb-6">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $assignment->title }}</h1>
-                <p class="text-gray-600 dark:text-gray-400 mt-1">Duration: {{ $assignment->duration_minutes }} Minutes</p>
+                <p class="text-gray-600 dark:text-gray-400 mt-1">Duration: {{ $assignment->duration_minutes ? $assignment->duration_minutes . ' Minutes' : 'Unlimited' }}</p>
             </div>
             <div class="text-right">
                 <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full dark:bg-blue-900 dark:text-blue-200 uppercase font-bold tracking-wide">

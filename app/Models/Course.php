@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -30,9 +31,11 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @mixin IdeHelperCourse
  */
 class Course extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'nama_matkul',
         'kode_matkul',

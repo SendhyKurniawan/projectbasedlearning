@@ -13,9 +13,13 @@ class QuizController extends Controller
 {
     public function show(Assignment $assignment)
     {
-        // Check if student is enrolled in the course
+        // Check if student is enrolled in the course (direct pivot query, faster)
         $mahasiswa = auth()->user();
-        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+        $isEnrolled = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $assignment->course_id)
+            ->exists();
+        if (!$isEnrolled) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
@@ -51,9 +55,13 @@ class QuizController extends Controller
 
     public function start(Assignment $assignment)
     {
-        // Check if student is enrolled
+        // Check if student is enrolled (direct pivot query, faster)
         $mahasiswa = auth()->user();
-        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+        $isEnrolled = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $assignment->course_id)
+            ->exists();
+        if (!$isEnrolled) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
@@ -107,16 +115,21 @@ class QuizController extends Controller
             $answers = $request->input('answers', []);
             $calculatedScore = 0;
 
+            // Pre-fetch all submitted options in a single query to avoid N+1
+            $submittedOptionIds = array_filter(array_values($answers));
+            $correctOptions = QuizOption::whereIn('id', $submittedOptionIds)
+                ->where('assignment_id', $assignment->id)
+                ->where('is_correct', true)
+                ->get()
+                ->keyBy('id');
+
             foreach ($activeQuestions as $question) {
                 $userAnswer = $answers[$question->id] ?? null;
 
                 if ($question->question_type === 'pilihan_ganda') {
-                     if ($userAnswer) {
-                         $selectedOption = QuizOption::find($userAnswer);
-                         if ($selectedOption && $selectedOption->assignment_id == $assignment->id && $selectedOption->is_correct) {
-                             $calculatedScore += $question->score_weight;
-                         }
-                     }
+                    if ($userAnswer && isset($correctOptions[$userAnswer])) {
+                        $calculatedScore += $question->score_weight;
+                    }
                 }
             }
 
@@ -124,7 +137,7 @@ class QuizController extends Controller
                 'finished_at' => now(),
                 'score' => $calculatedScore, // Provisional score (MC only)
                 'answers' => $answers,
-                'status' => 'submitted', // Or keep as is, but 'finished_at' is the key for quizzes
+                'status' => 'submitted',
             ]);
         });
 
