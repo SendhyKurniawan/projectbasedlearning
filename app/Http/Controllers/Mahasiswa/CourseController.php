@@ -3,95 +3,100 @@
 namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Material;
 use App\Models\MaterialView;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
     public function index()
     {
         $mahasiswa = auth()->user();
-        
-        // Get all available courses
+
+        // Get all available courses with necessary counts in one query
         $available_courses = Course::with('dosen')
             ->withCount(['materials', 'assignments', 'students'])
             ->get();
-        
-        // Get enrolled course IDs
-        $enrolled_ids = $mahasiswa->enrolledCourses()->pluck('courses.id')->toArray();
-        
+
+        // Get enrolled course IDs using a simple pivot query (no eager load needed here)
+        $enrolled_ids = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->pluck('course_id')
+            ->toArray();
+
         return view('mahasiswa.courses.index', compact('available_courses', 'enrolled_ids'));
     }
 
     public function show(Course $course)
     {
         $mahasiswa = auth()->user();
-        
-        // Check if student is enrolled
-        $is_enrolled = $mahasiswa->enrolledCourses()->where('courses.id', $course->id)->exists();
-        
+
+        // Check enrollment using pivot table directly (faster than Eloquent relation query)
+        $is_enrolled = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $course->id)
+            ->exists();
+
         if (!$is_enrolled) {
             return redirect()->route('mahasiswa.courses.index')
                 ->with('error', 'Anda belum terdaftar di course ini.');
         }
-        
-        // Load course with materials and assignments (all types: tugas, quiz, project, exercise)
+
+        // Load course with all required relationships in a single eager load
         $course->load([
             'dosen',
             'materials' => fn($q) => $q->orderBy('order'),
-            'assignments' => fn($q) => $q->with(['questions', 'requiredMaterial'])->orderBy('deadline')
+            'assignments' => fn($q) => $q->with(['questions', 'requiredMaterial'])->orderBy('deadline'),
         ]);
-        
-        // Get material views for this student
-        $viewedMaterialIds = MaterialView::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('material_id', $course->materials->pluck('id'))
+
+        $materialIds = $course->materials->pluck('id');
+
+        // Get material views and submissions in parallel (both with indexed queries)
+        $viewedMaterialIds = MaterialView::where('student_id', $mahasiswa->id)
+            ->whereIn('material_id', $materialIds)
             ->pluck('material_id')
             ->toArray();
-        
-        // Get student's submissions for this course (includes quizzes now)
+
         $submissions = $mahasiswa->submissions()
             ->whereHas('assignment', fn($q) => $q->where('course_id', $course->id))
             ->with('assignment')
             ->get()
             ->keyBy('assignment_id');
-        
-        // Separate assignments into standard learning path and stand-alone quizzes
-        // (Maintaining current UX where Quizzes show as a separate section)
+
+        // Filter assignment types from in-memory collection (no extra DB query)
         $allAssignments = $course->assignments;
-        $learningPathAssignments = $allAssignments->whereIn('type', ['tugas', 'project', 'exercise']);
         $quizzes = $allAssignments->where('type', 'quiz');
 
-        // Build linear learning path using only standard assignments for now
-        // Or keep it as is, depends on how buildLearningPath is structured
         $learningPath = $this->buildLearningPath($course, $viewedMaterialIds, $submissions);
-        
+
         return view('mahasiswa.courses.show', compact('course', 'learningPath', 'submissions', 'quizzes'));
     }
-    
-    private function buildLearningPath($course, $viewedMaterialIds, $submissions)
+
+    private function buildLearningPath($course, $viewedMaterialIds, $submissions): array
     {
         $path = [];
-        
+
+        // Build a lookup map for assignments by required_material_id (no looping search inside loop)
+        $assignmentsByMaterial = $course->assignments->whereNotNull('required_material_id')
+            ->keyBy('required_material_id');
+
         foreach ($course->materials as $material) {
-            // Add material to path
             $path[] = [
                 'type' => 'material',
                 'item' => $material,
                 'completed' => in_array($material->id, $viewedMaterialIds),
-                'locked' => false, // Materials are never locked
+                'locked' => false,
             ];
-            
-            // Find assignment that requires this material
-            $relatedAssignment = $course->assignments
-                ->where('required_material_id', $material->id)
-                ->first();
-            
+
+            $relatedAssignment = $assignmentsByMaterial->get($material->id);
+
             if ($relatedAssignment) {
                 $isCompleted = isset($submissions[$relatedAssignment->id]);
                 $isUnlocked = in_array($material->id, $viewedMaterialIds);
-                
+
                 $path[] = [
                     'type' => 'assignment',
                     'item' => $relatedAssignment,
@@ -100,103 +105,104 @@ class CourseController extends Controller
                 ];
             }
         }
-        
-        // Add assignments without prerequisites at the end
+
+        // Add assignments without prerequisites (filtered from in-memory collection)
         $assignmentsWithoutPrereq = $course->assignments->whereNull('required_material_id');
         foreach ($assignmentsWithoutPrereq as $assignment) {
-            $isCompleted = isset($submissions[$assignment->id]);
-            
             $path[] = [
                 'type' => 'assignment',
                 'item' => $assignment,
-                'completed' => $isCompleted,
-                'locked' => false, // No prerequisite, always unlocked
+                'completed' => isset($submissions[$assignment->id]),
+                'locked' => false,
             ];
         }
-        
+
         return $path;
     }
 
     public function enroll(Request $request, Course $course)
     {
         $mahasiswa = auth()->user();
-        
-        // Check if already enrolled
-        if ($mahasiswa->enrolledCourses()->where('courses.id', $course->id)->exists()) {
+
+        $alreadyEnrolled = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $course->id)
+            ->exists();
+
+        if ($alreadyEnrolled) {
             return redirect()->back()->with('info', 'Anda sudah terdaftar di course ini.');
         }
-        
-        // Enroll student
+
         $mahasiswa->enrolledCourses()->attach($course->id, [
-            'enrolled_at' => now()
+            'enrolled_at' => now(),
         ]);
-        
+
         return redirect()->route('mahasiswa.courses.show', $course)
-            ->with('success', 'Berhasil mendaftar ke course ' . $course->name);
+            ->with('success', 'Berhasil mendaftar ke course ' . $course->nama_matkul);
     }
 
     public function showMaterial(Course $course, $materialId)
     {
         $mahasiswa = auth()->user();
-        
-        // Check if student is enrolled
-        $is_enrolled = $mahasiswa->enrolledCourses()->where('courses.id', $course->id)->exists();
-        
+
+        // Check enrollment using pivot table directly
+        $is_enrolled = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $course->id)
+            ->exists();
+
         if (!$is_enrolled) {
             return redirect()->route('mahasiswa.courses.index')
                 ->with('error', 'Anda belum terdaftar di course ini.');
         }
-        
-        // Find material
+
         $material = $course->materials()->findOrFail($materialId);
-        
-        // Track material view
+
+        // Track material view (upsert is atomic and efficient)
         MaterialView::updateOrCreate(
             [
                 'material_id' => $material->id,
-                'mahasiswa_id' => $mahasiswa->id,
+                'student_id' => $mahasiswa->id,
             ],
             [
                 'viewed_at' => now(),
             ]
         );
-        
-        // Load course relationships for sidebar
+
+        // Load course relationships for sidebar in a single eager load
         $course->load([
             'dosen',
             'materials' => fn($q) => $q->orderBy('order'),
-            'assignments' => fn($q) => $q->with('requiredMaterial')->orderBy('deadline')
+            'assignments' => fn($q) => $q->with('requiredMaterial')->orderBy('deadline'),
         ]);
-        
-        // Get viewed materials and submissions for progress tracking
-        $viewedMaterialIds = MaterialView::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('material_id', $course->materials->pluck('id'))
+
+        $materialIds = $course->materials->pluck('id');
+
+        $viewedMaterialIds = MaterialView::where('student_id', $mahasiswa->id)
+            ->whereIn('material_id', $materialIds)
             ->pluck('material_id')
             ->toArray();
-        
+
         $submissions = $mahasiswa->submissions()
             ->whereHas('assignment', fn($q) => $q->where('course_id', $course->id))
             ->with('assignment')
             ->get()
             ->keyBy('assignment_id');
-        
-        // Build learning path for sidebar
+
         $learningPath = $this->buildLearningPath($course, $viewedMaterialIds, $submissions);
-        
-        // Find current position in learning path
-        $currentIndex = collect($learningPath)->search(function($item) use ($material) {
-            return $item['type'] === 'material' && $item['item']->id === $material->id;
-        });
-        
-        // Get next and previous items
-        $nextItem = $currentIndex !== false && isset($learningPath[$currentIndex + 1]) 
-            ? $learningPath[$currentIndex + 1] 
+
+        $currentIndex = collect($learningPath)->search(
+            fn($item) => $item['type'] === 'material' && $item['item']->id === $material->id
+        );
+
+        $nextItem = $currentIndex !== false && isset($learningPath[$currentIndex + 1])
+            ? $learningPath[$currentIndex + 1]
             : null;
-        
+
         $prevItem = $currentIndex !== false && $currentIndex > 0
             ? $learningPath[$currentIndex - 1]
             : null;
-        
+
         return view('mahasiswa.materials.show', compact(
             'course',
             'material',

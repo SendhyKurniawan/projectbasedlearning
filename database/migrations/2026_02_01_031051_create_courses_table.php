@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('courses', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
-            $table->text('description')->nullable();
+            $table->string('kode_matkul')->unique();
+            $table->string('nama_matkul');
+            $table->integer('sks')->default(3);
             $table->foreignId('dosen_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('semester_id')->nullable()->constrained()->onDelete('set null');
+            $table->string('course_img')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

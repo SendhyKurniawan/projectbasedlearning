@@ -26,15 +26,26 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $user = auth()->user();
+
+        // Block inactive accounts (e.g. dosen awaiting admin approval)
+        if (!$user->is_active) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Akun Anda belum diaktifkan. Silakan hubungi admin untuk konfirmasi.']);
+        }
+
         $request->session()->regenerate();
 
         // Redirect to role-specific dashboard
-        $user = auth()->user();
         $dashboard = match($user->role) {
-            'admin' => route('admin.dashboard'),
-            'dosen' => route('dosen.dashboard'),
+            'admin'     => route('admin.dashboard'),
+            'dosen'     => route('dosen.dashboard'),
             'mahasiswa' => route('mahasiswa.dashboard'),
-            default => '/',
+            default     => '/',
         };
 
         return redirect()->intended($dashboard);

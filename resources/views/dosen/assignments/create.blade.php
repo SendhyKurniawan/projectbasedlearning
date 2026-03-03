@@ -14,7 +14,7 @@
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
-                    <form action="{{ route('dosen.assignments.store', $course) }}" method="POST" x-data="{ type: '{{ old('type', 'tugas') }}' }">
+                    <form action="{{ route('dosen.assignments.store', $course) }}" method="POST" x-data="{ type: '{{ old('type', 'tugas') }}', has_duration: {{ old('has_duration', 'true') === 'true' ? 'true' : 'false' }}, submission_format: '{{ old('submission_format', 'pdf') }}' }">
                         @csrf
 
                         <!-- Assignment Type -->
@@ -27,10 +27,9 @@
                                     x-model="type"
                                     class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                     required>
-                                <option value="tugas">Tugas (Upload File)</option>
+                                <option value="tugas">Tugas (Upload File/Link)</option>
                                 <option value="quiz">Quiz (Pilihan Ganda)</option>
                                 <option value="quiz">Quiz (Essay)</option>
-                                <option value="project">Project (Upload File/Link)</option>
                                 <option value="exercise">Exercise (Coding)</option>
                             </select>
                             <p class="text-xs text-gray-500 mt-1" x-show="type === 'quiz'">
@@ -72,35 +71,55 @@
                             @enderror
                         </div>
 
+                        <!-- Tugas Specific Fields -->
+                        <div x-show="type === 'tugas'" class="mb-4 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
+                            <label for="submission_format" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Format Pengumpulan <span class="text-red-500">*</span>
+                            </label>
+                            <select name="submission_format" 
+                                    id="submission_format" 
+                                    x-model="submission_format"
+                                    class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    :required="type === 'tugas'"
+                                    :disabled="type !== 'tugas'">
+                                <option value="pdf">File Upload (PDF, DOCX, ZIP, dll)</option>
+                                <option value="url">Link URL (Github, GDrive, Youtube, dll)</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Pilih apakah mahasiswa mengumpulkan dalam bentuk unggah file (Max 10MB) atau sekedar input kolom teks Link URL.
+                            </p>
+                            @error('submission_format')
+                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Quiz Specific Fields -->
-                        <div x-show="type === 'quiz'" class="grid grid-cols-2 gap-4 mb-4">
+                        <div x-show="type === 'quiz'" class="mb-4">
                             <div>
-                                <label for="quiz_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Nomor Quiz <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" 
-                                       name="quiz_number" 
-                                       id="quiz_number" 
-                                       value="{{ old('quiz_number') }}"
-                                       class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                       :required="type === 'quiz'">
-                                @error('quiz_number')
-                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label for="duration_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Durasi (Menit) <span class="text-red-500">*</span>
-                                </label>
-                                <input type="number" 
-                                       name="duration_minutes" 
-                                       id="duration_minutes" 
-                                       value="{{ old('duration_minutes') }}"
-                                       class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                       :required="type === 'quiz'">
-                                @error('duration_minutes')
-                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                                <div class="flex items-center justify-between mb-2">
+                                    <label for="duration_minutes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                        Durasi (Menit) <span class="text-red-500" x-show="has_duration">*</span>
+                                    </label>
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="has_duration" value="true" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" x-model="has_duration" :disabled="type !== 'quiz'">
+                                        <span class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Gunakan Batas Waktu</span>
+                                    </label>
+                                </div>
+                                <div x-show="has_duration">
+                                    <input type="number" 
+                                           name="duration_minutes" 
+                                           id="duration_minutes" 
+                                           value="{{ old('duration_minutes') }}"
+                                           class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                           :required="type === 'quiz' && has_duration"
+                                           :disabled="type !== 'quiz' || !has_duration">
+                                    @error('duration_minutes')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1" x-show="!has_duration">
+                                    Kuis tidak memiliki batasan waktu (Unlimited).
+                                </p>
                             </div>
                         </div>
 

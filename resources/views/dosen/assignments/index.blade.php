@@ -46,9 +46,9 @@
                                             <span class="px-2 py-1 text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded">
                                                 Quiz
                                             </span>
-                                        @else
+                                        @elseif($assignment->type === 'tugas')
                                             <span class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
-                                                Project
+                                                Tugas
                                             </span>
                                         @endif
                                         

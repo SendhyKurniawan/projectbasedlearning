@@ -23,7 +23,7 @@
                                 </a>
                             </h3>
                             <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                Oleh {{ $discussion->user->name }} &bull; {{ $discussion->created_at->diffForHumans() }} &bull; {{ $discussion->comments->count() }} Komentar
+                                Oleh {{ $discussion->user->name }} &bull; {{ $discussion->created_at->diffForHumans() }} &bull; {{ $discussion->comments_count }} Komentar
                             </div>
                             <p class="mt-2 text-gray-700 dark:text-gray-300">
                                 {{ Str::limit($discussion->content, 150) }}

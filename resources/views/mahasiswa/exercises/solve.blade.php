@@ -52,7 +52,7 @@
                     </div>
 
                     <!-- Hints -->
-                    @if(!empty($assignment->exercise_config['hints']))
+                    @if(!empty(data_get($assignment->exercise_config, 'hints', [])))
                         <div class="bg-blue-50 dark:bg-blue-900 overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6">
                                 <h3 class="text-lg font-semibold mb-3 text-blue-900 dark:text-blue-100">Hints</h3>
@@ -80,7 +80,7 @@
                             </div>
                             
                             <div class="border dark:border-gray-700 rounded-md overflow-hidden">
-                                <textarea id="code-editor">{{ $assignment->exercise_config['starter_code'] }}</textarea>
+                                <textarea id="code-editor">{{ data_get($assignment->exercise_config, 'starter_code', '') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -123,7 +123,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize CodeMirror
             codeEditor = initCodeEditor('code-editor', {
-                mode: '{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}',
+                mode: '{{ data_get($assignment->exercise_config, 'language', 'htmlmixed') }}',
                 lineNumbers: true,
             });
         });

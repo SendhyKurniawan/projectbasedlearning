@@ -66,22 +66,45 @@
                                 @enderror
                             </div>
 
-                            <!-- File Upload -->
-                            <div class="mb-6">
-                                <label for="file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Upload File (Opsional, Max 10MB)
-                                </label>
-                                <input type="file" 
-                                       name="file" 
-                                       id="file"
-                                       class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    Format yang didukung: PDF, DOC, DOCX, ZIP, RAR, JPG, PNG
-                                </p>
-                                @error('file')
-                                    <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            @if($assignment->submission_format === 'url')
+                                <!-- URL Link Input -->
+                                <div class="mb-6">
+                                    <label for="url_link" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Link URL (Wajib)
+                                    </label>
+                                    <input type="url" 
+                                           name="url_link" 
+                                           id="url_link"
+                                           value="{{ old('url_link') }}"
+                                           placeholder="https://..."
+                                           required
+                                           class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Masukkan link hasil pengerjaan (Misal: Google Drive, Github, Youtube). Pastikan link dapat diakses.
+                                    </p>
+                                    @error('url_link')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @else
+                                <!-- File Upload -->
+                                <div class="mb-6">
+                                    <label for="file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Upload File (Wajib, Max 10MB)
+                                    </label>
+                                    <input type="file" 
+                                           name="file" 
+                                           id="file"
+                                           required
+                                           class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Format yang didukung: PDF, DOC, DOCX, ZIP, RAR, JPG, PNG
+                                    </p>
+                                    @error('file')
+                                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            @endif
 
                             <!-- Submit Buttons -->
                             <div class="flex gap-3">

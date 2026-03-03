@@ -11,11 +11,16 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Single query to get user counts grouped by role (instead of 4 separate COUNT queries)
+        $userCounts = User::selectRaw('role, count(*) as total')
+            ->groupBy('role')
+            ->pluck('total', 'role');
+
         $stats = [
-            'total_users' => User::count(),
-            'total_admin' => User::where('role', 'admin')->count(),
-            'total_dosen' => User::where('role', 'dosen')->count(),
-            'total_mahasiswa' => User::where('role', 'mahasiswa')->count(),
+            'total_users' => $userCounts->sum(),
+            'total_admin' => $userCounts->get('admin', 0),
+            'total_dosen' => $userCounts->get('dosen', 0),
+            'total_mahasiswa' => $userCounts->get('mahasiswa', 0),
             'total_courses' => Course::count(),
         ];
 

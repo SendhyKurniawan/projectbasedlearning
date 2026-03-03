@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @mixin IdeHelperMaterialView
+ */
 class MaterialView extends Model
 {
     /**
@@ -17,7 +20,7 @@ class MaterialView extends Model
      */
     protected $fillable = [
         'material_id',
-        'mahasiswa_id',
+        'student_id',
         'viewed_at',
     ];
     
@@ -41,6 +44,6 @@ class MaterialView extends Model
      */
     public function mahasiswa(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'mahasiswa_id');
+        return $this->belongsTo(User::class, 'student_id');
     }
 }

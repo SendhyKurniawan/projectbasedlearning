@@ -12,12 +12,16 @@ class DashboardController extends Controller
     public function index()
     {
         $dosen = auth()->user();
-        $courses = $dosen->courses()->withCount(['materials', 'assignments', 'students'])->get();
-        
-        $total_students = $dosen->courses()->withCount('students')->get()->sum('students_count');
-        $total_assignments = Assignment::whereHas('course', function($q) use ($dosen) {
-            $q->where('dosen_id', $dosen->id);
-        })->count();
+
+        // Load all needed counts in a single query per relationship
+        $courses = $dosen->courses()
+            ->with('semester')
+            ->withCount(['materials', 'assignments', 'students'])
+            ->get();
+
+        // Reuse the already-loaded collection instead of doing a second DB query
+        $total_students = $courses->sum('students_count');
+        $total_assignments = $courses->sum('assignments_count');
 
         $stats = [
             'total_courses' => $courses->count(),

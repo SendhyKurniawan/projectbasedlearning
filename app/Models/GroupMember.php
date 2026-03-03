@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @mixin IdeHelperGroupMember
+ */
 class GroupMember extends Model
 {
     protected $fillable = [

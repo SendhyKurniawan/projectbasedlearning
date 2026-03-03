@@ -14,7 +14,7 @@
                 <div class="inline-flex flex-wrap justify-center gap-4 mb-8">
                     <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         <span class="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-bold">Duration</span>
-                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ $assignment->duration_minutes }} Mins</span>
+                        <span class="block text-lg font-semibold text-gray-900 dark:text-white">{{ $assignment->duration_minutes ? $assignment->duration_minutes . ' Mins' : 'Unlimited' }}</span>
                     </div>
                     <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                         <span class="block text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-bold">Questions</span>

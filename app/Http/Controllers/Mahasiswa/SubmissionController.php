@@ -32,15 +32,23 @@ class SubmissionController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'assignment_id' => 'required|exists:assignments,id',
-            'notes' => 'nullable|string',
-            'file' => 'nullable|file|max:10240', // Max 10MB
-        ]);
-        
-        $mahasiswa = auth()->user();
         $assignment = Assignment::findOrFail($request->assignment_id);
         
+        $rules = [
+            'assignment_id' => 'required|exists:assignments,id',
+            'notes' => 'nullable|string',
+        ];
+
+        if ($assignment->submission_format === 'url') {
+            $rules['url_link'] = 'required|url|max:2048';
+        } else {
+            $rules['file'] = 'required|file|max:10240'; // Max 10MB
+        }
+
+        $request->validate($rules);
+        
+        $mahasiswa = auth()->user();
+
         // Check if student is enrolled
         if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
             return redirect()->route('mahasiswa.dashboard')
@@ -55,13 +63,19 @@ class SubmissionController extends Controller
         if ($existing) {
             return redirect()->back()->with('error', 'Anda sudah mengumpulkan tugas ini.');
         }
-        
-        // Handle file upload
+
+        // Handle file or url upload
         $file_path = null;
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filename = time() . '_' . $mahasiswa->id . '_' . $file->getClientOriginalName();
-            $file_path = $file->storeAs('submissions', $filename, 'public');
+        $url_link = null;
+
+        if ($assignment->submission_format === 'url') {
+            $url_link = $request->url_link;
+        } else {
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time() . '_' . $mahasiswa->id . '_' . $file->getClientOriginalName();
+                $file_path = $file->storeAs('submissions', $filename, 'public');
+            }
         }
         
         // Create submission
@@ -69,6 +83,7 @@ class SubmissionController extends Controller
             'assignment_id' => $assignment->id,
             'mahasiswa_id' => $mahasiswa->id,
             'file_path' => $file_path,
+            'url_link' => $url_link,
             'notes' => $request->notes,
             'submitted_at' => now(),
         ]);
@@ -106,23 +121,37 @@ class SubmissionController extends Controller
             return redirect()->back()->with('error', 'Tugas yang sudah dinilai tidak dapat diubah.');
         }
         
-        $request->validate([
+        $rules = [
             'notes' => 'nullable|string',
-            'file' => 'nullable|file|max:10240',
-        ]);
+        ];
+
+        if ($submission->assignment->submission_format === 'url') {
+            $rules['url_link'] = 'nullable|url|max:2048';
+        } else {
+            $rules['file'] = 'nullable|file|max:10240';
+        }
+        
+        $request->validate($rules);
         
         $data = ['notes' => $request->notes];
         
-        // Handle new file upload
-        if ($request->hasFile('file')) {
-            // Delete old file if exists
-            if ($submission->file_path) {
-                Storage::disk('public')->delete($submission->file_path);
+        // Handle new file or url upload depending on format
+        if ($submission->assignment->submission_format === 'url') {
+            if ($request->filled('url_link')) {
+                $data['url_link'] = $request->url_link;
+                // Don't delete old file if switching formats here, though it relies on Assignment editing
             }
-            
-            $file = $request->file('file');
-            $filename = time() . '_' . auth()->id() . '_' . $file->getClientOriginalName();
-            $data['file_path'] = $file->storeAs('submissions', $filename, 'public');
+        } else {
+            if ($request->hasFile('file')) {
+                // Delete old file if exists
+                if ($submission->file_path) {
+                    Storage::disk('public')->delete($submission->file_path);
+                }
+                
+                $file = $request->file('file');
+                $filename = time() . '_' . auth()->id() . '_' . $file->getClientOriginalName();
+                $data['file_path'] = $file->storeAs('submissions', $filename, 'public');
+            }
         }
         
         $submission->update($data);

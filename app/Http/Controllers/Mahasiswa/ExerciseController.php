@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Submission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ExerciseController extends Controller
 {
@@ -18,8 +19,12 @@ class ExerciseController extends Controller
             abort(404);
         }
         
-        // Check if student is enrolled
-        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+        // Check if student is enrolled (direct pivot query)
+        $isEnrolled = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $assignment->course_id)
+            ->exists();
+        if (!$isEnrolled) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
@@ -44,8 +49,12 @@ class ExerciseController extends Controller
         $mahasiswa = auth()->user();
         $assignment = Assignment::findOrFail($request->assignment_id);
         
-        // Check if enrolled
-        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+        // Check if enrolled (direct pivot query)
+        $isEnrolled = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->where('course_id', $assignment->course_id)
+            ->exists();
+        if (!$isEnrolled) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }

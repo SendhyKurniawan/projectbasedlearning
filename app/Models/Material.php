@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Material whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Material whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @mixin IdeHelperMaterial
  */
 class Material extends Model
 {
