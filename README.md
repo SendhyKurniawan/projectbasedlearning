@@ -4,21 +4,21 @@ Sistem E-Learning berbasis Project Based Learning (PBL) yang dirancang untuk men
 
 ## Fitur Utama
 
-### 👮 Administrator
+### Administrator
 
 - **Manajemen Pengguna**: Registrasi, aktivasi, dan kontrol akses akun (Admin, Dosen, Mahasiswa).
 - **Manajemen Kursus**: Pembuatan mata kuliah, pengaturan semester, dan tahun akademik.
 - **Enrollment**: Pendaftaran mahasiswa ke dalam mata kuliah secara massal atau individual.
 - **Supervisi Sistem**: Monitoring aktivitas dan manajemen data master.
 
-### 👨‍🏫 Dosen
+### Dosen
 
 - **Manajemen Materi**: Unggah bahan ajar dalam bentuk file (PDF) atau tautan video.
 - **Manajemen Tugas**: Pembuatan tugas reguler, proyek, dan kuis.
 - **Evaluasi & Grading**: Penilaian hasil pengerjaan mahasiswa disertai feedback komentar.
 - **Manajemen Soal**: Unified management untuk pertanyaan kuis dan latihan kode.
 
-### 🎓 Mahasiswa
+### Mahasiswa
 
 - **Akses Pembelajaran**: Mengakses materi pada mata kuliah yang diikuti.
 - **Pengumpulan Tugas**: Submit tugas secara online dengan status pelacakan (Submitted, Late, Graded).
