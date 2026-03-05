@@ -2,7 +2,9 @@
 
 
     <div class="py-6">
-        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="px-4 sm:px-6 lg:px-8">
+
+
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">

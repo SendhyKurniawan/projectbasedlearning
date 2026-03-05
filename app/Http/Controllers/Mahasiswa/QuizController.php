@@ -115,13 +115,23 @@ class QuizController extends Controller
             $answers = $request->input('answers', []);
             $calculatedScore = 0;
 
-            // Pre-fetch all submitted options in a single query to avoid N+1
-            $submittedOptionIds = array_filter(array_values($answers));
-            $correctOptions = QuizOption::whereIn('id', $submittedOptionIds)
-                ->where('assignment_id', $assignment->id)
-                ->where('is_correct', true)
-                ->get()
-                ->keyBy('id');
+            // Gather only numeric answers corresponding to multiple choice questions
+            $mcQuestionIds = $activeQuestions->where('question_type', 'pilihan_ganda')->pluck('id')->toArray();
+            $submittedOptionIds = [];
+            foreach ($mcQuestionIds as $qId) {
+                if (isset($answers[$qId]) && is_numeric($answers[$qId])) {
+                    $submittedOptionIds[] = $answers[$qId];
+                }
+            }
+
+            // Pre-fetch all submitted correct options in a single query
+            $correctOptions = collect();
+            if (!empty($submittedOptionIds)) {
+                $correctOptions = QuizOption::whereIn('id', $submittedOptionIds)
+                    ->where('is_correct', true)
+                    ->get()
+                    ->keyBy('id');
+            }
 
             foreach ($activeQuestions as $question) {
                 $userAnswer = $answers[$question->id] ?? null;

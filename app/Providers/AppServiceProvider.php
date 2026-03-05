@@ -24,5 +24,11 @@ class AppServiceProvider extends ServiceProvider
         // This will throw an exception if a relationship is lazy-loaded,
         // forcing eager loading to be used. Remove this in production.
         Model::preventLazyLoading(!app()->isProduction());
+
+        \Illuminate\Support\Facades\View::composer(
+            'layouts.sidebar',
+            \App\Http\View\Composers\SidebarComposer::class
+        );
+        Model::preventLazyLoading(!app()->isProduction());
     }
 }

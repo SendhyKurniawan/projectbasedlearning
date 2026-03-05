@@ -74,5 +74,8 @@ class Course extends Model
             ->withTimestamps();
     }
 
-
+    public function conferences()
+    {
+        return $this->hasMany(\App\Models\Conference::class);
+    }
 }

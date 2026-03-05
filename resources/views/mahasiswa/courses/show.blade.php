@@ -12,7 +12,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <div class="sm:px-6 lg:px-8">
             @if(session('success'))
                 <div class="alert alert-success mb-4">
                     <svg class="w-5 h-5 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">

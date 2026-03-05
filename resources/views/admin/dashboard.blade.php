@@ -2,7 +2,7 @@
 
 
     <div class="py-6">
-        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="px-4 sm:px-6 lg:px-8">
             
             <!-- Welcome Section -->
             <div class="mb-8">

@@ -9,7 +9,8 @@ export default defineConfig({
                 'resources/css/design-system.css',
                 'resources/js/app.js',
                 'resources/js/code-editor.js',
-                'resources/js/markdown-editor.js'
+                'resources/js/markdown-editor.js',
+                'resources/js/conference-room.js'
             ],
             refresh: true,
         }),
