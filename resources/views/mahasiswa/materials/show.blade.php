@@ -141,19 +141,15 @@
                     </div>
 
                     <!-- Material Content -->
-                    <div class="card mb-6">
-                        @if($material->content)
+                    @if($material->content)
+                        <div class="card mb-6">
                             <div class="prose dark:prose-invert max-w-none markdown-content" 
                                  id="material-content" 
                                  data-markdown="{{ base64_encode($material->content) }}"></div>
-                        @else
-                            <p class="text-gray-500 dark:text-gray-400 text-center py-8">
-                                Tidak ada konten untuk materi ini.
-                            </p>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
 
-                    <!-- Material File Download -->
+                    <!-- Material File Download / Viewer -->
                     @if($material->file_path)
                         <div class="card mb-6">
                             <h3 class="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -162,6 +158,29 @@
                                 </svg>
                                 File Lampiran
                             </h3>
+                            
+                            @if(Str::endsWith(strtolower($material->file_path), ['.pdf']))
+                                <div x-data="{ fullscreen: false }" class="mb-4">
+                                    <div class="flex justify-end mb-2">
+                                        <button @click="fullscreen = !fullscreen" class="text-sm flex items-center gap-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                                            <svg x-show="!fullscreen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                                            <svg x-show="fullscreen" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            <span x-text="fullscreen ? 'Tutup Fullscreen' : 'Fullscreen'"></span>
+                                        </button>
+                                    </div>
+                                    <div :class="{'fixed inset-0 z-[100] bg-gray-900/95 flex flex-col p-4': fullscreen, 'border dark:border-gray-700 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900': !fullscreen}">
+                                        <div x-show="fullscreen" x-cloak class="flex justify-end mb-4">
+                                            <button @click="fullscreen = false" class="text-white bg-red-600 hover:bg-red-700 rounded px-4 py-2 font-semibold shadow">Tutup</button>
+                                        </div>
+                                        <iframe src="{{ Storage::url($material->file_path) }}" :class="{'w-full h-full rounded': fullscreen, 'w-full min-h-[800px]': !fullscreen}" frameborder="0"></iframe>
+                                    </div>
+                                </div>
+                            @elseif(Str::endsWith(strtolower($material->file_path), ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp']))
+                                <div class="mb-4 border dark:border-gray-700 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 flex justify-center p-4">
+                                    <img src="{{ Storage::url($material->file_path) }}" alt="{{ basename($material->file_path) }}" class="max-w-full h-auto rounded">
+                                </div>
+                            @endif
+
                             <a href="{{ Storage::url($material->file_path) }}" 
                                target="_blank"
                                class="btn btn-primary inline-flex items-center gap-2">

@@ -1,6 +1,6 @@
 <nav x-data="{ open: false }" class="bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
@@ -29,9 +29,15 @@
                             <x-nav-link :href="route('admin.semesters.index')" :active="request()->routeIs('admin.semesters.*')">
                                 {{ __('Semester') }}
                             </x-nav-link>
+                            <x-nav-link :href="route('admin.grades.index')" :active="request()->routeIs('admin.grades.*')">
+                                {{ __('Manajemen Nilai') }}
+                            </x-nav-link>
                         @elseif(auth()->user()->role === 'dosen')
                             <x-nav-link :href="route('dosen.dashboard')" :active="request()->routeIs('dosen.dashboard')">
                                 {{ __('Dashboard') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('dosen.grades.index')" :active="request()->routeIs('dosen.grades.*')">
+                                {{ __('Manajemen Nilai') }}
                             </x-nav-link>
                         @elseif(auth()->user()->role === 'mahasiswa')
                             <x-nav-link :href="route('mahasiswa.dashboard')" :active="request()->routeIs('mahasiswa.dashboard')">
@@ -39,6 +45,9 @@
                             </x-nav-link>
                             <x-nav-link :href="route('mahasiswa.courses.index')" :active="request()->routeIs('mahasiswa.courses.*')">
                                 {{ __('Mata Kuliah') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('mahasiswa.grades.index')" :active="request()->routeIs('mahasiswa.grades.*')">
+                                {{ __('Manajemen Nilai') }}
                             </x-nav-link>
                         @endif
                     @endauth
@@ -99,13 +108,22 @@
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.grades.index')" :active="request()->routeIs('admin.grades.*')">
+                        {{ __('Manajemen Nilai') }}
+                    </x-responsive-nav-link>
                 @elseif(auth()->user()->role === 'dosen')
                     <x-responsive-nav-link :href="route('dosen.dashboard')" :active="request()->routeIs('dosen.dashboard')">
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('dosen.grades.index')" :active="request()->routeIs('dosen.grades.*')">
+                        {{ __('Manajemen Nilai') }}
+                    </x-responsive-nav-link>
                 @elseif(auth()->user()->role === 'mahasiswa')
                     <x-responsive-nav-link :href="route('mahasiswa.dashboard')" :active="request()->routeIs('mahasiswa.dashboard')">
                         {{ __('Dashboard') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('mahasiswa.grades.index')" :active="request()->routeIs('mahasiswa.grades.*')">
+                        {{ __('Manajemen Nilai') }}
                     </x-responsive-nav-link>
                 @endif
             @endauth

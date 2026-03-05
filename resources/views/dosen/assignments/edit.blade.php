@@ -11,7 +11,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+        <div class="sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <form action="{{ route('dosen.assignments.update', $assignment) }}" method="POST" x-data="{ type: '{{ old('type', $assignment->type) }}', has_duration: {{ old('has_duration', is_null($assignment->duration_minutes) ? 'false' : 'true') === 'true' ? 'true' : 'false' }}, submission_format: '{{ old('submission_format', $assignment->submission_format ?? 'pdf') }}' }">

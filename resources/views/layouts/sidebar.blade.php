@@ -10,7 +10,7 @@
         @endphp
         <a href="{{ route($dashboardRoute) }}" class="flex items-center gap-2 font-bold text-xl text-blue-600 dark:text-blue-400">
             <x-application-logo class="block h-8 w-auto fill-current" />
-            <span>PJBL App</span>
+            <span>PBL App</span>
         </a>
         
         <!-- Mobile Close Button -->
@@ -22,43 +22,103 @@
     </div>
 
     <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-        @auth
-            @if(auth()->user()->role === 'admin')
-                <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" class="w-full justify-start">
-                    {{ __('Dashboard') }}
-                </x-nav-link>
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Management</div>
-                <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="w-full justify-start">
-                    {{ __('Users') }}
-                </x-nav-link>
-                <x-nav-link :href="route('admin.courses.index')" :active="request()->routeIs('admin.courses.*')" class="w-full justify-start">
-                    {{ __('Courses') }}
-                </x-nav-link>
-                 <x-nav-link :href="route('admin.academic-years.index')" :active="request()->routeIs('admin.academic-years.*')" class="w-full justify-start">
-                    {{ __('Tahun Akademik') }}
-                </x-nav-link>
-                <x-nav-link :href="route('admin.semesters.index')" :active="request()->routeIs('admin.semesters.*')" class="w-full justify-start">
-                    {{ __('Semester') }}
-                </x-nav-link>
-            @elseif(auth()->user()->role === 'dosen')
-                <x-nav-link :href="route('dosen.dashboard')" :active="request()->routeIs('dosen.dashboard')" class="w-full justify-start">
-                    {{ __('Dashboard') }}
-                </x-nav-link>
-            @elseif(auth()->user()->role === 'mahasiswa')
-                <x-nav-link :href="route('mahasiswa.dashboard')" :active="request()->routeIs('mahasiswa.dashboard')" class="w-full justify-start">
-                    {{ __('Dashboard') }}
-                </x-nav-link>
-                <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Learning</div>
-                <x-nav-link :href="route('mahasiswa.courses.index')" :active="request()->routeIs('mahasiswa.courses.*')" class="w-full justify-start">
-                    {{ __('Mata Kuliah') }}
-                </x-nav-link>
-            @endif
-        @endauth
-        
-        <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Community</div>
-        <x-nav-link :href="route('discussions.index')" :active="request()->routeIs('discussions.*')" class="w-full justify-start">
-            {{ __('Forum Diskusi') }}
-        </x-nav-link>
+        <div class="space-y-1">
+            @php
+                $activeClass = 'bg-purple-100 text-purple-700 font-medium dark:bg-purple-900/50 dark:text-purple-300 rounded-md';
+                $inactiveClass = 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700/50 rounded-md';
+            @endphp
+            @auth
+                @if(auth()->user()->role === 'admin')
+                    <a href="{{ route('admin.dashboard') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.dashboard') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Dashboard') }}
+                    </a>
+                    
+                    <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Manajemen</div>
+                    
+                    <a href="{{ route('admin.grades.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.grades.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Manajemen Nilai') }}
+                    </a>
+                    <a href="{{ route('admin.users.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.users.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Users') }}
+                    </a>
+                    <a href="{{ route('admin.courses.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.courses.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Courses') }}
+                    </a>
+                    <a href="{{ route('admin.academic-years.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.academic-years.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Tahun Akademik') }}
+                    </a>
+                    <a href="{{ route('admin.semesters.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.semesters.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Semester') }}
+                    </a>
+                    
+                @elseif(auth()->user()->role === 'dosen')
+                    <a href="{{ route('dosen.dashboard') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('dosen.dashboard') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Dashboard') }}
+                    </a>
+                    
+                    <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Manajemen</div>
+                    
+                    <a href="{{ route('dosen.grades.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('dosen.grades.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Manajemen Nilai') }}
+                    </a>
+                    
+                    <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Materi & Tugas</div>
+                    
+                    @if(isset($dosenCourses) && $dosenCourses->count() > 0)
+                        <div class="space-y-2 pb-2">
+                            @foreach($dosenCourses as $course)
+                                @php
+                                    $reqCourseId = request()->route('course') instanceof \App\Models\Course ? request()->route('course')->id : request()->route('course');
+                                    $isCourseActive = request()->routeIs('dosen.materials.*', 'dosen.assignments.*') && $reqCourseId == $course->id;
+                                @endphp
+                                <div class="w-full">
+                                    <div class="w-full flex items-center justify-between pl-8 pr-3 py-1 text-sm text-gray-700 font-medium dark:text-gray-300">
+                                        <span class="truncate pr-2">{{ Str::limit($course->nama_matkul, 28) }}</span>
+                                    </div>
+                                    
+                                    <div class="mt-1 space-y-1">
+                                        <a href="{{ route('dosen.materials.index', $course) }}" class="block w-full py-1.5 pl-12 pr-3 {{ request()->routeIs('dosen.materials.*') && $reqCourseId == $course->id ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                                            Kelola Materi
+                                        </a>
+                                        <a href="{{ route('dosen.assignments.index', $course) }}" class="block w-full py-1.5 pl-12 pr-3 {{ request()->routeIs('dosen.assignments.*') && $reqCourseId == $course->id ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                                            Kelola Tugas
+                                        </a>
+                                        <a href="{{ route('dosen.conferences.index', $course) }}" class="block w-full py-1.5 pl-12 pr-3 {{ request()->routeIs('dosen.conferences.*') && $reqCourseId == $course->id ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                                            Kelas Virtual
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="pl-8 pr-3 text-xs text-gray-500 italic">Belum ada mata kuliah</div>
+                    @endif
+                    
+                @elseif(auth()->user()->role === 'mahasiswa')
+                    <a href="{{ route('mahasiswa.dashboard') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('mahasiswa.dashboard') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Dashboard') }}
+                    </a>
+                    
+                    <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Learning</div>
+                    
+                    <a href="{{ route('mahasiswa.grades.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('mahasiswa.grades.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Nilai Saya') }}
+                    </a>
+                    <a href="{{ route('mahasiswa.courses.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('mahasiswa.courses.*', 'mahasiswa.materials.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Mata Kuliah') }}
+                    </a>
+                    <a href="{{ route('mahasiswa.conferences.index', request()->route('course') instanceof \App\Models\Course ? request()->route('course') : (\App\Models\Course::whereHas('students', fn($q) => $q->where('mahasiswa_id', auth()->id()))->first() ?? 1)) }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('mahasiswa.conferences.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Kelas Virtual') }}
+                    </a>
+                @endif
+            @endauth
+            
+            <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Community</div>
+            
+            <a href="{{ route('discussions.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('discussions.*') ? $activeClass : $inactiveClass }} text-sm transition-colors mb-4">
+                {{ __('Forum Diskusi') }}
+            </a>
+        </div>
     </div>
 
     <div class="p-4 border-t border-gray-100 dark:border-gray-700">

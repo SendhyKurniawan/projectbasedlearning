@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="min-h-screen bg-gray-100 dark:bg-gray-900 py-12">
-        <div class="max-w-4xl mx-auto px-6 lg:px-8">
+        <div class="px-6 lg:px-8">
             <!-- Header with Timer -->
             <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4" x-data="timer({{ $quiz->duration_minutes }}, '{{ $attempt->started_at }}')">
                 <div>

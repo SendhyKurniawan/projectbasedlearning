@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="max-w-4xl mx-auto py-8">
+    <div class="py-8">
         <div class="mb-6">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ $assignment->title }} - Results</h1>
             <p class="text-gray-600 dark:text-gray-400 mt-1">
@@ -13,9 +13,6 @@
             <div class="text-5xl font-bold text-blue-600 dark:text-blue-400 mt-2">
                 {{ $submission->score ?? 0 }} <span class="text-lg text-gray-500">/ {{ $assignment->questions->sum('score_weight') }}</span>
             </div>
-            <p class="text-sm text-gray-500 mt-2">
-                (Score includes auto-graded questions only. Essay/Code questions may need manual grading.)
-            </p>
             <div class="mt-6">
                 <a href="{{ route('mahasiswa.courses.show', $assignment->course) }}" class="inline-block px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
                     Back to Course

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'PJBL') }}</title>
+        <title>{{ config('app.name', 'PBL') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -32,7 +32,7 @@
             @include('layouts.sidebar')
 
             <!-- Main Content Wrapper -->
-            <div class="flex-1 flex flex-col h-full overflow-hidden relative">
+            <div class="flex-1 flex flex-col h-full overflow-hidden relative [transform:translateZ(0)]">
                 
                 <!-- Mobile Toggle (Floating) -->
                 <div class="lg:hidden absolute top-4 left-4 z-50">
@@ -46,7 +46,7 @@
                 <!-- Page Heading -->
                 @if (isset($header))
                     <header class="bg-white dark:bg-gray-800 shadow">
-                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 pt-16 lg:pt-6">
+                        <div class="py-6 px-4 sm:px-6 lg:px-8 pt-16 lg:pt-6">
                             {{ $header }}
                         </div>
                     </header>

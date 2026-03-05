@@ -14,7 +14,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="sm:px-6 lg:px-8">
             
             @if($existing)
                 <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded-lg p-4 mb-6">
@@ -101,8 +101,8 @@
                             <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
                             <input type="hidden" name="code_answer" id="code-answer-input">
                             
-                            <button type="submit" 
-                                    onclick="return confirmSubmit()"
+                            <button type="button" 
+                                    onclick="confirmSubmit()"
                                     class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded font-semibold">
                                 Submit Solution
                             </button>
@@ -134,14 +134,17 @@
 
         function confirmSubmit() {
             if (!confirm('Yakin ingin submit solution? Pastikan kode Anda sudah benar!')) {
-                return false;
+                return;
             }
 
             // Get code from editor and put to hidden input
-            const code = codeEditor.getValue();
-            document.getElementById('code-answer-input').value = code;
-            
-            return true;
+            if (typeof codeEditor !== 'undefined' && codeEditor) {
+                const code = codeEditor.getValue();
+                document.getElementById('code-answer-input').value = code;
+                document.getElementById('submit-form').submit();
+            } else {
+                alert('Tunggu sebentar, code editor sedang dimuat...');
+            }
         }
     </script>
 </x-app-layout>

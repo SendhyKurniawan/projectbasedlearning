@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="max-w-6xl mx-auto py-6">
+    <div class="py-6">
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Questions - {{ $assignment->title }}</h2>
