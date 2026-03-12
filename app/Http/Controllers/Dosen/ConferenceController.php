@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Conference;
 use App\Models\Course;
+use App\Models\User;
+use App\Notifications\AcademicUpdateNotification;
 use Agence104\LiveKit\AccessToken;
 use Agence104\LiveKit\AccessTokenOptions;
 use Agence104\LiveKit\VideoGrant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Notification;
 
 class ConferenceController extends Controller
 {
@@ -45,6 +48,18 @@ class ConferenceController extends Controller
             'status' => 'scheduled',
         ]);
 
+        // Notify enrolled students
+        $students = User::whereHas('enrollments', function($q) use ($course) {
+            $q->where('course_id', $course->id);
+        })->get();
+        if ($students->isNotEmpty()) {
+            Notification::send($students, new AcademicUpdateNotification(
+                'Jadwal Kelas Virtual Baru',
+                "Kelas virtual '{$conference->title}' telah dijadwalkan pada mata kuliah {$course->nama_matkul}.",
+                route('mahasiswa.conferences.index', $course)
+            ));
+        }
+
         return redirect()
             ->route('dosen.conferences.index', $course)
             ->with('success', 'Jadwal konferensi berhasil dibuat.');
@@ -69,6 +84,18 @@ class ConferenceController extends Controller
         ]);
 
         $conference->update($validated);
+
+        // Notify enrolled students
+        $students = User::whereHas('enrollments', function($q) use ($conference) {
+            $q->where('course_id', $conference->course_id);
+        })->get();
+        if ($students->isNotEmpty()) {
+            Notification::send($students, new AcademicUpdateNotification(
+                'Jadwal Kelas Virtual Diperbarui',
+                "Jadwal kelas virtual '{$conference->title}' pada mata kuliah {$conference->course->nama_matkul} telah diperbarui.",
+                route('mahasiswa.conferences.index', $conference->course)
+            ));
+        }
 
         return redirect()
             ->route('dosen.conferences.index', $conference->course)

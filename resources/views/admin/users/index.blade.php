@@ -85,14 +85,55 @@
                         @endif
                     </form>
 
+                    {{-- Bulk Actions Toolbar (Alpine Context) --}}
+                    <div x-data="{
+                        selectAll: false,
+                        selectedUsers: [],
+                        toggleAll() {
+                            if (this.selectAll) {
+                                this.selectedUsers = Array.from(document.querySelectorAll('.user-checkbox')).map(cb => cb.value);
+                            } else {
+                                this.selectedUsers = [];
+                            }
+                        },
+                        checkSelection() {
+                            const checkboxes = document.querySelectorAll('.user-checkbox');
+                            this.selectAll = checkboxes.length > 0 && checkboxes.length === this.selectedUsers.length;
+                        }
+                    }">
+                        <div x-show="selectedUsers.length > 0" x-transition.opacity
+                             class="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between" style="display: none;">
+                            <span class="text-sm font-medium text-indigo-800 dark:text-indigo-200">
+                                <span x-text="selectedUsers.length"></span> user terpilih
+                            </span>
+                            
+                            <div class="flex gap-2">
+                                <form action="{{ route('admin.users.bulk-destroy') }}" method="POST" x-ref="bulkDeleteForm">
+                                    @csrf
+                                    @method('DELETE')
+                                    <template x-for="id in selectedUsers" :key="id">
+                                        <input type="hidden" name="user_ids[]" :value="id">
+                                    </template>
+                                    <button type="button" @click="if(confirm('Yakin ingin menghapus ' + selectedUsers.length + ' user terpilih?')) $refs.bulkDeleteForm.submit()"
+                                            class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded transition shadow-sm">
+                                        Hapus Terpilih
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
                     {{-- Table --}}
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                             <thead>
                                 <tr>
+                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-10">
+                                        <input type="checkbox" x-model="selectAll" @change="toggleAll" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700">
+                                    </th>
                                     <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nama</th>
                                     <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
                                     <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">NIM/NIP</th>
+                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kelas / Prodi</th>
                                     <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
                                     <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                                     <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Bergabung</th>
@@ -101,7 +142,14 @@
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 @forelse($users as $user)
-                                    <tr class="{{ !$user->is_active ? 'opacity-70' : '' }}">
+                                    <tr class="{{ !$user->is_active ? 'opacity-70' : '' }} hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
+                                        <td class="px-4 py-3 whitespace-nowrap">
+                                            @if($user->id !== auth()->id())
+                                                <input type="checkbox" value="{{ $user->id }}" x-model="selectedUsers" @change="checkSelection" class="user-checkbox rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700">
+                                            @else
+                                                <input type="checkbox" disabled class="rounded border-gray-300 text-gray-400 bg-gray-100 dark:border-gray-600 dark:bg-gray-700 opacity-50 cursor-not-allowed">
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-3 whitespace-nowrap">
                                             <div class="font-medium text-gray-900 dark:text-gray-100 text-sm">{{ $user->name }}</div>
                                         </td>
@@ -113,6 +161,16 @@
                                                 <span class="font-mono text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">{{ $user->nim }}</span>
                                             @elseif($user->nip)
                                                 <span class="font-mono text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded">{{ $user->nip }}</span>
+                                            @else
+                                                <span class="text-gray-400">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                            @if($user->role === 'mahasiswa' && $user->studentClass)
+                                                <div class="flex flex-col">
+                                                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $user->studentClass->name }}</span>
+                                                    <span class="text-xs text-gray-500">{{ $user->studentClass->studyProgram->name ?? '-' }} ({{ $user->studentClass->studyProgram->level ?? '-' }})</span>
+                                                </div>
                                             @else
                                                 <span class="text-gray-400">-</span>
                                             @endif
@@ -182,7 +240,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        <td colspan="9" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                                             Tidak ada user yang ditemukan.
                                         </td>
                                     </tr>
@@ -190,6 +248,7 @@
                             </tbody>
                         </table>
                     </div>
+                    </div> {{-- End Bulk Actions Alpine Context --}}
 
                     {{-- Pagination --}}
                     <div class="mt-4">

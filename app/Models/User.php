@@ -60,6 +60,7 @@ class User extends Authenticatable
         'nim',
         'nip',
         'sso_id',
+        'student_class_id',
         'is_active',
     ];
 
@@ -111,6 +112,11 @@ class User extends Authenticatable
     public function courses()
     {
         return $this->hasMany(\App\Models\Course::class, 'dosen_id');
+    }
+
+    public function studentClass()
+    {
+        return $this->belongsTo(\App\Models\StudentClass::class, 'student_class_id');
     }
 
     public function enrolledCourses()

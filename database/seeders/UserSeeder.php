@@ -48,6 +48,7 @@ class UserSeeder extends Seeder
             'email' => 'mahasiswa@pjbl.test',
             'password' => bcrypt('password'),
             'role' => 'mahasiswa',
+            'student_class_id' => 1,
         ]);
 
         $students = [
@@ -64,6 +65,7 @@ class UserSeeder extends Seeder
                 'email' => $student['email'],
                 'password' => bcrypt('password'),
                 'role' => 'mahasiswa',
+                'student_class_id' => rand(1, 2),
             ]);
         }
     }

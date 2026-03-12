@@ -12,7 +12,7 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Course::query()->with('dosen')->withCount('students');
+        $query = \App\Models\Course::query()->with('dosen:id,name')->select('id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'sks', 'semester_id', 'student_class_id', 'created_at')->withCount('students');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -35,8 +35,10 @@ class CourseController extends Controller
      */
     public function create()
     {
-        $dosens = \App\Models\User::where('role', 'dosen')->get();
-        return view('admin.courses.create', compact('dosens'));
+        $dosens = \App\Models\User::where('role', 'dosen')->select('id', 'name')->get();
+        $classes = \App\Models\StudentClass::with('studyProgram:id,name,level')->select('id', 'name', 'study_program_id')->get();
+        $semesters = \App\Models\Semester::with('academicYear:id,year_start,year_end')->select('id', 'name', 'academic_year_id')->get();
+        return view('admin.courses.create', compact('dosens', 'classes', 'semesters'));
     }
 
     /**
@@ -49,6 +51,8 @@ class CourseController extends Controller
             'kode_matkul' => ['required', 'string', 'max:50', 'unique:courses,kode_matkul'],
             'description' => ['nullable', 'string'],
             'dosen_id' => ['required', 'exists:users,id'],
+            'student_class_id' => ['nullable', 'exists:student_classes,id'],
+            'semester_id' => ['required', 'exists:semesters,id'],
         ]);
 
         // Verify assigned user is actually a dosen
@@ -78,6 +82,8 @@ class CourseController extends Controller
     {
         $course = \App\Models\Course::with('students')->findOrFail($id);
         $dosens = \App\Models\User::where('role', 'dosen')->get();
+        $classes = \App\Models\StudentClass::with('studyProgram')->get();
+        $semesters = \App\Models\Semester::with('academicYear')->get();
         
         // Get students not yet enrolled in this course for the dropdown
         $enrolledStudentIds = $course->students->pluck('id')->toArray();
@@ -86,7 +92,7 @@ class CourseController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('admin.courses.edit', compact('course', 'dosens', 'availableStudents'));
+        return view('admin.courses.edit', compact('course', 'dosens', 'availableStudents', 'classes', 'semesters'));
     }
 
     /**
@@ -101,6 +107,8 @@ class CourseController extends Controller
             'kode_matkul' => ['required', 'string', 'max:50', 'unique:courses,kode_matkul,'.$course->id],
             'description' => ['nullable', 'string'],
             'dosen_id' => ['required', 'exists:users,id'],
+            'student_class_id' => ['nullable', 'exists:student_classes,id'],
+            'semester_id' => ['required', 'exists:semesters,id'],
         ]);
 
         $course->update($validated);

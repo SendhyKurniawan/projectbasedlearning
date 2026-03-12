@@ -61,6 +61,38 @@
                             @enderror
                         </div>
 
+                        <!-- Class (Optional) -->
+                        <div class="form-group">
+                            <label class="form-label" for="student_class_id">Kelas (Opsional)</label>
+                            <select class="form-select" id="student_class_id" name="student_class_id">
+                                <option value="">Pilih Kelas</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->id }}" {{ old('student_class_id') == $class->id ? 'selected' : '' }}>
+                                        {{ $class->name }} ({{ $class->studyProgram->name }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('student_class_id')
+                                <span class="form-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <!-- Semester -->
+                        <div class="form-group">
+                            <label class="form-label" for="semester_id">Semester</label>
+                            <select class="form-select" id="semester_id" name="semester_id" required>
+                                <option value="" disabled selected>Pilih Semester</option>
+                                @foreach($semesters as $semester)
+                                    <option value="{{ $semester->id }}" {{ old('semester_id') == $semester->id ? 'selected' : '' }}>
+                                        {{ $semester->name }} ({{ $semester->academicYear->year_start }}/{{ $semester->academicYear->year_end }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('semester_id')
+                                <span class="form-error">{{ $message }}</span>
+                            @enderror
+                        </div>
+
                         <div class="flex items-center justify-end mt-4">
                             <a href="{{ route('admin.courses.index') }}" class="btn btn-secondary mr-3">
                                 Cancel

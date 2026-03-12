@@ -43,6 +43,7 @@ class Course extends Model
         'dosen_id',
         'sks',
         'semester_id',
+        'student_class_id',
         'course_img',
     ];
 
@@ -55,6 +56,11 @@ class Course extends Model
     public function semester()
     {
         return $this->belongsTo(\App\Models\Semester::class);
+    }
+
+    public function studentClass()
+    {
+        return $this->belongsTo(\App\Models\StudentClass::class, 'student_class_id');
     }
 
     public function materials()

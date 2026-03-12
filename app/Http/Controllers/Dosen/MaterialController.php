@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Material;
+use App\Models\User;
+use App\Notifications\AcademicUpdateNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 
 class MaterialController extends Controller
 {
@@ -56,7 +59,20 @@ class MaterialController extends Controller
             $data['file_path'] = $file->storeAs('materials', $filename, 'public');
         }
         
-        Material::create($data);
+        $material = Material::create($data);
+        
+        // Notify enrolled students
+        $students = User::whereHas('enrollments', function($q) use ($course) {
+            $q->where('course_id', $course->id);
+        })->get();
+        
+        if ($students->isNotEmpty()) {
+            Notification::send($students, new AcademicUpdateNotification(
+                'Materi Baru Ditambahkan',
+                "Materi baru '{$material->title}' telah ditambahkan pada mata kuliah {$course->nama_matkul}.",
+                route('mahasiswa.materials.show', [$course, $material])
+            ));
+        }
         
         return redirect()->route('dosen.materials.index', $course)
             ->with('success', 'Materi berhasil ditambahkan!');
@@ -105,6 +121,19 @@ class MaterialController extends Controller
         }
         
         $material->update($data);
+        
+        // Notify enrolled students
+        $students = User::whereHas('enrollments', function($q) use ($course) {
+            $q->where('course_id', $course->id);
+        })->get();
+        
+        if ($students->isNotEmpty()) {
+            Notification::send($students, new AcademicUpdateNotification(
+                'Materi Diperbarui',
+                "Materi '{$material->title}' pada mata kuliah {$course->nama_matkul} telah diperbarui.",
+                route('mahasiswa.materials.show', [$course, $material])
+            ));
+        }
         
         return redirect()->route('dosen.materials.index', $course)
             ->with('success', 'Materi berhasil diperbarui!');

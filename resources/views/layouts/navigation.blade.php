@@ -23,11 +23,14 @@
                             <x-nav-link :href="route('admin.courses.index')" :active="request()->routeIs('admin.courses.*')">
                                 {{ __('Courses') }}
                             </x-nav-link>
-                             <x-nav-link :href="route('admin.academic-years.index')" :active="request()->routeIs('admin.academic-years.*')">
+                            <x-nav-link :href="route('admin.academic-years.index')" :active="request()->routeIs('admin.academic-years.*')">
                                 {{ __('Tahun Akademik') }}
                             </x-nav-link>
                             <x-nav-link :href="route('admin.semesters.index')" :active="request()->routeIs('admin.semesters.*')">
                                 {{ __('Semester') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('admin.hierarchy.index')" :active="request()->routeIs('admin.hierarchy.*')">
+                                {{ __('Data Akademik') }}
                             </x-nav-link>
                             <x-nav-link :href="route('admin.grades.index')" :active="request()->routeIs('admin.grades.*')">
                                 {{ __('Manajemen Nilai') }}
@@ -110,6 +113,9 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('admin.grades.index')" :active="request()->routeIs('admin.grades.*')">
                         {{ __('Manajemen Nilai') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('admin.hierarchy.index')" :active="request()->routeIs('admin.hierarchy.*')">
+                        {{ __('Data Akademik') }}
                     </x-responsive-nav-link>
                 @elseif(auth()->user()->role === 'dosen')
                     <x-responsive-nav-link :href="route('dosen.dashboard')" :active="request()->routeIs('dosen.dashboard')">

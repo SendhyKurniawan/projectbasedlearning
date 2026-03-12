@@ -5,11 +5,11 @@
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                     {{ $discussion->title }}
                 </h2>
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ $discussion->course->nama_matkul }}
+                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Topik: <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ $discussion->topic ?? 'Umum' }}</span>
                 </div>
             </div>
-            <a href="{{ route('discussions.index', ['course_id' => $discussion->course_id]) }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+            <a href="{{ route('discussions.index', ['topic' => $discussion->topic]) }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
                 &larr; Kembali
             </a>
         </div>

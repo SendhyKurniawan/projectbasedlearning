@@ -38,16 +38,50 @@
                         </div>
 
                         <!-- Role -->
-                        <div class="form-group">
+                        <div class="form-group" x-data="{ role: '{{ old('role', $user->role) }}' }">
                             <label class="form-label" for="role">Role</label>
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="mahasiswa" {{ old('role', $user->role) == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-                                <option value="dosen" {{ old('role', $user->role) == 'dosen' ? 'selected' : '' }}>Dosen</option>
-                                <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <select class="form-select" id="role" name="role" required x-model="role">
+                                <option value="mahasiswa">Mahasiswa</option>
+                                <option value="dosen">Dosen</option>
+                                <option value="admin">Admin</option>
                             </select>
                             @error('role')
                                 <span class="form-error">{{ $message }}</span>
                             @enderror
+
+                            <!-- NIM (Student Only) -->
+                            <div class="mt-4" x-show="role === 'mahasiswa'">
+                                <label class="form-label" for="nim">NIM</label>
+                                <input class="form-input" id="nim" type="text" name="nim" value="{{ old('nim', $user->nim) }}">
+                                @error('nim')
+                                    <span class="form-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- NIP (Dosen Only) -->
+                            <div class="mt-4" x-show="role === 'dosen'">
+                                <label class="form-label" for="nip">NIP</label>
+                                <input class="form-input" id="nip" type="text" name="nip" value="{{ old('nip', $user->nip) }}">
+                                @error('nip')
+                                    <span class="form-error">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <!-- Class (Student Only) -->
+                            <div class="mt-4" x-show="role === 'mahasiswa'">
+                                <label class="form-label" for="student_class_id">Kelas</label>
+                                <select class="form-select" id="student_class_id" name="student_class_id">
+                                    <option value="">Pilih Kelas</option>
+                                    @foreach($classes as $class)
+                                        <option value="{{ $class->id }}" {{ old('student_class_id', $user->student_class_id) == $class->id ? 'selected' : '' }}>
+                                            {{ $class->name }} ({{ $class->studyProgram->name }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('student_class_id')
+                                    <span class="form-error">{{ $message }}</span>
+                                @enderror
+                            </div>
                         </div>
 
                         <hr class="my-6 border-gray-200 dark:border-gray-700">

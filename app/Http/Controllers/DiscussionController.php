@@ -13,20 +13,18 @@ class DiscussionController extends Controller
      */
     public function index(Request $request)
     {
-        // Ideally discussions are filtered by course
-        $courseId = $request->query('course_id');
+        $topic = $request->query('topic');
         $query = Discussion::with('user')->withCount('comments')->latest();
         
-        if ($courseId) {
-            $query->where('course_id', $courseId);
-            $course = Course::find($courseId);
-        } else {
-            $course = null;
+        if ($topic) {
+            $query->where('topic', 'like', "%{$topic}%");
         }
 
         $discussions = $query->paginate(10);
         
-        return view('discussions.index', compact('discussions', 'course'));
+        return view('discussions.index', compact('discussions', 'topic'));
+
+
     }
 
     /**
@@ -34,11 +32,8 @@ class DiscussionController extends Controller
      */
     public function create(Request $request)
     {
-        $courseId = $request->query('course_id');
-        $course = $courseId ? Course::find($courseId) : null;
-        $courses = $course ? collect([$course]) : auth()->user()->courses; // Or enrolled courses
-
-        return view('discussions.create', compact('courses', 'course'));
+        $topic = $request->query('topic');
+        return view('discussions.create', compact('topic'));
     }
 
     /**
@@ -47,7 +42,7 @@ class DiscussionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'course_id' => 'required|exists:courses,id',
+            'topic' => 'required|string|max:255',
             'title' => 'required|string|max:255',
             'content' => 'required|string',
         ]);
@@ -56,7 +51,7 @@ class DiscussionController extends Controller
 
         Discussion::create($validated);
 
-        return redirect()->route('discussions.index', ['course_id' => $validated['course_id']])->with('success', 'Diskusi berhasil dibuat.');
+        return redirect()->route('discussions.index')->with('success', 'Diskusi berhasil dibuat.');
     }
 
     /**
@@ -100,8 +95,7 @@ class DiscussionController extends Controller
     public function destroy(Discussion $discussion)
     {
         $this->authorize('delete', $discussion);
-        $courseId = $discussion->course_id;
         $discussion->delete();
-        return redirect()->route('discussions.index', ['course_id' => $courseId])->with('success', 'Diskusi berhasil dihapus.');
+        return redirect()->route('discussions.index')->with('success', 'Diskusi berhasil dihapus.');
     }
 }

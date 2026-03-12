@@ -23,6 +23,8 @@ class CourseSeeder extends Seeder
             'sks' => 3,
             'description' => 'Mata kuliah dasar pengembangan website menggunakan HTML, CSS, dan JavaScript',
             'dosen_id' => $dosen1->id,
+            'student_class_id' => 1,
+            'semester_id' => 1,
         ]);
 
         $course2 = \App\Models\Course::create([
@@ -31,6 +33,8 @@ class CourseSeeder extends Seeder
             'sks' => 4,
             'description' => 'Mata kuliah sistem basis data relasional dan SQL',
             'dosen_id' => $dosen2->id,
+            'student_class_id' => 2,
+            'semester_id' => 1,
         ]);
 
         // Create Materials for Course 1

@@ -5,6 +5,7 @@ use App\Http\Controllers\Dosen;
 use App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DiscussionController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,8 +25,15 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Discussion Routes
-    Route::resource('discussions', DiscussionController::class);
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+    Route::get('/notifications/{id}/redirect', [NotificationController::class, 'readAndRedirect'])->name('notifications.readAndRedirect');
+
+    // Discussions & Announcements
+    Route::resource('discussions', App\Http\Controllers\DiscussionController::class);
+    Route::resource('announcements', App\Http\Controllers\AnnouncementController::class);
 });
 
 // Admin Auth Routes
@@ -42,14 +50,33 @@ Route::get('/admin', function () {
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/grades', [Admin\GradeController::class, 'index'])->name('grades.index');
+    Route::delete('/users/bulk-destroy', [Admin\UserController::class, 'bulkDestroy'])->name('users.bulk-destroy');
     Route::resource('users', Admin\UserController::class);
     Route::patch('/users/{id}/toggle-active', [Admin\UserController::class, 'toggleActive'])->name('users.toggle-active');
 
     Route::resource('courses', Admin\CourseController::class);
     Route::resource('academic-years', Admin\AcademicYearController::class);
     Route::resource('semesters', Admin\SemesterController::class);
+    Route::resource('departments', Admin\DepartmentController::class);
+    Route::resource('study-programs', Admin\StudyProgramController::class);
+    Route::resource('student-classes', Admin\StudentClassController::class);
     Route::post('/courses/{course}/enroll', [Admin\CourseController::class, 'enroll'])->name('courses.enroll');
     Route::delete('/courses/{course}/enroll/{student}', [Admin\CourseController::class, 'unenroll'])->name('courses.unenroll');
+
+    // Hierarchy Drill-down Routes
+    Route::prefix('hierarchy')->name('hierarchy.')->group(function () {
+        Route::get('/', [Admin\HierarchyController::class, 'index'])->name('index');
+        Route::get('/departments', [Admin\HierarchyController::class, 'departments'])->name('departments.index');
+        Route::get('/departments/{department}', [Admin\HierarchyController::class, 'studyPrograms'])->name('departments.show');
+        Route::get('/study-programs/{studyProgram}/semesters', [Admin\HierarchyController::class, 'semesters'])->name('study-programs.show');
+        Route::get('/study-programs/{studyProgram}/semesters/{semester}', [Admin\HierarchyController::class, 'classes'])->name('study-programs.semesters.show');
+        Route::post('/study-programs/{studyProgram}/semesters/{semester}/courses', [Admin\HierarchyController::class, 'addSemesterCourse'])->name('study-programs.semesters.add-course');
+        
+        Route::get('/student-classes/{studentClass}', [Admin\HierarchyController::class, 'classDetails'])->name('student-classes.show');
+        Route::post('/student-classes/{studentClass}/courses', [Admin\HierarchyController::class, 'addClassCourse'])->name('student-classes.add-course');
+        
+        Route::delete('/courses/{course}', [Admin\HierarchyController::class, 'removeCourse'])->name('courses.destroy');
+    });
 });
 
 // Dosen Routes
