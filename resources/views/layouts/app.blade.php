@@ -13,6 +13,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/css/design-system.css', 'resources/js/app.js'])
+        @livewireStyles
     </head>
     <body class="font-sans antialiased h-screen overflow-hidden bg-gray-100 dark:bg-gray-900">
         <div x-data="{ open: false }" class="flex h-full">
@@ -45,11 +46,21 @@
 
                 <!-- Page Heading -->
                 @if (isset($header))
-                    <header class="bg-white dark:bg-gray-800 shadow">
-                        <div class="py-6 px-4 sm:px-6 lg:px-8 pt-16 lg:pt-6">
-                            {{ $header }}
+                    <header class="bg-white dark:bg-gray-800 shadow relative z-30">
+                        <div class="py-6 px-4 sm:px-6 lg:px-8 pt-16 lg:pt-6 flex justify-between items-center">
+                            <div class="flex-1">
+                                {{ $header }}
+                            </div>
+                            <div class="ml-4 flex items-center">
+                                @include('layouts.notifications')
+                            </div>
                         </div>
                     </header>
+                @else
+                    <!-- Floating Notification Bell if no header -->
+                    <div class="absolute top-4 right-6 z-50">
+                        @include('layouts.notifications')
+                    </div>
                 @endif
 
                 <!-- Page Content -->
@@ -58,5 +69,6 @@
                 </main>
             </div>
         </div>
+        @livewireScripts
     </body>
 </html>

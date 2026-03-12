@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Submission;
+use App\Models\User;
+use App\Notifications\SubmissionNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Notification;
 
 class SubmissionController extends Controller
 {
@@ -87,6 +90,16 @@ class SubmissionController extends Controller
             'notes' => $request->notes,
             'submitted_at' => now(),
         ]);
+        
+        // Notify Dosen
+        $dosen = User::find($assignment->course->dosen_id);
+        if ($dosen) {
+            Notification::send($dosen, new SubmissionNotification(
+                $mahasiswa->name,
+                $assignment->title,
+                route('dosen.assignments.submissions', $assignment)
+            ));
+        }
         
         return redirect()->route('mahasiswa.courses.show', $assignment->course_id)
             ->with('success', 'Tugas berhasil dikumpulkan!');

@@ -56,6 +56,32 @@
                 <x-text-input id="nim" name="nim" type="text" class="mt-1 block w-full" :value="old('nim', $user->nim)" />
                 <x-input-error class="mt-2" :messages="$errors->get('nim')" />
             </div>
+            
+            @if($user->studentClass)
+                <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">{{ __('Informasi Akademik') }}</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="block text-gray-500 dark:text-gray-400">{{ __('Jurusan') }}</span>
+                            <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $user->studentClass->studyProgram->department->name ?? '-' }}</span>
+                        </div>
+                        <div>
+                            <span class="block text-gray-500 dark:text-gray-400">{{ __('Program Studi') }}</span>
+                            <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $user->studentClass->studyProgram->name ?? '-' }} ({{ $user->studentClass->studyProgram->level ?? '-' }})</span>
+                        </div>
+                        <div>
+                            <span class="block text-gray-500 dark:text-gray-400">{{ __('Kelas / Semester') }}</span>
+                            <span class="font-semibold text-gray-800 dark:text-gray-200">
+                                {{ $user->studentClass->name }} / {{ $user->studentClass->semester->name ?? '-' }} 
+                                ({{ $user->studentClass->semester->academicYear->year_start ?? '' }}-{{ $user->studentClass->semester->academicYear->year_end ?? '' }})
+                            </span>
+                        </div>
+                    </div>
+                    <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                        * Hubungi Administrator jika ingin melakukan perubahan pada data akademik di atas.
+                    </p>
+                </div>
+            @endif
         @endif
 
         @if($user->role === 'dosen')

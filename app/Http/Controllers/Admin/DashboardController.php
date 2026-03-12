@@ -24,8 +24,8 @@ class DashboardController extends Controller
             'total_courses' => Course::count(),
         ];
 
-        $recent_users = User::latest()->take(5)->get();
-        $recent_courses = Course::with('dosen')->withCount('students')->latest()->take(5)->get();
+        $recent_users = User::select('id', 'name', 'email', 'role', 'created_at')->latest()->take(5)->get();
+        $recent_courses = Course::with('dosen:id,name')->select('id', 'kode_matkul', 'nama_matkul', 'dosen_id', 'created_at')->withCount('students')->latest()->take(5)->get();
 
         return view('admin.dashboard', compact('stats', 'recent_users', 'recent_courses'));
     }

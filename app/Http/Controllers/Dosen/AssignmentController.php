@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Submission;
+use App\Models\User;
+use App\Notifications\AcademicUpdateNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class AssignmentController extends Controller
 {
@@ -76,6 +79,19 @@ class AssignmentController extends Controller
                 ->with('success', 'Quiz berhasil dibuat! Silakan tambahkan pertanyaan.');
         }
         
+        // Notify enrolled students
+        $students = User::whereHas('enrollments', function($q) use ($course) {
+            $q->where('course_id', $course->id);
+        })->get();
+        if ($students->isNotEmpty()) {
+            $typeLabel = ucfirst($request->type);
+            Notification::send($students, new AcademicUpdateNotification(
+                "{$typeLabel} Baru Ditambahkan",
+                "{$typeLabel} baru '{$assignment->title}' telah ditambahkan pada mata kuliah {$course->nama_matkul}.",
+                route('mahasiswa.courses.show', $course) // Could link directly if there's a show route
+            ));
+        }
+
         return redirect()->route('dosen.assignments.index', $course)
             ->with('success', 'Berhasil ditambahkan!');
     }
@@ -120,6 +136,19 @@ class AssignmentController extends Controller
 
         $assignment->update($data);
         
+        // Notify enrolled students
+        $students = User::whereHas('enrollments', function($q) use ($course) {
+            $q->where('course_id', $course->id);
+        })->get();
+        if ($students->isNotEmpty()) {
+            $typeLabel = ucfirst($assignment->type);
+            Notification::send($students, new AcademicUpdateNotification(
+                "{$typeLabel} Diperbarui",
+                "{$typeLabel} '{$assignment->title}' pada mata kuliah {$course->nama_matkul} telah diperbarui.",
+                route('mahasiswa.courses.show', $course)
+            ));
+        }
+
         return redirect()->route('dosen.assignments.index', $course)
             ->with('success', 'Berhasil diperbarui!');
     }

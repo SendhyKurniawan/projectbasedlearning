@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\StudentClass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
@@ -15,7 +16,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::query();
+        $query = User::with('studentClass:id,name,study_program_id', 'studentClass.studyProgram:id,name,department_id,level')->select('id', 'name', 'email', 'nim', 'nip', 'role', 'is_active', 'student_class_id', 'created_at');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -48,7 +49,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users.create');
+        $classes = StudentClass::with('studyProgram')->get();
+        return view('admin.users.create', compact('classes'));
     }
 
     /**
@@ -62,6 +64,7 @@ class UserController extends Controller
             'role'     => ['required', 'string', 'in:admin,dosen,mahasiswa'],
             'nim'      => ['nullable', 'string', 'max:20', 'unique:users,nim'],
             'nip'      => ['nullable', 'string', 'max:20', 'unique:users,nip'],
+            'student_class_id' => ['nullable', 'exists:student_classes,id'],
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
@@ -80,7 +83,8 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
-        return view('admin.users.edit', compact('user'));
+        $classes = StudentClass::with('studyProgram')->get();
+        return view('admin.users.edit', compact('user', 'classes'));
     }
 
     /**
@@ -96,6 +100,7 @@ class UserController extends Controller
             'role'      => ['required', 'string', 'in:admin,dosen,mahasiswa'],
             'nim'       => ['nullable', 'string', 'max:20', 'unique:users,nim,' . $user->id],
             'nip'       => ['nullable', 'string', 'max:20', 'unique:users,nip,' . $user->id],
+            'student_class_id' => ['nullable', 'exists:student_classes,id'],
             'is_active' => ['boolean'],
             'password'  => ['nullable', 'confirmed', Password::defaults()],
         ]);
@@ -149,5 +154,32 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User berhasil dihapus.');
+    }
+
+    /**
+     * Remove multiple resources from storage.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        $userIds = $request->user_ids;
+
+        // Prevent admin from deleting themselves
+        if (in_array(auth()->id(), $userIds)) {
+            $userIds = array_diff($userIds, [auth()->id()]);
+        }
+
+        if (empty($userIds)) {
+            return back()->with('error', 'Tidak ada user valid yang dapat dihapus.');
+        }
+
+        User::whereIn('id', $userIds)->delete();
+
+        return redirect()->route('admin.users.index')
+            ->with('success', count($userIds) . ' user berhasil dihapus.');
     }
 }

@@ -5,6 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property int $id
+ * @property int $course_id
+ * @property int $dosen_id
+ * @property string $title
+ * @property string? $description
+ * @property string $room_name
+ * @property \Illuminate\Support\Carbon $scheduled_at
+ * @property \Illuminate\Support\Carbon? $ended_at
+ * @property string $status
+ * @property-read \App\Models\Course $course
+ * @property-read \App\Models\User $dosen
+ */
 class Conference extends Model
 {
     protected $fillable = [

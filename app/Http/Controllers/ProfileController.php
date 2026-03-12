@@ -16,8 +16,13 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        if ($user->role === 'mahasiswa') {
+            $user->load('studentClass.studyProgram.department', 'studentClass.semester.academicYear');
+        }
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 

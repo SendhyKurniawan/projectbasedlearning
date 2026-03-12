@@ -50,6 +50,9 @@
                     <a href="{{ route('admin.semesters.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.semesters.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
                         {{ __('Semester') }}
                     </a>
+                    <a href="{{ route('admin.hierarchy.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('admin.hierarchy.*') ? $activeClass : $inactiveClass }} text-sm transition-colors">
+                        {{ __('Data Akademik') }}
+                    </a>
                     
                 @elseif(auth()->user()->role === 'dosen')
                     <a href="{{ route('dosen.dashboard') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('dosen.dashboard') ? $activeClass : $inactiveClass }} text-sm transition-colors">
@@ -115,8 +118,11 @@
             
             <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Community</div>
             
-            <a href="{{ route('discussions.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('discussions.*') ? $activeClass : $inactiveClass }} text-sm transition-colors mb-4">
+            <a href="{{ route('discussions.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('discussions.*') ? $activeClass : $inactiveClass }} text-sm transition-colors mb-2">
                 {{ __('Forum Diskusi') }}
+            </a>
+            <a href="{{ route('announcements.index') }}" class="block w-full pl-8 pr-3 py-2 {{ request()->routeIs('announcements.*') ? $activeClass : $inactiveClass }} text-sm transition-colors mb-4">
+                {{ __('Pengumuman') }}
             </a>
         </div>
     </div>
