@@ -13,7 +13,7 @@ class DashboardController extends Controller
     {
         $mahasiswa = auth()->user();
 
-        $enrolled_courses = $mahasiswa->enrolledCourses()
+        $enrolled_courses = $mahasiswa->enrollments()
             ->withCount(['materials', 'assignments'])
             ->get();
 

@@ -1,30 +1,30 @@
 <?php
+/**
+ * [NEW] GradeNotification.php
+ */
 
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
 use NotificationChannels\WebPush\WebPushChannel;
 
-class AcademicUpdateNotification extends Notification implements ShouldQueue
+class GradeNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private $title;
-    private $message;
-    private $actionUrl;
+    private $assignmentTitle;
+    private $courseId;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($title, $message, $actionUrl)
+    public function __construct($assignmentTitle, $courseId)
     {
-        $this->title = $title;
-        $this->message = $message;
-        $this->actionUrl = $actionUrl;
+        $this->assignmentTitle = $assignmentTitle;
+        $this->courseId = $courseId;
     }
 
     /**
@@ -39,12 +39,13 @@ class AcademicUpdateNotification extends Notification implements ShouldQueue
 
     public function toWebPush($notifiable, $notification)
     {
+        $url = route('mahasiswa.grades.index');
         return (new WebPushMessage)
-            ->title($this->title)
+            ->title('Tugas Telah Dinilai')
             ->icon('/logo.png')
-            ->body($this->message)
-            ->action('Buka', $this->actionUrl)
-            ->data(['url' => $this->actionUrl])
+            ->body("Tugas '{$this->assignmentTitle}' Anda telah dinilai.")
+            ->action('Buka', $url)
+            ->data(['url' => $url])
             ->options(['TTL' => 1000]);
     }
 
@@ -56,10 +57,10 @@ class AcademicUpdateNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            'title' => $this->title,
-            'message' => $this->message,
-            'url' => $this->actionUrl,
-            'type' => 'academic_update'
+            'title' => 'Tugas Telah Dinilai',
+            'message' => "Tugas '{$this->assignmentTitle}' Anda telah dinilai.",
+            'url' => route('mahasiswa.grades.index'),
+            'type' => 'grade'
         ];
     }
 }

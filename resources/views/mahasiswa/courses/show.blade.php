@@ -69,231 +69,202 @@
                 </div>
             </div>
 
-            <!-- Linear Learning Path -->
-            <div class="space-y-4">
-                @foreach($learningPath as $index => $item)
-                    @if($item['type'] === 'material')
-                        <!-- Material Card -->
-                        <div class="card {{ $item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-blue-500' }}" 
-                             style="transition: all 0.2s;">
-                            <div class="flex items-start gap-4">
-                                <div class="flex-shrink-0">
-                                    @if($item['completed'])
-                                        <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
-                                            <svg class="w-7 h-7 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                    @else
-                                        <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center">
-                                            <svg class="w-7 h-7 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                </div>
-                                
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-xs font-semibold text-gray-500 uppercase">Materi {{ $item['item']->order }}</span>
+            <!-- Three Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Column 1: Materi -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 px-1 border-b pb-2">Materi</h3>
+                    <div class="space-y-4">
+                        @forelse(collect($learningPath)->where('type', 'material') as $index => $item)
+                            <div class="card {{ $item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-blue-500' }}" style="transition: all 0.2s;">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0">
                                         @if($item['completed'])
-                                            <span class="badge badge-success text-xs">
-                                                <svg class="w-3 h-3 inline-block" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Selesai
-                                            </span>
+                                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            </div>
+                                        @else
+                                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+                                            </div>
                                         @endif
                                     </div>
-                                    
-                                    <h3 class="font-bold text-lg text-gray-900 mb-2">{{ $item['item']->title }}</h3>
-                                    
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">
-                                        {{ Str::limit(strip_tags($item['item']->content), 150) }}
-                                    </p>
-                                    
-                                    <a href="{{ route('mahasiswa.materials.show', [$course, $item['item']]) }}" 
-                                       class="btn btn-primary btn-sm inline-flex items-center gap-2">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                                        </svg>
-                                        {{ $item['completed'] ? 'Review Materi' : 'Baca Materi' }}
-                                    </a>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs font-semibold text-gray-500 uppercase">Bagian {{ $item['item']->order }}</span>
+                                            @if($item['completed'])
+                                                <span class="badge badge-success text-[10px]">Selesai</span>
+                                            @endif
+                                        </div>
+                                        <h3 class="font-bold text-base text-gray-900 mb-1 leading-tight">{{ $item['item']->title }}</h3>
+                                        <p class="text-xs text-gray-600 mb-2 line-clamp-2">{{ Str::limit(strip_tags($item['item']->content), 80) }}</p>
+                                        <a href="{{ route('mahasiswa.materials.show', [$course, $item['item']]) }}" class="btn btn-primary text-xs px-2 py-1 inline-flex items-center gap-1">
+                                            {{ $item['completed'] ? 'Review' : 'Baca Materi' }}
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                    @else
-                        <!-- Assignment Card -->
-                        <div class="card {{ $item['locked'] ? 'opacity-60 border-l-4 border-gray-300' : ($item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-purple-500') }}" 
-                             style="transition: all 0.2s;">
-                            <div class="flex items-start gap-4">
-                                <div class="flex-shrink-0">
-                                    @if($item['locked'])
-                                        <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
-                                            <svg class="w-7 h-7 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                    @elseif($item['completed'])
-                                        <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center">
-                                            <svg class="w-7 h-7 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                    @else
-                                        <div class="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center">
-                                            <svg class="w-7 h-7 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                            </svg>
-                                        </div>
-                                    @endif
-                                </div>
-                                
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-xs font-semibold text-gray-500 uppercase">
-                                            {{ $item['item']->type === 'exercise' ? 'Exercise' : 'Tugas' }}
-                                        </span>
-                                        @if($item['locked'])
-                                            <span class="badge badge-gray text-xs">
-                                                <svg class="w-3 h-3 inline-block" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Locked
-                                            </span>
-                                        @elseif($item['completed'])
-                                            <span class="badge badge-success text-xs">
-                                                <svg class="w-3 h-3 inline-block" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Submitted
-                                            </span>
-                                        @else
-                                            <span class="badge badge-warning text-xs">
-                                                <svg class="w-3 h-3 inline-block" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Available
-                                            </span>
-                                        @endif
-                                    </div>
-                                    
-                                    <h3 class="font-bold text-lg text-gray-900 mb-2">{{ $item['item']->title }}</h3>
-                                    
-                                    @if($item['item']->description)
-                                        <p class="text-sm text-gray-600 mb-2">{{ Str::limit($item['item']->description, 120) }}</p>
-                                    @endif
-                                    
-                                    <p class="text-xs text-gray-500 mb-3 flex items-center gap-1">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-                                        </svg>
-                                        Deadline: {{ $item['item']->deadline->format('d M Y, H:i') }}
-                                    </p>
-                                    
-                                    @if($item['locked'])
-                                        <div class="p-3 bg-gray-50 rounded text-sm text-gray-700 border border-gray-200 flex items-start gap-2">
-                                            <svg class="w-5 h-5 text-gray-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                            <div>
-                                                <strong>Terkunci</strong><br>
-                                                Baca <strong>{{ $item['item']->requiredMaterial->title }}</strong> terlebih dahulu untuk membuka tugas ini.
-                                            </div>
-                                        </div>
-                                    @else
-                                        @if($item['item']->type === 'exercise')
-                                            <a href="{{ route('mahasiswa.exercises.solve', $item['item']) }}" 
-                                               class="btn btn-purple btn-sm inline-flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                                                </svg>
-                                                {{ $item['completed'] ? 'Review Exercise' : 'Start Exercise' }}
-                                            </a>
-                                        @else
-                                            <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $item['item']->id]) }}" 
-                                               class="btn btn-purple btn-sm inline-flex items-center gap-2">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                                                </svg>
-                                                {{ $item['completed'] ? 'View Submission' : 'Submit Assignment' }}
-                                            </a>
-                                        @endif
-                                        
-                                        @if($item['completed'] && isset($submissions[$item['item']->id]))
-                                            @php $sub = $submissions[$item['item']->id]; @endphp
-                                            <div class="mt-3 p-3 bg-green-50 rounded text-sm border border-green-200 flex items-start gap-2">
-                                                <svg class="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                                </svg>
-                                                <div>
-                                                    <strong class="text-green-700">Submitted</strong>
-                                                    @if($sub->score !== null)
-                                                        <br>Score: <strong>{{ $sub->score }}/{{ $item['item']->max_score }}</strong>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endif
-                                </div>
+                        @empty
+                            <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <p class="text-sm text-gray-500 italic">Belum ada materi.</p>
                             </div>
-                        </div>
-                    @endif
-                @endforeach
-                
-                {{-- Quizzes Section --}}
-                @if($quizzes->isNotEmpty())
-                    <div class="mb-6">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 px-1">Quizzes & Exams</h3>
-                        <div class="space-y-4">
-                            @foreach($quizzes as $quiz)
-                                @php
-                                    $submission = $submissions[$quiz->id] ?? null;
-                                    $isFinished = $submission && $submission->finished_at;
-                                @endphp
-                                <div class="card {{ $isFinished ? 'border-l-4 border-green-500' : 'border-l-4 border-yellow-500' }} transition-all hover:shadow-md">
-                                    <div class="flex items-start gap-4">
-                                        <div class="flex-shrink-0">
-                                            <div class="w-14 h-14 rounded-full {{ $isFinished ? 'bg-green-100' : 'bg-yellow-100' }} flex items-center justify-center">
-                                                <svg class="w-7 h-7 {{ $isFinished ? 'text-green-600' : 'text-yellow-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                </svg>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1">
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="text-xs font-semibold text-gray-500 uppercase">{{ ucfirst($quiz->type) }}</span>
-                                                @if($isFinished)
-                                                    <span class="badge badge-success text-xs">Completed</span>
-                                                @else
-                                                    <span class="badge badge-warning text-xs">Available</span>
-                                                @endif
-                                            </div>
-                                            <h3 class="font-bold text-lg text-gray-900">{{ $quiz->title }}</h3>
-                                            <p class="text-sm text-gray-600 mb-3">{{ $quiz->duration_minutes }} Minutes &bull; {{ $quiz->questions->count() }} Questions</p>
-                                            
-                                            <a href="{{ route('mahasiswa.quizzes.show', $quiz) }}" class="btn btn-sm {{ $isFinished ? 'btn-success' : 'btn-primary' }}">
-                                                {{ $isFinished ? 'View Result' : 'Start Quiz' }}
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                        @endforelse
                     </div>
-                @endif
+                </div>
 
-                @if(count($learningPath) == 0 && $quizzes->isEmpty())
-                    <div class="empty-state">
-                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                        </svg>
-                        <p class="empty-state-text">Belum ada materi atau tugas tersedia.</p>
+                <!-- Column 2: Tugas -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 px-1 border-b pb-2">Tugas</h3>
+                    <div class="space-y-4">
+                        @forelse(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => !in_array($i['item']->type, ['quiz', 'exercise'])) as $index => $item)
+                            <div class="card {{ $item['locked'] ? 'opacity-60 border-l-4 border-gray-300' : ($item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-purple-500') }}" style="transition: all 0.2s;">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0">
+                                        @if($item['locked'])
+                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                            </div>
+                                        @elseif($item['completed'])
+                                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            </div>
+                                        @else
+                                            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs font-semibold text-gray-500 uppercase">Tugas {{ $loop->iteration }}</span>
+                                            @if($item['locked'])<span class="badge badge-gray text-[10px]">Locked</span>
+                                            @elseif($item['completed'])<span class="badge badge-success text-[10px]">Submitted</span>
+                                            @else<span class="badge badge-warning text-[10px]">Available</span>
+                                            @endif
+                                        </div>
+                                        <h3 class="font-bold text-base text-gray-900 mb-1 leading-tight">{{ $item['item']->title }}</h3>
+                                        <p class="text-[11px] text-gray-500 mb-2">Deadline: {{ $item['item']->deadline->format('d M, H:i') }}</p>
+                                        
+                                        @if($item['locked'])
+                                            <div class="text-[11px] text-gray-500 bg-gray-50 p-2 rounded">
+                                                Baca materi "{{ $item['item']->requiredMaterial->title }}" dahulu.
+                                            </div>
+                                        @else
+                                            <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $item['item']->id]) }}" class="btn btn-purple text-xs px-2 py-1 inline-flex items-center gap-1">
+                                                {{ $item['completed'] ? 'Lihat' : 'Kerjakan Tugas' }}
+                                            </a>
+                                            @if($item['completed'] && isset($submissions[$item['item']->id]))
+                                                @php $sub = $submissions[$item['item']->id]; @endphp
+                                                @if($sub->score !== null)
+                                                    <div class="mt-2 text-xs font-semibold text-green-700">Skor: {{ $sub->score }}/{{ $item['item']->max_score }}</div>
+                                                @endif
+                                            @endif
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <p class="text-sm text-gray-500 italic">Belum ada tugas.</p>
+                            </div>
+                        @endforelse
                     </div>
-                @endif
+                </div>
+
+                <!-- Column 3: Latihan -->
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-4 px-1 border-b pb-2">Latihan & Quiz</h3>
+                    <div class="space-y-4">
+                        <!-- Exercises from learningPath -->
+                        @foreach(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => $i['item']->type === 'exercise') as $index => $item)
+                            <div class="card {{ $item['locked'] ? 'opacity-60 border-l-4 border-gray-300' : ($item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-purple-500') }}" style="transition: all 0.2s;">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0">
+                                        @if($item['locked'])
+                                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+                                            </div>
+                                        @elseif($item['completed'])
+                                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            </div>
+                                        @else
+                                            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs font-semibold text-gray-500 uppercase">Latihan Kode {{ $loop->iteration }}</span>
+                                            @if($item['locked'])<span class="badge badge-gray text-[10px]">Locked</span>
+                                            @elseif($item['completed'])<span class="badge badge-success text-[10px]">Selesai</span>
+                                            @else<span class="badge badge-warning text-[10px]">Available</span>
+                                            @endif
+                                        </div>
+                                        <h3 class="font-bold text-base text-gray-900 mb-1 leading-tight">{{ $item['item']->title }}</h3>
+                                        <p class="text-[11px] text-gray-500 mb-2 border-b pb-1">Deadline: {{ $item['item']->deadline->format('d M, H:i') }}</p>
+                                        
+                                        @if($item['locked'])
+                                            <div class="text-[11px] text-gray-500 bg-gray-50 p-2 rounded">
+                                                Baca materi "{{ $item['item']->requiredMaterial->title }}" dahulu.
+                                            </div>
+                                        @else
+                                            <a href="{{ route('mahasiswa.exercises.solve', $item['item']) }}" class="btn btn-purple text-xs px-2 py-1 inline-flex items-center gap-1">
+                                                {{ $item['completed'] ? 'Review' : 'Mulai Latihan' }}
+                                            </a>
+                                            @if($item['completed'] && isset($submissions[$item['item']->id]))
+                                                @php $sub = $submissions[$item['item']->id]; @endphp
+                                                @if($sub->score !== null)
+                                                    <div class="mt-2 text-xs font-semibold text-green-700">Skor: {{ $sub->score }}/{{ $item['item']->max_score }}</div>
+                                                @endif
+                                            @endif
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <!-- Quizzes array -->
+                        @foreach($quizzes as $quiz)
+                            @php
+                                $submission = $submissions[$quiz->id] ?? null;
+                                $isFinished = $submission && $submission->finished_at;
+                            @endphp
+                            <div class="card {{ $isFinished ? 'border-l-4 border-green-500' : 'border-l-4 border-yellow-500' }} transition-all hover:shadow-md">
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-12 h-12 rounded-full {{ $isFinished ? 'bg-green-100' : 'bg-yellow-100' }} flex items-center justify-center">
+                                            <svg class="w-6 h-6 {{ $isFinished ? 'text-green-600' : 'text-yellow-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-xs font-semibold text-gray-500 uppercase">Kuis {{ $loop->iteration }}</span>
+                                            @if($isFinished)<span class="badge badge-success text-[10px]">Completed</span>
+                                            @else<span class="badge badge-warning text-[10px]">Available</span>
+                                            @endif
+                                        </div>
+                                        <h3 class="font-bold text-base text-gray-900 mb-1 leading-tight">{{ $quiz->title }}</h3>
+                                        <p class="text-[11px] text-gray-600 mb-2">{{ $quiz->duration_minutes }} Min &bull; {{ $quiz->questions->count() }} Qs</p>
+                                        
+                                        <a href="{{ route('mahasiswa.quizzes.show', $quiz) }}" class="btn btn-sm {{ $isFinished ? 'btn-success' : 'btn-primary' }} text-xs px-2 py-1">
+                                            {{ $isFinished ? 'View Result' : 'Start Quiz' }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        @if(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => $i['item']->type === 'exercise')->isEmpty() && $quizzes->isEmpty())
+                            <div class="text-center p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                <p class="text-sm text-gray-500 italic">Belum ada latihan atau kuis.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </div>

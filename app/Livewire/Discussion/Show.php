@@ -32,10 +32,6 @@ class Show extends Component
 
         $this->newComment = '';
         
-        // Refresh the discussion to show new comment? 
-        // Or just emit event. simpler to just refresh the page or component.
-        // But the view uses $discussion->comments loop which is not reactive here unless we fetch comments separately.
-        // Let's reload.
         return redirect()->route('discussions.show', $this->discussion);
     }
 

@@ -31,6 +31,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
     Route::get('/notifications/{id}/redirect', [NotificationController::class, 'readAndRedirect'])->name('notifications.readAndRedirect');
 
+    // Push Notifications Endpoint
+    Route::post('/push-subscribe', [App\Http\Controllers\PushSubscriptionController::class, 'store']);
+    Route::post('/push-unsubscribe', [App\Http\Controllers\PushSubscriptionController::class, 'destroy']);
+
     // Discussions & Announcements
     Route::resource('discussions', App\Http\Controllers\DiscussionController::class);
     Route::resource('announcements', App\Http\Controllers\AnnouncementController::class);
@@ -86,6 +90,7 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::get('/courses/{course}/materials', [Dosen\MaterialController::class, 'index'])->name('materials.index');
     Route::get('/courses/{course}/materials/create', [Dosen\MaterialController::class, 'create'])->name('materials.create');
     Route::post('/courses/{course}/materials', [Dosen\MaterialController::class, 'store'])->name('materials.store');
+    Route::post('/courses/{course}/materials/reorder', [Dosen\MaterialController::class, 'reorder'])->name('materials.reorder');
     Route::get('/materials/{material}/edit', [Dosen\MaterialController::class, 'edit'])->name('materials.edit');
     Route::put('/materials/{material}', [Dosen\MaterialController::class, 'update'])->name('materials.update');
     Route::delete('/materials/{material}', [Dosen\MaterialController::class, 'destroy'])->name('materials.destroy');
@@ -93,6 +98,7 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::get('/courses/{course}/assignments', [Dosen\AssignmentController::class, 'index'])->name('assignments.index');
     Route::get('/courses/{course}/assignments/create', [Dosen\AssignmentController::class, 'create'])->name('assignments.create');
     Route::post('/courses/{course}/assignments', [Dosen\AssignmentController::class, 'store'])->name('assignments.store');
+    Route::post('/courses/{course}/assignments/reorder', [Dosen\AssignmentController::class, 'reorder'])->name('assignments.reorder');
     Route::get('/assignments/{assignment}/edit', [Dosen\AssignmentController::class, 'edit'])->name('assignments.edit');
     Route::put('/assignments/{assignment}', [Dosen\AssignmentController::class, 'update'])->name('assignments.update');
     Route::delete('/assignments/{assignment}', [Dosen\AssignmentController::class, 'destroy'])->name('assignments.destroy');

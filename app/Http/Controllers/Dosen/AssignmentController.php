@@ -22,6 +22,7 @@ class AssignmentController extends Controller
         
         $assignments = $course->assignments()
             ->withCount('submissions')
+            ->orderBy('order')
             ->orderBy('deadline', 'desc')
             ->get();
         
@@ -61,6 +62,8 @@ class AssignmentController extends Controller
             ->count();
         $nextNumber = $count + 1;
 
+        $maxOrder = $course->assignments()->max('order') ?? 0;
+
         $assignment = Assignment::create([
             'course_id' => $course->id,
             'title' => $request->title,
@@ -72,6 +75,7 @@ class AssignmentController extends Controller
             'quiz_number' => $request->type === 'quiz' ? $nextNumber : null,
             'assignment_number' => $request->type !== 'quiz' ? $nextNumber : null,
             'duration_minutes' => $request->has_duration ? $request->duration_minutes : null,
+            'order' => $maxOrder + 1,
         ]);
         
         if ($request->type === 'quiz') {
@@ -168,6 +172,45 @@ class AssignmentController extends Controller
             ->with('success', 'Berhasil dihapus!');
     }
 
+    public function reorder(Request $request, Course $course)
+    {
+        // Check if dosen owns this course
+        if ($course->dosen_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
+        $request->validate([
+            'ordered_ids' => 'required|array',
+            'ordered_ids.*' => 'exists:assignments,id',
+        ]);
+        
+        // Ambil urutan yang ada saat ini untuk id yang diberikan dan urutkan
+        $assignments = Assignment::whereIn('id', $request->ordered_ids)
+                                 ->where('course_id', $course->id)
+                                 ->orderBy('order')
+                                 ->get();
+        
+        $orders = $assignments->pluck('order')->toArray();
+        sort($orders);
+        
+        $currentOrder = 1;
+        foreach ($orders as &$ord) {
+            if ($ord < $currentOrder) {
+                $ord = $currentOrder;
+            }
+            $currentOrder = $ord + 1;
+        }
+        unset($ord);
+        
+        foreach ($request->ordered_ids as $index => $id) {
+            Assignment::where('id', $id)
+                    ->where('course_id', $course->id)
+                    ->update(['order' => $orders[$index] ?? ($index + 1)]);
+        }
+        
+        return response()->json(['message' => 'Urutan berhasil diperbarui']);
+    }
+
     public function submissions(Assignment $assignment)
     {
         $course = $assignment->course;
@@ -228,6 +271,15 @@ class AssignmentController extends Controller
             'feedback' => $request->feedback,
             'status' => 'graded'
         ]);
+
+        // Notify student
+        $student = $submission->mahasiswa;
+        if ($student) {
+            Notification::send($student, new \App\Notifications\GradeNotification(
+                $assignment->title,
+                $course->id
+            ));
+        }
         
         return redirect()->back()
             ->with('success', 'Nilai berhasil diberikan!');

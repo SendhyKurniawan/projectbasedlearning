@@ -20,7 +20,7 @@ class SubmissionController extends Controller
         
         // Check if student is enrolled in the course
         $mahasiswa = auth()->user();
-        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+        if (!$mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
@@ -53,7 +53,7 @@ class SubmissionController extends Controller
         $mahasiswa = auth()->user();
 
         // Check if student is enrolled
-        if (!$mahasiswa->enrolledCourses()->where('courses.id', $assignment->course_id)->exists()) {
+        if (!$mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
