@@ -45,6 +45,7 @@ class Assignment extends Model
         'submission_format',
         'course_id',
         'title',
+        'order',
         'description',
         'deadline',
         'max_score',

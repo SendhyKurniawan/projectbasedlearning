@@ -31,84 +31,95 @@
                         </div>
                     </div>
 
-                    @forelse($assignments as $assignment)
-                        <div class="border dark:border-gray-700 rounded-lg p-4 mb-4">
-                            <div class="flex justify-between items-start">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <h4 class="font-semibold text-gray-900 dark:text-gray-100">{{ $assignment->title }}</h4>
-                                        
-                                        @if($assignment->type === 'exercise')
-                                            <span class="px-2 py-1 text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
-                                                Exercise
-                                            </span>
-                                        @elseif($assignment->type === 'quiz')
-                                            <span class="px-2 py-1 text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded">
-                                                Quiz
-                                            </span>
-                                        @elseif($assignment->type === 'tugas')
-                                            <span class="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
-                                                Tugas
-                                            </span>
-                                        @endif
-                                        
-                                        @if($assignment->deadline < now())
-                                            <span class="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">
-                                                Closed
-                                            </span>
-                                        @else
-                                            <span class="px-2 py-1 text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded">
-                                                Active
-                                            </span>
-                                        @endif
-                                    </div>
-                                    
-                                    @if($assignment->description)
-                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ $assignment->description }}</p>
-                                    @endif
-                                    
-                                    <div class="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                                        <p><strong>Deadline:</strong> {{ $assignment->deadline->format('d M Y, H:i') }}</p>
-                                        <p><strong>Nilai Maksimal:</strong> {{ $assignment->max_score }}</p>
-                                        <p><strong>Submissions:</strong> {{ $assignment->submissions_count }} mahasiswa</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex flex-col gap-2 ml-4">
-                                    @if($assignment->type === 'quiz')
-                                        <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" 
-                                           class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm text-center">
-                                            Kelola Pertanyaan
-                                        </a>
-                                    @endif
-                                    <a href="{{ route('dosen.assignments.submissions', $assignment) }}" 
-                                       class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-sm text-center">
-                                        Lihat Submissions
-                                    </a>
-                                    <a href="{{ route('dosen.assignments.edit', $assignment) }}" 
-                                       class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm text-center">
-                                        Edit
-                                    </a>
-                                    <form action="{{ route('dosen.assignments.destroy', $assignment) }}" 
-                                          method="POST" 
-                                          onsubmit="return confirm('Yakin ingin menghapus tugas ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
-                                            Hapus
-                                        </button>
-                                    </form>
-                                </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Column 1: Tugas -->
+                        <div>
+                            <h4 class="text-md font-bold text-blue-700 dark:text-blue-400 mb-4 border-b pb-2">📋 Tugas Utama</h4>
+                            <div id="sortable-tugas" class="space-y-4">
+                                @forelse($assignments->where('type', 'tugas') as $assignment)
+                                    <x-assignment-card :assignment="$assignment" />
+                                @empty
+                                    <p class="text-gray-500 dark:text-gray-400 text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                        Belum ada tugas.
+                                    </p>
+                                @endforelse
                             </div>
                         </div>
-                    @empty
-                        <p class="text-gray-500 dark:text-gray-400 text-center py-8">
-                            Belum ada tugas. Klik "Tambah Tugas" untuk menambahkan tugas baru.
-                        </p>
-                    @endforelse
+                        
+                        <!-- Column 2: Quiz & Exercise -->
+                        <div>
+                            <h4 class="text-md font-bold text-orange-600 dark:text-orange-400 mb-4 border-b pb-2">🎯 Quiz & Latihan</h4>
+                            <div id="sortable-quiz" class="space-y-4">
+                                @forelse($assignments->whereIn('type', ['quiz', 'exercise']) as $assignment)
+                                    <x-assignment-card :assignment="$assignment" />
+                                @empty
+                                    <p class="text-gray-500 dark:text-gray-400 text-center py-8 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                        Belum ada quiz atau latihan.
+                                    </p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- SortableJS -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            function saveOrder(evt, listElement) {
+                var items = listElement.querySelectorAll('.sortable-item');
+                var orderedIds = Array.from(items).map(item => item.getAttribute('data-id'));
+
+                // AJAX request save order
+                fetch('{{ route('dosen.assignments.reorder', $course) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ ordered_ids: orderedIds })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    let toast = document.createElement('div');
+                    toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300';
+                    toast.innerText = 'Urutan berhasil disimpan!';
+                    document.body.appendChild(toast);
+                    setTimeout(() => {
+                        toast.classList.add('opacity-0');
+                        setTimeout(() => toast.remove(), 300);
+                    }, 3000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal menyimpan urutan tugas.');
+                });
+            }
+
+            var elTugas = document.getElementById('sortable-tugas');
+            if (elTugas && elTugas.children.length > 0 && !elTugas.querySelector('.text-center.py-8')) {
+                Sortable.create(elTugas, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    ghostClass: 'opacity-50',
+                    onEnd: function (evt) { saveOrder(evt, elTugas); }
+                });
+            }
+
+            var elQuiz = document.getElementById('sortable-quiz');
+            if (elQuiz && elQuiz.children.length > 0 && !elQuiz.querySelector('.text-center.py-8')) {
+                Sortable.create(elQuiz, {
+                    handle: '.drag-handle',
+                    animation: 150,
+                    ghostClass: 'opacity-50',
+                    onEnd: function (evt) { saveOrder(evt, elQuiz); }
+                });
+            }
+        });
+    </script>
 </x-app-layout>

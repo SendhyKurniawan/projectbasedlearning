@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\ResetPasswordNotification;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 
 /**
  * @property int $id
@@ -45,7 +46,7 @@ use App\Notifications\ResetPasswordNotification;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasPushSubscriptions;
 
     /**
      * The attributes that are mass assignable.
@@ -119,11 +120,19 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\StudentClass::class, 'student_class_id');
     }
 
-    public function enrolledCourses()
+    public function enrollments()
     {
         return $this->belongsToMany(\App\Models\Course::class, 'enrollments', 'mahasiswa_id', 'course_id')
             ->withPivot('final_grade', 'enrolled_at')
             ->withTimestamps();
+    }
+
+    /**
+     * Alias for enrollments relationship to ensure backward compatibility across controllers.
+     */
+    public function enrolledCourses()
+    {
+        return $this->enrollments();
     }
 
     public function submissions()

@@ -45,11 +45,13 @@ class MaterialController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'order' => 'required|integer|min:1',
             'file' => 'nullable|file|max:20480', // Max 20MB
         ]);
         
-        $data = $request->only(['title', 'content', 'order']);
+        $data = $request->only(['title', 'content']);
+        // Auto-increment order
+        $maxOrder = $course->materials()->max('order') ?? 0;
+        $data['order'] = $maxOrder + 1;
         $data['course_id'] = $course->id;
         
         // Handle file upload
@@ -102,11 +104,10 @@ class MaterialController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'order' => 'required|integer|min:1',
             'file' => 'nullable|file|max:20480',
         ]);
         
-        $data = $request->only(['title', 'content', 'order']);
+        $data = $request->only(['title', 'content']);
         
         // Handle new file upload
         if ($request->hasFile('file')) {
@@ -157,5 +158,28 @@ class MaterialController extends Controller
         
         return redirect()->route('dosen.materials.index', $course)
             ->with('success', 'Materi berhasil dihapus!');
+    }
+
+    public function reorder(Request $request, Course $course)
+    {
+        // Check if dosen owns this course
+        if ($course->dosen_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        
+        $request->validate([
+            'ordered_ids' => 'required|array',
+            'ordered_ids.*' => 'exists:materials,id',
+        ]);
+        
+        $order = 1;
+        foreach ($request->ordered_ids as $id) {
+            Material::where('id', $id)
+                    ->where('course_id', $course->id)
+                    ->update(['order' => $order]);
+            $order++;
+        }
+        
+        return response()->json(['message' => 'Urutan berhasil diperbarui']);
     }
 }

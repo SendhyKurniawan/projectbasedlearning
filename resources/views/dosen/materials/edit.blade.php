@@ -36,22 +36,6 @@
                             @enderror
                         </div>
 
-                        <!-- Order -->
-                        <div class="mb-4">
-                            <label for="order" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Urutan <span class="text-red-500">*</span>
-                            </label>
-                            <input type="number" 
-                                   name="order" 
-                                   id="order" 
-                                   value="{{ old('order', $material->order) }}"
-                                   min="1"
-                                   class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                   required>
-                            @error('order')
-                                <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
 
                         <!-- Content with Markdown Editor -->
                         <div class="mb-4">

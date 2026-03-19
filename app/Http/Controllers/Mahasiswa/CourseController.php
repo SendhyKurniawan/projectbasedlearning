@@ -49,7 +49,7 @@ class CourseController extends Controller
         $course->load([
             'dosen',
             'materials' => fn($q) => $q->orderBy('order'),
-            'assignments' => fn($q) => $q->with(['questions', 'requiredMaterial'])->orderBy('deadline'),
+            'assignments' => fn($q) => $q->with(['questions', 'requiredMaterial'])->orderBy('order')->orderBy('deadline'),
         ]);
 
         $materialIds = $course->materials->pluck('id');
@@ -133,7 +133,7 @@ class CourseController extends Controller
             return redirect()->back()->with('info', 'Anda sudah terdaftar di course ini.');
         }
 
-        $mahasiswa->enrolledCourses()->attach($course->id, [
+        $mahasiswa->enrollments()->attach($course->id, [
             'enrolled_at' => now(),
         ]);
 
@@ -173,7 +173,7 @@ class CourseController extends Controller
         $course->load([
             'dosen',
             'materials' => fn($q) => $q->orderBy('order'),
-            'assignments' => fn($q) => $q->with('requiredMaterial')->orderBy('deadline'),
+            'assignments' => fn($q) => $q->with('requiredMaterial')->orderBy('order')->orderBy('deadline'),
         ]);
 
         $materialIds = $course->materials->pluck('id');

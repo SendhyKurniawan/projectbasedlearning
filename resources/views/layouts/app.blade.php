@@ -70,5 +70,45 @@
             </div>
         </div>
         @livewireScripts
+
+        <script>
+            function urlBase64ToUint8Array(base64String) {
+                const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+                const rawData = window.atob(base64);
+                return new Uint8Array([...rawData].map((char) => char.charCodeAt(0)));
+            }
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                        Notification.requestPermission().then(function(permission) {
+                            if (permission === 'granted') {
+                                const vapidPublicKey = "{{ env('VAPID_PUBLIC_KEY') }}";
+                                if (vapidPublicKey) {
+                                    registration.pushManager.subscribe({
+                                        userVisibleOnly: true,
+                                        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+                                    }).then(function(subscription) {
+                                        fetch('/push-subscribe', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                                'Accept': 'application/json'
+                                            },
+                                            body: JSON.stringify(subscription)
+                                        });
+                                    }).catch(function(err) {
+                                        console.log('Push subscription error: ', err);
+                                    });
+                                }
+                            }
+                        });
+                    }).catch(function(err) {
+                        console.log('SW registration error: ', err);
+                    });
+                });
+            }
+        </script>
     </body>
 </html>
