@@ -81,6 +81,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         
         Route::delete('/courses/{course}', [Admin\HierarchyController::class, 'removeCourse'])->name('courses.destroy');
     });
+
+    // Push Debug Routes
+    Route::get('/debug/push', [Admin\PushDebugController::class, 'index'])->name('debug.push.index');
+    Route::post('/debug/push/send', [Admin\PushDebugController::class, 'send'])->name('debug.push.send');
 });
 
 // Dosen Routes
