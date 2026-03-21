@@ -52,6 +52,22 @@
             <x-input-error :messages="$errors->get('nim')" class="mt-2" />
         </div>
 
+        {{-- Kode Kelas (Mahasiswa) --}}
+        <div id="field-class" class="mt-4 {{ old('role') === 'dosen' ? 'hidden' : '' }}">
+            <x-input-label for="student_class_id" :value="__('Kode Kelas')" />
+            <select id="student_class_id" name="student_class_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                <option value="">Pilih Kode Kelas</option>
+                @isset($studentClasses)
+                    @foreach($studentClasses as $klass)
+                        <option value="{{ $klass->id }}" {{ old('student_class_id') == $klass->id ? 'selected' : '' }}>
+                            {{ $klass->name }}
+                        </option>
+                    @endforeach
+                @endisset
+            </select>
+            <x-input-error :messages="$errors->get('student_class_id')" class="mt-2" />
+        </div>
+
         {{-- NIP (Dosen) --}}
         <div id="field-nip" class="mt-4 {{ old('role') === 'dosen' ? '' : 'hidden' }}">
             <x-input-label for="nip" :value="__('NIP')" />
@@ -97,9 +113,11 @@
             const tabDosen    = document.getElementById('tab-dosen');
             const fieldNim    = document.getElementById('field-nim');
             const fieldNip    = document.getElementById('field-nip');
+            const fieldClass  = document.getElementById('field-class');
             const notice      = document.getElementById('dosen-notice');
             const nimInput    = document.getElementById('nim');
             const nipInput    = document.getElementById('nip');
+            const classInput  = document.getElementById('student_class_id');
 
             const activeClass   = ['bg-gray-800', 'dark:bg-gray-200', 'text-white', 'dark:text-gray-800', 'border-gray-800', 'dark:border-gray-200'];
             const inactiveClass = ['bg-white', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300', 'border-gray-300', 'dark:border-gray-600', 'hover:bg-gray-50', 'dark:hover:bg-gray-600'];
@@ -114,11 +132,13 @@
 
                 fieldNim.classList.remove('hidden');
                 fieldNip.classList.add('hidden');
+                fieldClass.classList.remove('hidden');
                 notice.classList.add('hidden');
 
                 nimInput.required = true;
                 nipInput.required = false;
                 nipInput.value    = '';
+                classInput.required = true;
             } else {
                 tabDosen.classList.add(...activeClass);
                 tabDosen.classList.remove(...inactiveClass);
@@ -127,11 +147,14 @@
 
                 fieldNip.classList.remove('hidden');
                 fieldNim.classList.add('hidden');
+                fieldClass.classList.add('hidden');
                 notice.classList.remove('hidden');
 
                 nipInput.required = true;
                 nimInput.required = false;
                 nimInput.value    = '';
+                classInput.required = false;
+                classInput.value    = '';
             }
         }
     </script>
