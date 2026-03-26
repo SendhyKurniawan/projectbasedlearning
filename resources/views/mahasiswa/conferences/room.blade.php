@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $conference->title }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/conference-room.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/conference-room.js', 'resources/js/conference-meet-enhancements.js'])
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; background: #202124; color: #fff; font-family: 'Google Sans', 'Inter', ui-sans-serif, sans-serif; overflow: hidden; }
