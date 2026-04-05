@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - The Scholar PBL Workspace</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "surface-container": "#ededf9",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-low": "#f3f3fe",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "outline": "#737686",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-variant": "#e1e2ed",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-secondary-container": "#00714d",
+                        "background": "#faf8ff",
+                        "outline-variant": "#c3c6d7",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "secondary-container": "#6cf8bb",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e7e7f3",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#434655",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-primary": "#b4c5ff",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f0f0fb",
+                        "tertiary": "#3e3fcc",
+                        "primary-container": "#2563eb",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-container": "#f1eeff",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-primary-fixed": "#00174b",
+                        "surface-tint": "#0053db",
+                        "on-error": "#ffffff",
+                        "surface": "#faf8ff",
+                        "secondary": "#006c49",
+                        "on-background": "#191b23",
+                        "primary": "#004ac6",
+                        "inverse-surface": "#2e3039",
+                        "tertiary-container": "#585be6",
+                        "on-surface": "#191b23",
+                        "surface-dim": "#d9d9e5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .architectural-gradient {
+            background: linear-gradient(135deg, #004ac6 0%, #2563eb 100%);
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased min-h-screen flex items-center justify-center p-0">
+<main class="flex w-full min-h-screen overflow-hidden">
+<!-- Left Side: Visual Anchor -->
+<section class="hidden lg:flex lg:w-1/2 relative architectural-gradient flex-col justify-between p-16 text-on-primary-container">
+<div class="z-10">
+<div class="flex items-center gap-3 mb-12">
+<div class="bg-white/10 backdrop-blur-md p-2 rounded-xl">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">architecture</span>
+</div>
+<span class="font-headline font-bold text-2xl tracking-tighter">Architectural Scholar</span>
+</div>
+<h1 class="font-headline text-5xl font-extrabold leading-tight tracking-tight mb-6">
+                    Building the future of <br/>Academic Excellence.
+                </h1>
+<p class="text-on-primary-container/80 text-lg max-w-md leading-relaxed">
+                    A digital atelier designed for Project-Based Learning, where rigorous structure meets high-tech collaboration.
+                </p>
+</div>
+<!-- Asymmetric Bento-style Accent -->
+<div class="relative z-10 grid grid-cols-2 gap-4 mt-12">
+<div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
+<div class="text-secondary-fixed font-headline font-bold text-3xl mb-1">98%</div>
+<div class="text-on-primary-container/60 text-sm">Project Success Rate</div>
+</div>
+<div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 mt-8">
+<div class="text-secondary-fixed font-headline font-bold text-3xl mb-1">2.4k</div>
+<div class="text-on-primary-container/60 text-sm">Active Scholars</div>
+</div>
+</div>
+<!-- Visual Texture Image -->
+<div class="absolute inset-0 z-0 opacity-40">
+<img class="w-full h-full object-cover" data-alt="Modern minimalist architectural building with clean sharp lines and glass facade reflecting a bright blue sky at sunrise" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANPxnrbsWSw0zft9Ul_BAZHkadNoyVhRdWNV_fvTfMRKv0j9bLPgXVQNHxPWqwlJY0l8qhMlZYpBpO5bch38kty44iJb3lSGEFyrSrtR9K2AHhOcPs8UrozbjBbq1RKs3dCJAbArtx1a3pm6jzE6t6iiqTtcqlm3AnLOK8k1479KjviY5GaDw4K9v5d_hUGD98EZYVy4M3CmpPO2bbRCOlpo3eX83zDTC8UnOy5886rneEU6mQn5bqzTmWwd8Kej8TxCxIYHwE3A"/>
+</div>
+<div class="absolute inset-0 architectural-gradient opacity-60 z-0"></div>
+</section>
+<!-- Right Side: Login Form -->
+<section class="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 sm:p-12 lg:p-24 bg-surface">
+<div class="w-full max-w-md">
+<!-- Brand Mobile Header -->
+<div class="flex items-center gap-2 mb-12 lg:hidden">
+<span class="material-symbols-outlined text-primary text-3xl">architecture</span>
+<span class="font-headline font-extrabold text-xl text-primary tracking-tighter">Scholar PBL</span>
+</div>
+<div class="mb-10">
+<h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Login</h2>
+<p class="text-on-surface-variant text-sm">Welcome back to The Scholar PBL Workspace.</p>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+<button class="flex items-center justify-center gap-2 py-3 px-4 bg-surface-container-highest rounded-xl hover:bg-surface-container-high transition-all active:scale-95 text-on-surface font-medium text-sm">
+<img alt="Google logo" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoRC2yLD7FuO8F_lBCh-HX2bnMKXpw-t6QrRHuUuaQoR5twY0oMY6rAWZ6NtN1pRXi6I3JsAg4StEymC-sKwqwW43S8sjLD3303lf0FYcyRjjBl_VojXXpGVlz3N3Sg_udJNQoVonYk_AtvfH0o9DxHedtKSFNFj4KkHjXE09UTmiUZoL13ZsgLmvgv7ADDVXzqbJ7FBh-bVk6NM4d5c4OdxbRmG8-GZhMHC1oqiTS6YLYwycO3UYEol76rAqapdoLkjwMLt5wBQ"/>
+                        Google
+                    </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 bg-surface-container-highest rounded-xl hover:bg-surface-container-high transition-all active:scale-95 text-on-surface font-medium text-sm">
+<svg class="w-5 h-5" viewbox="0 0 23 23" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h23v23H0z" fill="#f3f3f3"></path><path d="M1 1h10v10H1z" fill="#f35325"></path><path d="M12 1h10v10H12z" fill="#81bc06"></path><path d="M1 12h10v10H1z" fill="#05a6f0"></path><path d="M12 12h10v10H12z" fill="#ffba08"></path></svg>
+                        Microsoft
+                    </button>
+</div>
+<div class="relative flex items-center justify-center mb-8">
+<div class="w-full border-t border-outline-variant/30"></div>
+<span class="absolute bg-surface px-4 text-xs font-medium text-on-surface-variant uppercase tracking-widest">Or with email</span>
+</div>
+<!-- Main Login Form -->
+<form class="space-y-6">
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-on-surface-variant" for="email">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">alternate_email</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60" id="email" placeholder="scholar@workspace.edu" type="email"/>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="block text-sm font-semibold text-on-surface-variant" for="password">Password</label>
+<a class="text-xs font-bold text-primary hover:text-primary-container transition-colors" href="#">Forgot Password?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
+<input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-xl">visibility</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-3 pt-2">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/20" id="remember" type="checkbox"/>
+<label class="text-sm font-medium text-on-surface-variant select-none" for="remember">Keep me logged in for 30 days</label>
+</div>
+<button class="w-full architectural-gradient py-4 rounded-xl text-white font-headline font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all" type="submit">
+                        Login to Workspace
+                    </button>
+</form>
+<footer class="mt-12 text-center">
+<p class="text-on-surface-variant text-sm">
+                        Don't have an account? 
+                        <a class="text-primary font-bold hover:underline underline-offset-4 decoration-2" href="#">Join the Academy</a>
+</p>
+</footer>
+</div>
+<!-- Global Footer Links -->
+<div class="mt-auto pt-12 flex gap-6 text-xs font-medium text-on-surface-variant/60">
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Institutional Access</a>
+</div>
+</section>
+</main>
+</body></html>

@@ -1,161 +1,185 @@
 <x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
-        <input type="hidden" name="role" id="role-input" value="{{ old('role', 'mahasiswa') }}">
+ <!-- Page Header -->
+ <div class="mb-8">
+ <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Registrasi</h2>
+ <p class="text-on-surface-variant text-sm">Bergabung dengan The Scholar PBL Workspace.</p>
+ </div>
 
-        {{-- Role Tabs --}}
-        <div class="mb-4">
-            <x-input-label :value="__('Daftar sebagai')" />
-            <div class="flex gap-2 mt-1">
-                <button type="button" id="tab-mahasiswa" onclick="switchRole('mahasiswa')"
-                        class="flex-1 py-2 px-3 text-sm font-semibold rounded-md border transition-colors duration-200
-                               {{ old('role', 'mahasiswa') !== 'dosen' ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 border-gray-800 dark:border-gray-200' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600' }}">
-                    Mahasiswa
-                </button>
-                <button type="button" id="tab-dosen" onclick="switchRole('dosen')"
-                        class="flex-1 py-2 px-3 text-sm font-semibold rounded-md border transition-colors duration-200
-                               {{ old('role') === 'dosen' ? 'bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 border-gray-800 dark:border-gray-200' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600' }}">
-                    Dosen
-                </button>
-            </div>
-        </div>
+ <form method="POST" action="{{ route('register') }}" class="space-y-5">
+ @csrf
+ <input type="hidden" name="role" id="role-input" value="{{ old('role', 'mahasiswa') }}">
 
-        {{-- Dosen Approval Notice --}}
-        <div id="dosen-notice" class="{{ old('role') === 'dosen' ? '' : 'hidden' }} mb-4 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-md p-3">
-            Akun dosen memerlukan <strong>persetujuan admin</strong> sebelum dapat digunakan.
-        </div>
+ {{-- Role Tabs --}}
+ <div>
+ <label class="block text-sm font-semibold text-on-surface-variant mb-2">Daftar sebagai</label>
+ <div class="flex gap-3">
+ <button type="button" id="tab-mahasiswa" onclick="switchRole('mahasiswa')"
+ class="flex-1 py-3 px-4 text-sm font-bold rounded-xl border-2 transition-all duration-200
+ {{ old('role', 'mahasiswa') !== 'dosen' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:bg-surface-container-high' }}">
+ Mahasiswa
+ </button>
+ <button type="button" id="tab-dosen" onclick="switchRole('dosen')"
+ class="flex-1 py-3 px-4 text-sm font-bold rounded-xl border-2 transition-all duration-200
+ {{ old('role') === 'dosen' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:bg-surface-container-high' }}">
+ Dosen
+ </button>
+ </div>
+ </div>
 
-        {{-- Name --}}
-        <div>
-            <x-input-label for="name" :value="__('Nama Lengkap')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name"
-                          :value="old('name')" required autofocus autocomplete="name"
-                          placeholder="Nama lengkap Anda" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+ {{-- Dosen Approval Notice --}}
+ <div id="dosen-notice" class="{{ old('role') === 'dosen' ? '' : 'hidden' }} text-sm text-amber-700 bg-amber-50 border-l-4 border-amber-400 rounded-xl p-4">
+ Akun dosen memerlukan <strong>persetujuan admin</strong> sebelum dapat digunakan.
+ </div>
 
-        {{-- Email --}}
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
-                          :value="old('email')" required autocomplete="username"
-                          placeholder="contoh@email.com" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+ {{-- Name --}}
+ <div class="space-y-2">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="name">Nama Lengkap</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">person</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="name" name="name" type="text" :value="old('name')" placeholder="Nama lengkap Anda" required autofocus autocomplete="name" />
+ </div>
+ <x-input-error :messages="$errors->get('name')" class="mt-1" />
+ </div>
 
-        {{-- NIM (Mahasiswa) --}}
-        <div id="field-nim" class="mt-4 {{ old('role') === 'dosen' ? 'hidden' : '' }}">
-            <x-input-label for="nim" :value="__('NIM')" />
-            <x-text-input id="nim" class="block mt-1 w-full" type="text" name="nim"
-                          :value="old('nim')" autocomplete="off" maxlength="20"
-                          placeholder="Nomor Induk Mahasiswa" />
-            <x-input-error :messages="$errors->get('nim')" class="mt-2" />
-        </div>
+ {{-- Email --}}
+ <div class="space-y-2">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="email">Email</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">alternate_email</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="email" name="email" type="email" :value="old('email')" placeholder="contoh@email.com" required autocomplete="username" />
+ </div>
+ <x-input-error :messages="$errors->get('email')" class="mt-1" />
+ </div>
 
-        {{-- Kode Kelas (Mahasiswa) --}}
-        <div id="field-class" class="mt-4 {{ old('role') === 'dosen' ? 'hidden' : '' }}">
-            <x-input-label for="student_class_id" :value="__('Kode Kelas')" />
-            <select id="student_class_id" name="student_class_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                <option value="">Pilih Kode Kelas</option>
-                @isset($studentClasses)
-                    @foreach($studentClasses as $klass)
-                        <option value="{{ $klass->id }}" {{ old('student_class_id') == $klass->id ? 'selected' : '' }}>
-                            {{ $klass->name }}
-                        </option>
-                    @endforeach
-                @endisset
-            </select>
-            <x-input-error :messages="$errors->get('student_class_id')" class="mt-2" />
-        </div>
+ {{-- NIM (Mahasiswa) --}}
+ <div id="field-nim" class="space-y-2 {{ old('role') === 'dosen' ? 'hidden' : '' }}">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="nim">NIM</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">badge</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="nim" name="nim" type="text" :value="old('nim')" placeholder="Nomor Induk Mahasiswa" autocomplete="off" maxlength="20" />
+ </div>
+ <x-input-error :messages="$errors->get('nim')" class="mt-1" />
+ </div>
 
-        {{-- NIP (Dosen) --}}
-        <div id="field-nip" class="mt-4 {{ old('role') === 'dosen' ? '' : 'hidden' }}">
-            <x-input-label for="nip" :value="__('NIP')" />
-            <x-text-input id="nip" class="block mt-1 w-full" type="text" name="nip"
-                          :value="old('nip')" autocomplete="off" maxlength="20"
-                          placeholder="Nomor Induk Pegawai" />
-            <x-input-error :messages="$errors->get('nip')" class="mt-2" />
-        </div>
+ {{-- Kode Kelas (Mahasiswa) --}}
+ <div id="field-class" class="space-y-2 {{ old('role') === 'dosen' ? 'hidden' : '' }}">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="student_class_id">Kode Kelas</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">meeting_room</span>
+ <select id="student_class_id" name="student_class_id"
+ class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface appearance-none">
+ <option value="">Pilih Kode Kelas</option>
+ @isset($studentClasses)
+ @foreach($studentClasses as $klass)
+ <option value="{{ $klass->id }}" {{ old('student_class_id') == $klass->id ? 'selected' : '' }}>
+ {{ $klass->name }}
+ </option>
+ @endforeach
+ @endisset
+ </select>
+ </div>
+ <x-input-error :messages="$errors->get('student_class_id')" class="mt-1" />
+ </div>
 
-        {{-- Password --}}
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password"
-                          required autocomplete="new-password" placeholder="Minimal 8 karakter" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+ {{-- NIP (Dosen) --}}
+ <div id="field-nip" class="space-y-2 {{ old('role') === 'dosen' ? '' : 'hidden' }}">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="nip">NIP</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">badge</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="nip" name="nip" type="text" :value="old('nip')" placeholder="Nomor Induk Pegawai" autocomplete="off" maxlength="20" />
+ </div>
+ <x-input-error :messages="$errors->get('nip')" class="mt-1" />
+ </div>
 
-        {{-- Confirm Password --}}
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" />
-            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
-                          name="password_confirmation" required autocomplete="new-password"
-                          placeholder="Ulangi password Anda" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+ {{-- Password --}}
+ <div class="space-y-2">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="password">Password</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="password" name="password" type="password" placeholder="Minimal 8 karakter" required autocomplete="new-password" />
+ </div>
+ <x-input-error :messages="$errors->get('password')" class="mt-1" />
+ </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
-               href="{{ route('login') }}">
-                {{ __('Sudah punya akun?') }}
-            </a>
+ {{-- Confirm Password --}}
+ <div class="space-y-2">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="password_confirmation">Konfirmasi Password</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="password_confirmation" name="password_confirmation" type="password" placeholder="Ulangi password Anda" required autocomplete="new-password" />
+ </div>
+ <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
+ </div>
 
-            <x-primary-button class="ms-4" id="btn-submit">
-                <span id="btn-text">{{ __('Daftar') }}</span>
-            </x-primary-button>
-        </div>
-    </form>
+ <!-- Submit Button -->
+ <button class="w-full architectural-gradient py-4 rounded-xl text-white font-headline font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all" type="submit" id="btn-submit">
+ Daftar Sekarang
+ </button>
+ </form>
 
-    <script>
-        function switchRole(role) {
-            const roleInput   = document.getElementById('role-input');
-            const tabMhs      = document.getElementById('tab-mahasiswa');
-            const tabDosen    = document.getElementById('tab-dosen');
-            const fieldNim    = document.getElementById('field-nim');
-            const fieldNip    = document.getElementById('field-nip');
-            const fieldClass  = document.getElementById('field-class');
-            const notice      = document.getElementById('dosen-notice');
-            const nimInput    = document.getElementById('nim');
-            const nipInput    = document.getElementById('nip');
-            const classInput  = document.getElementById('student_class_id');
+ <footer class="mt-8 text-center">
+ <p class="text-on-surface-variant text-sm">
+ Sudah punya akun?
+ <a class="text-primary font-bold hover:underline underline-offset-4 decoration-2" href="{{ route('login') }}">Login</a>
+ </p>
+ </footer>
 
-            const activeClass   = ['bg-gray-800', 'dark:bg-gray-200', 'text-white', 'dark:text-gray-800', 'border-gray-800', 'dark:border-gray-200'];
-            const inactiveClass = ['bg-white', 'dark:bg-gray-700', 'text-gray-600', 'dark:text-gray-300', 'border-gray-300', 'dark:border-gray-600', 'hover:bg-gray-50', 'dark:hover:bg-gray-600'];
+ <script>
+ function switchRole(role) {
+ const roleInput = document.getElementById('role-input');
+ const tabMhs = document.getElementById('tab-mahasiswa');
+ const tabDosen = document.getElementById('tab-dosen');
+ const fieldNim = document.getElementById('field-nim');
+ const fieldNip = document.getElementById('field-nip');
+ const fieldClass = document.getElementById('field-class');
+ const notice = document.getElementById('dosen-notice');
+ const nimInput = document.getElementById('nim');
+ const nipInput = document.getElementById('nip');
+ const classInput = document.getElementById('student_class_id');
 
-            roleInput.value = role;
+ const activeClass = ['bg-primary', 'text-white', 'border-primary', 'shadow-lg', 'shadow-primary/20'];
+ const inactiveClass = ['bg-surface-container-highest', 'text-on-surface-variant', 'border-transparent', 'hover:bg-surface-container-high'];
 
-            if (role === 'mahasiswa') {
-                tabMhs.classList.add(...activeClass);
-                tabMhs.classList.remove(...inactiveClass);
-                tabDosen.classList.add(...inactiveClass);
-                tabDosen.classList.remove(...activeClass);
+ roleInput.value = role;
 
-                fieldNim.classList.remove('hidden');
-                fieldNip.classList.add('hidden');
-                fieldClass.classList.remove('hidden');
-                notice.classList.add('hidden');
+ if (role === 'mahasiswa') {
+ tabMhs.classList.add(...activeClass);
+ tabMhs.classList.remove(...inactiveClass);
+ tabDosen.classList.add(...inactiveClass);
+ tabDosen.classList.remove(...activeClass);
 
-                nimInput.required = true;
-                nipInput.required = false;
-                nipInput.value    = '';
-                classInput.required = true;
-            } else {
-                tabDosen.classList.add(...activeClass);
-                tabDosen.classList.remove(...inactiveClass);
-                tabMhs.classList.add(...inactiveClass);
-                tabMhs.classList.remove(...activeClass);
+ fieldNim.classList.remove('hidden');
+ fieldNip.classList.add('hidden');
+ fieldClass.classList.remove('hidden');
+ notice.classList.add('hidden');
 
-                fieldNip.classList.remove('hidden');
-                fieldNim.classList.add('hidden');
-                fieldClass.classList.add('hidden');
-                notice.classList.remove('hidden');
+ nimInput.required = true;
+ nipInput.required = false;
+ nipInput.value = '';
+ classInput.required = true;
+ } else {
+ tabDosen.classList.add(...activeClass);
+ tabDosen.classList.remove(...inactiveClass);
+ tabMhs.classList.add(...inactiveClass);
+ tabMhs.classList.remove(...activeClass);
 
-                nipInput.required = true;
-                nimInput.required = false;
-                nimInput.value    = '';
-                classInput.required = false;
-                classInput.value    = '';
-            }
-        }
-    </script>
+ fieldNip.classList.remove('hidden');
+ fieldNim.classList.add('hidden');
+ fieldClass.classList.add('hidden');
+ notice.classList.remove('hidden');
+
+ nipInput.required = true;
+ nimInput.required = false;
+ nimInput.value = '';
+ classInput.required = false;
+ classInput.value = '';
+ }
+ }
+ </script>
 </x-guest-layout>
