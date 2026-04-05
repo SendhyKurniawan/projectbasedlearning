@@ -1,57 +1,68 @@
 <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+ <!-- Page Header -->
+ <div class="mb-10">
+ <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Login</h2>
+ <p class="text-on-surface-variant text-sm">Welcome back to The Scholar PBL Workspace.</p>
+ </div>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+ <!-- Session Status -->
+ <x-auth-session-status class="mb-6" :status="session('status')" />
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+ <!-- Divider -->
+ <div class="relative flex items-center justify-center mb-8">
+ <div class="w-full border-t border-outline-variant/30"></div>
+ <span class="absolute bg-surface px-4 text-xs font-medium text-on-surface-variant uppercase tracking-widest">Login with email</span>
+ </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+ <!-- Main Login Form -->
+ <form method="POST" action="{{ route('login') }}" class="space-y-6">
+ @csrf
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+ <!-- Email Address -->
+ <div class="space-y-2">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="email">Email Address</label>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">alternate_email</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="email" name="email" type="email" :value="old('email')" placeholder="scholar@workspace.edu" required autofocus autocomplete="username" />
+ </div>
+ <x-input-error :messages="$errors->get('email')" class="mt-1" />
+ </div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+ <!-- Password -->
+ <div class="space-y-2">
+ <div class="flex justify-between items-center">
+ <label class="block text-sm font-semibold text-on-surface-variant" for="password">Password</label>
+ @if (Route::has('password.request'))
+ <a class="text-xs font-bold text-primary hover:text-primary-container transition-colors" href="{{ route('password.request') }}">Lupa Password?</a>
+ @endif
+ </div>
+ <div class="relative">
+ <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="password" name="password" type="password" placeholder="Enter your password" required autocomplete="current-password" />
+ </div>
+ <x-input-error :messages="$errors->get('password')" class="mt-1" />
+ </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+ <!-- Remember Me -->
+ <div class="flex items-center gap-3 pt-2">
+ <input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/20" id="remember_me" name="remember" type="checkbox" />
+ <label class="text-sm font-medium text-on-surface-variant select-none" for="remember_me">Keep me logged in</label>
+ </div>
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
-                        Lupa password?
-                    </a>
-            @endif
+ <!-- Submit Button -->
+ <button class="w-full architectural-gradient py-4 rounded-xl text-white font-headline font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all" type="submit">
+ Login to Workspace
+ </button>
+ </form>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-
-    @if (Route::has('register'))
-        <div class="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-            Belum punya akun?
-            <a href="{{ route('register') }}"
-               class="underline text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                Daftar
-            </a>
-        </div>
-    @endif
+ @if (Route::has('register'))
+ <footer class="mt-10 text-center">
+ <p class="text-on-surface-variant text-sm">
+ Belum punya akun?
+ <a class="text-primary font-bold hover:underline underline-offset-4 decoration-2" href="{{ route('register') }}">Daftar Sekarang</a>
+ </p>
+ </footer>
+ @endif
 </x-guest-layout>

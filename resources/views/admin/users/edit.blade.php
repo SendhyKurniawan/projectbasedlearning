@@ -1,120 +1,88 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Edit User') }}
-            </h2>
-            <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-                &larr; Back to Users
-            </a>
-        </div>
-    </x-slot>
+ <div class="space-y-6">
+ <!-- Page Header -->
+ <div class="flex justify-between items-center">
+ <h2 class="text-2xl font-extrabold text-on-surface tracking-tight font-headline">Edit User</h2>
+ <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-container transition-colors">
+ <span class="material-symbols-outlined text-lg">arrow_back</span>
+ Back to Users
+ </a>
+ </div>
 
-    <div class="py-12">
-        <div class="sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    
-                    <form method="POST" action="{{ route('admin.users.update', $user) }}">
-                        @csrf
-                        @method('PUT')
+ <!-- Form Card -->
+ <div class="bg-surface-container-lowest rounded-2xl shadow-sm p-8 max-w-2xl">
+ <form method="POST" action="{{ route('admin.users.update', $user) }}" class="space-y-6">
+ @csrf
+ @method('PUT')
 
-                        <!-- Name -->
-                        <div class="form-group">
-                            <label class="form-label" for="name">Name</label>
-                            <input class="form-input" id="name" type="text" name="name" value="{{ old('name', $user->name) }}" required autofocus>
-                            @error('name')
-                                <span class="form-error">{{ $message }}</span>
-                            @enderror
-                        </div>
+ <div class="form-group">
+ <label class="form-label" for="name">Name</label>
+ <input class="form-input" id="name" type="text" name="name" value="{{ old('name', $user->name) }}" required autofocus>
+ @error('name') <span class="form-error">{{ $message }}</span> @enderror
+ </div>
 
-                        <!-- Email -->
-                        <div class="form-group">
-                            <label class="form-label" for="email">Email</label>
-                            <input class="form-input" id="email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
-                            @error('email')
-                                <span class="form-error">{{ $message }}</span>
-                            @enderror
-                        </div>
+ <div class="form-group">
+ <label class="form-label" for="email">Email</label>
+ <input class="form-input" id="email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
+ @error('email') <span class="form-error">{{ $message }}</span> @enderror
+ </div>
 
-                        <!-- Role -->
-                        <div class="form-group" x-data="{ role: '{{ old('role', $user->role) }}' }">
-                            <label class="form-label" for="role">Role</label>
-                            <select class="form-select" id="role" name="role" required x-model="role">
-                                <option value="mahasiswa">Mahasiswa</option>
-                                <option value="dosen">Dosen</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                            @error('role')
-                                <span class="form-error">{{ $message }}</span>
-                            @enderror
+ <div class="form-group" x-data="{ role: '{{ old('role', $user->role) }}' }">
+ <label class="form-label" for="role">Role</label>
+ <select class="form-select" id="role" name="role" required x-model="role">
+ <option value="mahasiswa">Mahasiswa</option>
+ <option value="dosen">Dosen</option>
+ <option value="admin">Admin</option>
+ </select>
+ @error('role') <span class="form-error">{{ $message }}</span> @enderror
 
-                            <!-- NIM (Student Only) -->
-                            <div class="mt-4" x-show="role === 'mahasiswa'">
-                                <label class="form-label" for="nim">NIM</label>
-                                <input class="form-input" id="nim" type="text" name="nim" value="{{ old('nim', $user->nim) }}">
-                                @error('nim')
-                                    <span class="form-error">{{ $message }}</span>
-                                @enderror
-                            </div>
+ <div class="mt-4" x-show="role === 'mahasiswa'">
+ <label class="form-label" for="nim">NIM</label>
+ <input class="form-input" id="nim" type="text" name="nim" value="{{ old('nim', $user->nim) }}">
+ @error('nim') <span class="form-error">{{ $message }}</span> @enderror
+ </div>
 
-                            <!-- NIP (Dosen Only) -->
-                            <div class="mt-4" x-show="role === 'dosen'">
-                                <label class="form-label" for="nip">NIP</label>
-                                <input class="form-input" id="nip" type="text" name="nip" value="{{ old('nip', $user->nip) }}">
-                                @error('nip')
-                                    <span class="form-error">{{ $message }}</span>
-                                @enderror
-                            </div>
+ <div class="mt-4" x-show="role === 'dosen'">
+ <label class="form-label" for="nip">NIP</label>
+ <input class="form-input" id="nip" type="text" name="nip" value="{{ old('nip', $user->nip) }}">
+ @error('nip') <span class="form-error">{{ $message }}</span> @enderror
+ </div>
 
-                            <!-- Class (Student Only) -->
-                            <div class="mt-4" x-show="role === 'mahasiswa'">
-                                <label class="form-label" for="student_class_id">Kelas</label>
-                                <select class="form-select" id="student_class_id" name="student_class_id">
-                                    <option value="">Pilih Kelas</option>
-                                    @foreach($classes as $class)
-                                        <option value="{{ $class->id }}" {{ old('student_class_id', $user->student_class_id) == $class->id ? 'selected' : '' }}>
-                                            {{ $class->name }} ({{ $class->studyProgram->name }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('student_class_id')
-                                    <span class="form-error">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
+ <div class="mt-4" x-show="role === 'mahasiswa'">
+ <label class="form-label" for="student_class_id">Kelas</label>
+ <select class="form-select" id="student_class_id" name="student_class_id">
+ <option value="">Pilih Kelas</option>
+ @foreach($classes as $class)
+ <option value="{{ $class->id }}" {{ old('student_class_id', $user->student_class_id) == $class->id ? 'selected' : '' }}>
+ {{ $class->name }} ({{ $class->studyProgram->name }})
+ </option>
+ @endforeach
+ </select>
+ @error('student_class_id') <span class="form-error">{{ $message }}</span> @enderror
+ </div>
+ </div>
 
-                        <hr class="my-6 border-gray-200 dark:border-gray-700">
-                        <h3 class="text-lg font-medium mb-4">Change Password <span class="text-sm font-normal text-gray-500">(Optional)</span></h3>
+ <div class="pt-4 border-t border-surface-container-low">
+ <h3 class="text-lg font-bold font-headline text-on-surface mb-1">Change Password</h3>
+ <p class="text-xs text-on-surface-variant mb-4">Leave blank to keep current password.</p>
+ </div>
 
-                        <!-- Password -->
-                        <div class="form-group">
-                            <label class="form-label" for="password">New Password</label>
-                            <input class="form-input" id="password" type="password" name="password" autocomplete="new-password">
-                            <span class="form-hint">Leave blank to keep current password.</span>
-                            @error('password')
-                                <span class="form-error">{{ $message }}</span>
-                            @enderror
-                        </div>
+ <div class="form-group">
+ <label class="form-label" for="password">New Password</label>
+ <input class="form-input" id="password" type="password" name="password" autocomplete="new-password">
+ @error('password') <span class="form-error">{{ $message }}</span> @enderror
+ </div>
 
-                        <!-- Confirm Password -->
-                        <div class="form-group">
-                            <label class="form-label" for="password_confirmation">Confirm New Password</label>
-                            <input class="form-input" id="password_confirmation" type="password" name="password_confirmation">
-                        </div>
+ <div class="form-group">
+ <label class="form-label" for="password_confirmation">Confirm New Password</label>
+ <input class="form-input" id="password_confirmation" type="password" name="password_confirmation">
+ </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary mr-3">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                Update User
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
-        </div>
-    </div>
+ <div class="flex items-center justify-end gap-3 pt-4 border-t border-surface-container-low">
+ <a href="{{ route('admin.users.index') }}" class="px-5 py-2.5 bg-surface-container-high text-on-surface-variant text-sm font-bold rounded-xl hover:bg-surface-container-highest transition-colors">Cancel</a>
+ <button type="submit" class="px-5 py-2.5 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">Update User</button>
+ </div>
+ </form>
+ </div>
+ </div>
 </x-app-layout>

@@ -1,261 +1,243 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                    Manajemen User
-                </h2>
-                @if($pendingDosen > 0)
-                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                        {{ $pendingDosen }} dosen menunggu persetujuan
-                    </span>
-                @endif
-            </div>
-            <a href="{{ route('admin.users.create') }}"
-               class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 transition ease-in-out duration-150">
-                Tambah User
-            </a>
-        </div>
-    </x-slot>
+ <div class="space-y-6">
+ <!-- Page Header -->
+ <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+ <div class="flex items-center gap-3">
+ <h2 class="text-2xl font-extrabold text-on-surface tracking-tight font-headline">Manajemen User</h2>
+ @if($pendingDosen > 0)
+ <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200/50">
+ <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+ {{ $pendingDosen }} menunggu
+ </span>
+ @endif
+ </div>
+ <a href="{{ route('admin.users.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">
+ <span class="material-symbols-outlined text-lg">person_add</span>
+ Tambah User
+ </a>
+ </div>
 
-    <div class="py-12">
-        <div class="sm:px-6 lg:px-8">
+ {{-- Flash Messages --}}
+ @if(session('success'))
+ <div class="px-5 py-4 bg-emerald-50 border-l-4 border-secondary text-secondary rounded-xl text-sm font-medium flex items-center gap-3">
+ <span class="material-symbols-outlined text-lg">check_circle</span>
+ {{ session('success') }}
+ </div>
+ @endif
+ @if(session('error'))
+ <div class="px-5 py-4 bg-red-50 border-l-4 border-error text-error rounded-xl text-sm font-medium flex items-center gap-3">
+ <span class="material-symbols-outlined text-lg">error</span>
+ {{ session('error') }}
+ </div>
+ @endif
 
-            {{-- Flash Messages --}}
-            @if(session('success'))
-                <div class="mb-4 px-4 py-3 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-800 dark:text-green-200 rounded-lg text-sm">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="mb-4 px-4 py-3 bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-800 dark:text-red-200 rounded-lg text-sm">
-                    {{ session('error') }}
-                </div>
-            @endif
+ {{-- Pending Dosen Alert --}}
+ @if($pendingDosen > 0)
+ <div class="px-5 py-4 bg-amber-50 border-l-4 border-amber-400 rounded-xl flex items-center gap-3">
+ <span class="material-symbols-outlined text-amber-600 text-lg">warning</span>
+ <p class="text-sm text-amber-800 flex-1">
+ Ada <strong>{{ $pendingDosen }} akun dosen</strong> yang menunggu persetujuan.
+ </p>
+ <a href="{{ route('admin.users.index', ['role' => 'dosen', 'status' => 'inactive']) }}" class="text-xs font-bold text-amber-800 underline hover:no-underline whitespace-nowrap">Lihat Sekarang</a>
+ </div>
+ @endif
 
-            {{-- Pending Dosen Alert --}}
-            @if($pendingDosen > 0)
-                <div class="mb-6 px-4 py-4 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-lg flex items-center gap-3">
-                    <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    <p class="text-sm text-yellow-800 dark:text-yellow-200">
-                        Ada <strong>{{ $pendingDosen }} akun dosen</strong> yang menunggu persetujuan. Filter dengan role <strong>Dosen</strong> dan status <strong>Tidak Aktif</strong> untuk meninjau.
-                    </p>
-                    <a href="{{ route('admin.users.index', ['role' => 'dosen', 'status' => 'inactive']) }}"
-                       class="ml-auto whitespace-nowrap text-xs font-semibold text-yellow-800 dark:text-yellow-200 underline hover:no-underline">
-                        Lihat Sekarang
-                    </a>
-                </div>
-            @endif
+ <!-- Main Content Card -->
+ <div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
+ {{-- Search & Filter --}}
+ <div class="p-6 border-b border-surface-container-low">
+ <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-col sm:flex-row gap-3">
+ <div class="relative flex-1">
+ <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
+ <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, email, NIM, atau NIP..."
+ class="w-full pl-10 pr-4 py-3 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 outline-none text-on-surface text-sm placeholder:text-outline/60">
+ </div>
+ <select name="role" class="py-3 px-4 bg-surface-container-highest rounded-xl border-none text-on-surface text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+ <option value="">Semua Role</option>
+ <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+ <option value="dosen" {{ request('role') === 'dosen' ? 'selected' : '' }}>Dosen</option>
+ <option value="mahasiswa" {{ request('role') === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+ </select>
+ <select name="status" class="py-3 px-4 bg-surface-container-highest rounded-xl border-none text-on-surface text-sm focus:ring-2 focus:ring-primary/20 outline-none">
+ <option value="">Semua Status</option>
+ <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
+ <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
+ </select>
+ <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-container transition-colors">
+ <span class="material-symbols-outlined text-sm">filter_list</span>
+ Filter
+ </button>
+ @if(request()->hasAny(['search','role','status']))
+ <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-2 px-5 py-3 bg-surface-container-high text-on-surface-variant text-sm font-bold rounded-xl hover:bg-surface-container-highest transition-colors">
+ Reset
+ </a>
+ @endif
+ </form>
+ </div>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+ {{-- Bulk Actions + Table --}}
+ <div x-data="{
+ selectAll: false,
+ selectedUsers: [],
+ toggleAll() {
+ if (this.selectAll) {
+ this.selectedUsers = Array.from(document.querySelectorAll('.user-checkbox')).map(cb => cb.value);
+ } else {
+ this.selectedUsers = [];
+ }
+ },
+ checkSelection() {
+ const checkboxes = document.querySelectorAll('.user-checkbox');
+ this.selectAll = checkboxes.length > 0 && checkboxes.length === this.selectedUsers.length;
+ }
+ }">
+ <div x-show="selectedUsers.length > 0" x-transition.opacity
+ class="mx-6 mt-4 p-3 bg-primary-fixed rounded-xl flex items-center justify-between" style="display: none;">
+ <span class="text-sm font-bold text-primary">
+ <span x-text="selectedUsers.length"></span> user terpilih
+ </span>
+ <form action="{{ route('admin.users.bulk-destroy') }}" method="POST" x-ref="bulkDeleteForm">
+ @csrf
+ @method('DELETE')
+ <template x-for="id in selectedUsers" :key="id">
+ <input type="hidden" name="user_ids[]" :value="id">
+ </template>
+ <button type="button" @click="if(confirm('Yakin ingin menghapus ' + selectedUsers.length + ' user terpilih?')) $refs.bulkDeleteForm.submit()"
+ class="px-4 py-2 bg-error hover:bg-red-800 text-white text-xs font-bold rounded-lg transition shadow-sm">
+ Hapus Terpilih
+ </button>
+ </form>
+ </div>
 
-                    {{-- Search & Filter --}}
-                    <form method="GET" action="{{ route('admin.users.index') }}" class="mb-6 flex flex-col sm:flex-row gap-3">
-                        <input type="text" name="search" value="{{ request('search') }}"
-                               placeholder="Cari nama, email, NIM, atau NIP..."
-                               class="flex-1 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:ring-indigo-500 text-sm">
+ {{-- Table --}}
+ <div class="overflow-x-auto">
+ <table class="w-full text-left">
+ <thead>
+ <tr class="bg-surface-container-low/50">
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant w-10">
+ <input type="checkbox" x-model="selectAll" @change="toggleAll" class="rounded border-outline-variant text-primary focus:ring-primary/20">
+ </th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Nama</th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Email</th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">NIM/NIP</th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Kelas / Prodi</th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Role</th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Status</th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Bergabung</th>
+ <th class="px-5 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Aksi</th>
+ </tr>
+ </thead>
+ <tbody class="divide-y divide-surface-container-low">
+ @forelse($users as $user)
+ <tr class="{{ !$user->is_active ? 'opacity-60' : '' }} hover:bg-surface-bright transition-colors">
+ <td class="px-5 py-4 whitespace-nowrap">
+ @if($user->id !== auth()->id())
+ <input type="checkbox" value="{{ $user->id }}" x-model="selectedUsers" @change="checkSelection" class="user-checkbox rounded border-outline-variant text-primary focus:ring-primary/20">
+ @else
+ <input type="checkbox" disabled class="rounded border-outline-variant text-outline bg-surface-container opacity-50 cursor-not-allowed">
+ @endif
+ </td>
+ <td class="px-5 py-4 whitespace-nowrap">
+ <div class="flex items-center gap-3">
+ @php
+ $avatarBg = match($user->role) {
+ 'admin' => 'bg-red-100 text-red-700',
+ 'dosen' => 'bg-primary-fixed text-primary',
+ 'mahasiswa' => 'bg-emerald-100 text-secondary',
+ default => 'bg-surface-container text-on-surface-variant'
+ };
+ @endphp
+ <div class="w-8 h-8 rounded-full {{ $avatarBg }} flex items-center justify-center font-bold text-xs">
+ {{ strtoupper(substr($user->name, 0, 2)) }}
+ </div>
+ <span class="font-bold text-on-surface text-sm">{{ $user->name }}</span>
+ </div>
+ </td>
+ <td class="px-5 py-4 whitespace-nowrap text-sm text-on-surface-variant">{{ $user->email }}</td>
+ <td class="px-5 py-4 whitespace-nowrap">
+ @if($user->nim)
+ <span class="font-mono text-xs bg-primary-fixed text-primary px-2 py-0.5 rounded-full font-bold">{{ $user->nim }}</span>
+ @elseif($user->nip)
+ <span class="font-mono text-xs bg-tertiary-fixed text-tertiary px-2 py-0.5 rounded-full font-bold">{{ $user->nip }}</span>
+ @else
+ <span class="text-outline">-</span>
+ @endif
+ </td>
+ <td class="px-5 py-4 whitespace-nowrap text-sm text-on-surface-variant">
+ @if($user->role === 'mahasiswa' && $user->studentClass)
+ <div class="flex flex-col">
+ <span class="font-bold text-on-surface text-xs">{{ $user->studentClass->name }}</span>
+ <span class="text-xs text-on-surface-variant">{{ $user->studentClass->studyProgram->name ?? '-' }} ({{ $user->studentClass->studyProgram->level ?? '-' }})</span>
+ </div>
+ @else
+ <span class="text-outline">-</span>
+ @endif
+ </td>
+ <td class="px-5 py-4 whitespace-nowrap">
+ @php
+ $roleClass = match($user->role) {
+ 'admin' => 'bg-red-50 text-red-700',
+ 'dosen' => 'bg-blue-50 text-primary',
+ 'mahasiswa' => 'bg-emerald-50 text-secondary',
+ default => 'bg-surface-container text-on-surface-variant',
+ };
+ @endphp
+ <span class="px-3 py-1 text-xs font-bold rounded-full {{ $roleClass }}">{{ ucfirst($user->role) }}</span>
+ </td>
+ <td class="px-5 py-4 whitespace-nowrap">
+ @if($user->is_active)
+ <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-50 text-secondary">
+ <span class="w-1.5 h-1.5 rounded-full bg-secondary inline-block"></span>
+ Aktif
+ </span>
+ @else
+ <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full bg-amber-50 text-amber-700">
+ <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+ Menunggu
+ </span>
+ @endif
+ </td>
+ <td class="px-5 py-4 whitespace-nowrap text-xs text-on-surface-variant">{{ $user->created_at->format('d M Y') }}</td>
+ <td class="px-5 py-4 whitespace-nowrap">
+ <div class="flex items-center gap-2">
+ @if($user->id !== auth()->id())
+ <form action="{{ route('admin.users.toggle-active', $user->id) }}" method="POST">
+ @csrf
+ @method('PATCH')
+ <button type="submit" title="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+ class="px-3 py-1.5 text-xs font-bold rounded-lg {{ $user->is_active ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : 'bg-emerald-50 text-secondary hover:bg-emerald-100' }} transition">
+ {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
+ </button>
+ </form>
+ @endif
+ <a href="{{ route('admin.users.edit', $user) }}" class="text-primary hover:text-primary-container text-xs font-bold transition-colors">Edit</a>
+ @if($user->id !== auth()->id())
+ <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+ @csrf
+ @method('DELETE')
+ <button type="submit" onclick="return confirm('Hapus user {{ addslashes($user->name) }}?')" class="text-error hover:text-red-700 text-xs font-bold transition-colors">Hapus</button>
+ </form>
+ @endif
+ </div>
+ </td>
+ </tr>
+ @empty
+ <tr>
+ <td colspan="9" class="px-6 space-y-6 text-center">
+ <span class="material-symbols-outlined text-4xl text-outline mb-3 block">person_off</span>
+ <p class="text-on-surface-variant font-medium text-sm">Tidak ada user yang ditemukan.</p>
+ </td>
+ </tr>
+ @endforelse
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-                        <select name="role"
-                                class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:ring-indigo-500 text-sm">
-                            <option value="">Semua Role</option>
-                            <option value="admin"     {{ request('role') === 'admin'     ? 'selected' : '' }}>Admin</option>
-                            <option value="dosen"     {{ request('role') === 'dosen'     ? 'selected' : '' }}>Dosen</option>
-                            <option value="mahasiswa" {{ request('role') === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-                        </select>
-
-                        <select name="status"
-                                class="rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 shadow-sm focus:ring-indigo-500 text-sm">
-                            <option value="">Semua Status</option>
-                            <option value="active"   {{ request('status') === 'active'   ? 'selected' : '' }}>Aktif</option>
-                            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
-                        </select>
-
-                        <button type="submit"
-                                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-md transition">
-                            Filter
-                        </button>
-                        @if(request()->hasAny(['search','role','status']))
-                            <a href="{{ route('admin.users.index') }}"
-                               class="px-4 py-2 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-sm font-semibold rounded-md transition">
-                                Reset
-                            </a>
-                        @endif
-                    </form>
-
-                    {{-- Bulk Actions Toolbar (Alpine Context) --}}
-                    <div x-data="{
-                        selectAll: false,
-                        selectedUsers: [],
-                        toggleAll() {
-                            if (this.selectAll) {
-                                this.selectedUsers = Array.from(document.querySelectorAll('.user-checkbox')).map(cb => cb.value);
-                            } else {
-                                this.selectedUsers = [];
-                            }
-                        },
-                        checkSelection() {
-                            const checkboxes = document.querySelectorAll('.user-checkbox');
-                            this.selectAll = checkboxes.length > 0 && checkboxes.length === this.selectedUsers.length;
-                        }
-                    }">
-                        <div x-show="selectedUsers.length > 0" x-transition.opacity
-                             class="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg flex items-center justify-between" style="display: none;">
-                            <span class="text-sm font-medium text-indigo-800 dark:text-indigo-200">
-                                <span x-text="selectedUsers.length"></span> user terpilih
-                            </span>
-                            
-                            <div class="flex gap-2">
-                                <form action="{{ route('admin.users.bulk-destroy') }}" method="POST" x-ref="bulkDeleteForm">
-                                    @csrf
-                                    @method('DELETE')
-                                    <template x-for="id in selectedUsers" :key="id">
-                                        <input type="hidden" name="user_ids[]" :value="id">
-                                    </template>
-                                    <button type="button" @click="if(confirm('Yakin ingin menghapus ' + selectedUsers.length + ' user terpilih?')) $refs.bulkDeleteForm.submit()"
-                                            class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded transition shadow-sm">
-                                        Hapus Terpilih
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                    {{-- Table --}}
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead>
-                                <tr>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-10">
-                                        <input type="checkbox" x-model="selectAll" @change="toggleAll" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700">
-                                    </th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nama</th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">NIM/NIP</th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kelas / Prodi</th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Role</th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Bergabung</th>
-                                    <th class="px-4 py-3 bg-gray-50 dark:bg-gray-700 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @forelse($users as $user)
-                                    <tr class="{{ !$user->is_active ? 'opacity-70' : '' }} hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
-                                        <td class="px-4 py-3 whitespace-nowrap">
-                                            @if($user->id !== auth()->id())
-                                                <input type="checkbox" value="{{ $user->id }}" x-model="selectedUsers" @change="checkSelection" class="user-checkbox rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-700">
-                                            @else
-                                                <input type="checkbox" disabled class="rounded border-gray-300 text-gray-400 bg-gray-100 dark:border-gray-600 dark:bg-gray-700 opacity-50 cursor-not-allowed">
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap">
-                                            <div class="font-medium text-gray-900 dark:text-gray-100 text-sm">{{ $user->name }}</div>
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                                            {{ $user->email }}
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                                            @if($user->nim)
-                                                <span class="font-mono text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded">{{ $user->nim }}</span>
-                                            @elseif($user->nip)
-                                                <span class="font-mono text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded">{{ $user->nip }}</span>
-                                            @else
-                                                <span class="text-gray-400">-</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                                            @if($user->role === 'mahasiswa' && $user->studentClass)
-                                                <div class="flex flex-col">
-                                                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $user->studentClass->name }}</span>
-                                                    <span class="text-xs text-gray-500">{{ $user->studentClass->studyProgram->name ?? '-' }} ({{ $user->studentClass->studyProgram->level ?? '-' }})</span>
-                                                </div>
-                                            @else
-                                                <span class="text-gray-400">-</span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap">
-                                            @php
-                                                $roleClass = match($user->role) {
-                                                    'admin'     => 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
-                                                    'dosen'     => 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-                                                    'mahasiswa' => 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-                                                    default     => 'bg-gray-100 text-gray-700',
-                                                };
-                                            @endphp
-                                            <span class="px-2 py-0.5 text-xs font-semibold rounded-full {{ $roleClass }}">
-                                                {{ ucfirst($user->role) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap">
-                                            @if($user->is_active)
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
-                                                    Aktif
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 inline-block"></span>
-                                                    Menunggu
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                            {{ $user->created_at->format('d M Y') }}
-                                        </td>
-                                        <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
-                                            <div class="flex items-center gap-2">
-                                                {{-- Toggle Active --}}
-                                                @if($user->id !== auth()->id())
-                                                    <form action="{{ route('admin.users.toggle-active', $user->id) }}" method="POST">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <button type="submit"
-                                                                title="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
-                                                                class="px-2 py-1 text-xs font-semibold rounded {{ $user->is_active ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-300' : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900 dark:text-green-300' }} transition">
-                                                            {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                                                        </button>
-                                                    </form>
-                                                @endif
-
-                                                <a href="{{ route('admin.users.edit', $user) }}"
-                                                   class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-200">
-                                                    Edit
-                                                </a>
-
-                                                @if($user->id !== auth()->id())
-                                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                                onclick="return confirm('Hapus user {{ addslashes($user->name) }}?')"
-                                                                class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200">
-                                                            Hapus
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="9" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                                            Tidak ada user yang ditemukan.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    </div> {{-- End Bulk Actions Alpine Context --}}
-
-                    {{-- Pagination --}}
-                    <div class="mt-4">
-                        {{ $users->links() }}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+ {{-- Pagination --}}
+ <div class="p-6 border-t border-surface-container-low">
+ {{ $users->links() }}
+ </div>
+ </div>
+ </div>
 </x-app-layout>

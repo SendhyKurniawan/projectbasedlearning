@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Email Verification | ScholarTech</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#f1eeff",
+                        "surface-dim": "#d9d9e5",
+                        "surface": "#faf8ff",
+                        "tertiary": "#3e3fcc",
+                        "primary-container": "#2563eb",
+                        "primary": "#004ac6",
+                        "on-surface-variant": "#434655",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "surface-container": "#ededf9",
+                        "surface-container-high": "#e7e7f3",
+                        "secondary": "#006c49",
+                        "outline": "#737686",
+                        "on-secondary-container": "#00714d",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary-fixed": "#dbe1ff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2e3039",
+                        "surface-container-low": "#f3f3fe",
+                        "on-tertiary-fixed": "#07006c",
+                        "surface-container-highest": "#e1e2ed",
+                        "surface-variant": "#e1e2ed",
+                        "secondary-fixed-dim": "#4edea3",
+                        "error-container": "#ffdad6",
+                        "on-background": "#191b23",
+                        "surface-tint": "#0053db",
+                        "on-secondary-fixed-variant": "#005236",
+                        "secondary-container": "#6cf8bb",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "outline-variant": "#c3c6d7",
+                        "tertiary-container": "#585be6",
+                        "inverse-on-surface": "#f0f0fb",
+                        "inverse-primary": "#b4c5ff",
+                        "on-primary-fixed": "#00174b",
+                        "on-error-container": "#93000a",
+                        "surface-bright": "#faf8ff",
+                        "background": "#faf8ff",
+                        "on-surface": "#191b23",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- Top Navigation Bar (Shared Component Logic) -->
+<header class="bg-[#faf8ff] dark:bg-[#1a1b23] flex justify-between items-center w-full px-6 py-3 max-w-full docked full-width top-0 z-50 shadow-sm dark:shadow-none font-['Manrope'] antialiased">
+<div class="flex items-center gap-2">
+<span class="text-xl font-extrabold tracking-tight text-[#2563eb]">ScholarTech</span>
+</div>
+<div class="flex items-center gap-4 text-[#434655] dark:text-[#c3c6d7]">
+<span class="material-symbols-outlined hover:text-[#004ac6] transition-colors duration-200 cursor-pointer" data-icon="help_outline">help_outline</span>
+</div>
+</header>
+<main class="flex-grow flex items-center justify-center px-4 py-12 relative overflow-hidden">
+<!-- Abstract Background Orbs for Academic Atelier feel -->
+<div class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute bottom-[-10%] left-[-5%] w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
+<!-- Central Verification Card -->
+<div class="max-w-md w-full bg-surface-container-lowest rounded-2xl shadow-xl shadow-on-surface/[0.03] relative z-10 overflow-hidden">
+<!-- Decorative Accent Bar (PBL Context Style) -->
+<div class="h-1.5 w-full bg-gradient-to-r from-primary to-primary-container"></div>
+<div class="p-8 md:p-12 flex flex-col items-center text-center">
+<!-- Illustration Section -->
+<div class="relative w-32 h-32 mb-8 flex items-center justify-center">
+<div class="absolute inset-0 bg-primary/10 rounded-full scale-110 animate-pulse"></div>
+<div class="w-full h-full bg-surface-container-low rounded-full flex items-center justify-center text-primary relative z-10">
+<span class="material-symbols-outlined text-6xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">mark_email_unread</span>
+</div>
+</div>
+<!-- Text Content -->
+<h1 class="text-3xl font-extrabold text-on-surface mb-3 tracking-tight">Check your inbox</h1>
+<p class="text-on-surface-variant leading-relaxed mb-8">
+                    We've sent a verification link to <span class="font-semibold text-on-surface">student.alex@university.edu</span>. Please click the link to activate your ScholarTech account.
+                </p>
+<!-- Action Button -->
+<button class="w-full py-4 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:opacity-90 transition-all transform active:scale-95 mb-4">
+                    Open Email App
+                </button>
+<!-- Resend & Alternative Action -->
+<div class="space-y-4 w-full">
+<div class="flex items-center justify-center gap-2 text-sm">
+<span class="text-on-surface-variant">Didn't receive the email?</span>
+<button class="text-primary font-bold hover:underline">Resend Verification</button>
+</div>
+<div class="pt-6 border-t border-surface-container-highest flex flex-col gap-3">
+<p class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Help &amp; Support</p>
+<div class="flex flex-wrap justify-center gap-4">
+<a class="text-sm font-medium text-on-surface-variant hover:text-primary flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-base">contact_support</span>
+                                Contact Support
+                            </a>
+<a class="text-sm font-medium text-on-surface-variant hover:text-primary flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-base">edit</span>
+                                Change Email
+                            </a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual Info / Footer -->
+<footer class="w-full max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-on-surface-variant text-sm gap-4">
+<div class="flex items-center gap-6">
+<span class="font-semibold text-on-surface">ScholarTech Digital Atelier</span>
+<span class="hidden md:block w-1 h-1 bg-outline-variant rounded-full"></span>
+<p>© 2024 Academic Excellence Infrastructure</p>
+</div>
+<div class="flex gap-6">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+</footer>
+<!-- Verification Success Overlay (Visual Mockup for Interaction Feedback) -->
+<div class="fixed bottom-6 right-6 glass-panel border border-primary/10 rounded-xl p-4 flex items-center gap-4 shadow-2xl max-w-sm hidden">
+<div class="bg-secondary/10 p-2 rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="font-bold text-sm text-on-surface">Verification email sent!</p>
+<p class="text-xs text-on-surface-variant">Check your spam folder if it's not in your inbox.</p>
+</div>
+</div>
+</body></html>

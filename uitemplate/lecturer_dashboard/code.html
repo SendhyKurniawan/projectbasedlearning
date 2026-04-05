@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Architectural Scholar - Lecturer Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#e1e0ff",
+                        "primary-container": "#2563eb",
+                        "on-secondary-fixed": "#002113",
+                        "secondary-container": "#6cf8bb",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed-variant": "#005236",
+                        "surface-bright": "#faf8ff",
+                        "surface-container-high": "#e7e7f3",
+                        "on-secondary-container": "#00714d",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-container-low": "#f3f3fe",
+                        "inverse-surface": "#2e3039",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "outline-variant": "#c3c6d7",
+                        "tertiary": "#3e3fcc",
+                        "surface-tint": "#0053db",
+                        "secondary": "#006c49",
+                        "surface-container-highest": "#e1e2ed",
+                        "surface-dim": "#d9d9e5",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-primary-container": "#eeefff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-container": "#585be6",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#dbe1ff",
+                        "background": "#faf8ff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary": "#ffffff",
+                        "surface": "#faf8ff",
+                        "on-surface": "#191b23",
+                        "surface-container-lowest": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-background": "#191b23",
+                        "surface-container": "#ededf9",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#004ac6",
+                        "outline": "#737686",
+                        "on-tertiary-container": "#f1eeff",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-primary-fixed": "#00174b",
+                        "surface-variant": "#e1e2ed"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+<!-- SideNavBar (Authority: JSON & Design System) -->
+<aside class="h-screen w-72 flex-col fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 flex py-8 px-6 z-50 overflow-y-auto">
+<div class="mb-10 px-2">
+<span class="text-2xl font-bold tracking-tight text-blue-700 dark:text-blue-400">The Scholar</span>
+<p class="text-xs font-medium text-on-surface-variant/70 uppercase tracking-widest mt-1">PBL Workspace</p>
+</div>
+<nav class="flex-1 space-y-2">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-blue-700 dark:text-blue-300 font-bold border-r-4 border-emerald-500 bg-blue-50 dark:bg-blue-900/20 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="pbl">ifl</span>
+<span class="text-sm">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-sm">Collaborations</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="text-sm">Schedule</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50 dark:hover:bg-slate-800 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-slate-200 dark:border-slate-800 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-sm">Help</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-sm">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-72 min-h-screen">
+<!-- TopAppBar (Authority: JSON & Design System) -->
+<header class="sticky top-0 z-40 w-full flex justify-between items-center px-8 h-20 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm shadow-slate-200/50 dark:shadow-none">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-highest border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary transition-all" placeholder="Search architecture modules or students..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-sm font-semibold text-blue-700 dark:text-blue-400 border-b-2 border-emerald-500 pb-2 transition-all" href="#">Modules</a>
+<a class="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-all" href="#">Resources</a>
+<a class="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-all" href="#">Analytics</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="forum">forum</button>
+<div class="h-10 w-10 rounded-full overflow-hidden bg-slate-200">
+<img alt="User profile" class="h-full w-full object-cover" data-alt="portrait of a professional senior academic lecturer with glasses in a library setting with soft warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCP-NzgqzpKVRoDf1D0HjpnunF7_k5Fj2xQ_mDux5y05DZo_bPaimXrtWLVqa3pIlt3i3lDcpAwqy66Ws_ciznhNj8Dkwslzoqfc8WOdWGKXboAMkqiEHt08w-K1BNWuhvOLO5wGzeQaP26TpPFuamtZO7lKNlGY8UvWt7Rj7UlocJ4AiVpHF3Cchrnsj0MAkIWjz9U3j_DAOR_TMXvHNsTWBhU6ER0bM6657igaTExOyEry3eS7wQVR0mvIVN0ad70mKJ58kw4Cw"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="p-8 space-y-8">
+<!-- Page Header & Action -->
+<div class="flex justify-between items-end">
+<div>
+<h1 class="text-3xl font-extrabold headline tracking-tight text-on-surface">Lecturer Overview</h1>
+<p class="text-on-surface-variant mt-1">Managing Semester 2: Sustainable Urban Design</p>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+<span class="font-bold">New Module</span>
+</button>
+</div>
+<!-- Course Management Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Primary Stats -->
+<div class="md:col-span-1 bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 left-0 h-full w-1 bg-secondary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="group">group</span>
+</div>
+</div>
+<p class="text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Total Students</p>
+<p class="text-4xl font-extrabold headline text-on-surface mt-1">124</p>
+<div class="mt-4 flex items-center text-xs text-secondary font-bold">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span>
+<span>+12% from last term</span>
+</div>
+</div>
+<div class="md:col-span-1 bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 left-0 h-full w-1 bg-secondary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="architecture">architecture</span>
+</div>
+</div>
+<p class="text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Active Projects</p>
+<p class="text-4xl font-extrabold headline text-on-surface mt-1">18</p>
+<p class="text-xs text-on-surface-variant mt-4">6 due this week</p>
+</div>
+<!-- Grading Card (Actionable) -->
+<div class="md:col-span-2 bg-gradient-to-br from-slate-900 to-blue-900 text-white p-6 rounded-xl relative overflow-hidden shadow-xl">
+<div class="relative z-10">
+<div class="flex justify-between items-center mb-6">
+<span class="bg-secondary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Urgent Attention</span>
+<span class="material-symbols-outlined text-on-primary/60" data-icon="grade">grade</span>
+</div>
+<h3 class="text-2xl font-bold headline">Pending Grades</h3>
+<p class="text-white/70 text-sm mt-1">You have 34 architectural renders awaiting final review.</p>
+<div class="mt-8 flex gap-3">
+<button class="bg-white text-blue-900 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-secondary-container transition-colors">Start Review</button>
+<button class="border border-white/20 text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-white/10 transition-colors">Export List</button>
+</div>
+</div>
+<!-- Decorative background icon -->
+<span class="material-symbols-outlined absolute -bottom-8 -right-8 text-[180px] text-white/5 pointer-events-none" data-icon="draw">draw</span>
+</div>
+</div>
+<!-- Middle Section: Engagement & Quick Action -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Class Engagement Graph (Visual) -->
+<div class="lg:col-span-2 bg-surface-container-low rounded-xl p-8">
+<div class="flex justify-between items-center mb-10">
+<div>
+<h2 class="text-xl font-bold headline text-on-surface">Class Engagement</h2>
+<p class="text-sm text-on-surface-variant">Module: Urban Planning Lab</p>
+</div>
+<select class="bg-surface-container-highest border-none rounded-lg text-xs font-bold text-on-surface-variant py-2 pl-3 pr-8 focus:ring-1 focus:ring-primary">
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+</select>
+</div>
+<div class="h-64 flex items-end justify-between gap-2 px-2">
+<!-- Mock Bars with different weights representing growth -->
+<div class="w-full bg-primary/20 rounded-t-lg h-[40%] transition-all hover:bg-primary/40 relative group">
+<span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">Mon: 45%</span>
+</div>
+<div class="w-full bg-primary/20 rounded-t-lg h-[55%] transition-all hover:bg-primary/40"></div>
+<div class="w-full bg-primary/20 rounded-t-lg h-[35%] transition-all hover:bg-primary/40"></div>
+<div class="w-full bg-primary/20 rounded-t-lg h-[70%] transition-all hover:bg-primary/40"></div>
+<div class="w-full bg-secondary/40 rounded-t-lg h-[90%] transition-all hover:bg-secondary relative group">
+<span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-on-surface text-white text-[10px] py-1 px-2 rounded">Fri: 92%</span>
+</div>
+<div class="w-full bg-primary/20 rounded-t-lg h-[20%] transition-all hover:bg-primary/40"></div>
+<div class="w-full bg-primary/20 rounded-t-lg h-[15%] transition-all hover:bg-primary/40"></div>
+</div>
+<div class="flex justify-between mt-4 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest px-2">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+<!-- Schedule Quick Action -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-outline-variant/10 shadow-sm flex flex-col justify-between">
+<div>
+<div class="h-14 w-14 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="video_call">video_call</span>
+</div>
+<h2 class="text-xl font-bold headline text-on-surface">Live Session</h2>
+<p class="text-sm text-on-surface-variant mt-2 leading-relaxed">Instantly launch a LiveKit collaborative session with all students in the 'City Planning' group.</p>
+</div>
+<div class="space-y-4 mt-8">
+<button class="w-full py-4 bg-secondary text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-on-secondary-container transition-all">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+                            Start Session Now
+                        </button>
+<button class="w-full py-4 bg-surface-container-high text-on-surface font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-surface-dim transition-all">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+                            Schedule Later
+                        </button>
+</div>
+</div>
+</div>
+<!-- Recent Submissions List -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden">
+<div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/30">
+<h2 class="text-xl font-bold headline text-on-surface">Recent Submissions</h2>
+<a class="text-sm font-bold text-primary hover:underline" href="#">View All Submissions</a>
+</div>
+<div class="divide-y divide-outline-variant/10">
+<!-- Submission Item 1 -->
+<div class="px-8 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="h-10 w-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Student" class="h-full w-full object-cover" data-alt="close up headshot of a diverse young man smiling confidently with a bright bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-YSzpvfCQ6NwgEWc7H0wQyXqNqNdOKK2OiLcJ8xCh063IinBxvHY1w4zJ6AuZ5XQq_kgkTgG4TWEHupOjxiWRa1y4tI7WP9Ag3mijaDUeomFhr26aAfwkfTxbpCrqXl1wdBLHAybuoWUMHTT7Gh7PXRtoFxXHQvRIWLWcJRcjaxynXtYCLp4rojRI7Qr7hl3B01_WNsxvvn0gcmn6rI9LeH29NZ1QP0rtVmA6zsN5qJl3nC-RlhPTldzYnzsoBVb44Wb78neVYQ"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Marcus Holloway</p>
+<p class="text-xs text-on-surface-variant">Urban Ecology - Phase 1</p>
+</div>
+</div>
+<div class="flex items-center gap-12">
+<div class="hidden md:block">
+<p class="text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-tighter">Submitted</p>
+<p class="text-sm text-on-surface">2 hours ago</p>
+</div>
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant text-[10px] font-bold rounded-full uppercase">Review Required</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="more_vert">more_vert</button>
+</div>
+</div>
+<!-- Submission Item 2 -->
+<div class="px-8 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="h-10 w-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Student" class="h-full w-full object-cover" data-alt="portrait of a young woman student with long dark hair smiling slightly in a modern workspace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdrPiGVtGjKyGTz9kSgOdDWeseQ3FVpguuHBCNI7fWJhR_EbrEMGe0jCKCXHgfqCUWvT9A6h4RON9QEHljnYvmZJ9TNYF1hmnhi8kuL3byYC84oWaySkxIBuqzDkUJNXM9NhIO-goW8JI4J-FYmydeEY5WuibkWzcpTiwbg3yiuGO_sINtfn0enZK0GXQINRlI9sW_mt7e0ekGwsiZ6pf4yonk8SviY1vOv5sY_yvbs64PjoRslJvMfbPMG_Vk8er6Y0gsZgf7Pw"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Elena Rodriguez</p>
+<p class="text-xs text-on-surface-variant">Parametric Facade Design</p>
+</div>
+</div>
+<div class="flex items-center gap-12">
+<div class="hidden md:block">
+<p class="text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-tighter">Submitted</p>
+<p class="text-sm text-on-surface">Yesterday, 4:12 PM</p>
+</div>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase">Graded: A-</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="more_vert">more_vert</button>
+</div>
+</div>
+<!-- Submission Item 3 -->
+<div class="px-8 py-5 flex items-center justify-between hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-4">
+<div class="h-10 w-10 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Student" class="h-full w-full object-cover" data-alt="professional portrait of a young man with glasses and short hair in a bright architectural studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHRp6llinq70G_Bix2KP7d3PJGX2o-j2WDiz9suUT1r0YJcpdlPZ4Vzwxjqbp7pL22yRQ89LocoV98Lthe0KP8upy4tZL7J6-Ob3i5aprfx-N_Vdn8Mlzn74skoF-4HP5-mqg8y_xuKFZmF9ANHBWKrgaohfcuIxeRlbEP4TO_MpwWuCLVfwFTy8FK1s_62ToRwbdRpH0zDPV0gQ9TRdMjZ3tJ88vIA4aVuYPxAwUv7vLLM2ogIFluUis0qOL9uz3gFteadsNG9A"/>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Liam Chen</p>
+<p class="text-xs text-on-surface-variant">Sustainability Report</p>
+</div>
+</div>
+<div class="flex items-center gap-12">
+<div class="hidden md:block">
+<p class="text-xs font-semibold text-on-surface-variant mb-1 uppercase tracking-tighter">Submitted</p>
+<p class="text-sm text-on-surface">2 days ago</p>
+</div>
+<span class="px-3 py-1 bg-error-container text-on-error-container text-[10px] font-bold rounded-full uppercase">Late Submission</span>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors" data-icon="more_vert">more_vert</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

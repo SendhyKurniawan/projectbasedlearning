@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notifications | Architectural Scholar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-low": "#f3f3fe",
+                      "on-tertiary-container": "#f1eeff",
+                      "surface-tint": "#0053db",
+                      "secondary": "#006c49",
+                      "primary-fixed": "#dbe1ff",
+                      "on-primary-container": "#eeefff",
+                      "on-error": "#ffffff",
+                      "on-secondary-container": "#00714d",
+                      "surface-container": "#ededf9",
+                      "tertiary-fixed-dim": "#c0c1ff",
+                      "primary": "#004ac6",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#b4c5ff",
+                      "surface": "#faf8ff",
+                      "on-surface-variant": "#434655",
+                      "surface-bright": "#faf8ff",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "tertiary-fixed": "#e1e0ff",
+                      "secondary-container": "#6cf8bb",
+                      "on-background": "#191b23",
+                      "surface-variant": "#e1e2ed",
+                      "on-secondary-fixed": "#002113",
+                      "inverse-surface": "#2e3039",
+                      "secondary-fixed": "#6ffbbe",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#585be6",
+                      "background": "#faf8ff",
+                      "on-error-container": "#93000a",
+                      "primary-container": "#2563eb",
+                      "on-tertiary-fixed-variant": "#2f2ebe",
+                      "on-surface": "#191b23",
+                      "on-primary-fixed": "#00174b",
+                      "outline-variant": "#c3c6d7",
+                      "on-secondary-fixed-variant": "#005236",
+                      "inverse-on-surface": "#f0f0fb",
+                      "tertiary": "#3e3fcc",
+                      "secondary-fixed-dim": "#4edea3",
+                      "error": "#ba1a1a",
+                      "surface-dim": "#d9d9e5",
+                      "surface-container-high": "#e7e7f3",
+                      "outline": "#737686",
+                      "on-tertiary-fixed": "#07006c",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-highest": "#e1e2ed",
+                      "on-primary-fixed-variant": "#003ea8"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-6 py-3 w-full">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-blue-700 dark:text-blue-400">Architectural Scholar</span>
+<nav class="hidden md:flex items-center gap-6 font-['Manrope'] font-semibold tracking-tight">
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors px-2 py-1 rounded-lg" href="#">Dashboard</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors px-2 py-1 rounded-lg" href="#">Projects</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors px-2 py-1 rounded-lg" href="#">Curriculum</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full text-blue-700 dark:text-blue-400 hover:bg-slate-200/50 transition-all active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</button>
+<button class="p-2 rounded-full text-slate-500 hover:bg-slate-200/50 transition-all active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/20">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="professional headshot of a scholar wearing glasses in a brightly lit library setting with shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEo6mhvUpUfgOU1Xl7YlZPnqr4JjzSnd_ZxdgNi2u7tM1onBtdJVak2Z2crvmXI0lnFs55RuRP3LpkKP6t57ubvEaP9E4edsYWhY_XO0sOsMsus-uO-CQA7blGkU3risWVl8MIUWZm3JI_8J1O4AxWHTg9g6Ce2zy9Ut1FGPya2Cm-sTA8ZCVHoPx9jd_3jjCrcfv0iSZoGynwgeLHPUk4QVhIIUe9BPvPqk6cbTFjmdYDY8bpGsni8C_3KHzKEeUMq_EoWZv0jg"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Sidebar (Hidden on mobile) -->
+<aside class="hidden lg:flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 py-8 px-4 z-40">
+<div class="flex items-center gap-3 px-2 mb-10">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span>
+</div>
+<div>
+<h2 class="font-['Manrope'] font-extrabold text-blue-700 text-sm leading-tight">Project Portal</h2>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-widest font-semibold">Academic Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="font-medium text-sm">Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-medium text-sm">Curriculum</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium text-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/10 space-y-1">
+<button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 transition-all text-sm">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>Help Center</span>
+</button>
+<button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-error/80 hover:bg-error-container hover:text-error transition-all text-sm">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Logout</span>
+</button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="lg:ml-64 pt-24 pb-12 px-6 lg:px-12 max-w-5xl mx-auto">
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-surface mb-2">Notifications</h1>
+<p class="text-on-surface-variant max-w-lg">Stay updated with your academic progress, collaborative project milestones, and important administrative announcements.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl text-primary font-semibold text-sm hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="done_all">done_all</span>
+                    Mark as Read
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-xl text-on-surface-variant font-semibold text-sm hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete_sweep">delete_sweep</span>
+                    Clear All
+                </button>
+</div>
+</div>
+<!-- Filter Chips -->
+<div class="flex flex-wrap gap-2 mb-8">
+<button class="px-5 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold shadow-sm">All Updates</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-sm font-semibold hover:bg-surface-variant transition-colors">Assignments</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-sm font-semibold hover:bg-surface-variant transition-colors">Grades</button>
+<button class="px-5 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-sm font-semibold hover:bg-surface-variant transition-colors">Announcements</button>
+</div>
+<!-- Notification List -->
+<div class="space-y-4">
+<!-- UNREAD: Grade Alert -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-xl border-l-4 border-secondary shadow-sm hover:translate-y-[-2px] transition-all duration-300">
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl" data-icon="grade" style="font-variation-settings: 'FILL' 1;">grade</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-bold text-on-surface">New Grade Released: Structural Mechanics II</h3>
+<span class="text-xs font-semibold text-secondary bg-secondary-container px-2 py-0.5 rounded-full">New</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Your final project "Cantilever Optimization" has been graded. You achieved an Excellence (94/100). Click to view feedback.</p>
+<div class="mt-3 flex items-center gap-4 text-[11px] font-bold text-on-surface-variant/60 uppercase tracking-wider">
+<span>2 mins ago</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Course ID: ARCH-402</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-surface-variant text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- UNREAD: Assignment -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-xl border-l-4 border-secondary shadow-sm hover:translate-y-[-2px] transition-all duration-300">
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="assignment">assignment</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-bold text-on-surface">New Assignment: Urban Planning Prototype</h3>
+<span class="text-xs font-semibold text-secondary bg-secondary-container px-2 py-0.5 rounded-full">New</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Prof. Henderson posted a new group assignment. Initial sketches and site analysis due by Friday, 6:00 PM.</p>
+<div class="mt-3 flex items-center gap-4 text-[11px] font-bold text-on-surface-variant/60 uppercase tracking-wider">
+<span>45 mins ago</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Submission Open</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-surface-variant text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- READ: Announcement -->
+<div class="group relative bg-surface-container-low/50 p-5 rounded-xl border-l-4 border-outline-variant/30 hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4 opacity-75">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-3xl" data-icon="campaign">campaign</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-semibold text-on-surface">University Holiday Notice</h3>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">The design studio will be closed this coming Monday for the Faculty Development Symposium. Access resumes Tuesday.</p>
+<div class="mt-3 flex items-center gap-4 text-[11px] font-medium text-on-surface-variant/60 uppercase tracking-wider">
+<span>Yesterday</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>General Announcement</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-surface-variant text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- READ: Mention / Collaboration -->
+<div class="group relative bg-surface-container-low/50 p-5 rounded-xl border-l-4 border-outline-variant/30 hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4 opacity-75">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-secondary-container/10 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-3xl" data-icon="alternate_email">alternate_email</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-semibold text-on-surface">Sarah Chen mentioned you in "Atrium Design"</h3>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">"Hey @scholar, check the updated light simulation in the shared workspace. Does the clerestory need adjusting?"</p>
+<div class="mt-3 flex items-center gap-4 text-[11px] font-medium text-on-surface-variant/60 uppercase tracking-wider">
+<span>2 days ago</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Live Collaborative Session</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-surface-variant text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+<!-- UNREAD: Security/System -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-xl border-l-4 border-secondary shadow-sm hover:translate-y-[-2px] transition-all duration-300">
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-3xl" data-icon="security" style="font-variation-settings: 'FILL' 1;">security</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-bold text-on-surface">Security Alert: New Login Detected</h3>
+<span class="text-xs font-semibold text-secondary bg-secondary-container px-2 py-0.5 rounded-full">New</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">A new login was detected from a Chrome browser on Windows in Seattle, WA. If this wasn't you, secure your account immediately.</p>
+<div class="mt-3 flex items-center gap-4 text-[11px] font-bold text-on-surface-variant/60 uppercase tracking-wider">
+<span>4 hours ago</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Account Security</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg hover:bg-surface-variant text-on-surface-variant transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Pagination or Load More -->
+<div class="mt-12 flex justify-center">
+<button class="flex items-center gap-2 px-8 py-3 rounded-full border border-outline-variant text-on-surface-variant font-bold text-sm hover:bg-surface-container transition-all">
+                Load Older Notifications
+                <span class="material-symbols-outlined" data-icon="expand_more">expand_more</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-50 dark:bg-slate-950 flex justify-around items-center py-3 border-t border-outline-variant/10 z-50">
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-semibold">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span class="text-[10px] font-semibold">Projects</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-blue-700" href="#">
+<span class="material-symbols-outlined" data-icon="notifications" style="font-variation-settings: 'FILL' 1;">notifications</span>
+<span class="text-[10px] font-bold">Alerts</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-500" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-semibold">Profile</span>
+</a>
+</nav>
+</body></html>

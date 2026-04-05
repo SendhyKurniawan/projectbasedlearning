@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#e1e0ff",
+                    "primary-container": "#2563eb",
+                    "on-secondary-fixed": "#002113",
+                    "secondary-container": "#6cf8bb",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-secondary-fixed-variant": "#005236",
+                    "surface-bright": "#faf8ff",
+                    "surface-container-high": "#e7e7f3",
+                    "on-secondary-container": "#00714d",
+                    "inverse-primary": "#b4c5ff",
+                    "surface-container-low": "#f3f3fe",
+                    "inverse-surface": "#2e3039",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "outline-variant": "#c3c6d7",
+                    "tertiary": "#3e3fcc",
+                    "surface-tint": "#0053db",
+                    "secondary": "#006c49",
+                    "surface-container-highest": "#e1e2ed",
+                    "surface-dim": "#d9d9e5",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "error-container": "#ffdad6",
+                    "on-error": "#ffffff",
+                    "on-surface-variant": "#434655",
+                    "secondary-fixed": "#6ffbbe",
+                    "on-primary-container": "#eeefff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "tertiary-container": "#585be6",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#dbe1ff",
+                    "background": "#faf8ff",
+                    "inverse-on-surface": "#f0f0fb",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-secondary": "#ffffff",
+                    "surface": "#faf8ff",
+                    "on-surface": "#191b23",
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-background": "#191b23",
+                    "surface-container": "#ededf9",
+                    "on-tertiary": "#ffffff",
+                    "primary": "#004ac6",
+                    "outline": "#737686",
+                    "on-tertiary-container": "#f1eeff",
+                    "on-tertiary-fixed": "#07006c",
+                    "on-primary-fixed": "#00174b",
+                    "surface-variant": "#e1e2ed"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface antialiased">
+<!-- SideNavBar -->
+<aside class="h-screen w-72 flex-col fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 flex py-8 px-6 z-50">
+<div class="mb-10">
+<h1 class="text-2xl font-bold tracking-tight text-blue-700 dark:text-blue-400 font-headline">The Scholar</h1>
+<p class="text-label-sm text-on-surface-variant opacity-70">PBL Workspace</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-colors duration-200 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-colors duration-200 text-blue-700 dark:text-blue-300 font-bold border-r-4 border-emerald-500 bg-blue-50 dark:bg-blue-900/20" href="#">
+<span class="material-symbols-outlined">ifl</span>
+<span class="text-body-md">Projects</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-colors duration-200 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-body-md">Collaborations</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-colors duration-200 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-body-md">Schedule</span>
+</a>
+<a class="flex items-center gap-3 py-3 px-4 rounded-xl transition-colors duration-200 text-slate-500 dark:text-slate-400 hover:text-blue-600 hover:bg-slate-200/50" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-body-md">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4 pt-6 border-t border-outline-variant/20">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-3 px-4 rounded-xl font-semibold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Project
+            </button>
+<div class="space-y-1">
+<a class="flex items-center gap-3 py-2 px-4 text-slate-500 hover:text-blue-600 transition-all text-body-md" href="#">
+<span class="material-symbols-outlined">help</span> Help
+                </a>
+<a class="flex items-center gap-3 py-2 px-4 text-slate-500 hover:text-error transition-all text-body-md" href="#">
+<span class="material-symbols-outlined">logout</span> Logout
+                </a>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="sticky top-0 z-40 w-full flex justify-between items-center px-8 h-20 ml-72 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm shadow-slate-200/50 dark:shadow-none">
+<div class="flex items-center gap-8">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-highest rounded-full border-none focus:ring-2 focus:ring-primary text-sm" placeholder="Search modules..." type="text"/>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-emerald-500 pb-2 font-headline font-semibold text-sm" href="#">Modules</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-all font-headline font-semibold text-sm" href="#">Resources</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600 transition-all font-headline font-semibold text-sm" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high rounded-full transition-all">
+<span class="material-symbols-outlined">forum</span>
+</button>
+<div class="h-10 w-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="close-up portrait of a professional young scholar with glasses in a modern academic environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiQN3KJtD1vSB7CV1Rnhs-2kNU7hE9Ig7fCezZMG2EeHwTBquV6ph0MQgkOtWt9_9-ItSa3rIc8AgkRA1Eywnq3w-dh-TffHre3BKXZN-470o2byElvGBkFma0CzOI3RQnrC2c1AitiooghynV8pWJ7cvsaMn2NkLR2I4tiSd6BkXyWQeArICAIlGaquFMQZt__fPUhvGopAaMX3uke3TIhpiYrOfJP-pmnosuj69Tl4GNmouiDU5sJOnp8EF53iVYFsuitV25pg"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-72 p-8 min-h-screen">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-10">
+<div>
+<nav class="flex items-center gap-2 text-label-sm text-on-surface-variant mb-2">
+<span>Projects</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-primary font-medium">Web Development with React</span>
+</nav>
+<h2 class="text-headline-md font-headline font-extrabold tracking-tight text-on-surface">Web Development with React</h2>
+<p class="text-on-surface-variant body-md mt-1">Advanced Project-Based Learning &amp; Component Architecture</p>
+</div>
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-sm hover:translate-y-[-2px] transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">videocam</span>
+                Join Live Conference
+            </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Course Progress Tracker (Primary Visual) -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-3xl p-8 shadow-sm relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="text-title-md font-headline font-bold mb-1">Course Progress</h3>
+<p class="text-label-sm text-on-surface-variant">You've completed 68% of this module</p>
+</div>
+<span class="text-2xl font-black text-secondary">68%</span>
+</div>
+<div class="space-y-6">
+<div class="w-full bg-surface-container-high h-3 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 68%"></div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+<div class="p-4 bg-surface-container-low rounded-2xl text-center">
+<p class="text-label-sm text-on-surface-variant">Milestones</p>
+<p class="text-lg font-bold">4 / 6</p>
+</div>
+<div class="p-4 bg-surface-container-low rounded-2xl text-center">
+<p class="text-label-sm text-on-surface-variant">Quizzes</p>
+<p class="text-lg font-bold">12 / 15</p>
+</div>
+<div class="p-4 bg-surface-container-low rounded-2xl text-center">
+<p class="text-label-sm text-on-surface-variant">Submissions</p>
+<p class="text-lg font-bold">3</p>
+</div>
+<div class="p-4 bg-surface-container-low rounded-2xl text-center">
+<p class="text-label-sm text-on-surface-variant">Peer Reviews</p>
+<p class="text-lg font-bold">8</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Current Task Highlight (Asymmetric/Actionable) -->
+<div class="col-span-12 lg:col-span-4 bg-primary text-on-primary rounded-3xl p-8 shadow-xl flex flex-col justify-between">
+<div>
+<div class="bg-white/20 inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase mb-4">Active Milestone</div>
+<h3 class="text-xl font-headline font-extrabold mb-3">State Management with Redux Toolkit</h3>
+<p class="text-primary-fixed text-sm leading-relaxed mb-6">Implement a global state architecture for the final e-commerce dashboard project. Focus on slice patterns and async thunks.</p>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-2 text-xs text-primary-fixed opacity-90">
+<span class="material-symbols-outlined text-sm">timer</span>
+                        Due in 2 days (Oct 24)
+                    </div>
+<button class="w-full bg-white text-primary font-bold py-3 rounded-xl hover:bg-primary-fixed transition-colors">
+                        Continue Working
+                    </button>
+</div>
+</div>
+<!-- Learning Materials (Interactive List) -->
+<div class="col-span-12 lg:col-span-7 bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-title-md font-headline font-bold">Learning Materials</h3>
+<button class="text-primary text-sm font-semibold hover:underline">View All</button>
+</div>
+<div class="space-y-3">
+<div class="group flex items-center justify-between p-4 bg-surface-container-low rounded-2xl hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">picture_as_pdf</span>
+</div>
+<div>
+<p class="text-body-md font-semibold">React Component Lifecycle.pdf</p>
+<p class="text-label-sm text-on-surface-variant">Reference Guide • 2.4 MB</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">download</span>
+</div>
+<div class="group flex items-center justify-between p-4 bg-surface-container-low rounded-2xl hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<div>
+<p class="text-body-md font-semibold">Mastering Hooks &amp; Side Effects</p>
+<p class="text-label-sm text-on-surface-variant">Video Tutorial • 45:12</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">play_arrow</span>
+</div>
+<div class="group flex items-center justify-between p-4 bg-surface-container-low rounded-2xl hover:bg-surface-container transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+</div>
+<div>
+<p class="text-body-md font-semibold">PBL Final Project Brief.docx</p>
+<p class="text-label-sm text-on-surface-variant">Documentation • 1.1 MB</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">download</span>
+</div>
+</div>
+</div>
+<!-- Discussion Forum Snippet (Glassmorphism inspired) -->
+<div class="col-span-12 lg:col-span-5 bg-surface-container-lowest rounded-3xl p-8 shadow-sm flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-title-md font-headline font-bold">Peer Discussion</h3>
+<div class="flex -space-x-2">
+<img alt="User" class="w-8 h-8 rounded-full border-2 border-white" data-alt="avatar of a smiling female student with long brown hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa3wR1BSuAyjkqaZPbL7qeLIb6pF5p614nenb1Bd996ngw_hRqVq6VannlIR5EDh5kjXG9NQ67nj5Hlu7Poz0ffudnxddePmxeNiX4choWOS586e2jkgYRHHYg_ZHOwcfLMnYpSTyMrvE2ANwG3jqFzmztCdBZKgA91-Dd6EI7EJBhAUxAnKVqvNFWCGAt6JK9uMGAvyQ89oN0HCllqzabQ1AEfN5mfQ6WV6FYsqyvrP1vrm6FSx0AtVlOmOyJZ2WQ4gzZuA3SFA"/>
+<img alt="User" class="w-8 h-8 rounded-full border-2 border-white" data-alt="avatar of a male student with short dark hair and a confident expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJWlWDSceLyzJQqsZMeH1iP5A-oQzxaE0lZKtgUha5eDTlxwvM3Wfqwo5ziKlkfwVfo2pmtzEh6HCsZa9tUQ2EBR0XuHw-2d7CZuPrh53DScYysat46NMJm-HnUz8hHoQATCRKWwbacX3hy2tDW3HmoMyw79y6z1b7fCgg0KMF0gANHedu7WH2pUeIMX7_nsbSipFL7us8IF8dm8Ek6cj3AHv-MeLfnlJC1AMcsSIVLhxh2dIEQwflpKRfOkAHEl4yS-RXP8-rlw"/>
+<div class="w-8 h-8 rounded-full bg-primary-fixed-dim border-2 border-white flex items-center justify-center text-[10px] font-bold text-primary">+12</div>
+</div>
+</div>
+<div class="space-y-4 flex-1">
+<div class="p-4 rounded-2xl bg-surface-container-low border-l-4 border-primary">
+<p class="text-xs font-bold text-primary mb-1">Sanjay M. asks:</p>
+<p class="text-sm italic text-on-surface">"Does anyone have experience using React Query for this project? I'm struggling with cache invalidation."</p>
+<div class="flex items-center gap-3 mt-3">
+<span class="text-[10px] text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-xs">reply</span> 4 replies</span>
+<span class="text-[10px] text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-xs">thumb_up</span> 12</span>
+</div>
+</div>
+<div class="p-4 rounded-2xl bg-surface-container-low">
+<p class="text-xs font-bold text-on-surface-variant mb-1">New Reply from Dr. Elena:</p>
+<p class="text-sm text-on-surface truncate">"Check the latest documentation on useMutation hooks..."</p>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<input class="flex-1 bg-surface-container-high border-none rounded-xl px-4 text-sm focus:ring-primary" placeholder="Ask a question..." type="text"/>
+<button class="bg-primary-container p-3 rounded-xl text-white">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Course Mentors / Collaborative Presence -->
+<section class="mt-12">
+<h3 class="text-title-md font-headline font-bold mb-6">Course Mentors</h3>
+<div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+<div class="min-w-[280px] bg-white p-6 rounded-3xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+<div class="relative">
+<img alt="Mentor" class="w-14 h-14 rounded-full bg-slate-100" data-alt="professional portrait of a tech mentor with a friendly smile and office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5v1dflTQTr2ra-FqWSZJTM5-ZBOLOz_DBa6sBnqEdm0phJK8GYf-U3CsfLz1r0tRI7bBHEmmLIGmldnIn30Q86XQmFKr9rA2ZpjXz4Uyoq86H2saqxDx2HmYTjKmZTM3LPRE-IjuD5AN-s1yCZPm63sQG5hrR-AIxmyUQ3PWYCcgh4pecrRjM6m9AM6fc87SuUleMQtj3vuFymoOz_G4OylK6XTAi3CFnV8YulSnCltO1g6oG-jW5Mj4XgmV6AT086BzEVaX-4g"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-secondary border-2 border-white rounded-full"></div>
+</div>
+<div>
+<p class="font-bold text-on-surface">Dr. Elena Rodriguez</p>
+<p class="text-label-sm text-on-surface-variant">Senior Frontend Architect</p>
+</div>
+</div>
+<div class="min-w-[280px] bg-white p-6 rounded-3xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+<div class="relative">
+<img alt="Mentor" class="w-14 h-14 rounded-full bg-slate-100" data-alt="portrait of an experienced software developer mentor in a modern studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQCyY82heg55LRyVVBGsg874YrLqzsKvR9_3ygY9P3FWMwCiDsDRcgM6c08GACUjCUgqzS6_A_oYkpyLysHp8xAcPLyzTuJ3Qc-BzblmuhmKAEk2L8jdXT5CvI2UBuqqP3PfKwUJ458FZWfmE3FnTWPu27dyqrBQ_GTDEOTGp2aH74BZCDd5c3hIodpHr9jALIhx_Xb4uIP8VZ2qm8jcId8nm0zRFOHeiHWLdiNnPc1ZGx37SssRg_MhEkmEjxI34Ip_rSypGS_Q"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-secondary border-2 border-white rounded-full"></div>
+</div>
+<div>
+<p class="font-bold text-on-surface">Marcus Thorne</p>
+<p class="text-label-sm text-on-surface-variant">System Design Lead</p>
+</div>
+</div>
+<div class="min-w-[280px] bg-white p-6 rounded-3xl shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
+<div class="relative">
+<img alt="Mentor" class="w-14 h-14 rounded-full bg-slate-100" data-alt="professional portrait of a lead UI engineer with a bright workspace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPk2rgzBQ2HUSjb1kmNi-66oDxdSj4LXOIC46i-XsKWowK0P4dhgRhQBmbpzsitAr-gfyw4mCQawhgPAHKx8p2dnoF783Idfzmw5WdlLNf3Fcphr8-jrm4fj8aTq2cBthYHazbM_IvWaOmkQ5hBL8T4voMjYR2i6s8oGNV0YKcFxOQBAYPyztNzXs5E6xbg2Efsmb4DZXt8A9EmyGRpidMckwLWuYsoKlqYHFZAR9Ake5bVv5n81Bz3L56kPko1BgSC032aFOQbA"/>
+<div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-surface-variant border-2 border-white rounded-full"></div>
+</div>
+<div>
+<p class="font-bold text-on-surface">Sarah Jenkins</p>
+<p class="text-label-sm text-on-surface-variant">UI/UX Engineer</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

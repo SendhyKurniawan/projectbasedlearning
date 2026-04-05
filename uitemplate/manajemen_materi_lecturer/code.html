@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Materi | Architectural Scholar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#434655",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "surface-dim": "#d9d9e5",
+                        "surface": "#faf8ff",
+                        "on-primary-container": "#eeefff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-secondary-container": "#00714d",
+                        "surface-bright": "#faf8ff",
+                        "secondary-container": "#6cf8bb",
+                        "on-secondary-fixed-variant": "#005236",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-container-low": "#f3f3fe",
+                        "surface-tint": "#0053db",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f0f0fb",
+                        "inverse-primary": "#b4c5ff",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c3c6d7",
+                        "on-primary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e1e2ed",
+                        "on-primary-fixed": "#00174b",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "surface-container-high": "#e7e7f3",
+                        "error-container": "#ffdad6",
+                        "on-background": "#191b23",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-surface": "#2e3039",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-container": "#585be6",
+                        "primary-container": "#2563eb",
+                        "background": "#faf8ff",
+                        "tertiary": "#3e3fcc",
+                        "on-tertiary-container": "#f1eeff",
+                        "primary": "#004ac6",
+                        "secondary": "#006c49",
+                        "surface-container": "#ededf9",
+                        "secondary-fixed": "#6ffbbe",
+                        "outline": "#737686",
+                        "on-surface": "#191b23",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            background: rgba(250, 248, 255, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-screen sticky left-0 top-0 p-4 bg-[#f3f3fe] dark:bg-slate-900 h-full w-64 border-r-0 font-['Inter'] text-sm font-medium">
+<div class="flex items-center gap-3 mb-8 px-2">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined">architecture</span>
+</div>
+<div>
+<h2 class="text-lg font-bold text-[#004ac6] leading-tight">PBL Workspace</h2>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant opacity-70">Academic Excellence</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-[#434655] hover:bg-white/50 transition-transform translate-x-0 hover:translate-x-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 text-[#2563EB] dark:text-blue-400 rounded-lg shadow-sm font-semibold translate-x-1" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span>Materials</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#434655] hover:bg-white/50 transition-transform translate-x-0 hover:translate-x-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span>Assignments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#434655] hover:bg-white/50 transition-transform translate-x-0 hover:translate-x-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">code</span>
+<span>Code Studio</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#434655] hover:bg-white/50 transition-transform translate-x-0 hover:translate-x-1 rounded-lg" href="#">
+<span class="material-symbols-outlined">videocam</span>
+<span>Live Lab</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 space-y-1 border-t border-outline-variant/10">
+<button class="w-full mb-4 py-2.5 px-4 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-semibold shadow-lg shadow-primary/20 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Project
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 text-[#434655] hover:bg-white/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#434655] hover:bg-white/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-h-screen relative">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-8 py-4 max-w-full mx-auto bg-[#faf8ff] dark:bg-slate-950 font-['Manrope'] font-bold text-lg sticky top-0 z-30">
+<div class="flex items-center gap-8">
+<span class="text-xl font-black tracking-tight text-[#004ac6] dark:text-blue-500">Architectural Scholar</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#434655] hover:text-[#2563EB] transition-colors" href="#">Dashboard</a>
+<a class="text-[#434655] hover:text-[#2563EB] transition-colors" href="#">Projects</a>
+<a class="text-[#2563EB] dark:text-blue-400 border-b-2 border-[#2563EB] pb-1" href="#">Library</a>
+<a class="text-[#434655] hover:text-[#2563EB] transition-colors" href="#">Community</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-highest rounded-full border-none focus:ring-2 focus:ring-primary text-sm w-64" placeholder="Search materials..." type="text"/>
+</div>
+<button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container rounded-full">notifications</button>
+<button class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container rounded-full">settings</button>
+<button class="px-5 py-2 bg-primary-container text-on-primary-container rounded-full text-sm font-semibold hover:scale-95 transition-transform duration-200">Join Session</button>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="Professional headshot of a university lecturer in a clean office setting, soft natural lighting, high resolution" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDd3S3rR0uBKrFcuHP33ARIDeiYqGWkjwDDbMMwGPaIu6BQNSs87L2WS0enBypql0n14kBqREleTfM7UyRfTwMbn3M9SEqegUwb6WbAMKhlWRn-5WhFoS_QZgFoJ5fSnb9S8tZi9vJk0AgRlH7Ajejxm7lva_GPPCCyzi4SOT69FqHL6ThdDVLarNpVdiiZAmEKnJRbHcY2fFuatXFT8DgM2uOiud_vuylSyRoShvioOQ27YjMz2mccBJXgHe8JbLvoKMQUdPHhug"/>
+</div>
+</header>
+<div class="p-8 max-w-7xl mx-auto w-full">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div class="space-y-2">
+<nav class="flex items-center gap-2 text-label-sm text-on-surface-variant/60 font-medium">
+<span>Workspace</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span>Curriculum</span>
+<span class="material-symbols-outlined text-[12px]">chevron_right</span>
+<span class="text-primary">Materials</span>
+</nav>
+<h1 class="text-4xl font-extrabold tracking-tight text-on-background">Manajemen Materi</h1>
+<p class="text-on-surface-variant max-w-lg">Organize architectural course modules, upload resources, and manage student accessibility for the Spring 2024 Semester.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 bg-secondary-container text-on-secondary-container rounded-xl font-bold flex items-center gap-2 hover:shadow-md transition-shadow">
+<span class="material-symbols-outlined">create_new_folder</span>
+                        New Module
+                    </button>
+</div>
+</div>
+<!-- Bento Layout for Content -->
+<div class="grid grid-cols-12 gap-6">
+<!-- Left Column: Module Reordering List -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<!-- Drop Zone -->
+<div class="p-8 border-2 border-dashed border-outline-variant rounded-2xl bg-surface-container-low flex flex-col items-center justify-center text-center group hover:border-primary/50 transition-colors">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+</div>
+<h3 class="text-lg font-bold">Drag &amp; Drop Documents</h3>
+<p class="text-on-surface-variant text-sm mb-6">Support for PDF, DWG, and high-res architectural diagrams (Max 50MB)</p>
+<button class="px-6 py-2 border border-primary text-primary rounded-lg font-semibold hover:bg-primary/5 transition-colors">Choose Files</button>
+</div>
+<!-- Module List (Reorderable) -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<h3 class="font-bold text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">reorder</span>
+                                Module Sequence
+                            </h3>
+<span class="text-xs font-semibold text-on-surface-variant/50">4 MODULES ACTIVE</span>
+</div>
+<!-- Module Card 1 -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-2xl shadow-sm border-l-4 border-secondary flex items-start gap-4 hover:shadow-md transition-all">
+<div class="cursor-grab active:cursor-grabbing text-outline-variant hover:text-primary transition-colors py-2">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest">Module 01</span>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold rounded-full">PUBLISHED</span>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors text-lg">more_vert</button>
+</div>
+</div>
+<h4 class="text-lg font-bold mb-3">Foundations of Structural Geometry</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg group/file">
+<span class="material-symbols-outlined text-red-500">picture_as_pdf</span>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-semibold truncate">Syllabus_Geometry_V2.pdf</p>
+<p class="text-[10px] text-on-surface-variant">2.4 MB • Oct 12</p>
+</div>
+<button class="material-symbols-outlined text-sm opacity-0 group-hover/file:opacity-100 transition-opacity">close</button>
+</div>
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg group/file">
+<span class="material-symbols-outlined text-blue-500">description</span>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-semibold truncate">Lecture_Notes_Wk1.docx</p>
+<p class="text-[10px] text-on-surface-variant">1.1 MB • Oct 13</p>
+</div>
+<button class="material-symbols-outlined text-sm opacity-0 group-hover/file:opacity-100 transition-opacity">close</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Module Card 2 (Draft) -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-2xl shadow-sm border-l-4 border-outline-variant flex items-start gap-4 opacity-80 hover:opacity-100 hover:shadow-md transition-all">
+<div class="cursor-grab text-outline-variant py-2">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Module 02</span>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-surface-variant text-on-surface-variant text-[10px] font-bold rounded-full">DRAFT</span>
+<button class="material-symbols-outlined text-outline text-lg">more_vert</button>
+</div>
+</div>
+<h4 class="text-lg font-bold mb-3">Parametric Design Workflows</h4>
+<div class="flex items-center justify-center p-6 border border-dashed border-outline-variant rounded-lg">
+<button class="text-sm font-semibold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">add_circle</span>
+                                        Add File to Module
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Module Card 3 -->
+<div class="group relative bg-surface-container-lowest p-5 rounded-2xl shadow-sm border-l-4 border-secondary flex items-start gap-4 hover:shadow-md transition-all">
+<div class="cursor-grab text-outline-variant py-2">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center justify-between mb-1">
+<span class="text-[10px] font-bold text-secondary uppercase tracking-widest">Module 03</span>
+<div class="flex items-center gap-2">
+<span class="px-2 py-0.5 bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] font-bold rounded-full">PUBLISHED</span>
+<button class="material-symbols-outlined text-outline text-lg">more_vert</button>
+</div>
+</div>
+<h4 class="text-lg font-bold mb-3">Environmental Ethics in Site Planning</h4>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg">
+<span class="material-symbols-outlined text-red-500">picture_as_pdf</span>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-semibold truncate">Reading_List_Ethics.pdf</p>
+<p class="text-[10px] text-on-surface-variant">4.8 MB • Oct 15</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Stats & Meta -->
+<div class="col-span-12 lg:col-span-4 space-y-6">
+<!-- Storage Overview Card -->
+<div class="bg-primary text-on-primary p-6 rounded-3xl relative overflow-hidden shadow-xl shadow-primary/20">
+<div class="relative z-10">
+<h4 class="text-sm font-bold opacity-80 mb-6 uppercase tracking-wider">Cloud Storage</h4>
+<div class="flex items-baseline gap-2 mb-2">
+<span class="text-4xl font-black">1.2</span>
+<span class="text-xl font-medium">GB / 5.0 GB</span>
+</div>
+<div class="w-full bg-white/20 h-2 rounded-full mb-6">
+<div class="bg-secondary-fixed h-full rounded-full" style="width: 24%"></div>
+</div>
+<button class="w-full py-3 bg-white/10 hover:bg-white/20 transition-colors rounded-xl font-bold text-sm backdrop-blur-md">
+                                Manage Subscription
+                            </button>
+</div>
+<!-- Abstract Deco Background -->
+<div class="absolute -right-4 -bottom-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+<!-- Quick Status Bento -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-4 rounded-2xl flex flex-col gap-2">
+<span class="material-symbols-outlined text-secondary">check_circle</span>
+<span class="text-2xl font-black text-on-background">12</span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Published Docs</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl flex flex-col gap-2">
+<span class="material-symbols-outlined text-tertiary">visibility_off</span>
+<span class="text-2xl font-black text-on-background">04</span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Draft Files</span>
+</div>
+</div>
+<!-- Recent Activity Card -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl border-l-4 border-tertiary shadow-sm">
+<h4 class="font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">history</span>
+                            Recent Updates
+                        </h4>
+<div class="space-y-4">
+<div class="flex gap-3 items-start">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-secondary"></div>
+<div>
+<p class="text-xs font-semibold">You published Module 01</p>
+<p class="text-[10px] text-on-surface-variant">2 hours ago</p>
+</div>
+</div>
+<div class="flex gap-3 items-start">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-primary"></div>
+<div>
+<p class="text-xs font-semibold">Reordered sequence 03 &amp; 04</p>
+<p class="text-[10px] text-on-surface-variant">Yesterday at 4:30 PM</p>
+</div>
+</div>
+<div class="flex gap-3 items-start">
+<div class="w-2 h-2 mt-1.5 rounded-full bg-outline"></div>
+<div>
+<p class="text-xs font-semibold">Upload failed: Site_Map_Lrg.dwg</p>
+<p class="text-[10px] text-on-surface-variant">Oct 14, 2023</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Course Image/Teaser Card -->
+<div class="rounded-3xl overflow-hidden relative group aspect-[4/3] shadow-lg">
+<img alt="Modern architectural building facade" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Stunning modern skyscraper with reflective glass and geometric steel structure against a clear blue sky, architectural photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqHY5V0XsiXzcvByBxEnrnKcsXkCPzX0F2HpthhcKyKo8tRqfUnuZTUexyok7pIh3C36HusC1pHF6LO7vI_IU-fsOuCkugFJOC-hAG23agawatyKgsIvAu8b71N3EsXb4y7bM3KueR_rd7-E3q8eN38J70820_sxujzw-S4r6NfkyHCP1mocG3nt84G4Hd1P_EUnQOWZiVLFu1GK2latuEsjOOn7fYqYj-YhhyQ-TJ7Tj3u9KSOA6fPt404HhoV2K8zZueNDNk5w"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4 glass-panel p-4 rounded-2xl">
+<p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Preview Mode</p>
+<h5 class="text-sm font-bold text-on-background">Student view is active</h5>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

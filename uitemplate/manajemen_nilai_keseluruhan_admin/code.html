@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Manajemen Nilai Keseluruhan | Scholar Tech</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#e1e2ed",
+                    "secondary": "#006c49",
+                    "on-surface-variant": "#434655",
+                    "secondary-fixed": "#6ffbbe",
+                    "primary-fixed": "#dbe1ff",
+                    "on-error-container": "#93000a",
+                    "on-primary-fixed": "#00174b",
+                    "surface-container-high": "#e7e7f3",
+                    "surface-container-low": "#f3f3fe",
+                    "on-secondary-container": "#00714d",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "background": "#faf8ff",
+                    "surface-container-highest": "#e1e2ed",
+                    "surface-bright": "#faf8ff",
+                    "surface": "#faf8ff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-tertiary-fixed": "#07006c",
+                    "outline": "#737686",
+                    "on-tertiary-fixed-variant": "#2f2ebe",
+                    "inverse-on-surface": "#f0f0fb",
+                    "tertiary-container": "#585be6",
+                    "secondary-container": "#6cf8bb",
+                    "outline-variant": "#c3c6d7",
+                    "surface-container": "#ededf9",
+                    "on-tertiary-container": "#f1eeff",
+                    "on-secondary-fixed": "#002113",
+                    "on-primary-container": "#eeefff",
+                    "on-secondary": "#ffffff",
+                    "inverse-primary": "#b4c5ff",
+                    "tertiary-fixed": "#e1e0ff",
+                    "on-background": "#191b23",
+                    "on-tertiary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "on-surface": "#191b23",
+                    "error": "#ba1a1a",
+                    "surface-dim": "#d9d9e5",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed-variant": "#005236",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#3e3fcc",
+                    "tertiary-fixed-dim": "#c0c1ff",
+                    "surface-tint": "#0053db",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#2563eb",
+                    "primary": "#004ac6",
+                    "inverse-surface": "#2e3039",
+                    "secondary-fixed-dim": "#4edea3"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-full fixed left-0 top-0 h-screen w-64 bg-slate-50 dark:bg-slate-900 z-50">
+<div class="px-6 py-8">
+<div class="flex items-center gap-3 mb-10">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-blue-800 dark:text-blue-200">Scholar Tech</h1>
+<p class="text-xs font-medium text-slate-500 uppercase tracking-widest">Academic Portal</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-medium">Academic Structure</span>
+</a>
+<!-- Active Tab: Grade Management -->
+<a class="text-blue-700 dark:text-blue-400 font-bold border-l-4 border-emerald-500 bg-blue-50/50 dark:bg-blue-900/20 px-6 py-3 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="grading">grading</span>
+<span class="font-medium">Grade Management</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="rate_review">rate_review</span>
+<span class="font-medium">Review &amp; Grading</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-medium">Student Records</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto p-6">
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-white py-3 px-4 rounded-xl font-semibold shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                New Project
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="ml-64 flex-1">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-8 h-16 sticky top-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none z-40">
+<div class="flex items-center gap-8">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" data-icon="search">search</span>
+<input class="w-full bg-surface-container-highest border-none rounded-full py-2 pl-10 text-sm focus:ring-2 focus:ring-emerald-500/20" placeholder="Search grades..." type="text"/>
+</div>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-emerald-600 transition-all" href="#">Institutions</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-emerald-600 transition-all" href="#">Faculties</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-emerald-600 transition-all" href="#">Archives</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-slate-600 hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-px bg-slate-200 mx-2"></div>
+<img alt="Administrator Profile" class="w-10 h-10 rounded-full border-2 border-primary-fixed object-cover" data-alt="Professional administrator portrait wearing a navy suit in a clean modern office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd_cpVAHB4xEuA9W-2TdZ8lKHF67r4ZzepEPRKX8B5sBdTHUzkhctB7GxyQEECmFYfMCEGHH_4NJN8YPPAsEdZMRMji_z_OE-Mbsr112wyoSp9_hxyII9eNf9kHkMc84bolZfncrXSQrihI3TkwfBsfWNRQyo3EV9j9uB7xfuBEi8UD8Q7aHoEYU1zJ84Qa4rDpVfikPC0PoNirc9sf4g0xnrHXQ29UkBvfiA43eDK9rtf8So4KEoB8X8i6xLFK40sEcd_ZFLJuw"/>
+</div>
+</header>
+<main class="p-8 max-w-7xl mx-auto space-y-8">
+<!-- Page Header & Global Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+<div>
+<span class="text-secondary font-bold tracking-widest text-xs uppercase mb-2 block">System Administration</span>
+<h2 class="text-4xl font-extrabold tracking-tight text-on-surface">Manajemen Nilai Keseluruhan</h2>
+<p class="text-on-surface-variant mt-2 max-w-2xl">Visualisasi performa akademik tingkat universitas. Kelola distribusi nilai, pantau kelulusan, dan hasilkan laporan strategis.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-surface-container-low text-on-surface-variant font-semibold rounded-xl hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="file_download">file_download</span>
+                        Export PDF
+                    </button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-secondary-container text-on-secondary-container font-semibold rounded-xl hover:brightness-95 transition-all">
+<span class="material-symbols-outlined" data-icon="grid_on">grid_on</span>
+                        Excel Sheet
+                    </button>
+</div>
+</div>
+<!-- Dashboard Bento Grid: Global Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- Metric 1: Average GPA -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-primary-fixed rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+</div>
+<span class="text-secondary text-sm font-bold">+0.12 YoY</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Average GPA</p>
+<h3 class="text-3xl font-black mt-1">3.58</h3>
+<div class="mt-4 h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[89.5%]"></div>
+</div>
+</div>
+<!-- Metric 2: Completion Rate -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-secondary-fixed rounded-lg text-secondary">
+<span class="material-symbols-outlined" data-icon="task_alt">task_alt</span>
+</div>
+<span class="text-secondary text-sm font-bold">Optimal</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Course Completion</p>
+<h3 class="text-3xl font-black mt-1">94.2%</h3>
+<div class="mt-4 h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[94.2%]"></div>
+</div>
+</div>
+<!-- Metric 3: Active Students -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-tertiary-fixed rounded-lg text-tertiary">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+</div>
+<span class="text-slate-400 text-sm font-medium">Active Now</span>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Total Enrollments</p>
+<h3 class="text-3xl font-black mt-1">12,408</h3>
+<p class="text-xs text-on-surface-variant mt-3">Across 12 faculties</p>
+</div>
+<!-- Metric 4: Grade Trends -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-on-surface-variant"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 bg-surface-container rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+</div>
+</div>
+<p class="text-on-surface-variant text-sm font-medium">Grade Inflation Risk</p>
+<h3 class="text-3xl font-black mt-1">Low</h3>
+<p class="text-xs text-secondary font-semibold mt-3">Stable distribution (0.04% variance)</p>
+</div>
+</div>
+<!-- Filters Section -->
+<section class="bg-surface-container-low p-6 rounded-3xl">
+<div class="flex flex-wrap items-center gap-6">
+<div class="flex-1 min-w-[200px]">
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-tighter mb-2">Faculty / Department</label>
+<select class="w-full bg-surface-container-highest border-none rounded-xl py-2.5 text-sm font-medium">
+<option>All Faculties</option>
+<option>Engineering &amp; Technology</option>
+<option>Business &amp; Economics</option>
+<option>Social Sciences</option>
+</select>
+</div>
+<div class="flex-1 min-w-[150px]">
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-tighter mb-2">Academic Year</label>
+<select class="w-full bg-surface-container-highest border-none rounded-xl py-2.5 text-sm font-medium">
+<option>2023 / 2024</option>
+<option>2022 / 2023</option>
+<option>2021 / 2022</option>
+</select>
+</div>
+<div class="flex-1 min-w-[150px]">
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-tighter mb-2">Semester</label>
+<div class="flex p-1 bg-surface-container-highest rounded-xl">
+<button class="flex-1 py-1.5 text-xs font-bold bg-white rounded-lg shadow-sm">Ganjil</button>
+<button class="flex-1 py-1.5 text-xs font-medium text-on-surface-variant">Genap</button>
+</div>
+</div>
+<div class="pt-6">
+<button class="bg-primary text-white p-2.5 rounded-xl flex items-center justify-center hover:scale-105 transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Main Data Table: Grade Distribution -->
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden">
+<div class="px-8 py-6 border-b border-surface-container flex justify-between items-center">
+<h3 class="text-xl font-bold">Course Performance Analysis</h3>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary"></span>
+<span class="text-xs font-medium text-on-surface-variant">Active Grading Period</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-8 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Course Name</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Code</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Avg. Grade</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Distribution</th>
+<th class="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Enrollment</th>
+<th class="px-8 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-10 bg-secondary rounded-full"></div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Advanced Algorithm Analysis</div>
+<div class="text-xs text-on-surface-variant">Computer Science • Dr. Aris S.</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 font-mono text-sm">CS-302</td>
+<td class="px-6 py-6 font-bold text-primary">3.82</td>
+<td class="px-6 py-6">
+<div class="flex gap-1 h-4 w-32 items-end">
+<div class="bg-emerald-500 w-1/5 h-[90%] rounded-sm" title="A: 42%"></div>
+<div class="bg-emerald-400 w-1/5 h-[60%] rounded-sm" title="B: 30%"></div>
+<div class="bg-yellow-400 w-1/5 h-[30%] rounded-sm" title="C: 15%"></div>
+<div class="bg-orange-400 w-1/5 h-[15%] rounded-sm" title="D: 8%"></div>
+<div class="bg-red-400 w-1/5 h-[5%] rounded-sm" title="E: 5%"></div>
+</div>
+</td>
+<td class="px-6 py-6 font-medium">182 Students</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-xs font-bold rounded-full">Validated</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-10 bg-tertiary rounded-full"></div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Digital Microeconomics</div>
+<div class="text-xs text-on-surface-variant">Economics • Prof. Lisa Wong</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 font-mono text-sm">EC-110</td>
+<td class="px-6 py-6 font-bold text-primary">3.24</td>
+<td class="px-6 py-6">
+<div class="flex gap-1 h-4 w-32 items-end">
+<div class="bg-emerald-500 w-1/5 h-[50%] rounded-sm"></div>
+<div class="bg-emerald-400 w-1/5 h-[80%] rounded-sm"></div>
+<div class="bg-yellow-400 w-1/5 h-[40%] rounded-sm"></div>
+<div class="bg-orange-400 w-1/5 h-[20%] rounded-sm"></div>
+<div class="bg-red-400 w-1/5 h-[10%] rounded-sm"></div>
+</div>
+</td>
+<td class="px-6 py-6 font-medium">420 Students</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-surface-container-high text-on-surface-variant text-xs font-bold rounded-full">In Progress</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-10 bg-secondary rounded-full"></div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Quantum Mechanics I</div>
+<div class="text-xs text-on-surface-variant">Physics • Dr. Robert Oppen</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 font-mono text-sm">PH-205</td>
+<td class="px-6 py-6 font-bold text-primary">2.91</td>
+<td class="px-6 py-6">
+<div class="flex gap-1 h-4 w-32 items-end">
+<div class="bg-emerald-500 w-1/5 h-[20%] rounded-sm"></div>
+<div class="bg-emerald-400 w-1/5 h-[40%] rounded-sm"></div>
+<div class="bg-yellow-400 w-1/5 h-[90%] rounded-sm"></div>
+<div class="bg-orange-400 w-1/5 h-[50%] rounded-sm"></div>
+<div class="bg-red-400 w-1/5 h-[30%] rounded-sm"></div>
+</div>
+</td>
+<td class="px-6 py-6 font-medium">95 Students</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-xs font-bold rounded-full">Validated</span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group border-b-0">
+<td class="px-8 py-6">
+<div class="flex items-center gap-3">
+<div class="w-1.5 h-10 bg-tertiary rounded-full"></div>
+<div>
+<div class="font-bold text-on-surface group-hover:text-primary transition-colors">Introduction to Ethics</div>
+<div class="text-xs text-on-surface-variant">Philosophy • Dr. Marcus A.</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-6 font-mono text-sm">PL-101</td>
+<td class="px-6 py-6 font-bold text-primary">3.95</td>
+<td class="px-6 py-6">
+<div class="flex gap-1 h-4 w-32 items-end">
+<div class="bg-emerald-500 w-1/5 h-[95%] rounded-sm"></div>
+<div class="bg-emerald-400 w-1/5 h-[30%] rounded-sm"></div>
+<div class="bg-yellow-400 w-1/5 h-[10%] rounded-sm"></div>
+<div class="bg-orange-400 w-1/5 h-[5%] rounded-sm"></div>
+<div class="bg-red-400 w-1/5 h-[2%] rounded-sm"></div>
+</div>
+</td>
+<td class="px-6 py-6 font-medium">1,200 Students</td>
+<td class="px-8 py-6">
+<span class="px-3 py-1 bg-secondary-fixed text-on-secondary-fixed text-xs font-bold rounded-full">Validated</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-4 bg-surface-container-low/30 flex justify-between items-center text-sm text-on-surface-variant">
+<div>Showing 4 of 328 courses</div>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm border border-slate-200">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white font-bold">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm border border-slate-200">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm border border-slate-200">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-white shadow-sm border border-slate-200">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Strategic Insights (Asymmetric Row) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Insight Card 1 -->
+<div class="lg:col-span-2 bg-gradient-to-br from-primary to-tertiary p-8 rounded-[2rem] text-white flex flex-col justify-between min-h-[300px]">
+<div>
+<h4 class="text-2xl font-bold mb-2">Predictive Performance Summary</h4>
+<p class="text-primary-fixed/80 max-w-lg">Berdasarkan data semester ganjil, diprediksi adanya peningkatan GPA sebesar 3% pada fakultas teknik dikarenakan adopsi kurikulum PBL yang baru.</p>
+</div>
+<div class="flex items-center gap-12">
+<div class="flex flex-col">
+<span class="text-primary-fixed text-xs font-bold uppercase tracking-widest opacity-70">Projected Graduation</span>
+<span class="text-4xl font-black">92.4%</span>
+</div>
+<div class="flex flex-col border-l border-white/20 pl-12">
+<span class="text-primary-fixed text-xs font-bold uppercase tracking-widest opacity-70">Highest Performing</span>
+<span class="text-xl font-bold">Computer Science</span>
+</div>
+</div>
+</div>
+<!-- Insight Card 2: Faculty Distribution -->
+<div class="bg-surface-container-lowest p-8 rounded-[2rem] border border-surface-container">
+<h4 class="text-lg font-extrabold mb-6">Distribution by Faculty</h4>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-bold uppercase text-on-surface-variant">
+<span>Engineering</span>
+<span>3.65</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[85%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-bold uppercase text-on-surface-variant">
+<span>Humanities</span>
+<span>3.42</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[72%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-bold uppercase text-on-surface-variant">
+<span>Medicine</span>
+<span>3.78</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[92%]"></div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 text-primary font-bold text-sm hover:underline flex items-center justify-center gap-2">
+                        View Detailed Report
+                        <span class="material-symbols-outlined text-base" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Architectural Scholar | Live Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f3f3fe",
+                        "on-tertiary-container": "#f1eeff",
+                        "surface-tint": "#0053db",
+                        "secondary": "#006c49",
+                        "primary-fixed": "#dbe1ff",
+                        "on-primary-container": "#eeefff",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#00714d",
+                        "surface-container": "#ededf9",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "primary": "#004ac6",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "surface": "#faf8ff",
+                        "on-surface-variant": "#434655",
+                        "surface-bright": "#faf8ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "secondary-container": "#6cf8bb",
+                        "on-background": "#191b23",
+                        "surface-variant": "#e1e2ed",
+                        "on-secondary-fixed": "#002113",
+                        "inverse-surface": "#2e3039",
+                        "secondary-fixed": "#6ffbbe",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#585be6",
+                        "background": "#faf8ff",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#2563eb",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "on-surface": "#191b23",
+                        "on-primary-fixed": "#00174b",
+                        "outline-variant": "#c3c6d7",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-on-surface": "#f0f0fb",
+                        "tertiary": "#3e3fcc",
+                        "secondary-fixed-dim": "#4edea3",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d9d9e5",
+                        "surface-container-high": "#e7e7f3",
+                        "outline": "#737686",
+                        "on-tertiary-fixed": "#07006c",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-primary-fixed-variant": "#003ea8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-speaker {
+            box-shadow: 0 0 0 4px #6ffbbe;
+        }
+        .glass-panel {
+            background: rgba(250, 248, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased overflow-hidden h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md fixed top-0 w-full z-50 shadow-sm dark:shadow-none flex justify-between items-center px-6 py-3 w-full">
+<div class="flex items-center gap-6">
+<h1 class="text-xl font-bold tracking-tighter text-blue-700 dark:text-blue-400 font-headline">Architectural Scholar</h1>
+<div class="hidden md:flex items-center gap-1 bg-surface-container-low px-3 py-1.5 rounded-full">
+<span class="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
+<span class="text-label-sm font-semibold text-secondary px-2">Studio Live: Urban Planning 101</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center gap-6 font-headline font-semibold tracking-tight">
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600" href="#">Dashboard</a>
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-600 pb-1" href="#">Projects</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-600" href="#">Curriculum</a>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<img alt="User profile avatar" class="w-8 h-8 rounded-full object-cover border-2 border-primary-fixed" data-alt="close-up portrait of a professional man with friendly expression in a bright studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdG6oP4MFjtabMVXBPUauzF3OYJIEXK6K5uZrbjNeMMDnUUAM8EQ1FgNDpAj05ET7Mg6WHbcAU7o2TpIbIIH2LKCxsHVu4l1IOutIHe-mQF-E8bVSi-8HW_1hfvDCqA6zH-PtbMW8UuX-aewp-AkjCzUkTH9pcGWjgcWoilQnatJfkQ_Xw-8IH1B6_8Y_TADQL1oM2ByPr03batcHywCsmQ28w7QaOm2YWtGSuqaXET2K1Qat17okUC8lk4szmcMhezvhuoyOgcQ"/>
+</div>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-1 mt-16 flex overflow-hidden">
+<!-- SideNavBar (Hidden on Mobile) -->
+<aside class="hidden lg:flex flex-col h-full py-8 px-4 bg-slate-50 dark:bg-slate-950 h-screen w-64 border-r-0 font-body text-sm antialiased">
+<div class="mb-8 px-2">
+<h2 class="font-headline font-extrabold text-blue-700 text-lg">Project Portal</h2>
+<p class="text-on-surface-variant text-xs">Academic Excellence</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 font-bold border-l-4 border-emerald-500 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="folder_open">folder_open</span>
+<span>Projects</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span>Curriculum</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 hover:translate-x-1 transition-transform duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant/20 space-y-1">
+<button class="w-full mb-4 py-2 bg-primary-container text-on-primary-container font-headline font-bold rounded-xl shadow-sm hover:opacity-90 transition-all">
+                    New Project
+                </button>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- LiveKit Stage Area -->
+<div class="flex-1 flex flex-col min-w-0 bg-surface-container-low p-4 lg:p-6 gap-6">
+<!-- Bento Grid Interface -->
+<div class="flex-1 grid grid-cols-12 grid-rows-6 gap-4">
+<!-- Shared Screen / Whiteboard -->
+<div class="col-span-12 lg:col-span-9 row-span-4 lg:row-span-6 bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden relative group">
+<img class="w-full h-full object-cover" data-alt="architectural blueprint and 3d model of a modern sustainable building displayed on a high-resolution digital screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCp2Tdee_CXeQMWW5yMhXi8TET5czSHoloJpvF6kyFOGlnJpTYe7fkRgi-s4I4KC_mWIdLRz3gwiGZnJzbP_ThwSjKJS6yWraIhik944kly_flMdY9k1M25SmFT7_lKJTL09sdS5KME-u-0SosigiR610stIXjOZbW1ehfAetDEMTpZHYRXLD0jx0bDQR6amuQux2FnnfOcCwx47pF8W2efW0eIehHJ9VhdYNUO9pfoC1KBAGTICtzXr1TkyBdehhj-_q2WS0ot4Q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+<div class="text-white">
+<h3 class="font-headline font-bold text-lg">Main Stage: Project Presentation</h3>
+<p class="text-sm opacity-80">Presented by Prof. Aris Thorne</p>
+</div>
+</div>
+<!-- Tool Overlay -->
+<div class="absolute top-4 left-4 flex flex-col gap-2">
+<button class="glass-panel p-2 rounded-lg hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="zoom_in">zoom_in</span>
+</button>
+<button class="glass-panel p-2 rounded-lg hover:bg-white transition-colors">
+<span class="material-symbols-outlined" data-icon="draw">draw</span>
+</button>
+</div>
+</div>
+<!-- Participant Tiles Column -->
+<div class="col-span-12 lg:col-span-3 row-span-2 lg:row-span-6 flex lg:flex-col gap-4 overflow-x-auto lg:overflow-y-auto pb-4 lg:pb-0 scrollbar-hide">
+<!-- Active Speaker Tile -->
+<div class="flex-shrink-0 w-48 lg:w-full aspect-video lg:aspect-square rounded-xl overflow-hidden relative active-speaker">
+<img class="w-full h-full object-cover" data-alt="portrait of a professional architect in a creative office environment during a video call" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkgMz1dTyMmyZM4Fb17xCrWvhWVgL0c0pTrwj0H6aq5rpOzyWzyEXtn5ta3JOiLGboz_HODVU54M9X3ghlFIe_l7ZkNonfjjvylkH6IE5Sz6YqnvNuLKelbW7nqV5kOVMmQ89WUe0ldFCFYbdE-TMBFe0kuGqdKgLSYmeexOXV-1JWxyUfb8ibaWNMEwSjHdovMByU8PE92FmXZZHIo21BASt227ZGqimXOBHBKXU4Ma1IVIGYTC3zBJMdcYtl7m9xV6HSuzpT8A"/>
+<div class="absolute bottom-2 left-2 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-secondary-fixed" data-icon="mic">mic</span>
+<span>Prof. Aris Thorne</span>
+</div>
+</div>
+<!-- Participant 2 -->
+<div class="flex-shrink-0 w-48 lg:w-full aspect-video lg:aspect-square rounded-xl overflow-hidden relative surface-container-lowest border-l-4 border-secondary">
+<img class="w-full h-full object-cover" data-alt="young woman student listening intently during an online academic seminar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoBXvveMSkgKN_DZaVWh8KY36R4q97MSKjs2enM--7HcPOy25IuwoAjLYuy2uaIhHoS2iXBwIVDHN-QIYmjjMICiAo4tkdOTLEYfNYTAeqA3f1gZODElwCcyOuFeEhtZ1RvPUdouh-nxWsaCrEFdKsLJvBL1qekaCH7AFB94Gp9mVBwgo7StWAq0NkTSsBx_tBevXNJ1Al2JCcF9Gr29Up7HVr2vuG95PyUAukoA_qHheqeqK8iElxLWhU0SElvJ5ZUpw7hn-Srg"/>
+<div class="absolute bottom-2 left-2 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-error" data-icon="mic_off">mic_off</span>
+<span>Elena Rossi</span>
+</div>
+</div>
+<!-- Participant 3 -->
+<div class="flex-shrink-0 w-48 lg:w-full aspect-video lg:aspect-square rounded-xl overflow-hidden relative surface-container-lowest">
+<img class="w-full h-full object-cover" data-alt="male student participating in a virtual classroom discussion from a library" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVIQpUKs5LzbhN5vRxqsVOFlH1hWDTJhDfKOtvC6JQ9b2yIX7EgayIdWBatwWmuuEP1wJgGVdfwBQ5dF8lhbo__ZOCaMz8I4RkR7ev3_mLksmrhle_irESFZGKjHFwA2uxI9g-hmQNDqounv7zbTitbBJW31JPH57-Y8fxO8hR9XJcNLip-HqqI2UP2AtTTXpKbKrIxp6fmZvC8Pyt6HYRhLlc7yf7jKGaYg880lUt9IvjI6XO2bLpruvTXnmmx6zBwYQ3c-a2yA"/>
+<div class="absolute bottom-2 left-2 bg-black/50 backdrop-blur-md px-2 py-0.5 rounded text-[10px] text-white flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-error" data-icon="mic_off">mic_off</span>
+<span>Marcus Chen</span>
+</div>
+</div>
+<!-- More Participants -->
+<div class="flex-shrink-0 w-48 lg:w-full aspect-video lg:aspect-square rounded-xl bg-surface-container-highest flex flex-col items-center justify-center text-on-surface-variant gap-1">
+<span class="text-xl font-bold font-headline">+12</span>
+<span class="text-[10px] font-semibold uppercase tracking-wider">Viewing</span>
+</div>
+</div>
+</div>
+<!-- Call Controls (Floating Bottom Bar) -->
+<div class="flex justify-center mt-auto">
+<div class="glass-panel px-6 py-4 rounded-2xl flex items-center gap-4 shadow-xl border border-white/20">
+<button class="w-12 h-12 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center hover:bg-surface-variant transition-all">
+<span class="material-symbols-outlined" data-icon="mic">mic</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center hover:bg-surface-variant transition-all">
+<span class="material-symbols-outlined" data-icon="videocam">videocam</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-primary-container text-white flex items-center justify-center hover:scale-105 transition-all">
+<span class="material-symbols-outlined" data-icon="screen_share">screen_share</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container-highest text-on-surface flex items-center justify-center hover:bg-surface-variant transition-all">
+<span class="material-symbols-outlined" data-icon="back_hand">back_hand</span>
+</button>
+<div class="w-px h-8 bg-outline-variant/30 mx-2"></div>
+<button class="px-6 py-2 rounded-xl bg-error text-white font-bold hover:bg-red-700 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="call_end">call_end</span>
+<span>Leave</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Chat Sidebar (Right) -->
+<aside class="hidden xl:flex flex-col w-80 bg-surface-container-lowest shadow-lg z-10">
+<div class="p-4 border-b border-outline-variant/10 flex items-center justify-between">
+<h3 class="font-headline font-bold text-on-surface">Live Discussion</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="close">close</span>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4">
+<!-- Message -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold font-headline text-primary">Elena Rossi</span>
+<span class="text-[10px] text-on-surface-variant">10:42 AM</span>
+</div>
+<div class="bg-surface-container p-3 rounded-tr-xl rounded-b-xl text-sm">
+                        Does the central atrium use passive cooling or is it purely aesthetic?
+                    </div>
+</div>
+<!-- Message (Self) -->
+<div class="flex flex-col gap-1 items-end">
+<div class="flex items-center gap-2 flex-row-reverse">
+<span class="text-xs font-bold font-headline text-secondary">You</span>
+<span class="text-[10px] text-on-surface-variant">10:43 AM</span>
+</div>
+<div class="bg-primary-container text-white p-3 rounded-tl-xl rounded-b-xl text-sm">
+                        It's definitely functional! Prof showed the airflow diagrams in the last module.
+                    </div>
+</div>
+<!-- Message -->
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold font-headline text-primary">Marcus Chen</span>
+<span class="text-[10px] text-on-surface-variant">10:45 AM</span>
+</div>
+<div class="bg-surface-container p-3 rounded-tr-xl rounded-b-xl text-sm">
+                        The material choice for the facade is brilliant.
+                    </div>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low">
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-lowest border-none rounded-xl py-3 pl-4 pr-12 focus:ring-2 focus:ring-primary text-sm shadow-inner" placeholder="Type a message..." type="text"/>
+<button class="absolute right-2 p-2 text-primary hover:text-primary-container">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</aside>
+</main>
+<!-- Mobile Navigation (Hidden on Web) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-50 border-t border-outline-variant/10 flex justify-around py-3 z-50">
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px]">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-blue-700">
+<span class="material-symbols-outlined" data-icon="video_chat">video_chat</span>
+<span class="text-[10px]">Studio</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="text-[10px]">Chat</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-slate-500">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px]">Profile</span>
+</button>
+</nav>
+</body></html>

@@ -4,10 +4,10 @@ use Livewire\Component;
 
 new class extends Component
 {
-    //
+ //
 };
 ?>
 
 <div>
-    {{-- Discussion Show Component --}}
+ {{-- Discussion Show Component --}}
 </div>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registrasi - Architectural Scholar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-primary-container": "#eeefff",
+                        "surface-container": "#ededf9",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-container-low": "#f3f3fe",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "outline": "#737686",
+                        "surface-container-highest": "#e1e2ed",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-variant": "#e1e2ed",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed": "#6ffbbe",
+                        "on-secondary-container": "#00714d",
+                        "background": "#faf8ff",
+                        "outline-variant": "#c3c6d7",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "secondary-container": "#6cf8bb",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#e7e7f3",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#434655",
+                        "on-tertiary-fixed": "#07006c",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-secondary-fixed-variant": "#005236",
+                        "inverse-primary": "#b4c5ff",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f0f0fb",
+                        "tertiary": "#3e3fcc",
+                        "primary-container": "#2563eb",
+                        "on-secondary-fixed": "#002113",
+                        "on-tertiary-container": "#f1eeff",
+                        "surface-bright": "#faf8ff",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "on-primary-fixed": "#00174b",
+                        "surface-tint": "#0053db",
+                        "on-error": "#ffffff",
+                        "surface": "#faf8ff",
+                        "secondary": "#006c49",
+                        "on-background": "#191b23",
+                        "primary": "#004ac6",
+                        "inverse-surface": "#2e3039",
+                        "tertiary-container": "#585be6",
+                        "on-surface": "#191b23",
+                        "surface-dim": "#d9d9e5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex items-center justify-center p-4">
+<!-- Suppressing Navigation Shell for Transactional Focus -->
+<main class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-12 gap-0 overflow-hidden rounded-3xl bg-surface-container-lowest shadow-2xl">
+<!-- Branding & Visual Anchor Section -->
+<section class="hidden md:flex md:col-span-5 relative bg-primary overflow-hidden flex-col justify-between p-12">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover mix-blend-overlay opacity-40" data-alt="Modern architectural blueprint with technical lines and abstract geometric structures in a deep blue monochromatic tone" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkcz4sQ1EFBfoPNymBrRcq35MjYdnEfsJyCGT9dK4AWImViy6CB_Zs8G2P9JZvFHspvKvt_BiDGI119mkkiZgufwUstf11WDJ_aHdtd-XI0bLStCITWOP2STsLlyAZ27eoBiUNKzQPoeVeCRdw4gQMrhzSk_z0z0lAcb-mL9xbY4ibgTBuU2zXwtCIy6f3qASXYkfFupDHcVZFZFhN0AMInBL186JKzGFoa9gv41iuegr21-YPxpqamxZfjqlw6ZvuBZEw0xqX9A"/>
+<div class="absolute inset-0 bg-gradient-to-br from-primary to-primary-container opacity-80"></div>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-4xl text-secondary-fixed" data-icon="account_balance">account_balance</span>
+<h1 class="text-2xl font-extrabold tracking-tighter text-on-primary-container">Architectural Scholar</h1>
+</div>
+</div>
+<div class="relative z-10">
+<blockquote class="mb-8">
+<p class="text-2xl font-headline font-semibold text-white leading-tight">
+                        "The foundation of every great structure begins with a single scholarly pursuit."
+                    </p>
+</blockquote>
+<div class="flex items-center gap-4 p-4 rounded-xl glass-panel bg-white/10">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-secondary-fixed">
+<img class="w-full h-full object-cover" data-alt="Portrait of a professional academic researcher in a bright studio setting with a friendly expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaRLL7qUDu9EA5in7Rz-XlZgW3O2UpCHZ6DyKr95Nd6ZYbiFj0vaRRTJmug8MiR7iclrdgn8o4bdmqbsCMyhEGm_35nT3qXZie3t-NxcYZs93bobiZ2pdJffyNGFKJnOQxROEj8QXP1DPdyjNio1XYNB4ypwNfuyf3Ro-3Bshh-jieorG3qkIHx3Sx8MG2kRZWzas7Tysl4wYfwxAfi3jon4h7fD2JZuLiCTMoVS0aohI46EDOCcEmjLc2E6HzXKzhP-1WndeIMg"/>
+</div>
+<div>
+<p class="text-sm font-bold text-white">Join 2,400+ Students</p>
+<p class="text-xs text-primary-fixed">Project-Based Learning Environment</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Registration Form Section -->
+<section class="md:col-span-7 p-8 md:p-16 flex flex-col justify-center bg-surface-container-lowest">
+<div class="max-w-md mx-auto w-full">
+<header class="mb-10">
+<h2 class="text-4xl font-extrabold text-primary tracking-tight mb-2">Registrasi</h2>
+<p class="text-on-surface-variant font-medium">Mulailah perjalanan akademik Anda di atelier digital kami.</p>
+</header>
+<form class="space-y-6">
+<!-- Progress Indicator (Visual cue for professional feel) -->
+<div class="flex gap-2 mb-8">
+<div class="h-1 flex-1 bg-primary rounded-full"></div>
+<div class="h-1 flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="h-1 flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<div class="space-y-5">
+<!-- Full Name -->
+<div class="relative">
+<label class="block text-xs font-bold text-primary uppercase tracking-widest mb-1.5 ml-1" for="fullname">Full Name</label>
+<div class="group flex items-center bg-surface-container-highest rounded-xl px-4 py-3.5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-outline mr-3" data-icon="person">person</span>
+<input class="bg-transparent border-none p-0 w-full text-on-surface placeholder:text-outline focus:ring-0 text-sm font-medium" id="fullname" name="fullname" placeholder="Masukkan nama lengkap" type="text"/>
+</div>
+</div>
+<!-- Email Address -->
+<div class="relative">
+<label class="block text-xs font-bold text-primary uppercase tracking-widest mb-1.5 ml-1" for="email">Email Address</label>
+<div class="group flex items-center bg-surface-container-highest rounded-xl px-4 py-3.5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-outline mr-3" data-icon="mail">mail</span>
+<input class="bg-transparent border-none p-0 w-full text-on-surface placeholder:text-outline focus:ring-0 text-sm font-medium" id="email" name="email" placeholder="nama@institusi.ac.id" type="email"/>
+</div>
+</div>
+<!-- Student ID -->
+<div class="relative">
+<label class="block text-xs font-bold text-primary uppercase tracking-widest mb-1.5 ml-1" for="studentid">Student ID</label>
+<div class="group flex items-center bg-surface-container-highest rounded-xl px-4 py-3.5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-outline mr-3" data-icon="badge">badge</span>
+<input class="bg-transparent border-none p-0 w-full text-on-surface placeholder:text-outline focus:ring-0 text-sm font-medium" id="studentid" name="studentid" placeholder="ID Mahasiswa / NIM" type="text"/>
+</div>
+</div>
+<!-- Password -->
+<div class="relative">
+<label class="block text-xs font-bold text-primary uppercase tracking-widest mb-1.5 ml-1" for="password">Password</label>
+<div class="group flex items-center bg-surface-container-highest rounded-xl px-4 py-3.5 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-outline mr-3" data-icon="lock">lock</span>
+<input class="bg-transparent border-none p-0 w-full text-on-surface placeholder:text-outline focus:ring-0 text-sm font-medium" id="password" name="password" placeholder="Min. 8 karakter" type="password"/>
+<span class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors" data-icon="visibility">visibility</span>
+</div>
+</div>
+</div>
+<!-- Terms of Service -->
+<div class="flex items-start gap-3 py-2">
+<div class="flex items-center h-5">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/30 bg-surface-container-lowest" id="terms" name="terms" type="checkbox"/>
+</div>
+<label class="text-xs text-on-surface-variant leading-relaxed" for="terms">
+                            Saya menyetujui <a class="text-primary font-bold hover:underline" href="#">Terms of Service</a> dan <a class="text-primary font-bold hover:underline" href="#">Privacy Policy</a> yang berlaku di Architectural Scholar.
+                        </label>
+</div>
+<!-- CTA Button -->
+<button class="w-full bg-gradient-to-r from-primary to-primary-container text-white font-bold py-4 rounded-xl shadow-lg shadow-primary/20 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2" type="submit">
+<span>Buat Akun Sekarang</span>
+<span class="material-symbols-outlined text-lg" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<footer class="mt-10 pt-8 border-t border-surface-container-highest text-center">
+<p class="text-sm text-on-surface-variant">
+                        Sudah memiliki akun? 
+                        <a class="text-primary font-extrabold ml-1 hover:underline" href="#">Masuk di sini</a>
+</p>
+</footer>
+</div>
+</section>
+</main>
+<!-- Background Decorative Elements -->
+<div class="fixed top-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary-container/10 blur-[120px] rounded-full z-[-1]"></div>
+<div class="fixed bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-container/10 blur-[120px] rounded-full z-[-1]"></div>
+</body></html>

@@ -1,71 +1,12 @@
 /* ============================================
-   UTILITIES MODULE
+   UTILITIES MODULE - The Scholar Tech Design System
    Helper classes, overrides, and responsive adjustments
    ============================================ */
-
-/* --- Spacing Helpers --- */
-.mt-1 { margin-top: var(--spacing-xs); }
-.mt-2 { margin-top: var(--spacing-sm); }
-.mt-3 { margin-top: var(--spacing-md); }
-.mt-4 { margin-top: var(--spacing-lg); }
-.mt-5 { margin-top: var(--spacing-xl); }
-
-.mb-1 { margin-bottom: var(--spacing-xs); }
-.mb-2 { margin-bottom: var(--spacing-sm); }
-.mb-3 { margin-bottom: var(--spacing-md); }
-.mb-4 { margin-bottom: var(--spacing-lg); }
-.mb-5 { margin-bottom: var(--spacing-xl); }
-
-.p-1 { padding: var(--spacing-xs); }
-.p-2 { padding: var(--spacing-sm); }
-.p-3 { padding: var(--spacing-md); }
-.p-4 { padding: var(--spacing-lg); }
-.p-5 { padding: var(--spacing-xl); }
-
-.gap-1 { gap: var(--spacing-xs); }
-.gap-2 { gap: var(--spacing-sm); }
-.gap-3 { gap: var(--spacing-md); }
-.gap-4 { gap: var(--spacing-lg); }
-
-/* --- Flexbox Helpers --- */
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-.flex-wrap { flex-wrap: wrap; }
-
-/* --- Typography Helpers --- */
-.text-center { text-align: center; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
-
-.text-sm { font-size: 0.875rem; }
-.text-base { font-size: 1rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-2xl { font-size: 1.5rem; }
-
-.text-gray-500 { color: var(--color-gray-500); }
-.text-gray-600 { color: var(--color-gray-600); }
-.text-gray-700 { color: var(--color-gray-700); }
-.text-gray-900 { color: var(--color-gray-900); }
-
-/* --- Misc Utilities --- */
-.rounded { border-radius: var(--radius-md); }
-.rounded-lg { border-radius: var(--radius-lg); }
-
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-
-.mix-blend-hard-light { mix-blend-mode: hard-light; }
-.mix-blend-plus-darker { mix-blend-mode: plus-darker; }
 
 /* --- Alpine.js Support --- */
 [x-cloak] { display: none !important; }
 
 /* --- Responsive Fixes --- */
-/* Force hide burger menu on desktop (Workaround for Tailwind compilation) */
 @media (min-width: 1024px) {
     nav .lg\:hidden {
         display: none !important;
@@ -77,3 +18,51 @@
         align-items: center !important;
     }
 }
+
+/* --- Scholar Custom Scrollbar --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* --- Scholar Smooth Transitions --- */
+.scholar-transition {
+    transition: all 0.2s ease;
+}
+
+/* --- Scholar Hover Lift Effect --- */
+.scholar-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* --- Scholar Interactive Elements --- */
+.scholar-interactive {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.scholar-interactive:hover {
+    transform: translateY(-2px);
+}
+
+.scholar-interactive:active {
+    transform: scale(0.98);
+}
+
+/* --- Mix Blend Modes (legacy compat) --- */
+.mix-blend-hard-light { mix-blend-mode: hard-light; }
+.mix-blend-plus-darker { mix-blend-mode: plus-darker; }

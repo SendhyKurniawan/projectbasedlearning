@@ -1,188 +1,188 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center gap-2 text-sm sm:text-base flex-wrap">
-            <a href="{{ route('admin.hierarchy.departments.index') }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                Data Akademik
-            </a>
-            <span class="text-gray-500">/</span>
-            <a href="{{ route('admin.hierarchy.departments.show', $studentClass->studyProgram->department_id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                {{ $studentClass->studyProgram->department->name }}
-            </a>
-            <span class="text-gray-500">/</span>
-            <a href="{{ route('admin.hierarchy.study-programs.show', $studentClass->studyProgram_id) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                {{ $studentClass->studyProgram->name }}
-            </a>
-            <span class="text-gray-500">/</span>
-            <a href="{{ route('admin.hierarchy.study-programs.semesters.show', [$studentClass->studyProgram_id, $studentClass->semester_id]) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                {{ $studentClass->semester->name }}
-            </a>
-            <span class="text-gray-500">/</span>
-            <h2 class="font-semibold text-gray-800 dark:text-gray-200 leading-tight">
-                Kelas {{ $studentClass->name }}
-            </h2>
-        </div>
-    </x-slot>
+ <x-slot name="header">
+ <div class="flex items-center gap-2 text-sm sm:text-base flex-wrap">
+ <a href="{{ route('admin.hierarchy.departments.index') }}" class="text-primary hover:text-primary-container:text-indigo-300">
+ Data Akademik
+ </a>
+ <span class="text-on-surface-variant">/</span>
+ <a href="{{ route('admin.hierarchy.departments.show', $studentClass->studyProgram->department_id) }}" class="text-primary hover:text-primary-container:text-indigo-300">
+ {{ $studentClass->studyProgram->department->name }}
+ </a>
+ <span class="text-on-surface-variant">/</span>
+ <a href="{{ route('admin.hierarchy.study-programs.show', $studentClass->studyProgram_id) }}" class="text-primary hover:text-primary-container:text-indigo-300">
+ {{ $studentClass->studyProgram->name }}
+ </a>
+ <span class="text-on-surface-variant">/</span>
+ <a href="{{ route('admin.hierarchy.study-programs.semesters.show', [$studentClass->studyProgram_id, $studentClass->semester_id]) }}" class="text-primary hover:text-primary-container:text-indigo-300">
+ {{ $studentClass->semester->name }}
+ </a>
+ <span class="text-on-surface-variant">/</span>
+ <h2 class="font-semibold text-on-surface leading-tight">
+ Kelas {{ $studentClass->name }}
+ </h2>
+ </div>
+ </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            
-            {{-- Flash Messages --}}
-            @if(session('success'))
-                <div class="px-4 py-3 bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-800 dark:text-green-200 rounded-lg text-sm">
-                    {{ session('success') }}
-                </div>
-            @endif
+ <div class="space-y-6">
+ <div class="max-w-7xl mx-auto space-y-6">
+ 
+ {{-- Flash Messages --}}
+ @if(session('success'))
+ <div class="px-4 py-3 bg-emerald-50 border border-secondary text-secondary rounded-lg text-sm">
+ {{ session('success') }}
+ </div>
+ @endif
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {{-- Mahasiswa Terdaftar --}}
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Daftar Mahasiswa</h3>
-                            <span class="text-sm px-2.5 py-1 bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 rounded-full font-semibold">
-                                Total: {{ $students->count() }}
-                            </span>
-                        </div>
-                        
-                        <div class="space-y-2">
-                            @forelse($students as $student)
-                                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-indigo-200 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold text-sm">
-                                            {{ substr($student->name, 0, 1) }}
-                                        </div>
-                                        <div>
-                                            <h4 class="font-bold text-gray-800 dark:text-gray-200 text-sm">{{ $student->name }}</h4>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $student->nim ?? $student->email }}</p>
-                                        </div>
-                                    </div>
-                                    <a href="{{ route('admin.users.edit', $student) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline mt-2 sm:mt-0">Detail</a>
-                                </div>
-                            @empty
-                                <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-                                    Belum ada mahasiswa yang masuk di kelas ini. <br> Assign mahasiswa ke kelas ini dari <a href="{{ route('admin.users.index') }}" class="text-indigo-600 underline">Manajemen User</a>.
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
+ <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+ {{-- Mahasiswa Terdaftar --}}
+ <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
+ <div class="p-6">
+ <div class="flex justify-between items-center mb-4">
+ <h3 class="text-lg font-medium text-on-surface">Daftar Mahasiswa</h3>
+ <span class="text-sm px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded-full font-semibold">
+ Total: {{ $students->count() }}
+ </span>
+ </div>
+ 
+ <div class="space-y-2">
+ @forelse($students as $student)
+ <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-surface-container-low/50/50 border border-surface-container-low rounded-lg">
+ <div class="flex items-center gap-3">
+ <div class="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center text-primary font-bold text-sm">
+ {{ substr($student->name, 0, 1) }}
+ </div>
+ <div>
+ <h4 class="font-bold text-on-surface text-sm">{{ $student->name }}</h4>
+ <p class="text-xs text-on-surface-variant font-mono">{{ $student->nim ?? $student->email }}</p>
+ </div>
+ </div>
+ <a href="{{ route('admin.users.edit', $student) }}" class="text-xs text-primary hover:underline mt-2 sm:mt-0">Detail</a>
+ </div>
+ @empty
+ <div class="p-4 text-center text-sm text-on-surface-variant bg-surface-container-low/50/50 rounded-lg border border-dashed border-outline-variant/30">
+ Belum ada mahasiswa yang masuk di kelas ini. <br> Assign mahasiswa ke kelas ini dari <a href="{{ route('admin.users.index') }}" class="text-primary underline">Manajemen User</a>.
+ </div>
+ @endforelse
+ </div>
+ </div>
+ </div>
 
-                {{-- Mata Kuliah Kelas --}}
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 space-y-6">
-                        
-                        {{-- Mata Kuliah Diwariskan (Inherited from Semester) --}}
-                        <div>
-                            <div class="flex justify-between items-center mb-4">
-                                <div>
-                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Mata Kuliah Semester</h3>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Diwarisi dari pengaturan Semester. Berlaku untuk seluruh kelas di semester ini.</p>
-                                </div>
-                            </div>
+ {{-- Mata Kuliah Kelas --}}
+ <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
+ <div class="p-6 space-y-6">
+ 
+ {{-- Mata Kuliah Diwariskan (Inherited from Semester) --}}
+ <div>
+ <div class="flex justify-between items-center mb-4">
+ <div>
+ <h3 class="text-lg font-medium text-on-surface">Mata Kuliah Semester</h3>
+ <p class="text-xs text-on-surface-variant">Diwarisi dari pengaturan Semester. Berlaku untuk seluruh kelas di semester ini.</p>
+ </div>
+ </div>
 
-                            <div class="space-y-2">
-                                @forelse($inheritedCourses as $course)
-                                    <div class="p-3 bg-gray-50 dark:bg-gray-700/30 border-l-4 border-l-gray-400 dark:border-l-gray-500 border-y border-r border-gray-200 dark:border-gray-700 rounded-r-lg opacity-80">
-                                        <h4 class="font-bold text-gray-800 dark:text-gray-200 text-sm">{{ $course->nama_matkul }}</h4>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-wrap gap-2">
-                                            <span class="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-600 font-mono">{{ $course->kode_matkul }}</span>
-                                            <span class="px-2 py-0.5 rounded bg-gray-200 dark:bg-gray-600">{{ $course->sks }} SKS</span>
-                                            <span>Dosen: {{ $course->dosen->name }}</span>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 italic">Tidak ada mata kuliah warisan semester.</div>
-                                @endforelse
-                            </div>
-                        </div>
+ <div class="space-y-2">
+ @forelse($inheritedCourses as $course)
+ <div class="p-3 bg-surface-container-low/50/30 border-l-4 border-l-gray-400 border-y border-r border-surface-container-low rounded-r-lg opacity-80">
+ <h4 class="font-bold text-on-surface text-sm">{{ $course->nama_matkul }}</h4>
+ <div class="text-xs text-on-surface-variant mt-1 flex flex-wrap gap-2">
+ <span class="px-2 py-0.5 rounded bg-surface-container-high font-mono">{{ $course->kode_matkul }}</span>
+ <span class="px-2 py-0.5 rounded bg-surface-container-high">{{ $course->sks }} SKS</span>
+ <span>Dosen: {{ $course->dosen->name }}</span>
+ </div>
+ </div>
+ @empty
+ <div class="text-xs text-on-surface-variant italic">Tidak ada mata kuliah warisan semester.</div>
+ @endforelse
+ </div>
+ </div>
 
-                        <hr class="border-gray-200 dark:border-gray-700">
+ <hr class="border-surface-container-low">
 
-                        {{-- Mata Kuliah Spesifik Kelas --}}
-                        <div>
-                            <div class="flex justify-between items-center mb-4">
-                                <div>
-                                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Mata Kuliah Khusus Kelas</h3>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">Hanya berlaku untuk kelas {{ $studentClass->name }}</p>
-                                </div>
-                            </div>
+ {{-- Mata Kuliah Spesifik Kelas --}}
+ <div>
+ <div class="flex justify-between items-center mb-4">
+ <div>
+ <h3 class="text-lg font-medium text-on-surface">Mata Kuliah Khusus Kelas</h3>
+ <p class="text-xs text-on-surface-variant">Hanya berlaku untuk kelas {{ $studentClass->name }}</p>
+ </div>
+ </div>
 
-                            {{-- Form Tambah Mata Kuliah Kelas (X-Data Toggle) --}}
-                            <div x-data="{ open: false }" class="mb-4">
-                                <button @click="open = !open" class="mb-4 text-xs px-2.5 py-1.5 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 font-semibold rounded-md border border-green-200 dark:border-green-800 hover:bg-green-100 dark:hover:bg-green-900/50 transition">
-                                    + Tambah MK Khusus
-                                </button>
+ {{-- Form Tambah Mata Kuliah Kelas (X-Data Toggle) --}}
+ <div x-data="{ open: false }" class="mb-4">
+ <button @click="open = !open" class="mb-4 text-xs px-2.5 py-1.5 bg-green-50 text-green-700 font-semibold rounded-md border border-green-200 hover:bg-green-100:bg-green-900/50 transition">
+ + Tambah MK Khusus
+ </button>
 
-                                <div x-show="open" x-transition class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-gray-200 dark:border-gray-600 mb-4">
-                                    <form action="{{ route('admin.hierarchy.student-classes.add-course', $studentClass) }}" method="POST">
-                                        @csrf
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <x-input-label for="kode_matkul" value="Kode MK" />
-                                                <x-text-input id="kode_matkul" name="kode_matkul" type="text" class="mt-1 block w-full text-sm" required />
-                                            </div>
-                                            <div>
-                                                <x-input-label for="nama_matkul" value="Nama Mata Kuliah" />
-                                                <x-text-input id="nama_matkul" name="nama_matkul" type="text" class="mt-1 block w-full text-sm" required />
-                                            </div>
-                                        </div>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <x-input-label for="sks" value="SKS" />
-                                                <x-text-input id="sks" name="sks" type="number" class="mt-1 block w-full text-sm" min="1" required />
-                                            </div>
-                                            <div>
-                                                <x-input-label for="dosen_id" value="Dosen Pengampu" />
-                                                <select id="dosen_id" name="dosen_id" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 shadow-sm text-sm" required>
-                                                    <option value="" disabled selected>-- Pilih Dosen --</option>
-                                                    @foreach($dosens as $dosen)
-                                                        <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end gap-2 mt-4">
-                                            <button type="button" @click="open = false" class="px-3 py-1.5 text-xs font-semibold text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">Batal</button>
-                                            <button type="submit" class="px-3 py-1.5 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">Simpan Course</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+ <div x-show="open" x-transition class="p-4 bg-surface-container-low/50/50 rounded-lg border border-surface-container-low mb-4">
+ <form action="{{ route('admin.hierarchy.student-classes.add-course', $studentClass) }}" method="POST">
+ @csrf
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+ <div>
+ <x-input-label for="kode_matkul" value="Kode MK" />
+ <x-text-input id="kode_matkul" name="kode_matkul" type="text" class="mt-1 block w-full text-sm" required />
+ </div>
+ <div>
+ <x-input-label for="nama_matkul" value="Nama Mata Kuliah" />
+ <x-text-input id="nama_matkul" name="nama_matkul" type="text" class="mt-1 block w-full text-sm" required />
+ </div>
+ </div>
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+ <div>
+ <x-input-label for="sks" value="SKS" />
+ <x-text-input id="sks" name="sks" type="number" class="mt-1 block w-full text-sm" min="1" required />
+ </div>
+ <div>
+ <x-input-label for="dosen_id" value="Dosen Pengampu" />
+ <select id="dosen_id" name="dosen_id" class="mt-1 block w-full rounded-md border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 shadow-sm text-sm" required>
+ <option value="" disabled selected>-- Pilih Dosen --</option>
+ @foreach($dosens as $dosen)
+ <option value="{{ $dosen->id }}">{{ $dosen->name }}</option>
+ @endforeach
+ </select>
+ </div>
+ </div>
+ <div class="flex justify-end gap-2 mt-4">
+ <button type="button" @click="open = false" class="px-3 py-1.5 text-xs font-semibold text-on-surface-variant bg-surface-container-lowest border border-outline-variant/30 rounded-md hover:bg-surface-bright">Batal</button>
+ <button type="submit" class="px-3 py-1.5 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">Simpan Course</button>
+ </div>
+ </form>
+ </div>
+ </div>
 
-                            {{-- Daftar Mata Kuliah Spesifik Kelas --}}
-                            <div class="space-y-2">
-                                @forelse($classCourses as $course)
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white dark:bg-gray-800 border-l-4 border-l-green-500 border-y border-r border-gray-200 dark:border-gray-700 rounded-r-lg shadow-sm">
-                                        <div class="mb-2 sm:mb-0">
-                                            <h4 class="font-bold text-gray-800 dark:text-gray-200 text-sm">{{ $course->nama_matkul }}</h4>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex flex-wrap gap-2">
-                                                <span class="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 font-mono">{{ $course->kode_matkul }}</span>
-                                                <span class="px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700">{{ $course->sks }} SKS</span>
-                                                <span class="font-semibold text-green-600 dark:text-green-400">Dosen: {{ $course->dosen->name }}</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <form action="{{ route('admin.hierarchy.courses.destroy', $course) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" onclick="return confirm('Hapus mata kuliah {{ addslashes($course->nama_matkul) }}?')" class="text-xs px-2 py-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 border border-red-200 dark:border-red-800 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition">
-                                                    Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="p-4 text-center text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-                                        Belum ada mata kuliah khusus untuk kelas ini.
-                                    </div>
-                                @endforelse
-                            </div>
-                        </div>
+ {{-- Daftar Mata Kuliah Spesifik Kelas --}}
+ <div class="space-y-2">
+ @forelse($classCourses as $course)
+ <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-surface-container-lowest border-l-4 border-l-green-500 border-y border-r border-surface-container-low rounded-r-lg shadow-sm">
+ <div class="mb-2 sm:mb-0">
+ <h4 class="font-bold text-on-surface text-sm">{{ $course->nama_matkul }}</h4>
+ <div class="text-xs text-on-surface-variant mt-1 flex flex-wrap gap-2">
+ <span class="px-2 py-0.5 rounded bg-surface-container-low font-mono">{{ $course->kode_matkul }}</span>
+ <span class="px-2 py-0.5 rounded bg-surface-container-low ">{{ $course->sks }} SKS</span>
+ <span class="font-semibold text-green-600">Dosen: {{ $course->dosen->name }}</span>
+ </div>
+ </div>
+ <div class="flex items-center gap-2">
+ <form action="{{ route('admin.hierarchy.courses.destroy', $course) }}" method="POST">
+ @csrf
+ @method('DELETE')
+ <button type="submit" onclick="return confirm('Hapus mata kuliah {{ addslashes($course->nama_matkul) }}?')" class="text-xs px-2 py-1 text-error hover:text-red-800:text-red-300 border border-red-200 rounded hover:bg-red-50:bg-red-900/30 transition">
+ Hapus
+ </button>
+ </form>
+ </div>
+ </div>
+ @empty
+ <div class="p-4 text-center text-sm text-on-surface-variant bg-surface-container-low/50/50 rounded-lg border border-dashed border-outline-variant/30">
+ Belum ada mata kuliah khusus untuk kelas ini.
+ </div>
+ @endforelse
+ </div>
+ </div>
 
-                    </div>
-                </div>
-            </div>
+ </div>
+ </div>
+ </div>
 
-        </div>
-    </div>
+ </div>
+ </div>
 </x-app-layout>

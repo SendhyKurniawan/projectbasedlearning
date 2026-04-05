@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Review &amp; Grading | Scholar Tech</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#e1e2ed",
+                        "secondary": "#006c49",
+                        "on-surface-variant": "#434655",
+                        "secondary-fixed": "#6ffbbe",
+                        "primary-fixed": "#dbe1ff",
+                        "on-error-container": "#93000a",
+                        "on-primary-fixed": "#00174b",
+                        "surface-container-high": "#e7e7f3",
+                        "surface-container-low": "#f3f3fe",
+                        "on-secondary-container": "#00714d",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "background": "#faf8ff",
+                        "surface-container-highest": "#e1e2ed",
+                        "surface-bright": "#faf8ff",
+                        "surface": "#faf8ff",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-tertiary-fixed": "#07006c",
+                        "outline": "#737686",
+                        "on-tertiary-fixed-variant": "#2f2ebe",
+                        "inverse-on-surface": "#f0f0fb",
+                        "tertiary-container": "#585be6",
+                        "secondary-container": "#6cf8bb",
+                        "outline-variant": "#c3c6d7",
+                        "surface-container": "#ededf9",
+                        "on-tertiary-container": "#f1eeff",
+                        "on-secondary-fixed": "#002113",
+                        "on-primary-container": "#eeefff",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#b4c5ff",
+                        "tertiary-fixed": "#e1e0ff",
+                        "on-background": "#191b23",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-surface": "#191b23",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#d9d9e5",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#3e3fcc",
+                        "tertiary-fixed-dim": "#c0c1ff",
+                        "surface-tint": "#0053db",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#2563eb",
+                        "primary": "#004ac6",
+                        "inverse-surface": "#2e3039",
+                        "secondary-fixed-dim": "#4edea3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #faf8ff; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-on-background">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-full fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 h-screen w-64 border-r-0 z-50">
+<div class="px-6 py-8">
+<div class="flex items-center gap-3 mb-10">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+</div>
+<div>
+<div class="text-xl font-bold tracking-tight text-blue-800 dark:text-blue-200">Scholar Tech</div>
+<div class="text-xs font-medium text-slate-500 uppercase tracking-widest">Academic Portal</div>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+<span class="font-medium">Academic Structure</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="grading">grading</span>
+<span class="font-medium">Grade Management</span>
+</a>
+<!-- Active Tab: Review & Grading -->
+<a class="text-blue-700 dark:text-blue-400 font-bold border-l-4 border-emerald-500 bg-blue-50/50 dark:bg-blue-900/20 px-6 py-3 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="rate_review">rate_review</span>
+<span class="font-medium">Review &amp; Grading</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-medium">Student Records</span>
+</a>
+<a class="text-slate-500 dark:text-slate-400 px-6 py-3 flex items-center gap-3 hover:bg-blue-50 dark:hover:bg-blue-900/10 hover:text-blue-600 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium">Settings</span>
+</a>
+</nav>
+</div>
+<div class="mt-auto px-6 py-8">
+<button class="w-full py-3 bg-gradient-to-r from-primary to-primary-container text-white rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Project
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center w-full px-8 h-16 sticky top-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md shadow-sm dark:shadow-none z-40">
+<div class="flex items-center gap-8">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-400" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-sm w-64 focus:ring-2 focus:ring-emerald-500/20" placeholder="Search across academia..." type="text"/>
+</div>
+<nav class="flex gap-6">
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-emerald-600 dark:hover:text-emerald-400 transition-all text-xs uppercase tracking-wider" href="#">Institutions</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-emerald-600 dark:hover:text-emerald-400 transition-all text-xs uppercase tracking-wider" href="#">Faculties</a>
+<a class="text-slate-600 dark:text-slate-400 font-medium hover:text-emerald-600 dark:hover:text-emerald-400 transition-all text-xs uppercase tracking-wider" href="#">Archives</a>
+</nav>
+</div>
+<div class="flex items-center gap-5">
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full ring-2 ring-white"></span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+<div class="text-right">
+<p class="text-sm font-bold text-slate-900 leading-none">Dr. Alistair Vance</p>
+<p class="text-[10px] text-slate-500 font-medium uppercase">Senior Lecturer</p>
+</div>
+<img alt="Administrator Profile" class="w-9 h-9 rounded-full bg-slate-200" data-alt="Close-up professional portrait of a professor with glasses and a friendly expression in a modern office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM5Svx0JanZuJhQG4YunbEAUisOF6T1_ktWDK9AVaCeCyBvZc3SpXEIVTmCCgh46Zp_c-rCChuXT0RVkwlll4Rmo3cGiWyRfkWh_-gk5m4yCHHg2hzjfcF9vY8y12YS3iSYtpL2GEVexYj2nvNdFJDDews47ae2hWFu98ryV2RiuwAqThiPVJ98PNv1MLlbgKtvmt-m51MKm5lERqt4yCnpGYblz86avevEIAqHqgTSS2MhMg38T34cb9HS2lcRISGHc5Hho0u4w"/>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="p-8 flex-1 flex flex-col gap-8">
+<!-- Breadcrumbs & Title -->
+<div class="flex justify-between items-end">
+<div>
+<p class="text-xs font-semibold text-primary mb-1 uppercase tracking-widest">Architecture Department • Spring 2024</p>
+<h1 class="text-3xl font-extrabold text-on-surface tracking-tight">Sustainable Urban Systems: Phase 2</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="px-4 py-2 bg-surface-container-low rounded-xl flex items-center gap-3">
+<span class="text-xs font-bold text-on-surface-variant uppercase">Submissions</span>
+<span class="text-lg font-black text-primary">24/32</span>
+</div>
+<button class="px-5 py-2.5 bg-surface-container-highest text-on-surface font-bold rounded-xl flex items-center gap-2 hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+                        Filter
+                    </button>
+</div>
+</div>
+<!-- Main Layout: Sidebar Submissions + Split Pane Editor -->
+<div class="grid grid-cols-12 gap-8 flex-1 min-h-0">
+<!-- Student Submission List -->
+<div class="col-span-3 flex flex-col gap-4 overflow-y-auto no-scrollbar pr-2">
+<div class="p-4 bg-surface-container-lowest rounded-xl shadow-sm border-l-4 border-secondary flex items-center gap-4 cursor-pointer hover:scale-[1.02] transition-transform">
+<img class="w-10 h-10 rounded-lg bg-surface-container" data-alt="Avatar of student Julian" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhfZ2cdr6zZA8iLnxvg8U4h-6liI8sqmOg6-RZVf7kn8RIhPpLsV6jIMegCsCzzxFr7AOQZyAdWWpbKOvv-MSFFMlAcUU4uaEVFcS8EXbcqRAFx7gILKB8Dru_Q1_QwViUi4wByYcubwd9sYCeED2qTjOafdSZVlY_zB3Y0kcBsS__4mTrKZqaayiV_p4vU_mJ5T4RHFxfpSHjBAV0v7vlCNJyiAyBRdOJsJl6rArXp6V4SanyN7seHJOmovwPoVrKZD0V1uKlIw"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-surface">Julian Thorne</p>
+<span class="text-[10px] font-bold text-secondary uppercase px-1.5 py-0.5 bg-secondary/10 rounded">Submitted</span>
+</div>
+<span class="material-symbols-outlined text-slate-300" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white transition-colors">
+<img class="w-10 h-10 rounded-lg bg-surface-container" data-alt="Avatar of student Elena" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoE_cQdpBWcntd2vVLc_b4Cm68Ftt5z-OvAtOR1pNS04S0Xufz4G_PVU8aWYUbAHs-QWMn2g8Ol9wGh3kT-3okzAe0P1x4ZF4TK3sOdkpZvDNMVav2DJr95CSsj8w3o6CNF4HZ4xUHrE8G3BnkNQmA4SK-naFZBITN0JbLAN8D6VeWsmL3kExxoyjDiffclPpWtcEt7LeTp1RGZ7mf008eoKR5OP8JRvW_OvMBx1MWMVgJWaBYM5KceJISp2Qy5dM9FGe6WnFZsQ"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-surface">Elena Rodriguez</p>
+<span class="text-[10px] font-bold text-error uppercase px-1.5 py-0.5 bg-error/10 rounded">Late (2h)</span>
+</div>
+<span class="material-symbols-outlined text-slate-300" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white transition-colors opacity-70">
+<img class="w-10 h-10 rounded-lg bg-surface-container" data-alt="Avatar of student Marcus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgUq34GoCZyIeCxBMPipxIzeX3so9lDE-qNUrtyFGt-92j_1cAk8UuKRI-FTbkf0yhbKkB4FFnm4QWModJvfzOcWV2alwNMxvXo_T4x-KGe_XJK9QaV8z8tupG7OSJ1-XfK1p17G8mLrY07UGraZAN8p4YG1Sz750a_kFT461Q_lR9fbQyCbSNtlYqBq9cbMJdhNNDAnHize4OUvkeWxO-i1J26SISdyhiqPLNd3yM89Z8g2hQGRvqyNuHqooL35PaSPTt5_P06g"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-surface">Marcus Chen</p>
+<span class="text-[10px] font-bold text-slate-500 uppercase px-1.5 py-0.5 bg-slate-200 rounded">Graded</span>
+</div>
+<span class="text-xs font-bold text-primary">88/100</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white transition-colors">
+<img class="w-10 h-10 rounded-lg bg-surface-container" data-alt="Avatar of student Sarah" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhI6zNvfoSscSKbuEBIjs-9Y7hvZAqz-um6VaLjpnTEgljc1a_LoalSP7oEu2TToJdGlnHll6WznWTxb8F_5bWwnGLGMqr-hceuv6LHdVhOlFleCBrhwFEG_vMPSL-B__m8rzAtmQsjl7svN0s5S5cU67PgEWs6v5kXGE_9dIxgs2_AtFh4Mca82y8chzsJvQMXlQi5NuiDz7g3P3H5QFojdlCyYoNGVM_jPwYXpDHaGCOdut9fx1RRdAhx3oPMvq-bmAwMPAh5A"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-surface">Sarah Jenkins</p>
+<span class="text-[10px] font-bold text-secondary uppercase px-1.5 py-0.5 bg-secondary/10 rounded">Submitted</span>
+</div>
+<span class="material-symbols-outlined text-slate-300" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white transition-colors">
+<img class="w-10 h-10 rounded-lg bg-surface-container" data-alt="Avatar of student David" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLrCJJUHH9WOVHKF8jyUMjuRFyFdLMP_z8ehIK1pSuZQEl21S1DW84ZfTfgzs0b2mxdfWYwq1et9ZUYE_WIF4sgKlEZzK6UAFR6Te3SAFaTujqbzvL7xbDPHy7-QhyVDEcIZxcMZesJMrpfqtVTNnLKaPoj6ho7Q1uiGbx7Jh89LiWWQ3roWRgZXFPWfOqc7D325AZimfT0pQ1kGBqj_-s4piNTxinUNMoxXLjxWvFGC0CyPILYPFCCZ5LSE2T66AmUVlfhN1uew"/>
+<div class="flex-1">
+<p class="text-sm font-bold text-on-surface">David Miller</p>
+<span class="text-[10px] font-bold text-secondary uppercase px-1.5 py-0.5 bg-secondary/10 rounded">Submitted</span>
+</div>
+<span class="material-symbols-outlined text-slate-300" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<!-- Grading Split-Pane -->
+<div class="col-span-9 flex gap-6">
+<!-- Submission Preview (Left) -->
+<div class="flex-[3] bg-white rounded-2xl shadow-sm overflow-hidden flex flex-col">
+<div class="px-6 py-4 bg-surface-container-low flex justify-between items-center">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="description">description</span>
+<span class="text-sm font-bold text-on-surface">Phase_2_Urban_Sustainability_Julian_Thorne.pdf</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-1.5 hover:bg-surface-variant rounded transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="zoom_in">zoom_in</span>
+</button>
+<button class="p-1.5 hover:bg-surface-variant rounded transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="zoom_out">zoom_out</span>
+</button>
+<button class="p-1.5 hover:bg-surface-variant rounded transition-colors">
+<span class="material-symbols-outlined text-lg" data-icon="download">download</span>
+</button>
+</div>
+</div>
+<div class="flex-1 bg-slate-100 p-8 flex items-center justify-center overflow-y-auto">
+<!-- Mock Document Preview -->
+<div class="bg-white w-full max-w-2xl min-h-[1000px] shadow-2xl p-12 flex flex-col gap-6">
+<h2 class="text-2xl font-bold border-b pb-4">Urban Ecosystems Phase 2</h2>
+<p class="text-sm leading-relaxed text-slate-600">
+                                    This proposal focuses on the integration of modular vertical gardens within existing suburban infrastructures. The primary goal is to reduce heat islands through localized vegetation management.
+                                </p>
+<div class="grid grid-cols-2 gap-4 my-4">
+<div class="h-48 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center">
+<span class="text-xs text-slate-400">[Site Analysis Map]</span>
+</div>
+<div class="h-48 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 flex items-center justify-center">
+<span class="text-xs text-slate-400">[Material Legend]</span>
+</div>
+</div>
+<p class="text-sm leading-relaxed text-slate-600">
+                                    Our findings indicate a 12% reduction in energy consumption when building facades are covered with 40% vegetation. The maintenance cycle is estimated to be quarterly.
+                                </p>
+<div class="h-64 bg-slate-200 rounded-xl relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4 h-4 bg-white/20 rounded-full overflow-hidden">
+<div class="w-3/4 h-full bg-emerald-500"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Grading Form (Right) -->
+<div class="flex-[2] flex flex-col gap-4">
+<!-- Rubric Section -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm flex flex-col gap-6">
+<h3 class="font-bold text-lg text-on-surface">Grading Rubric</h3>
+<div class="space-y-6">
+<div>
+<div class="flex justify-between items-center mb-3">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Concept Strength</label>
+<span class="text-sm font-bold text-primary">18 / 20</span>
+</div>
+<div class="grid grid-cols-5 gap-1">
+<button class="h-1 bg-primary rounded-full"></button>
+<button class="h-1 bg-primary rounded-full"></button>
+<button class="h-1 bg-primary rounded-full"></button>
+<button class="h-1 bg-primary rounded-full"></button>
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-3">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Technical Accuracy</label>
+<span class="text-sm font-bold text-primary">15 / 20</span>
+</div>
+<div class="grid grid-cols-5 gap-1">
+<button class="h-1 bg-primary rounded-full"></button>
+<button class="h-1 bg-primary rounded-full"></button>
+<button class="h-1 bg-primary rounded-full"></button>
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-3">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Graphic Quality</label>
+<span class="text-sm font-bold text-primary">-- / 10</span>
+</div>
+<div class="grid grid-cols-5 gap-1">
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+<button class="h-1 bg-surface-container-highest rounded-full"></button>
+</div>
+</div>
+</div>
+<hr class="border-surface-container"/>
+<!-- Feedback Input -->
+<div class="flex flex-col gap-3">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Qualitative Feedback</label>
+<textarea class="w-full bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400 p-4" placeholder="Provide constructive criticism here..." rows="6">Excellent structural approach, however the site analysis lacks seasonal climate data. Consider the wind patterns for the vertical gardens in Chapter 4.</textarea>
+</div>
+<div class="flex flex-col gap-3">
+<label class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Private Instructor Notes</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20 p-4" placeholder="Internal remarks..." type="text"/>
+</div>
+</div>
+<!-- Actions Bar -->
+<div class="bg-surface-container-lowest rounded-2xl p-4 shadow-sm flex flex-col gap-3 mt-auto">
+<div class="flex items-center justify-between px-2 mb-2">
+<span class="text-xs font-bold text-slate-500">TOTAL SCORE</span>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-black text-primary">--</span>
+<span class="text-sm font-bold text-slate-400">/ 50</span>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex-1 py-3 bg-secondary-container text-on-secondary-container font-bold rounded-xl active:scale-95 transition-transform hover:bg-secondary-fixed transition-colors">
+                                    Save Draft
+                                </button>
+<button class="flex-[2] py-3 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-lg">
+                                    Finalize &amp; Next
+                                    <span class="material-symbols-outlined text-lg" data-icon="keyboard_double_arrow_right">keyboard_double_arrow_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
