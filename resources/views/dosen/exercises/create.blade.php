@@ -1,199 +1,206 @@
 <x-app-layout>
- @vite(['resources/js/code-editor.js'])
- 
- <x-slot name="header">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- Buat Code Exercise - {{ $course->nama_matkul }}
- </h2>
- </x-slot>
+    @vite(['resources/js/code-editor.js'])
+    
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-white border border-outline-variant/30 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-on-surface">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <div>
+                    <h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Buat Latihan Kode</h2>
+                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">{{ $course->nama_matkul }}</p>
+                </div>
+            </div>
+        </div>
 
- <div class="space-y-6">
- <div class="">
- <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
- <div class="p-6">
- <form action="{{ route('dosen.exercises.store', $course) }}" method="POST" id="exercise-form">
- @csrf
+        <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm p-6 lg:p-10 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+            
+            <form action="{{ route('dosen.exercises.store', $course) }}" method="POST" id="exercise-form">
+                @csrf
+                
+                <div class="space-y-8">
+                    <!-- Title & Description Container -->
+                    <div class="space-y-6 bg-surface-container-low/30 p-6 rounded-2xl border border-outline-variant/20">
+                        <!-- Title -->
+                        <div>
+                            <label for="title" class="block text-xs font-bold font-headline uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">title</span> Judul Latihan <span class="text-error">*</span>
+                            </label>
+                            <input type="text" name="title" id="title" value="{{ old('title') }}" required
+                                class="w-full bg-surface border border-outline-variant/30 rounded-xl px-4 py-3 text-base font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner transition-shadow placeholder:text-on-surface-variant/50 placeholder:font-medium"
+                                placeholder="Contoh: HTML - Struktur Dasar Website">
+                            @error('title')
+                                <p class="text-error text-xs font-bold mt-2 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">error</span> {{ $message }}</p>
+                            @enderror
+                        </div>
 
- <!-- Title -->
- <div class="mb-4">
- <label for="title" class="block text-sm font-medium text-on-surface-variant mb-2">
- Judul Exercise <span class="text-red-500">*</span>
- </label>
- <input type="text" 
- name="title" 
- id="title" 
- value="{{ old('title') }}"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- placeholder="Contoh: HTML - Struktur Dasar Website"
- required>
- @error('title')
- <p class="text-error text-sm mt-1">{{ $message }}</p>
- @enderror
- </div>
+                        <!-- Description -->
+                        <div>
+                            <label for="description" class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                                Deskripsi & Instruksi
+                            </label>
+                            <textarea name="description" id="description" rows="3"
+                                class="w-full bg-surface border border-outline-variant/30 rounded-xl px-4 py-3 text-sm text-on-surface focus:ring-2 focus:ring-primary shadow-inner transition-shadow placeholder:text-on-surface-variant/50"
+                                placeholder="Jelaskan apa yang harus dikerjakan mahasiswa...">{{ old('description') }}</textarea>
+                            @error('description')
+                                <p class="text-error text-xs font-bold mt-2 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">error</span> {{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
 
- <!-- Description -->
- <div class="mb-4">
- <label for="description" class="block text-sm font-medium text-on-surface-variant mb-2">
- Deskripsi & Instruksi
- </label>
- <textarea name="description" 
- id="description" 
- rows="3"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- placeholder="Jelaskan apa yang harus dikerjakan mahasiswa...">{{ old('description') }}</textarea>
- @error('description')
- <p class="text-error text-sm mt-1">{{ $message }}</p>
- @enderror
- </div>
+                    <!-- Configuration Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Language -->
+                        <div>
+                            <label for="exercise_language" class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                                Bahasa Pemrograman <span class="text-error">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="exercise_language" id="exercise_language" required
+                                    class="w-full bg-white border border-outline-variant/30 rounded-xl pl-4 pr-10 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    <option value="htmlmixed" {{ old('exercise_language') === 'htmlmixed' ? 'selected' : '' }}>HTML (Mixed)</option>
+                                    <option value="html" {{ old('exercise_language') === 'html' ? 'selected' : '' }}>HTML Only</option>
+                                    <option value="css" {{ old('exercise_language') === 'css' ? 'selected' : '' }}>CSS</option>
+                                    <option value="javascript" {{ old('exercise_language') === 'javascript' ? 'selected' : '' }}>JavaScript</option>
+                                </select>
+                            </div>
+                        </div>
 
- <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
- <!-- Language -->
- <div>
- <label for="exercise_language" class="block text-sm font-medium text-on-surface-variant mb-2">
- Bahasa <span class="text-red-500">*</span>
- </label>
- <select name="exercise_language" 
- id="exercise_language"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- required>
- <option value="htmlmixed" {{ old('exercise_language') === 'htmlmixed' ? 'selected' : '' }}>HTML (Mixed)</option>
- <option value="html" {{ old('exercise_language') === 'html' ? 'selected' : '' }}>HTML Only</option>
- <option value="css" {{ old('exercise_language') === 'css' ? 'selected' : '' }}>CSS</option>
- <option value="javascript" {{ old('exercise_language') === 'javascript' ? 'selected' : '' }}>JavaScript</option>
- </select>
- </div>
+                        <!-- Deadline -->
+                        <div>
+                            <label for="deadline" class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                                Tenggat Waktu (Deadline) <span class="text-error">*</span>
+                            </label>
+                            <input type="datetime-local" name="deadline" id="deadline" value="{{ old('deadline') }}" required
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
+                        </div>
 
- <!-- Deadline -->
- <div>
- <label for="deadline" class="block text-sm font-medium text-on-surface-variant mb-2">
- Deadline <span class="text-red-500">*</span>
- </label>
- <input type="datetime-local" 
- name="deadline" 
- id="deadline" 
- value="{{ old('deadline') }}"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- required>
- </div>
+                        <!-- Max Score -->
+                        <div>
+                            <label for="max_score" class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                                Nilai Maksimum <span class="text-error">*</span>
+                            </label>
+                            <input type="number" name="max_score" id="max_score" value="{{ old('max_score', 100) }}" min="1" max="100" required
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
+                        </div>
+                    </div>
 
- <!-- Max Score -->
- <div>
- <label for="max_score" class="block text-sm font-medium text-on-surface-variant mb-2">
- Nilai Max <span class="text-red-500">*</span>
- </label>
- <input type="number" 
- name="max_score" 
- id="max_score" 
- value="{{ old('max_score', 100) }}"
- min="1"
- max="100"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- required>
- </div>
- </div>
-
- <!-- Starter Code -->
- <div class="mb-4">
- <label class="block text-sm font-medium text-on-surface-variant mb-2">
- Starter Code (Template untuk mahasiswa) <span class="text-red-500">*</span>
- </label>
- <div class="border rounded-md overflow-hidden">
- <textarea id="starter-code-editor" name="starter_code" required>{{ old('starter_code', '<!DOCTYPE html>
+                    <!-- Code Editors -->
+                    <div class="space-y-6">
+                        <!-- Starter Code -->
+                        <div class="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface shadow-sm focus-within:ring-2 focus-within:ring-primary transition-shadow">
+                            <div class="bg-surface-container-low px-4 py-2 border-b border-outline-variant/20 flex justify-between items-center">
+                                <label class="text-xs font-bold uppercase tracking-widest text-on-surface flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-primary">data_object</span> Template Kode Awal <span class="text-error">*</span>
+                                </label>
+                                <span class="text-[10px] text-on-surface-variant font-medium">Bisa diedit oleh mahasiswa</span>
+                            </div>
+                            <textarea id="starter-code-editor" name="starter_code" required>{{ old('starter_code', '<!DOCTYPE html>
 <html>
 <head>
- <title>My First Website</title>
+    <title>My First Website</title>
 </head>
 <body>
- <!-- TODO: Lengkapi kode di sini -->
- 
+    <!-- TODO: Lengkapi kode di sini -->
+    
 </body>
 </html>') }}</textarea>
- </div>
- <p class="text-xs text-on-surface-variant mt-1">
- Kode awal yang akan dilihat mahasiswa
- </p>
- </div>
+                        </div>
 
- <!-- Solution Code -->
- <div class="mb-4">
- <label class="block text-sm font-medium text-on-surface-variant mb-2">
- Solution Code (Reference - Optional)
- </label>
- <div class="border rounded-md overflow-hidden">
- <textarea id="solution-code-editor" name="solution_code">{{ old('solution_code') }}</textarea>
- </div>
- <p class="text-xs text-on-surface-variant mt-1">
- Kode solusi untuk referensi Anda
- </p>
- </div>
+                        <!-- Solution Code -->
+                        <div class="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface shadow-sm focus-within:ring-2 focus-within:ring-primary transition-shadow">
+                            <div class="bg-surface-container-low px-4 py-2 border-b border-outline-variant/20 flex justify-between items-center">
+                                <label class="text-xs font-bold uppercase tracking-widest text-on-surface flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[16px] text-emerald-600">verified</span> Referensi Solusi Kode (Opsional)
+                                </label>
+                                <span class="text-[10px] text-on-surface-variant font-medium">Hanya untuk referensi Dosen</span>
+                            </div>
+                            <textarea id="solution-code-editor" name="solution_code">{{ old('solution_code') }}</textarea>
+                        </div>
+                    </div>
 
- <!-- Required Keywords for Validation -->
- <div class="mb-4">
- <label for="required_keywords" class="block text-sm font-medium text-on-surface-variant mb-2">
- Required Keywords (untuk auto-grading)
- </label>
- <input type="text" 
- name="required_keywords" 
- id="required_keywords" 
- value="{{ old('required_keywords') }}"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- placeholder="Contoh: <h1>, <p>, <div>, class=, id=">
- <p class="text-xs text-on-surface-variant mt-1">
- Pisahkan dengan koma. Sistem akan cek apakah keywords ini ada di kode mahasiswa.
- </p>
- </div>
+                    <!-- Evaluation Tools -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface-container-low/30 p-6 rounded-2xl border border-outline-variant/20">
+                        <!-- Required Keywords -->
+                        <div>
+                            <label for="required_keywords" class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                                Kata Kunci Wajib (Auto-grading)
+                            </label>
+                            <input type="text" name="required_keywords" id="required_keywords" value="{{ old('required_keywords') }}"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary shadow-inner"
+                                placeholder="Contoh: <h1>, <p>, <div>, class=, id=">
+                            <p class="text-[10px] font-medium text-on-surface-variant mt-2 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">info</span> Pisahkan dengan koma. (Contoh: header, footer)
+                            </p>
+                        </div>
 
- <!-- Hints -->
- <div class="mb-6">
- <label for="hints" class="block text-sm font-medium text-on-surface-variant mb-2">
- Hints (Petunjuk untuk mahasiswa)
- </label>
- <textarea name="hints" 
- id="hints" 
- rows="3"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- placeholder="Tulis hints per baris&#10;Gunakan tag heading h1 untuk judul&#10;Jangan lupa closing tag">{{ old('hints') }}</textarea>
- <p class="text-xs text-on-surface-variant mt-1">
- Satu hint per baris
- </p>
- </div>
+                        <!-- Hints -->
+                        <div>
+                            <label for="hints" class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
+                                Petunjuk Mahasiswa (Hints)
+                            </label>
+                            <textarea name="hints" id="hints" rows="3"
+                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary shadow-inner"
+                                placeholder="Tulis hints per baris&#10;Gunakan tag heading h1 untuk judul&#10;Jangan lupa closing tag">{{ old('hints') }}</textarea>
+                            <p class="text-[10px] font-medium text-on-surface-variant mt-2 flex items-center gap-1">
+                                <span class="material-symbols-outlined text-[12px]">info</span> Satu hint per baris pengetikan
+                            </p>
+                        </div>
+                    </div>
 
- <!-- Submit Buttons -->
- <div class="flex gap-3">
- <button type="submit" 
- class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
- Simpan Exercise
- </button>
- <a href="{{ route('dosen.assignments.index', $course) }}"
- class="bg-gray-600 hover:bg-surface-container-high text-white px-6 py-2 rounded">
- Batal
- </a>
- </div>
- </form>
- </div>
- </div>
- </div>
- </div>
+                    <!-- Submit Buttons -->
+                    <div class="pt-6 border-t border-outline-variant/20 flex justify-end gap-3">
+                        <a href="{{ route('dosen.assignments.index', $course) }}" class="px-6 py-3 border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl hover:bg-surface-container transition-colors text-center">Batal</a>
+                        <button type="submit" class="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
+                            <span class="material-symbols-outlined text-[20px]">play_arrow</span> Simpan Latihan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
- <script>
- document.addEventListener('DOMContentLoaded', function() {
- // Initialize CodeMirror editors
- const starterEditor = initCodeEditor('starter-code-editor', {
- mode: 'htmlmixed',
- lineNumbers: true,
- });
+    <!-- Additional required styling for CodeMirror overrides to match theme -->
+    <style>
+        .CodeMirror {
+            height: 300px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 14px;
+            padding: 10px 0;
+            background: #fff;
+        }
+        .CodeMirror-gutters {
+            background-color: #f8fafc;
+            border-right: 1px solid rgba(0,0,0,0.05);
+        }
+    </style>
 
- const solutionEditor = initCodeEditor('solution-code-editor', {
- mode: 'htmlmixed',
- lineNumbers: true,
- });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize CodeMirror editors (relying on existing code-editor.js logic)
+            if (typeof initCodeEditor === 'function') {
+                const starterEditor = initCodeEditor('starter-code-editor', {
+                    mode: 'htmlmixed',
+                    lineNumbers: true,
+                });
 
- // Update mode when language changes
- document.getElementById('exercise_language').addEventListener('change', function() {
- const mode = this.value;
- starterEditor.setOption('mode', mode);
- solutionEditor.setOption('mode', mode);
- });
- });
- </script>
+                const solutionEditor = initCodeEditor('solution-code-editor', {
+                    mode: 'htmlmixed',
+                    lineNumbers: true,
+                });
+
+                // Update mode when language changes
+                document.getElementById('exercise_language').addEventListener('change', function() {
+                    const mode = this.value;
+                    starterEditor.setOption('mode', mode);
+                    solutionEditor.setOption('mode', mode);
+                });
+            } else {
+                console.warn("initCodeEditor function not found. Please ensure code-editor.js is loaded.");
+            }
+        });
+    </script>
 </x-app-layout>

@@ -1,60 +1,154 @@
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- Kelas Virtual &mdash; {{ $course->nama_matkul }}
- </h2>
- <a href="{{ route('mahasiswa.courses.show', $course) }}" class="text-sm text-on-surface-variant hover:text-on-surface ">
- &larr; Kembali ke Course
- </a>
- </div>
- </x-slot>
+    <div class="space-y-12 pb-20 px-4 sm:px-6 lg:px-8">
+        <!-- Header & Breadcrumbs -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div class="space-y-4">
+                <nav class="flex items-center gap-2 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-[0.2em] mb-2 italic px-1">
+                    <span><a href="{{ route('mahasiswa.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span><a href="{{ route('mahasiswa.courses.show', $course->id) }}" class="hover:text-primary transition-colors">Course</a></span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="text-primary italic text-[11px]">Kelas Virtual</span>
+                </nav>
+                <h1 class="text-4xl font-headline font-black text-on-surface italic uppercase tracking-tighter leading-none">Ruang Konferensi</h1>
+                <p class="text-on-surface-variant body-md mt-1 italic opacity-80">Sesi tatap muka virtual interaktif untuk mata kuliah <span class="text-on-surface font-bold">{{ $course->nama_matkul }}</span>.</p>
+            </div>
+            
+            <div class="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-3xl border border-outline-variant/10 shadow-sm italic">
+                <div class="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[24px]">videocam</span>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[9px] font-black uppercase text-on-surface-variant opacity-60 leading-none mb-1">Total Sesi</span>
+                    <span class="text-lg font-black text-on-surface">{{ $conferences->count() }} Sesi Terjadwal</span>
+                </div>
+            </div>
+        </div>
 
- <div class="py-8">
- @if($conferences->isEmpty())
- <div class="empty-state">
- <svg class="w-16 h-16 mx-auto mb-4 text-outline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
- </svg>
- <p class="empty-state-text">Belum ada sesi kelas virtual yang dijadwalkan.</p>
- </div>
- @else
- <div class="space-y-4">
- @foreach($conferences as $conference)
- <div class="card">
- <div class="flex items-start justify-between gap-4">
- <div class="flex-1">
- <div class="flex items-center gap-3 mb-1">
- <h3 class="font-bold text-lg text-on-surface">{{ $conference->title }}</h3>
- @if($conference->status === 'live')
- <span class="badge badge-success animate-pulse">LIVE</span>
- @else
- <span class="badge badge-warning">Dijadwalkan</span>
- @endif
- </div>
- @if($conference->description)
- <p class="text-sm text-on-surface-variant mb-2">{{ $conference->description }}</p>
- @endif
- <p class="text-xs text-on-surface-variant">
- Dosen: {{ $conference->dosen->name }}
- &bull;
- {{ $conference->scheduled_at->format('d M Y, H:i') }}
- </p>
- </div>
- <div class="shrink-0">
- @if($conference->status === 'live')
- <a href="{{ route('mahasiswa.conferences.room', $conference) }}"
- class="px-5 py-2.5 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all btn-sm">
- Masuk Ruangan
- </a>
- @else
- <span class="text-xs text-outline">Menunggu sesi dimulai...</span>
- @endif
- </div>
- </div>
- </div>
- @endforeach
- </div>
- @endif
- </div>
+        @php
+            $liveConferences = $conferences->where('status', 'live');
+            $scheduledConferences = $conferences->where('status', 'scheduled');
+            $endedConferences = $conferences->where('status', 'ended');
+        @endphp
+
+        <!-- 🔴 LIVE SESSIONS -->
+        @if($liveConferences->count() > 0)
+        <div class="space-y-6">
+            <h3 class="text-xs font-black uppercase text-primary tracking-[0.3em] italic px-1 flex items-center gap-3">
+                <span class="w-10 h-1 bg-primary rounded-full"></span>
+                LIVE SEKARANG
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                </span>
+            </h3>
+
+            <div class="grid grid-cols-1 gap-4">
+                @foreach($liveConferences as $conference)
+                    <div class="group relative bg-surface-container-lowest rounded-[2rem] border-2 border-primary/20 p-8 flex flex-col md:flex-row items-center justify-between gap-8 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 overflow-hidden">
+                        <div class="absolute top-0 left-0 w-2 h-full bg-primary italic"></div>
+                        
+                        <div class="flex items-center gap-8 flex-1">
+                            <div class="w-16 h-16 bg-primary/5 text-primary rounded-[1.5rem] flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                                <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">cell_tower</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-3">
+                                    <h4 class="text-2xl font-black italic text-on-surface tracking-tighter uppercase">{{ $conference->title }}</h4>
+                                    <span class="px-2 py-0.5 bg-error text-white text-[8px] font-black rounded uppercase tracking-widest italic animate-pulse">ACTIVE SESSION</span>
+                                </div>
+                                <p class="text-sm text-on-surface-variant italic leading-relaxed opacity-80">{{ $conference->description ?? 'Tidak ada deskripsi sesi.' }}</p>
+                                <div class="flex items-center gap-4 pt-2">
+                                    <div class="flex items-center gap-2 text-[10px] font-black text-on-surface-variant uppercase tracking-widest italic">
+                                        <span class="material-symbols-outlined text-sm opacity-50">person</span>
+                                        {{ $conference->dosen->name }}
+                                    </div>
+                                    <div class="flex items-center gap-2 text-[10px] font-black text-primary uppercase tracking-widest italic">
+                                        <span class="material-symbols-outlined text-sm opacity-50">schedule</span>
+                                        Started {{ $conference->updated_at->diffForHumans() }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('mahasiswa.conferences.room', $conference) }}" 
+                           class="w-full md:w-auto px-10 py-5 bg-primary text-on-primary font-black text-xs uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all italic">
+                            MASUK RUANG KELAS
+                            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">door_open</span>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- 📅 SCHEDULED SESSIONS -->
+        @if($scheduledConferences->count() > 0)
+        <div class="space-y-6">
+            <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] italic px-1 flex items-center gap-3 opacity-60">
+                <span class="w-10 h-1 bg-outline-variant/30 rounded-full"></span>
+                SESI MENDATANG
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach($scheduledConferences as $conference)
+                    <div class="bg-surface-container-lowest rounded-[2rem] border border-outline-variant/10 p-6 flex items-start gap-5 hover:border-primary/20 transition-all duration-300">
+                        <div class="w-12 h-12 bg-surface-container-low text-on-surface-variant/40 rounded-2xl flex items-center justify-center shadow-inner">
+                            <span class="material-symbols-outlined">event</span>
+                        </div>
+                        <div class="space-y-3 flex-1">
+                            <div class="space-y-1">
+                                <h4 class="text-lg font-black italic text-on-surface leading-tight uppercase tracking-tighter">{{ $conference->title }}</h4>
+                                <p class="text-[10px] font-medium text-on-surface-variant italic opacity-60">{{ $conference->scheduled_at->format('d M Y') }} &bull; {{ $conference->scheduled_at->format('H:i') }} WIB</p>
+                            </div>
+                            <p class="text-xs text-on-surface-variant/60 italic line-clamp-2">{{ $conference->description }}</p>
+                            <div class="pt-2 flex items-center justify-between">
+                                <span class="bg-surface-container px-3 py-1 rounded-full text-[9px] font-black text-on-surface-variant/40 uppercase tracking-widest italic">DIJADWALKAN</span>
+                                <span class="text-[10px] font-bold text-on-surface-variant italic opacity-40">{{ $conference->scheduled_at->diffForHumans() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <!-- 🏁 ENDED SESSIONS -->
+        @if($endedConferences->count() > 0)
+        <div class="space-y-6 opacity-60 grayscale-[0.5]">
+            <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] italic px-1 flex items-center gap-3 opacity-40">
+                <span class="w-10 h-1 bg-outline-variant/30 rounded-full"></span>
+                SESI BERAKHIR
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                @foreach($endedConferences as $conference)
+                    <div class="bg-surface-container-low/50 rounded-2xl border border-outline-variant/5 p-5 flex flex-col gap-3 italic">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] font-black text-on-surface-variant/40 uppercase tracking-widest">SESSION ENDED</span>
+                            <span class="material-symbols-outlined text-sm text-on-surface-variant/20">check_circle</span>
+                        </div>
+                        <h4 class="text-sm font-black text-on-surface uppercase tracking-tight line-clamp-1">{{ $conference->title }}</h4>
+                        <div class="flex items-center justify-between text-[9px] font-bold text-on-surface-variant/40 uppercase">
+                            <span>{{ $conference->scheduled_at->format('d M y') }}</span>
+                            <span>{{ $conference->ended_at?->format('H:i') ?? 'Selesai' }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        @if($conferences->isEmpty())
+        <div class="flex flex-col items-center justify-center py-20 text-center space-y-6">
+            <div class="w-24 h-24 bg-surface-container-low rounded-[2rem] flex items-center justify-center text-on-surface-variant/20 shadow-inner">
+                <span class="material-symbols-outlined text-[48px]">videocam_off</span>
+            </div>
+            <div class="space-y-2 italic">
+                <h4 class="text-xl font-black text-on-surface uppercase tracking-tighter">BELUM ADA SESI KELAS</h4>
+                <p class="text-sm text-on-surface-variant opacity-60 max-w-xs mx-auto">Dosen anda belum menjadwalkan atau memulai sesi kelas virtual untuk mata kuliah ini.</p>
+            </div>
+        </div>
+        @endif
+    </div>
 </x-app-layout>

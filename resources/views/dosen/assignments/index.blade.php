@@ -1,69 +1,146 @@
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- Tugas - {{ $course->nama_matkul }}
- </h2>
- <a href="{{ route('dosen.dashboard') }}" 
- class="text-sm text-on-surface-variant hover:text-on-surface ">
- &larr; Dashboard
- </a>
- </div>
- </x-slot>
+    <div class="w-full space-y-6">
+        @if(session('success'))
+            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl font-medium shadow-sm">
+                {{ session('success') }}
+            </div>
+        @endif
+        
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2 text-primary font-bold text-sm mb-2">
+                    <span class="material-symbols-outlined text-base">history_edu</span>
+                    <span class="tracking-wide">FACULTY DASHBOARD</span>
+                </div>
+                <h2 class="text-4xl font-extrabold font-headline text-on-background tracking-tight">Manajemen Tugas & Kuis</h2>
+                <p class="text-on-surface-variant max-w-xl text-sm leading-relaxed mt-2">Konfigurasi materi pembelajaran berbasis proyek dan evaluasi kompetensi mahasiswa melalui bank soal cerdas untuk <span class="font-bold text-on-surface">{{ $course->nama_matkul }}</span>.</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <a href="{{ route('dosen.dashboard') }}" class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 text-on-surface border border-outline-variant/30 rounded-xl font-bold hover:shadow-md transition-all text-sm">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Dashboard
+                </a>
+                <a href="{{ route('dosen.assignments.create', $course) }}" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-secondary to-on-secondary-container text-white rounded-xl font-bold shadow-lg shadow-secondary/20 hover:scale-105 transition-all text-sm">
+                    <span class="material-symbols-outlined">add_task</span>
+                    Buat Baru
+                </a>
+            </div>
+        </div>
 
- <div class="space-y-6">
- <div class="">
- @if(session('success'))
- <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
- {{ session('success') }}
- </div>
- @endif
+        <!-- Analytics Summary -->
+        <div class="grid grid-cols-12 gap-6 mb-8">
+            <div class="col-span-12 lg:col-span-4 grid grid-cols-2 gap-4">
+                <div class="col-span-2 bg-surface-container-lowest p-6 rounded-2xl relative overflow-hidden shadow-sm">
+                    <div class="relative z-10">
+                        <p class="text-label-sm font-bold text-on-surface-variant/70 uppercase tracking-widest">Total Penilaian</p>
+                        <h3 class="text-4xl font-black mt-2 text-primary">{{ $assignments->count() }}</h3>
+                    </div>
+                    <div class="absolute -right-4 -bottom-4 opacity-5 text-primary pointer-events-none">
+                        <span class="material-symbols-outlined text-9xl">analytics</span>
+                    </div>
+                </div>
+                <div class="bg-primary-container p-6 rounded-2xl text-white relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Aktif</p>
+                        <h3 class="text-2xl font-black mt-1">{{ $assignments->where('deadline', '>=', now())->count() }}</h3>
+                    </div>
+                    <span class="material-symbols-outlined absolute right-2 bottom-2 text-4xl opacity-20 pointer-events-none">clock_loader_40</span>
+                </div>
+                <div class="bg-secondary-container p-6 rounded-2xl text-on-secondary-container relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Selesai</p>
+                        <h3 class="text-2xl font-black mt-1">{{ $assignments->where('deadline', '<', now())->count() }}</h3>
+                    </div>
+                    <span class="material-symbols-outlined absolute right-2 bottom-2 text-4xl opacity-20 pointer-events-none">task_alt</span>
+                </div>
+            </div>
+            
+            <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-8 rounded-2xl relative overflow-hidden shadow-sm flex flex-col justify-center border border-outline-variant/20">
+                 <div class="relative z-10 text-on-surface space-y-3">
+                      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
+                          <span class="material-symbols-outlined text-sm">tips_and_updates</span>
+                          Tip Koleksi
+                      </div>
+                      <h3 class="text-2xl font-bold font-headline tracking-tight">Manajemen Urutan Interaktif</h3>
+                      <p class="text-on-surface-variant text-base max-w-lg leading-relaxed">Gunakan interaksi drag-and-drop pada kartu di bawah untuk mengubah urutan tugas atau kuis secara realtime.</p>
+                 </div>
+                 <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 opacity-[0.03] text-primary pointer-events-none">
+                      <span class="material-symbols-outlined text-[200px]">format_list_bulleted</span>
+                 </div>
+            </div>
+        </div>
 
- <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
- <div class="p-6">
- <div class="flex justify-between items-center mb-6">
- <h3 class="text-lg font-semibold text-on-surface">Daftar Tugas & Quiz</h3>
- <div class="flex gap-2">
- <a href="{{ route('dosen.assignments.create', $course) }}" 
- class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
- + Tambah Tugas / Quiz
- </a>
- </div>
- </div>
-
- <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
- <!-- Column 1: Tugas -->
- <div>
- <h4 class="text-md font-bold text-blue-700 mb-4 border-b pb-2">📋 Tugas Utama</h4>
- <div id="sortable-tugas" class="space-y-4">
- @forelse($assignments->where('type', 'tugas') as $assignment)
- <x-assignment-card :assignment="$assignment" />
- @empty
- <p class="text-on-surface-variant text-center py-8 bg-surface-container-low/50 rounded-lg">
- Belum ada tugas.
- </p>
- @endforelse
- </div>
- </div>
- 
- <!-- Column 2: Quiz & Exercise -->
- <div>
- <h4 class="text-md font-bold text-orange-600 mb-4 border-b pb-2">🎯 Quiz & Latihan</h4>
- <div id="sortable-quiz" class="space-y-4">
- @forelse($assignments->whereIn('type', ['quiz', 'exercise']) as $assignment)
- <x-assignment-card :assignment="$assignment" />
- @empty
- <p class="text-on-surface-variant text-center py-8 bg-surface-container-low/50 rounded-lg">
- Belum ada quiz atau latihan.
- </p>
- @endforelse
- </div>
- </div>
- </div>
- </div>
- </div>
- </div>
- </div>
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+            <!-- Section 1: Tugas Utama -->
+            <div class="bg-surface-container-low/30 border border-outline-variant/30 p-8 rounded-[2rem] backdrop-blur-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-5 border-b border-outline-variant/20 gap-4">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-inner">
+                            <span class="material-symbols-outlined text-3xl">assignment</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold font-headline text-on-surface tracking-tight mb-1">Tugas Utama</h3>
+                            <p class="text-sm font-bold text-on-surface-variant uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                Project Based
+                            </p>
+                        </div>
+                    </div>
+                    <div class="px-4 py-2 bg-white border border-outline-variant/20 rounded-xl flex items-center gap-2 shadow-sm font-bold text-sm">
+                        <span class="text-primary">{{ $assignments->where('type', 'tugas')->count() }}</span> 
+                        <span class="text-on-surface-variant">TUGAS</span>
+                    </div>
+                </div>
+                
+                <div id="sortable-tugas" class="space-y-4 min-h-[150px] relative">
+                    @forelse($assignments->where('type', 'tugas') as $assignment)
+                        <x-assignment-card :assignment="$assignment" />
+                    @empty
+                        <div class="flex flex-col items-center justify-center p-12 bg-white/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
+                            <span class="material-symbols-outlined text-6xl mb-4 opacity-30 text-primary">folder_open</span>
+                            <p class="font-bold text-lg text-on-surface">Belum Ada Tugas</p>
+                            <p class="text-base mt-1">Buat tugas proyek baru untuk memulai penilaian.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+            
+            <!-- Section 2: Quiz & Exercise -->
+            <div class="bg-surface-container-low/30 border border-outline-variant/30 p-8 rounded-[2rem] backdrop-blur-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-5 border-b border-outline-variant/20 gap-4">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl bg-orange-500/10 text-orange-600 flex items-center justify-center shadow-inner">
+                            <span class="material-symbols-outlined text-3xl">quiz</span>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold font-headline text-on-surface tracking-tight mb-1">Kuis & Latihan</h3>
+                            <p class="text-sm font-bold text-on-surface-variant uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                                Formative Tests
+                            </p>
+                        </div>
+                    </div>
+                    <div class="px-4 py-2 bg-white border border-outline-variant/20 rounded-xl flex items-center gap-2 shadow-sm font-bold text-sm">
+                        <span class="text-orange-600">{{ $assignments->whereIn('type', ['quiz', 'exercise'])->count() }}</span> 
+                        <span class="text-on-surface-variant">ITEM</span>
+                    </div>
+                </div>
+                
+                <div id="sortable-quiz" class="space-y-4 min-h-[150px] relative">
+                    @forelse($assignments->whereIn('type', ['quiz', 'exercise']) as $assignment)
+                        <x-assignment-card :assignment="$assignment" />
+                    @empty
+                        <div class="flex flex-col items-center justify-center p-12 bg-white/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
+                            <span class="material-symbols-outlined text-6xl mb-4 opacity-30 text-orange-600">quiz</span>
+                            <p class="font-bold text-lg text-on-surface">Belum Ada Kuis</p>
+                            <p class="text-base mt-1">Buat kuis interaktif atau latihan kode.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
 
  <!-- SortableJS -->
  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -102,7 +179,7 @@
  }
 
  var elTugas = document.getElementById('sortable-tugas');
- if (elTugas && elTugas.children.length > 0 && !elTugas.querySelector('.text-center.py-8')) {
+ if (elTugas && elTugas.children.length > 0 && !elTugas.querySelector('.border-dashed')) {
  Sortable.create(elTugas, {
  handle: '.drag-handle',
  animation: 150,
@@ -112,7 +189,7 @@
  }
 
  var elQuiz = document.getElementById('sortable-quiz');
- if (elQuiz && elQuiz.children.length > 0 && !elQuiz.querySelector('.text-center.py-8')) {
+ if (elQuiz && elQuiz.children.length > 0 && !elQuiz.querySelector('.border-dashed')) {
  Sortable.create(elQuiz, {
  handle: '.drag-handle',
  animation: 150,

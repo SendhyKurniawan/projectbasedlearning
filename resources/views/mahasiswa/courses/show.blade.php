@@ -1,271 +1,301 @@
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- {{ $course->nama_matkul }}
- </h2>
- <a href="{{ route('mahasiswa.courses.index') }}" 
- class="text-sm text-on-surface-variant hover:text-on-surface">
- &larr; Kembali ke Daftar Course
- </a>
- </div>
- </x-slot>
+    @php
+        $totalItems = count($learningPath);
+        $completedItems = collect($learningPath)->where('completed', true)->count();
+        $progress = $totalItems > 0 ? round(($completedItems / $totalItems) * 100) : 0;
+        
+        $nextTask = collect($learningPath)->where('completed', false)->where('locked', false)->first();
+        if (!$nextTask) {
+            $nextTask = collect($learningPath)->where('completed', false)->first();
+        }
+    @endphp
 
- <div class="space-y-6">
- <div class="">
- @if(session('success'))
- <div class="px-5 py-4 bg-emerald-50 border-l-4 border-secondary text-secondary rounded-xl text-sm font-medium mb-4">
- <svg class="w-5 h-5 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
- <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
- </svg>
- {{ session('success') }}
- </div>
- @endif
+    <div class="space-y-10">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-end gap-6">
+            <div>
+                <nav class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2">
+                    <span><a href="{{ route('mahasiswa.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span><a href="{{ route('mahasiswa.courses.index') }}" class="hover:text-primary transition-colors">Courses</a></span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="text-primary truncate max-w-[200px]">{{ $course->kode_matkul }}</span>
+                </nav>
+                <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-headline italic">{{ $course->nama_matkul }}</h1>
+                <p class="text-on-surface-variant body-md mt-1 italic">Dosen Pengampu: <span class="font-bold text-on-surface italic">{{ $course->dosen->name }}</span></p>
+            </div>
+            
+            <div class="flex gap-3">
+                <a href="{{ route('mahasiswa.conferences.index', $course) }}" class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-sm hover:translate-y-[-2px] transition-all italic">
+                    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">videocam</span>
+                    Sesi Link Live <span class="hidden md:inline">Conference</span>
+                </a>
+            </div>
+        </div>
 
- @if(session('error'))
- <div class="px-5 py-4 bg-red-50 border-l-4 border-error text-error rounded-xl text-sm font-medium mb-4">
- <svg class="w-5 h-5 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
- <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
- </svg>
- {{ session('error') }}
- </div>
- @endif
+        @if(session('success'))
+            <div class="px-5 py-4 bg-tertiary-fixed border-l-4 border-tertiary text-on-tertiary-fixed-variant rounded-xl text-sm font-bold shadow-sm">
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="px-5 py-4 bg-error-container border-l-4 border-error text-on-error-container rounded-xl text-sm font-bold shadow-sm">
+                {{ session('error') }}
+            </div>
+        @endif
 
- <!-- Course Info -->
- <div class="card" style="margin-bottom: 2rem;">
- <div class="flex justify-between items-start">
- <div>
- <h1 class="text-2xl font-bold text-on-surface mb-1">{{ $course->nama_matkul }}</h1>
- <p class="text-on-surface-variant text-sm">{{ $course->kode_matkul }} &bull; Dosen: {{ $course->dosen->name }}</p>
- @if($course->description)
- <p class="text-on-surface-variant mt-3">{{ $course->description }}</p>
- @endif
- </div>
- <span class="badge badge-primary">Terdaftar</span>
- </div>
- </div>
+        <!-- Bento Grid Layout -->
+        <div class="grid grid-cols-12 gap-8 items-start">
+            <!-- Course Progress Tracker (Primary Visual) -->
+            <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h3 class="text-xl font-headline font-black italic mb-1 uppercase tracking-tighter">Progres Belajar</h3>
+                        <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest italic">Anda telah menyelesaikan {{ $completedItems }} dari {{ $totalItems }} komponen modul</p>
+                    </div>
+                    <span class="text-3xl font-black text-secondary italic">{{ $progress }}%</span>
+                </div>
+                <div class="space-y-8">
+                    <div class="w-full bg-surface-container h-3 rounded-full overflow-hidden">
+                        <div class="bg-secondary h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(33,197,94,0.3)]" style="width: {{ $progress }}%"></div>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                        <div class="p-4 bg-surface-container-low rounded-2xl text-center border border-outline-variant/5">
+                            <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 italic">Materi</p>
+                            <p class="text-lg font-black italic">{{ collect($learningPath)->where('type', 'material')->where('completed', true)->count() }} / {{ collect($learningPath)->where('type', 'material')->count() }}</p>
+                        </div>
+                        <div class="p-4 bg-surface-container-low rounded-2xl text-center border border-outline-variant/5">
+                            <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 italic">Tugas</p>
+                            <p class="text-lg font-black italic">{{ collect($learningPath)->where('type', 'assignment')->where('completed', true)->count() }} / {{ collect($learningPath)->where('type', 'assignment')->count() }}</p>
+                        </div>
+                        <div class="p-4 bg-surface-container-low rounded-2xl text-center border border-outline-variant/5">
+                            <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 italic">Kuis</p>
+                            <p class="text-lg font-black italic">{{ $quizzes->count() }}</p>
+                        </div>
+                        <div class="p-4 bg-surface-container-low rounded-2xl text-center border border-outline-variant/5">
+                            <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 italic">Grade</p>
+                            <p class="text-lg font-black italic">A</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
- <!-- Progress Bar -->
- <div class="card" style="margin-bottom: 1.5rem;">
- @php
- $totalItems = count($learningPath);
- $completedItems = collect($learningPath)->where('completed', true)->count();
- $progress = $totalItems > 0 ? round(($completedItems / $totalItems) * 100) : 0;
- @endphp
- 
- <div class="flex items-center justify-between mb-3">
- <div>
- <h3 class="font-semibold text-on-surface">Course Progress</h3>
- <p class="text-sm text-on-surface-variant">{{ $completedItems }} of {{ $totalItems}} completed</p>
- </div>
- <div class="text-right">
- <div class="text-2xl font-bold text-primary">{{ $progress }}%</div>
- </div>
- </div>
- 
- <div class="w-full bg-gray-200 rounded-full h-3">
- <div class="bg-blue-600 h-3 rounded-full transition-all duration-500" 
- style="width: {{ $progress }}%"></div>
- </div>
- </div>
+            <!-- Current Task Highlight (Asymmetric/Actionable) -->
+            <div class="col-span-12 lg:col-span-4 bg-primary text-on-primary rounded-[2.5rem] p-8 shadow-xl shadow-primary/10 flex flex-col justify-between min-h-[320px]">
+                <div>
+                    <div class="bg-white/20 inline-block px-3 py-1 rounded-full text-[10px] font-black tracking-[0.2em] uppercase mb-5 italic">KOMPONEN AKTIF</div>
+                    @if($nextTask)
+                        <h3 class="text-2xl font-headline font-black mb-4 italic leading-tight uppercase tracking-tighter">{{ $nextTask['item']->title }}</h3>
+                        <p class="text-primary-fixed text-sm leading-relaxed mb-6 italic opacity-90 line-clamp-3">
+                            {{ $nextTask['item']->description ?? (isset($nextTask['item']->content) ? Str::limit(strip_tags($nextTask['item']->content), 120) : 'Lanjutkan pengerjaan modul anda untuk mencapai progres maksimal.') }}
+                        </p>
+                    @else
+                        <h3 class="text-2xl font-headline font-black mb-4 italic leading-tight uppercase tracking-tighter">Modul Selesai!</h3>
+                        <p class="text-primary-fixed text-sm leading-relaxed mb-6 italic opacity-90">Selamat! Anda telah menyelesaikan seluruh komponen pembelajaran pada mata kuliah ini.</p>
+                    @endif
+                </div>
+                <div class="space-y-4">
+                    @if($nextTask)
+                        <div class="flex items-center gap-2 text-xs text-primary-fixed font-bold italic opacity-80 mb-2">
+                            <span class="material-symbols-outlined text-[18px]">timer</span>
+                            @if(isset($nextTask['item']->deadline))
+                                Deadline: {{ $nextTask['item']->deadline->format('d M, H:i') }}
+                            @else
+                                Segera Selesaikan
+                            @endif
+                        </div>
+                        
+                        @if($nextTask['type'] === 'material')
+                            <a href="{{ route('mahasiswa.materials.show', [$course, $nextTask['item']]) }}" class="w-full bg-white text-primary font-black text-center py-3.5 rounded-xl hover:bg-primary-fixed transition-all uppercase tracking-widest text-xs">
+                                LANJUTKAN BACA
+                            </a>
+                        @elseif($nextTask['type'] === 'assignment')
+                            <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $nextTask['item']->id]) }}" class="w-full bg-white text-primary font-black text-center py-3.5 rounded-xl hover:bg-primary-fixed transition-all uppercase tracking-widest text-xs">
+                                KERJAKAN TUGAS
+                            </a>
+                        @endif
+                    @else
+                        <button class="w-full bg-white/20 text-white font-black py-3.5 rounded-xl italic uppercase tracking-widest text-xs" disabled>
+                            SEMUA SELESAI
+                        </button>
+                    @endif
+                </div>
+            </div>
 
- <!-- Three Column Layout -->
- <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
- <!-- Column 1: Materi -->
- <div>
- <h3 class="text-lg font-bold text-on-surface mb-4 px-1 border-b pb-2">Materi</h3>
- <div class="space-y-4">
- @forelse(collect($learningPath)->where('type', 'material') as $index => $item)
- <div class="card {{ $item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-blue-500' }}" style="transition: all 0.2s;">
- <div class="flex items-start gap-4">
- <div class="flex-shrink-0">
- @if($item['completed'])
- <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
- <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
- </div>
- @else
- <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
- <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
- </div>
- @endif
- </div>
- <div class="flex-1">
- <div class="flex items-center gap-2 mb-1">
- <span class="text-xs font-semibold text-on-surface-variant uppercase">Bagian {{ $item['item']->order }}</span>
- @if($item['completed'])
- <span class="badge badge-success text-[10px]">Selesai</span>
- @endif
- </div>
- <h3 class="font-bold text-base text-on-surface mb-1 leading-tight">{{ $item['item']->title }}</h3>
- <p class="text-xs text-on-surface-variant mb-2 line-clamp-2">{{ Str::limit(strip_tags($item['item']->content), 80) }}</p>
- <a href="{{ route('mahasiswa.materials.show', [$course, $item['item']]) }}" class="px-5 py-2.5 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all text-xs px-2 py-1 inline-flex items-center gap-1">
- {{ $item['completed'] ? 'Review' : 'Baca Materi' }}
- </a>
- </div>
- </div>
- </div>
- @empty
- <div class="text-center p-4 bg-surface-container-low/50 rounded-lg border border-gray-100">
- <p class="text-sm text-on-surface-variant italic">Belum ada materi.</p>
- </div>
- @endforelse
- </div>
- </div>
+            <!-- Left: Materials (Interactive List) -->
+            <div class="col-span-12 lg:col-span-7 bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/10 shadow-sm flex flex-col">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-headline font-black italic uppercase tracking-tighter">Modul & Materi</h3>
+                    <span class="px-3 py-1 bg-surface-container text-on-surface-variant text-[10px] font-black uppercase tracking-widest rounded-lg italic">
+                        {{ collect($learningPath)->where('type', 'material')->count() }} Item
+                    </span>
+                </div>
+                <div class="space-y-4">
+                    @forelse(collect($learningPath)->where('type', 'material') as $item)
+                        <div class="group flex items-center justify-between p-4 bg-surface rounded-2xl border border-outline-variant/10 hover:border-primary/20 hover:bg-surface-bright transition-all cursor-pointer">
+                            <div class="flex items-center gap-4">
+                                @if($item['completed'])
+                                    <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
+                                        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+                                    </div>
+                                @else
+                                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                                        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">article</span>
+                                    </div>
+                                @endif
+                                <div>
+                                    <p class="text-sm font-black italic text-on-surface leading-snug @if($item['completed']) line-through opacity-50 @endif">
+                                        {{ $item['item']->title }}
+                                    </p>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest italic opacity-70">
+                                        Bagian {{ $item['item']->order }} • PDF / Read
+                                    </p>
+                                </div>
+                            </div>
+                            <a href="{{ route('mahasiswa.materials.show', [$course, $item['item']]) }}" class="w-10 h-10 rounded-xl bg-surface-container-low flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary transition-all shadow-sm">
+                                <span class="material-symbols-outlined text-[18px]">@if($item['completed']) preview @else arrow_forward @endif</span>
+                            </a>
+                        </div>
+                    @empty
+                        <div class="py-10 text-center">
+                            <p class="text-xs font-semibold text-on-surface-variant italic">Belum tersedia materi.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
 
- <!-- Column 2: Tugas -->
- <div>
- <h3 class="text-lg font-bold text-on-surface mb-4 px-1 border-b pb-2">Tugas</h3>
- <div class="space-y-4">
- @forelse(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => !in_array($i['item']->type, ['quiz', 'exercise'])) as $index => $item)
- <div class="card {{ $item['locked'] ? 'opacity-60 border-l-4 border-outline-variant/30' : ($item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-purple-500') }}" style="transition: all 0.2s;">
- <div class="flex items-start gap-4">
- <div class="flex-shrink-0">
- @if($item['locked'])
- <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center">
- <svg class="w-6 h-6 text-outline" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
- </div>
- @elseif($item['completed'])
- <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
- <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
- </div>
- @else
- <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
- <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
- </div>
- @endif
- </div>
- <div class="flex-1">
- <div class="flex items-center gap-2 mb-1">
- <span class="text-xs font-semibold text-on-surface-variant uppercase">Tugas {{ $loop->iteration }}</span>
- @if($item['locked'])<span class="badge badge-gray text-[10px]">Locked</span>
- @elseif($item['completed'])<span class="badge badge-success text-[10px]">Submitted</span>
- @else<span class="badge badge-warning text-[10px]">Available</span>
- @endif
- </div>
- <h3 class="font-bold text-base text-on-surface mb-1 leading-tight">{{ $item['item']->title }}</h3>
- <p class="text-[11px] text-on-surface-variant mb-2">Deadline: {{ $item['item']->deadline->format('d M, H:i') }}</p>
- 
- @if($item['locked'])
- <div class="text-[11px] text-on-surface-variant bg-surface-container-low/50 p-2 rounded">
- Baca materi "{{ $item['item']->requiredMaterial->title }}" dahulu.
- </div>
- @else
- <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $item['item']->id]) }}" class="btn btn-purple text-xs px-2 py-1 inline-flex items-center gap-1">
- {{ $item['completed'] ? 'Lihat' : 'Kerjakan Tugas' }}
- </a>
- @if($item['completed'] && isset($submissions[$item['item']->id]))
- @php $sub = $submissions[$item['item']->id]; @endphp
- @if($sub->score !== null)
- <div class="mt-2 text-xs font-semibold text-green-700">Skor: {{ $sub->score }}/{{ $item['item']->max_score }}</div>
- @endif
- @endif
- @endif
- </div>
- </div>
- </div>
- @empty
- <div class="text-center p-4 bg-surface-container-low/50 rounded-lg border border-gray-100">
- <p class="text-sm text-on-surface-variant italic">Belum ada tugas.</p>
- </div>
- @endforelse
- </div>
- </div>
+            <!-- Right: Quizzes & Stats -->
+            <div class="col-span-12 lg:col-span-5 bg-surface-container-lowest rounded-3xl p-8 border border-outline-variant/10 shadow-sm flex flex-col">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-headline font-black italic uppercase tracking-tighter">Evaluasi & Kuis</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+                        <span class="text-[10px] font-black uppercase text-on-surface-variant italic tracking-widest">Active</span>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <!-- Exercise Items -->
+                    @foreach(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => $i['item']->type === 'exercise') as $item)
+                        <div class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/10 hover:border-tertiary/30 transition-all group">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-tertiary/10 text-tertiary flex items-center justify-center border border-tertiary/20">
+                                    <span class="material-symbols-outlined text-[18px]">code</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="text-sm font-black italic leading-tight text-on-surface line-clamp-1 italic group-hover:text-tertiary transition-colors">{{ $item['item']->title }}</h4>
+                                        @if($item['completed'])
+                                            <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[8px] font-black uppercase tracking-widest rounded-md">Pass</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-[10px] text-on-surface-variant italic mb-3 opacity-80">Latihan Pemrograman • {{ $item['item']->deadline->format('d M') }}</p>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        @if($item['locked'])
+                                            <span class="text-[10px] font-bold text-outline uppercase flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-sm">lock</span> Terkunci
+                                            </span>
+                                        @else
+                                            <a href="{{ route('mahasiswa.exercises.solve', $item['item']) }}" class="text-[10px] font-black text-tertiary uppercase tracking-widest hover:underline flex items-center gap-1">
+                                                KERJAKAN <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+                                            </a>
+                                        @endif
+                                        
+                                        @if($item['completed'] && isset($submissions[$item['item']->id]))
+                                            <span class="text-xs font-black italic">{{ $submissions[$item['item']->id]->score ?? '...' }}/100</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
 
- <!-- Column 3: Latihan -->
- <div>
- <h3 class="text-lg font-bold text-on-surface mb-4 px-1 border-b pb-2">Latihan & Quiz</h3>
- <div class="space-y-4">
- <!-- Exercises from learningPath -->
- @foreach(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => $i['item']->type === 'exercise') as $index => $item)
- <div class="card {{ $item['locked'] ? 'opacity-60 border-l-4 border-outline-variant/30' : ($item['completed'] ? 'border-l-4 border-green-500' : 'border-l-4 border-purple-500') }}" style="transition: all 0.2s;">
- <div class="flex items-start gap-4">
- <div class="flex-shrink-0">
- @if($item['locked'])
- <div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center">
- <svg class="w-6 h-6 text-outline" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
- </div>
- @elseif($item['completed'])
- <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
- <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
- </div>
- @else
- <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
- <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
- </div>
- @endif
- </div>
- <div class="flex-1">
- <div class="flex items-center gap-2 mb-1">
- <span class="text-xs font-semibold text-on-surface-variant uppercase">Latihan Kode {{ $loop->iteration }}</span>
- @if($item['locked'])<span class="badge badge-gray text-[10px]">Locked</span>
- @elseif($item['completed'])<span class="badge badge-success text-[10px]">Selesai</span>
- @else<span class="badge badge-warning text-[10px]">Available</span>
- @endif
- </div>
- <h3 class="font-bold text-base text-on-surface mb-1 leading-tight">{{ $item['item']->title }}</h3>
- <p class="text-[11px] text-on-surface-variant mb-2 border-b pb-1">Deadline: {{ $item['item']->deadline->format('d M, H:i') }}</p>
- 
- @if($item['locked'])
- <div class="text-[11px] text-on-surface-variant bg-surface-container-low/50 p-2 rounded">
- Baca materi "{{ $item['item']->requiredMaterial->title }}" dahulu.
- </div>
- @else
- <a href="{{ route('mahasiswa.exercises.solve', $item['item']) }}" class="btn btn-purple text-xs px-2 py-1 inline-flex items-center gap-1">
- {{ $item['completed'] ? 'Review' : 'Mulai Latihan' }}
- </a>
- @if($item['completed'] && isset($submissions[$item['item']->id]))
- @php $sub = $submissions[$item['item']->id]; @endphp
- @if($sub->score !== null)
- <div class="mt-2 text-xs font-semibold text-green-700">Skor: {{ $sub->score }}/{{ $item['item']->max_score }}</div>
- @endif
- @endif
- @endif
- </div>
- </div>
- </div>
- @endforeach
+                    <!-- Quizzes -->
+                    @foreach($quizzes as $quiz)
+                        @php
+                            $submission = $submissions[$quiz->id] ?? null;
+                            $isFinished = $submission && $submission->finished_at;
+                        @endphp
+                        <div class="p-4 rounded-2xl bg-surface-container-low border border-outline-variant/10 hover:border-primary/30 transition-all group">
+                            <div class="flex items-start gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
+                                    <span class="material-symbols-outlined text-[18px]">quiz</span>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-start mb-1">
+                                        <h4 class="text-sm font-black italic leading-tight text-on-surface line-clamp-1 italic group-hover:text-primary transition-colors">{{ $quiz->title }}</h4>
+                                        @if($isFinished)
+                                            <span class="px-2 py-0.5 bg-secondary/10 text-secondary text-[8px] font-black uppercase tracking-widest rounded-md italic">Done</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-[10px] text-on-surface-variant italic mb-3 opacity-80 italic">{{ $quiz->duration_minutes }} Menit • {{ $quiz->questions->count() }} Soal</p>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <a href="{{ route('mahasiswa.quizzes.show', $quiz) }}" class="text-[10px] font-black text-primary uppercase tracking-widest hover:underline flex items-center gap-1 italic">
+                                            {{ $isFinished ? 'LIHAT HASIL' : 'MULAI KUIS' }} <span class="material-symbols-outlined text-sm">arrow_right_alt</span>
+                                        </a>
+                                        @if($isFinished && $submission->score !== null)
+                                            <span class="text-xs font-black italic">{{ $submission->score }}/100</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
 
- <!-- Quizzes array -->
- @foreach($quizzes as $quiz)
- @php
- $submission = $submissions[$quiz->id] ?? null;
- $isFinished = $submission && $submission->finished_at;
- @endphp
- <div class="card {{ $isFinished ? 'border-l-4 border-green-500' : 'border-l-4 border-yellow-500' }} transition-all hover:shadow-md">
- <div class="flex items-start gap-4">
- <div class="flex-shrink-0">
- <div class="w-12 h-12 rounded-full {{ $isFinished ? 'bg-green-100' : 'bg-yellow-100' }} flex items-center justify-center">
- <svg class="w-6 h-6 {{ $isFinished ? 'text-green-600' : 'text-yellow-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
- </svg>
- </div>
- </div>
- <div class="flex-1">
- <div class="flex items-center gap-2 mb-1">
- <span class="text-xs font-semibold text-on-surface-variant uppercase">Kuis {{ $loop->iteration }}</span>
- @if($isFinished)<span class="badge badge-success text-[10px]">Completed</span>
- @else<span class="badge badge-warning text-[10px]">Available</span>
- @endif
- </div>
- <h3 class="font-bold text-base text-on-surface mb-1 leading-tight">{{ $quiz->title }}</h3>
- <p class="text-[11px] text-on-surface-variant mb-2">{{ $quiz->duration_minutes }} Min &bull; {{ $quiz->questions->count() }} Qs</p>
- 
- <a href="{{ route('mahasiswa.quizzes.show', $quiz) }}" class="btn btn-sm {{ $isFinished ? 'btn-success' : 'btn-primary' }} text-xs px-2 py-1">
- {{ $isFinished ? 'View Result' : 'Start Quiz' }}
- </a>
- </div>
- </div>
- </div>
- @endforeach
+            <!-- Bottom: Assignments (Full grid style) -->
+            <div class="col-span-12">
+                <div class="flex justify-between items-center mb-8 px-2">
+                    <h3 class="text-2xl font-headline font-black italic uppercase tracking-tighter">Penugasan & Proyek</h3>
+                    <div class="w-24 h-1 bg-outline-variant/20 rounded-full"></div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @forelse(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => !in_array($i['item']->type, ['quiz', 'exercise'])) as $item)
+                        <div class="bg-surface-container-lowest rounded-[2rem] p-6 border border-outline-variant/10 shadow-sm hover:shadow-xl transition-all @if($item['locked']) opacity-50 @endif">
+                            <div class="flex items-center gap-3 mb-5">
+                                <div class="w-12 h-12 bg-surface-container-low rounded-2xl flex items-center justify-center text-on-surface-variant shadow-inner">
+                                    <span class="material-symbols-outlined text-[24px]">assignment</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] font-black uppercase text-outline-variant tracking-wider italic">Penugasan Mandiri</span>
+                                    <h4 class="font-black italic text-on-surface group-hover:text-primary transition-colors italic leading-none">{{ $item['item']->title }}</h4>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 mb-6 px-1">
+                                <span class="material-symbols-outlined text-[16px] text-error">calendar_clock</span>
+                                <span class="text-[11px] font-bold text-on-surface-variant italic">Batas Akhir: {{ $item['item']->deadline->format('d M, H:i') }}</span>
+                            </div>
 
- @if(collect($learningPath)->where('type', 'assignment')->filter(fn($i) => $i['item']->type === 'exercise')->isEmpty() && $quizzes->isEmpty())
- <div class="text-center p-4 bg-surface-container-low/50 rounded-lg border border-gray-100">
- <p class="text-sm text-on-surface-variant italic">Belum ada latihan atau kuis.</p>
- </div>
- @endif
- </div>
- </div>
- </div>
- </div>
- </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-outline-variant/10">
+                                @if($item['locked'])
+                                    <span class="text-[10px] font-black text-outline uppercase tracking-widest italic flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[18px]">lock</span> Terkunci
+                                    </span>
+                                @else
+                                    <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $item['item']->id]) }}" class="px-6 py-2.5 bg-primary text-on-primary font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all">
+                                        {{ $item['completed'] ? 'RE-SUBMIT' : 'KERJAKAN' }}
+                                    </a>
+                                @endif
+                                
+                                @if($item['completed'] && isset($submissions[$item['item']->id]))
+                                    <div class="text-right">
+                                        <span class="text-[10px] font-bold text-on-surface-variant block uppercase opacity-60">Skor</span>
+                                        <span class="text-lg font-black text-on-surface italic">{{ $submissions[$item['item']->id]->score ?? 'Pending' }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-span-full py-16 bg-surface-container-low/50 border border-dashed border-outline-variant/20 rounded-[2rem] text-center">
+                            <p class="text-sm font-bold text-on-surface-variant italic">Belum ada tugas proyek tambahan.</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

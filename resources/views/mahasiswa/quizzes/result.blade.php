@@ -1,93 +1,159 @@
 <x-app-layout>
- <div class="py-8">
- <div class="mb-6">
- <h1 class="text-3xl font-bold text-on-surface">{{ $assignment->title }} - Results</h1>
- <p class="text-on-surface-variant mt-1">
- Finished at: {{ $submission->finished_at->format('d M Y, H:i') }}
- </p>
- </div>
+    <div class="max-w-4xl mx-auto space-y-12 pb-20">
+        <!-- Header & Breadcrumbs -->
+        <div class="text-center">
+            <nav class="inline-flex items-center gap-2 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-[0.2em] mb-4 italic">
+                <span>Hasil Evaluasi</span>
+                <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                <span class="text-primary">{{ $quiz->title }}</span>
+            </nav>
+            <h1 class="text-4xl font-headline font-black text-on-surface italic uppercase tracking-tighter leading-tight">Analisis Performa</h1>
+            <p class="text-on-surface-variant body-md mt-2 italic opacity-80">Tinjau kembali jawaban anda untuk memperdalam pemahaman materi.</p>
+        </div>
 
- <!-- Score Card -->
- <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container-low p-6 mb-8 text-center">
- <h2 class="text-xl font-semibold text-on-surface-variant">Total Score</h2>
- <div class="text-5xl font-bold text-blue-600 mt-2">
- {{ $submission->score ?? 0 }} <span class="text-lg text-on-surface-variant">/ {{ $assignment->questions->sum('score_weight') }}</span>
- </div>
- <div class="mt-6">
- <a href="{{ route('mahasiswa.courses.show', $assignment->course) }}" class="inline-block px-6 py-2 bg-gray-600 hover:bg-surface-container-high text-white rounded-lg transition">
- Back to Course
- </a>
- </div>
- </div>
+        <!-- Score Hero Card -->
+        <div class="relative bg-surface-container-lowest rounded-[3rem] p-12 border border-outline-variant/10 shadow-2xl shadow-primary/5 overflow-hidden group">
+            <!-- Background Decorative Elements -->
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors duration-1000"></div>
+            <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/5 rounded-full blur-3xl group-hover:bg-secondary/10 transition-colors duration-1000"></div>
+            
+            <div class="relative flex flex-col items-center text-center space-y-8">
+                <div class="space-y-2">
+                    <span class="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.3em] italic opacity-60">SKOR AKHIR ANDA</span>
+                    <div class="flex items-baseline justify-center gap-2">
+                        <span class="text-8xl font-black italic tracking-tighter text-primary">{{ $submission->score ?? 0 }}</span>
+                        <span class="text-2xl font-bold text-on-surface-variant/40 italic">/ {{ $assignment->questions->sum('score_weight') }}</span>
+                    </div>
+                </div>
 
- <!-- Questions Review -->
- <div class="space-y-8">
- <h3 class="text-xl font-bold text-on-surface">Review Answers</h3>
- 
- @foreach($assignment->questions as $index => $question)
- @php
- $userAnswer = $submission->answers[$question->id] ?? null;
- $isCorrect = false;
- $correctOption = null;
- 
- if ($question->question_type === 'pilihan_ganda') {
- $correctOption = $question->options->where('is_correct', true)->first();
- $isCorrect = $userAnswer == $correctOption->id;
- }
- @endphp
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl">
+                    <div class="p-5 bg-surface-container-low rounded-3xl border border-outline-variant/5 italic">
+                        <p class="text-[9px] font-black uppercase text-on-surface-variant opacity-60 mb-1">Status</p>
+                        <p class="text-sm font-black text-secondary uppercase flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">verified</span>
+                            COMPLETED
+                        </p>
+                    </div>
+                    <div class="p-5 bg-surface-container-low rounded-3xl border border-outline-variant/5 italic">
+                        <p class="text-[9px] font-black uppercase text-on-surface-variant opacity-60 mb-1">Waktu Selesai</p>
+                        <p class="text-sm font-black text-on-surface">{{ $submission->finished_at->format('H:i') }} WIB</p>
+                    </div>
+                    <div class="p-5 bg-surface-container-low rounded-3xl border border-outline-variant/5 italic">
+                        <p class="text-[9px] font-black uppercase text-on-surface-variant opacity-60 mb-1">Tanggal</p>
+                        <p class="text-sm font-black text-on-surface">{{ $submission->finished_at->format('d M Y') }}</p>
+                    </div>
+                    <div class="p-5 bg-primary/10 rounded-3xl border border-primary/10 italic">
+                        <p class="text-[9px] font-black uppercase text-primary mb-1">Akurasi</p>
+                        <p class="text-sm font-black text-primary">
+                            {{ round(($submission->score / max(1, $assignment->questions->sum('score_weight'))) * 100) }}%
+                        </p>
+                    </div>
+                </div>
 
- <div class="bg-surface-container-lowest rounded-xl shadow-sm border {{ $question->question_type === 'pilihan_ganda' ? ($isCorrect ? 'border-green-200' : 'border-red-200') : 'border-surface-container-low' }} p-6">
- <div class="flex items-start gap-4">
- <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center {{ $question->question_type === 'pilihan_ganda' ? ($isCorrect ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700') : 'bg-surface-container-low text-on-surface-variant' }} font-bold rounded-lg">
- {{ $index + 1 }}
- </span>
- <div class="flex-1">
- <h3 class="text-lg font-medium text-on-surface mb-4">
- {{ $question->question_text }}
- </h3>
+                <div class="pt-4">
+                    <a href="{{ route('mahasiswa.courses.show', $assignment->course_id) }}" class="inline-flex items-center gap-3 px-10 py-4 bg-on-surface text-surface rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary transition-all hover:shadow-xl hover:shadow-primary/20 italic group/btn">
+                        <span class="material-symbols-outlined group-hover/btn:-translate-x-1 transition-transform">arrow_back</span>
+                        KEMBALI KE DASHBOARD COURSE
+                    </a>
+                </div>
+            </div>
+        </div>
 
- @if($question->question_type === 'pilihan_ganda')
- <div class="space-y-2">
- @foreach($question->options as $option)
- <div class="flex items-center justify-between p-3 rounded-lg border 
- {{ $userAnswer == $option->id ? ($isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200') : 'border-surface-container-low' }}
- {{ $option->is_correct && $userAnswer != $option->id ? 'bg-green-50 border-green-200' : '' }}
- ">
- <span class="flex items-center">
- @if($userAnswer == $option->id)
- @if($isCorrect)
- <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
- @else
- <svg class="w-5 h-5 text-error mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
- @endif
- @endif
- <span class="{{ $userAnswer == $option->id ? 'font-semibold' : '' }}">{{ $option->option_text }}</span>
- </span>
- @if($option->is_correct)
- <span class="text-xs font-semibold text-green-600 uppercase">Correct Answer</span>
- @endif
- @if($userAnswer == $option->id && !$isCorrect)
- <span class="text-xs font-semibold text-error uppercase">Your Answer</span>
- @endif
- </div>
- @endforeach
- </div>
- @elseif($question->question_type === 'essay' || $question->question_type === 'code_snippet')
- <div class="mt-2">
- <p class="text-sm font-semibold text-on-surface-variant mb-1">Your Answer:</p>
- <div class="p-4 bg-surface-container-low rounded-lg border border-surface-container-low font-mono text-sm whitespace-pre-wrap">{{ $userAnswer ?? 'No answer provided' }}</div>
- </div>
- <div class="mt-4">
- <p class="text-sm font-semibold text-on-surface-variant mb-1">Correct Answer / Rubric:</p>
- <div class="p-4 bg-blue-50 rounded-lg border border-blue-100 text-sm text-on-surface-variant">
- {{ $question->correct_answer ?? 'No correct answer key provided.' }}
- </div>
- </div>
- @endif
- </div>
- </div>
- </div>
- @endforeach
- </div>
- </div>
+        <!-- Review Section -->
+        <div class="space-y-10">
+            <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] italic opacity-60 flex items-center gap-3 px-4">
+                <span class="w-12 h-1 bg-primary rounded-full"></span>
+                TINJAUAN JAWABAN
+            </h3>
+
+            <div class="space-y-8">
+                @foreach($assignment->questions as $index => $question)
+                    @php
+                        $userAnswer = $submission->answers[$question->id] ?? null;
+                        $isCorrect = false;
+                        $correctOption = null;
+                        
+                        if ($question->question_type === 'pilihan_ganda') {
+                            $correctOption = $question->options->where('is_correct', true)->first();
+                            $isCorrect = $userAnswer == $correctOption->id;
+                        }
+                    @endphp
+
+                    <div class="bg-surface-container-lowest rounded-[2rem] p-8 border {{ $question->question_type === 'pilihan_ganda' ? ($isCorrect ? 'border-secondary/20 shadow-secondary/5' : 'border-error/20 shadow-error/5') : 'border-outline-variant/10' }} shadow-xl relative overflow-hidden group">
+                        <!-- Label Status -->
+                        @if($question->question_type === 'pilihan_ganda')
+                            <div class="absolute top-0 right-0 p-6 opacity-10">
+                                <span class="material-symbols-outlined text-4xl {{ $isCorrect ? 'text-secondary' : 'text-error' }}">
+                                    {{ $isCorrect ? 'check_circle' : 'cancel' }}
+                                </span>
+                            </div>
+                        @endif
+
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4">
+                                <span class="w-10 h-10 flex items-center justify-center {{ $question->question_type === 'pilihan_ganda' ? ($isCorrect ? 'bg-secondary/10 text-secondary' : 'bg-error/10 text-error') : 'bg-surface-container-low text-on-surface-variant' }} font-black italic rounded-xl border border-outline-variant/10 text-lg">
+                                    {{ $index + 1 }}
+                                </span>
+                                <span class="text-[10px] font-black uppercase tracking-[0.2em] italic opacity-40 {{ $isCorrect ? 'text-secondary' : ($question->question_type === 'pilihan_ganda' ? 'text-error' : 'text-on-surface-variant') }}">SOAL {{ $index + 1 }}</span>
+                            </div>
+
+                            <h4 class="text-lg font-bold text-on-surface italic leading-snug pr-12">
+                                {{ $question->question_text }}
+                            </h4>
+
+                            @if($question->question_type === 'pilihan_ganda')
+                                <div class="grid grid-cols-1 gap-3 pt-2">
+                                    @foreach($question->options as $optIndex => $option)
+                                        @php 
+                                            $label = chr(65 + $optIndex);
+                                            $isSelected = $userAnswer == $option->id;
+                                            $isAnswerCorrect = $option->is_correct;
+                                        @endphp
+                                        <div class="flex items-center gap-4 p-4 rounded-2xl border transition-all italic
+                                            {{ $isSelected ? ($isCorrect ? 'bg-secondary/5 border-secondary/30' : 'bg-error/5 border-error/30') : ($isAnswerCorrect ? 'bg-secondary/5 border-secondary/20 border-dashed' : 'bg-surface-container-low/50 border-outline-variant/5') }}
+                                        ">
+                                            <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-lg font-black text-xs transition-colors
+                                                {{ $isSelected ? ($isCorrect ? 'bg-secondary text-white' : 'bg-error text-white') : ($isAnswerCorrect ? 'bg-secondary/20 text-secondary' : 'bg-surface-container-low text-on-surface-variant/40') }}
+                                            ">
+                                                {{ $label }}
+                                            </div>
+                                            
+                                            <span class="flex-1 text-sm font-medium {{ $isSelected ? ($isCorrect ? 'text-secondary' : 'text-error') : ($isAnswerCorrect ? 'text-secondary font-bold' : 'text-on-surface-variant/60') }}">
+                                                {{ $option->option_text }}
+                                            </span>
+
+                                            @if($isAnswerCorrect)
+                                                <span class="text-[9px] font-black text-secondary uppercase tracking-widest px-2 py-1 bg-secondary/10 rounded">Kunci Jawaban</span>
+                                            @endif
+                                            
+                                            @if($isSelected && !$isCorrect)
+                                                <span class="text-[9px] font-black text-error uppercase tracking-widest px-2 py-1 bg-error/10 rounded">Jawaban Anda</span>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($question->question_type === 'essay' || $question->question_type === 'code_snippet')
+                                <div class="space-y-4 pt-4">
+                                    <div>
+                                        <p class="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2 italic opacity-40">Jawaban Anda:</p>
+                                        <div class="p-6 bg-surface-container-low rounded-2xl border border-outline-variant/5 font-mono text-sm text-on-surface whitespace-pre-wrap italic leading-relaxed">
+                                            {{ $userAnswer ?? 'Media tidak ditemukan' }}
+                                        </div>
+                                    </div>
+                                    @if($question->correct_answer)
+                                        <div>
+                                            <p class="text-[10px] font-black text-secondary uppercase tracking-widest mb-2 italic">Rubrik / Kunci Jawaban:</p>
+                                            <div class="p-6 bg-secondary/5 rounded-2xl border border-secondary/10 text-sm italic text-secondary leading-relaxed">
+                                                {{ $question->correct_answer }}
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
 </x-app-layout>

@@ -102,6 +102,7 @@ class AssignmentController extends Controller
 
     public function edit(Assignment $assignment)
     {
+        $assignment->loadMissing('course');
         $course = $assignment->course;
         
         // Check if dosen owns this course
@@ -114,6 +115,7 @@ class AssignmentController extends Controller
 
     public function update(Request $request, Assignment $assignment)
     {
+        $assignment->loadMissing('course');
         $course = $assignment->course;
         
         // Check if dosen owns this course
@@ -159,6 +161,7 @@ class AssignmentController extends Controller
 
     public function destroy(Assignment $assignment)
     {
+        $assignment->loadMissing('course');
         $course = $assignment->course;
         
         // Check if dosen owns this course
@@ -213,6 +216,7 @@ class AssignmentController extends Controller
 
     public function submissions(Assignment $assignment)
     {
+        $assignment->loadMissing('course');
         $course = $assignment->course;
         
         // Check if dosen owns this course
@@ -289,15 +293,17 @@ class AssignmentController extends Controller
 
     public function questions(Assignment $assignment)
     {
+        $assignment->loadMissing('course');
         if ($assignment->course->dosen_id !== auth()->id()) {
             abort(403);
         }
-        $questions = $assignment->questions;
+        $questions = $assignment->questions()->with('options')->get();
         return view('dosen.assignments.questions.index', compact('assignment', 'questions'));
     }
 
     public function createQuestion(Assignment $assignment)
     {
+        $assignment->loadMissing('course');
         if ($assignment->course->dosen_id !== auth()->id()) {
             abort(403);
         }
@@ -306,6 +312,7 @@ class AssignmentController extends Controller
 
     public function storeQuestion(Request $request, Assignment $assignment)
     {
+        $assignment->loadMissing('course');
         if ($assignment->course->dosen_id !== auth()->id()) {
             abort(403);
         }
@@ -343,6 +350,7 @@ class AssignmentController extends Controller
 
     public function editQuestion(\App\Models\QuizQuestion $question)
     {
+        $question->loadMissing(['assignment.course', 'options']);
         if ($question->assignment->course->dosen_id !== auth()->id()) {
             abort(403);
         }
@@ -352,6 +360,7 @@ class AssignmentController extends Controller
 
     public function updateQuestion(Request $request, \App\Models\QuizQuestion $question)
     {
+        $question->loadMissing('assignment.course');
         if ($question->assignment->course->dosen_id !== auth()->id()) {
             abort(403);
         }
@@ -390,6 +399,7 @@ class AssignmentController extends Controller
 
     public function destroyQuestion(\App\Models\QuizQuestion $question)
     {
+        $question->loadMissing('assignment.course');
         if ($question->assignment->course->dosen_id !== auth()->id()) {
             abort(403);
         }

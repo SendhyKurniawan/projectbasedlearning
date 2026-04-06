@@ -1,64 +1,145 @@
 <x-app-layout>
- <div class="space-y-6">
- <div class="bg-surface-container-lowest rounded-2xl shadow-xl overflow-hidden border border-surface-container-low">
- <div class="p-8 md:p-12 text-center">
- <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
- <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
- </svg>
- </div>
- 
- <h1 class="text-3xl font-extrabold text-on-surface mb-2">{{ $assignment->title }}</h1>
- <p class="text-on-surface-variant mb-8">{{ $assignment->course->nama_matkul }}</p>
+    @php
+        $submission = $submissions[$quiz->id] ?? null;
+        $isFinished = $submission && $submission->finished_at;
+    @endphp
 
- <div class="inline-flex flex-wrap justify-center gap-4 mb-8">
- <div class="px-4 py-2 bg-surface-container-low rounded-lg">
- <span class="block text-xs text-on-surface-variant uppercase tracking-wide font-bold">Duration</span>
- <span class="block text-lg font-semibold text-on-surface">{{ $assignment->duration_minutes ? $assignment->duration_minutes . ' Mins' : 'Unlimited' }}</span>
- </div>
- <div class="px-4 py-2 bg-surface-container-low rounded-lg">
- <span class="block text-xs text-on-surface-variant uppercase tracking-wide font-bold">Questions</span>
- <span class="block text-lg font-semibold text-on-surface">{{ $assignment->questions->count() }}</span>
- </div>
- <div class="px-4 py-2 bg-surface-container-low rounded-lg">
- <span class="block text-xs text-on-surface-variant uppercase tracking-wide font-bold">Type</span>
- <span class="block text-lg font-semibold text-on-surface">{{ Str::title($assignment->type) }}</span>
- </div>
- </div>
+    <div class="max-w-4xl mx-auto space-y-10 pb-20">
+        <!-- Header & Breadcrumbs -->
+        <div>
+            <nav class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2 italic px-1">
+                <span><a href="{{ route('mahasiswa.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
+                <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                <span><a href="{{ route('mahasiswa.courses.show', $quiz->assignment->course_id) }}" class="hover:text-primary transition-colors">Course</a></span>
+                <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                <span class="text-primary italic">Detail Kuis</span>
+            </nav>
+            <h1 class="text-4xl font-headline font-black text-on-surface italic uppercase tracking-tighter leading-tight">Persiapan Evaluasi</h1>
+            <p class="text-on-surface-variant body-md mt-1 italic opacity-80">Pastikan anda telah memahami materi terkait sebelum memulai sesi kuis ini.</p>
+        </div>
 
- @if($existingSubmission && $existingSubmission->finished_at)
- <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-6">
- <h3 class="text-lg font-bold text-green-800 mb-2">Quiz Completed</h3>
- <p class="text-green-700">
- You finished this quiz on {{ $existingSubmission->finished_at->format('M d, Y H:i') }}.
- </p>
- @if($existingSubmission->score !== null)
- <div class="mt-4 text-4xl font-extrabold text-green-600">
- {{ $existingSubmission->score }} <span class="text-base font-normal text-on-surface-variant">/ {{ $assignment->questions->sum('score_weight') }}</span>
- </div>
- <p class="text-xs text-on-surface-variant mt-1">Score (Auto-graded only)</p>
- @endif
- </div>
- <a href="{{ route('mahasiswa.dashboard') }}" class="inline-block px-6 py-3 border border-outline-variant/30 text-on-surface-variant font-medium rounded-lg hover:bg-surface-bright transition">
- Back to Dashboard
- </a>
- @elseif($existingSubmission && !$existingSubmission->finished_at)
- <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-6">
- <h3 class="text-lg font-bold text-yellow-800 mb-2">Quiz in Progress</h3>
- <p class="text-yellow-700 mb-4">You have an ongoing attempt. Resume it now.</p>
- <a href="{{ route('mahasiswa.quizzes.take', $assignment) }}" class="inline-block px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-bold rounded-xl shadow-lg transition">
- Resume Quiz
- </a>
- </div>
- @else
- <form action="{{ route('mahasiswa.quizzes.start', $assignment) }}" method="POST">
- @csrf
- <button type="submit" class="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl shadow-xl transform hover:scale-105 transition">
- Start Quiz Now
- </button>
- </form>
- @endif
- </div>
- </div>
- </div>
+        @if(session('error'))
+            <div class="px-6 py-4 bg-error-container text-on-error-container border-l-4 border-error rounded-2xl text-sm font-bold shadow-sm italic transition-all animate-in fade-in slide-in-from-top-4">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            <!-- Left: Quiz Stats & Summary -->
+            <div class="md:col-span-5 space-y-6">
+                <div class="bg-surface-container-lowest rounded-[2.5rem] p-8 border border-outline-variant/10 shadow-sm relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1.5 h-full bg-primary opacity-50"></div>
+                    <div class="relative space-y-8">
+                        <div>
+                            <span class="text-[10px] font-black uppercase text-primary tracking-[0.2em] italic mb-3 block">Informasi Kuis</span>
+                            <h2 class="text-2xl font-black italic text-on-surface leading-tight uppercase tracking-tighter">{{ $quiz->title }}</h2>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-2xl border border-outline-variant/5">
+                                <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[20px]">help</span>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest italic opacity-60 leading-none mb-1">Jumlah Soal</p>
+                                    <p class="text-sm font-black italic text-on-surface">{{ $quiz->questions->count() }} Pertanyaan</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-2xl border border-outline-variant/5">
+                                <div class="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">timer</span>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest italic opacity-60 leading-none mb-1">Durasi</p>
+                                    <p class="text-sm font-black italic text-on-surface">{{ $quiz->duration_minutes }} Menit</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4 p-4 bg-surface-container-low rounded-2xl border border-outline-variant/5">
+                                <div class="w-10 h-10 rounded-xl bg-tertiary/10 text-tertiary flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest italic opacity-60 leading-none mb-1">Nilai Maksimal</p>
+                                    <p class="text-sm font-black italic text-on-surface">{{ $quiz->assignment->max_score }} Poin</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @if($isFinished)
+                    <div class="bg-secondary/5 rounded-[2rem] p-8 border border-secondary/20 flex flex-col items-center text-center space-y-4 italic shadow-sm shadow-secondary/5">
+                        <div class="w-16 h-16 bg-secondary/10 text-secondary rounded-full flex items-center justify-center shadow-inner">
+                            <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-on-surface uppercase tracking-tighter">Hasil Tersedia</h3>
+                            <p class="text-xs text-on-surface-variant mt-1 opacity-80">Anda telah menyelesaikan kuis ini.</p>
+                        </div>
+                        <div class="pt-2">
+                             <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1 opacity-60">CORRECT SCORE</div>
+                             <div class="text-3xl font-black text-secondary">{{ $submission->score ?? '0' }}</div>
+                        </div>
+                        <a href="{{ route('mahasiswa.quizzes.result', $quiz) }}" class="w-full py-3 bg-secondary text-on-secondary font-black text-[10px] uppercase tracking-widest rounded-xl hover:shadow-lg transition-all"> LIHAT REVIEW HASIL </a>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Right: Instructions & Action -->
+            <div class="md:col-span-7 space-y-8">
+                <div class="bg-surface-container-lowest rounded-[2.5rem] p-8 md:p-10 border border-outline-variant/10 shadow-sm space-y-10">
+                    <section>
+                        <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] mb-4 italic opacity-60 flex items-center gap-3">
+                            <span class="w-8 h-1 bg-primary rounded-full"></span>
+                            PERATURAN & INSTRUKSI
+                        </h3>
+                        <div class="prose prose-slate prose-sm max-w-none text-on-surface-variant leading-loose italic space-y-4">
+                            <p>{{ $quiz->assignment->description ?? 'Kuis ini dirancang untuk menguji pemahaman anda mengenai topik yang telah dipelajari dalam modul ini. Harap kerjakan dengan jujur dan teliti.' }}</p>
+                            <ul class="list-none p-0 space-y-3 font-bold text-xs text-on-surface">
+                                <li class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                    <span>Waktu akan terus berjalan setelah anda menekan tombol "Mulai Kuis".</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                    <span>Pastikan koneksi internet anda stabil selama sesi kuis berlangsung.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                    <span>Anda tidak diperbolehkan untuk menutup halaman atau me-refresh tab browser.</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
+                                    <span>Jawaban akan tersimpan secara otomatis setiap kali anda berpindah soal.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </section>
+                    
+                    @if(!$isFinished)
+                        <div class="pt-10 border-t border-outline-variant/10 flex flex-col sm:flex-row items-center gap-6">
+                            <form action="{{ route('mahasiswa.quizzes.take', $quiz) }}" method="GET" class="w-full sm:w-auto flex-1">
+                                <button type="submit" class="w-full bg-primary text-on-primary font-black text-xs uppercase tracking-[0.2em] py-4 rounded-2xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 italic">
+                                    MULAI KUIS SEKARANG
+                                    <span class="material-symbols-outlined text-[20px]">play_circle</span>
+                                </button>
+                            </form>
+                            <p class="text-[10px] font-bold text-on-surface-variant italic opacity-60 sm:max-w-[150px]">
+                                Menekan tombol mulai berarti anda menyetujui seluruh peraturan kuis.
+                            </p>
+                        </div>
+                    @else
+                        <div class="pt-10 border-t border-outline-variant/10">
+                            <a href="{{ route('mahasiswa.courses.show', $quiz->assignment->course_id) }}" class="inline-flex items-center gap-2 p-4 px-8 bg-surface-container text-on-surface-variant rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all italic">
+                                <span class="material-symbols-outlined">arrow_back</span>
+                                KEMBALI KE COURSE
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
 </x-app-layout>

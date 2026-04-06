@@ -1,43 +1,63 @@
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- Jadwalkan Sesi Kelas Virtual
- </h2>
- <a href="{{ route('dosen.conferences.index', $course) }}" class="text-sm text-on-surface-variant hover:text-on-surface ">
- &larr; Kembali
- </a>
- </div>
- </x-slot>
+    <div class="space-y-8 max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+            <div class="space-y-2">
+                <nav class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest">
+                    <span><a href="{{ route('dosen.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span><a href="{{ route('dosen.conferences.index', $course) }}" class="hover:text-primary transition-colors">Conferences</a></span>
+                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
+                    <span class="text-primary">Baru</span>
+                </nav>
+                <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-headline">Jadwalkan Live Session</h1>
+                <p class="text-on-surface-variant max-w-lg font-medium">{{ $course->nama_matkul }} ({{ $course->kode_matkul }})</p>
+            </div>
+        </div>
 
- <div class="py-8">
- <div class="card">
- <form method="POST" action="{{ route('dosen.conferences.store', $course) }}">
- @csrf
+        <div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant/10 overflow-hidden relative">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
+            
+            <div class="p-8">
+                <form method="POST" action="{{ route('dosen.conferences.store', $course) }}" class="space-y-6">
+                    @csrf
+                    
+                    <div class="space-y-2">
+                        <label for="title" class="flex items-center gap-2 text-sm font-bold text-on-surface">
+                            <span class="material-symbols-outlined text-[18px] text-primary">title</span>
+                            Topik / Judul Sesi <span class="text-error">*</span>
+                        </label>
+                        <input type="text" name="title" id="title" value="{{ old('title') }}" placeholder="Contoh: Pertemuan 1 - Konsep Dasar UI/UX" class="w-full bg-surface-container text-on-surface border-none rounded-xl focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all shadow-inner px-4 py-3" required>
+                        @error('title') <p class="text-error text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                    </div>
 
- <div class="form-group">
- <label class="form-label" for="title">Judul Sesi</label>
- <input class="form-input" id="title" type="text" name="title" value="{{ old('title') }}" placeholder="Contoh: Pertemuan 1 - Pengenalan HTML" required>
- @error('title') <span class="form-error">{{ $message }}</span> @enderror
- </div>
+                    <div class="space-y-2">
+                        <label for="description" class="flex items-center gap-2 text-sm font-bold text-on-surface">
+                            <span class="material-symbols-outlined text-[18px] text-secondary">notes</span>
+                            Deskripsi (opsional)
+                        </label>
+                        <textarea name="description" id="description" rows="3" placeholder="Informasi singkat atau persiapan mahasiswa..." class="w-full bg-surface-container text-on-surface border-none rounded-xl focus:ring-2 focus:ring-secondary focus:bg-surface-container-lowest transition-all shadow-inner px-4 py-3">{{ old('description') }}</textarea>
+                        @error('description') <p class="text-error text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                    </div>
 
- <div class="form-group">
- <label class="form-label" for="description">Deskripsi (opsional)</label>
- <textarea class="form-input" id="description" name="description" rows="3" placeholder="Topik yang akan dibahas...">{{ old('description') }}</textarea>
- @error('description') <span class="form-error">{{ $message }}</span> @enderror
- </div>
+                    <div class="space-y-2">
+                        <label for="scheduled_at" class="flex items-center gap-2 text-sm font-bold text-on-surface">
+                            <span class="material-symbols-outlined text-[18px] text-tertiary">calendar_clock</span>
+                            Waktu Mulai <span class="text-error">*</span>
+                        </label>
+                        <input type="datetime-local" name="scheduled_at" id="scheduled_at" value="{{ old('scheduled_at') }}" class="w-full md:w-1/2 bg-surface-container text-on-surface border-none rounded-xl focus:ring-2 focus:ring-tertiary focus:bg-surface-container-lowest transition-all shadow-inner px-4 py-3" required>
+                        @error('scheduled_at') <p class="text-error text-xs font-bold mt-1">{{ $message }}</p> @enderror
+                    </div>
 
- <div class="form-group">
- <label class="form-label" for="scheduled_at">Waktu Mulai</label>
- <input class="form-input" id="scheduled_at" type="datetime-local" name="scheduled_at" value="{{ old('scheduled_at') }}" required>
- @error('scheduled_at') <span class="form-error">{{ $message }}</span> @enderror
- </div>
-
- <div class="flex items-center justify-end gap-3 mt-6">
- <a href="{{ route('dosen.conferences.index', $course) }}" class="px-5 py-2.5 bg-surface-container-high text-on-surface-variant text-sm font-bold rounded-xl hover:bg-surface-container-highest transition-colors">Batal</a>
- <button type="submit" class="px-5 py-2.5 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">Simpan Jadwal</button>
- </div>
- </form>
- </div>
- </div>
+                    <div class="pt-6 mt-6 border-t border-outline-variant/10 flex justify-end gap-3">
+                        <a href="{{ route('dosen.conferences.index', $course) }}" class="px-6 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors">Batal</a>
+                        <button type="submit" class="px-8 py-2.5 bg-primary text-on-primary rounded-xl text-sm font-bold hover:bg-primary/90 flex items-center gap-2 shadow-sm transition-all focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                            <span class="material-symbols-outlined text-[18px]">event_available</span>
+                            Simpan Jadwal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </x-app-layout>
