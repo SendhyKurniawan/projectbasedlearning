@@ -1,281 +1,308 @@
 <x-app-layout>
- @vite(['resources/js/code-editor.js'])
- 
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- Submissions - {{ $assignment->title }}
- </h2>
- <a href="{{ route('dosen.assignments.index', $course) }}" 
- class="text-sm text-on-surface-variant hover:text-on-surface ">
- &larr; Kembali ke Daftar Tugas
- </a>
- </div>
- </x-slot>
+    @vite(['resources/js/code-editor.js'])
+    
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 bg-white border border-outline-variant/30 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-on-surface">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <div>
+                    <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight tracking-tight">
+                        Review Submissions
+                    </h2>
+                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">
+                        {{ $assignment->title }} <span class="mx-2">•</span> {{ $course->nama_matkul }}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex gap-4">
+                <div class="bg-surface-container-lowest px-5 py-2.5 border border-outline-variant/30 rounded-xl shadow-sm text-center">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-0.5">Sudah Dinilai</span>
+                    <span class="text-xl font-black font-headline text-primary">{{ $submissions->whereNotNull('score')->count() }}</span>
+                    <span class="text-sm font-bold text-on-surface-variant">/ {{ $submissions->count() }}</span>
+                </div>
+            </div>
+        </div>
+    </x-slot>
 
- <div class="space-y-6">
- <div class="">
- @if(session('success'))
- <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
- {{ session('success') }}
- </div>
- @endif
+    <div class="w-full">
+        @if(session('success'))
+            <div class="mb-6 bg-emerald-50 border border-emerald-200 text-secondary-fixed-variant px-5 py-4 rounded-xl font-bold shadow-sm flex items-center gap-3">
+                <span class="material-symbols-outlined text-secondary">check_circle</span>
+                {{ session('success') }}
+            </div>
+        @endif
 
- <!-- Assignment Info -->
- <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl mb-6">
- <div class="p-6">
- <h3 class="text-lg font-semibold mb-2 text-on-surface">{{ $assignment->title }}</h3>
- <div class="text-sm text-on-surface-variant space-y-1">
- <p><strong>Course:</strong> {{ $course->nama_matkul }}</p>
- <p><strong>Deadline:</strong> {{ $assignment->deadline->format('d M Y, H:i') }}</p>
- <p><strong>Nilai Maksimal:</strong> {{ $assignment->max_score }}</p>
- <p><strong>Total Submissions:</strong> {{ $submissions->count() }}</p>
- <p><strong>Sudah Dinilai:</strong> {{ $submissions->whereNotNull('score')->count() }} / {{ $submissions->count() }}</p>
- </div>
- </div>
- </div>
+        @if($submissions->isEmpty())
+            <div class="flex flex-col items-center justify-center py-20 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm">
+                <span class="material-symbols-outlined text-[80px] text-primary/20 mb-4">inventory_2</span>
+                <h3 class="text-xl font-bold font-headline text-on-surface">Belum Ada Pengumpulan</h3>
+                <p class="text-on-surface-variant mt-2 text-sm max-w-sm text-center">Mahasiswa belum mengunggah tugas mereka. Silakan periksa kembali nanti.</p>
+            </div>
+        @else
+            <!-- Split Pane Layout Using Alpine.js -->
+            <div x-data="{ activeSubmission: {{ $submissions->first()->id }} }" class="flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-160px)] lg:min-h-[600px] mb-8">
+                
+                <!-- Left Sidebar: Students List -->
+                <div class="w-full lg:w-[350px] shrink-0 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl flex flex-col shadow-sm overflow-hidden h-[400px] lg:h-full">
+                    <div class="p-4 border-b border-outline-variant/20 bg-surface-container-low/50">
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+                            <input type="text" placeholder="Cari mahasiswa..." class="w-full bg-white border border-outline-variant/30 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:border-primary shadow-inner">
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-3 space-y-2 bg-surface">
+                        @foreach($submissions as $submission)
+                            <button @click="activeSubmission = {{ $submission->id }}" 
+                                    :class="{'bg-primary/10 border-primary shadow-sm': activeSubmission === {{ $submission->id }}, 'bg-surface-container-lowest border-outline-variant/20 hover:border-outline-variant/60 hover:bg-surface-container-low': activeSubmission !== {{ $submission->id }}}"
+                                    class="w-full text-left p-4 rounded-xl border transition-all group flex gap-3 relative overflow-hidden">
+                                
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-tertiary text-white flex items-center justify-center font-bold font-headline shrink-0 uppercase shadow-inner">
+                                    {{ substr($submission->mahasiswa->name ?? 'U', 0, 1) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-bold text-sm text-on-surface truncate group-hover:text-primary transition-colors">
+                                        {{ $submission->mahasiswa->name ?? 'Unknown Student' }}
+                                    </h4>
+                                    <div class="flex items-center justify-between mt-1">
+                                        <p class="text-xs text-on-surface-variant truncate">
+                                            {{ $submission->submitted_at->format('d M, H:i') }}
+                                        </p>
+                                        @if($submission->score !== null)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
+                                                {{ $submission->score }}/{{ $assignment->max_score }}
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">
+                                                UNGRADED
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
 
- <!-- Submissions List -->
- <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
- <div class="p-6">
- <h3 class="text-lg font-semibold mb-4 text-on-surface">Daftar Submission</h3>
+                <!-- Right Pane: Submission Review Details -->
+                <div class="flex-1 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl flex flex-col shadow-sm relative lg:h-full lg:overflow-hidden min-h-[600px]">
+                    @foreach($submissions as $submission)
+                        <div x-show="activeSubmission === {{ $submission->id }}" style="display: none;" class="h-full flex flex-col">
+                            
+                            <!-- Header Info -->
+                            <div class="p-6 border-b border-outline-variant/20 shrink-0 bg-surface-container-low/30">
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                    <div>
+                                        <h3 class="text-xl font-extrabold font-headline text-on-surface mb-1">
+                                            Evaluasi Hasil: {{ $submission->mahasiswa->name ?? 'Unknown Student' }}
+                                        </h3>
+                                        <div class="flex flex-wrap items-center gap-3 text-sm text-on-surface-variant font-medium">
+                                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mail</span> {{ $submission->mahasiswa->email ?? '-' }}</span>
+                                            <span class="text-outline-variant">•</span>
+                                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> Dikumpulkan pada {{ $submission->submitted_at->format('d M Y, H:i') }}</span>
+                                        </div>
+                                    </div>
+                                    @if($submission->score !== null)
+                                        <div class="bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl text-center shadow-sm">
+                                            <p class="text-[10px] font-bold text-primary uppercase tracking-widest leading-tight">Nilai Akhir</p>
+                                            <p class="text-xl font-black font-headline text-primary">{{ $submission->score }}</p>
+                                        </div>
+                                    @else
+                                        <div class="bg-surface-container border border-outline-variant/30 px-4 py-2 rounded-xl text-center text-on-surface-variant shadow-inner">
+                                            <p class="text-[10px] font-bold uppercase tracking-widest leading-tight">Status</p>
+                                            <p class="text-sm font-bold font-headline mt-1">Pending Review</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
 
- @forelse($submissions as $submission)
- <div class="border rounded-lg p-4 mb-4">
- <div class="flex justify-between items-start mb-3">
- <div>
- <h4 class="font-semibold text-on-surface">
- {{ $submission->mahasiswa->name ?? 'Unknown Student' }}
- </h4>
- <p class="text-sm text-on-surface-variant">
- {{ $submission->mahasiswa->email ?? 'No Email' }}
- </p>
- </div>
- @if($submission->score !== null)
- <span class="px-3 py-1 bg-emerald-50 text-secondary rounded font-semibold">
- {{ $submission->score }}/{{ $assignment->max_score }}
- </span>
- @else
- <span class="px-3 py-1 bg-amber-50 text-amber-800 rounded text-sm">
- Belum Dinilai
- </span>
- @endif
- </div>
+                            <!-- Main Content Scroll Area -->
+                            <div class="flex-1 overflow-y-auto p-6 bg-surface space-y-6">
+                                
+                                @if($submission->notes)
+                                    <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl shadow-sm">
+                                        <h5 class="text-xs font-bold text-blue-800 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-[16px]">format_quote</span> Catatan Mahasiswa
+                                        </h5>
+                                        <p class="text-sm text-blue-900 leading-relaxed font-medium">{{ $submission->notes }}</p>
+                                    </div>
+                                @endif
 
- <div class="text-sm text-on-surface-variant mb-3 space-y-1">
- <p><strong>Dikumpulkan:</strong> {{ $submission->submitted_at->format('d M Y, H:i') }}</p>
- 
- @if($submission->notes)
- <p><strong>Catatan Mahasiswa:</strong> {{ $submission->notes }}</p>
- @endif
- 
- @if($submission->file_path)
- <div class="mb-4">
- <p class="mb-2">
- <strong>File:</strong> 
- <a href="{{ Storage::url($submission->file_path) }}" 
- target="_blank"
- class="text-blue-600 hover:underline break-all">
- {{ basename($submission->file_path) }}
- </a>
- </p>
- @if(Str::endsWith(strtolower($submission->file_path), ['.pdf']))
- <div x-data="{ fullscreen: false }" class="mt-2 text-right">
- <button @click="fullscreen = !fullscreen" class="mb-2 text-sm inline-flex items-center gap-1 text-on-surface-variant hover:text-on-surface:text-white transition-colors">
- <svg x-show="!fullscreen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
- <svg x-show="fullscreen" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
- <span x-text="fullscreen ? 'Tutup Fullscreen' : 'Fullscreen'"></span>
- </button>
- <div :class="{'fixed inset-0 z-[100] bg-gray-900/95 flex flex-col p-4 text-left': fullscreen, 'border rounded-lg overflow-hidden bg-surface-container-low ': !fullscreen}">
- <div x-show="fullscreen" x-cloak class="flex justify-end mb-4">
- <button @click="fullscreen = false" class="text-white bg-error hover:bg-red-800 rounded px-4 py-2 font-semibold shadow">Tutup</button>
- </div>
- <iframe src="{{ Storage::url($submission->file_path) }}" :class="{'w-full h-full rounded': fullscreen, 'w-full min-h-[800px]': !fullscreen}" frameborder="0"></iframe>
- </div>
- </div>
- @elseif(Str::endsWith(strtolower($submission->file_path), ['.jpg', '.jpeg', '.png', '.gif', '.webp']))
- <div class="border rounded-lg overflow-hidden bg-surface-container-low mt-2 flex justify-center p-2">
- <img src="{{ Storage::url($submission->file_path) }}" alt="Submission Image" class="max-w-full h-auto rounded">
- </div>
- @endif
- </div>
- @endif
+                                <!-- File Attachment -->
+                                @if($submission->file_path)
+                                    <div>
+                                        <h4 class="text-sm font-bold font-headline text-on-surface mb-3 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-primary text-[20px]">attach_file</span>
+                                            Lampiran File
+                                        </h4>
+                                        <a href="{{ Storage::url($submission->file_path) }}" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 bg-white border border-outline-variant/30 rounded-xl hover:bg-surface-container-low hover:border-primary transition-all shadow-sm group">
+                                            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                                                <span class="material-symbols-outlined">picture_as_pdf</span>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Unduh / Lihat Dokumen</p>
+                                                <p class="text-xs text-on-surface-variant break-all truncate max-w-[200px] md:max-w-md">{{ basename($submission->file_path) }}</p>
+                                            </div>
+                                        </a>
 
- @if($submission->url_link)
- <div class="mb-4">
- <p class="mb-2">
- <strong>Link URL:</strong> 
- <a href="{{ $submission->url_link }}" 
- target="_blank"
- class="text-blue-600 hover:underline break-all">
- {{ $submission->url_link }}
- </a>
- </p>
- <div x-data="{ fullscreen: false }" class="mt-2 text-right">
- <button @click="fullscreen = !fullscreen" class="mb-2 text-sm inline-flex items-center gap-1 text-on-surface-variant hover:text-on-surface:text-white transition-colors">
- <svg x-show="!fullscreen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
- <svg x-show="fullscreen" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
- <span x-text="fullscreen ? 'Tutup Fullscreen' : 'Fullscreen'"></span>
- </button>
- <div :class="{'fixed inset-0 z-[100] bg-gray-900/95 flex flex-col p-4 text-left': fullscreen, 'border rounded-lg overflow-hidden bg-white': !fullscreen}">
- <div x-show="fullscreen" x-cloak class="flex justify-end mb-4">
- <button @click="fullscreen = false" class="text-white bg-error hover:bg-red-800 rounded px-4 py-2 font-semibold shadow">Tutup</button>
- </div>
- <iframe src="{{ preg_match('/^https?:\/\//', $submission->url_link) ? $submission->url_link : 'https://' . $submission->url_link }}" :class="{'w-full h-full rounded': fullscreen, 'w-full min-h-[800px]': !fullscreen}" frameborder="0" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
- </div>
- </div>
- </div>
- @endif
+                                        @if(Str::endsWith(strtolower($submission->file_path), ['.jpg', '.jpeg', '.png', '.webp']))
+                                            <div class="mt-4 border border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
+                                                 <img src="{{ Storage::url($submission->file_path) }}" class="w-full object-contain max-h-[500px] bg-slate-50">
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
 
- @if($submission->code_answer)
- <div class="mt-3 pt-3 border-t ">
- <div class="flex justify-between items-center mb-2">
- <strong class="text-on-surface">Code Submission:</strong>
- @if($submission->auto_graded)
- <span class="px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
- Auto-Graded
- </span>
- @endif
- </div>
- 
- @if($submission->validation_result)
- <div class="bg-blue-50 p-2 rounded mb-2 text-sm">
- <p class="text-blue-800">
- <strong>Validation Result:</strong>
- {{ $submission->validation_result['passed'] ? 'Passed' : 'Needs Review' }}
- </p>
- @if(isset($submission->validation_result['feedback']))
- <p class="text-blue-700 mt-1 whitespace-pre-line">{{ $submission->validation_result['feedback'] }}</p>
- @endif
- </div>
- @endif
- 
- <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
- <!-- Code Editor -->
- <div class="border rounded overflow-hidden flex flex-col">
- <div class="bg-surface-container-low px-3 py-2 text-xs font-semibold text-on-surface-variant border-b flex justify-between items-center">
- <span>Source Code</span>
- <span class="px-2 hidden md:inline-block rounded bg-surface-container-high text-on-surface-variant">{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}</span>
- </div>
- <div class="flex-1">
- <textarea class="code-viewer" id="code-viewer-{{ $submission->id }}" data-language="{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}" readonly>{{ $submission->code_answer }}</textarea>
- </div>
- </div>
- 
- <!-- Code Preview (Webview) -->
- <div x-data="{ fullscreen: false }">
- <div :class="{'fixed inset-0 z-[100] bg-gray-900 flex flex-col p-4 text-left': fullscreen, 'border rounded overflow-hidden flex flex-col bg-white h-full relative': !fullscreen}">
- 
- <!-- Header Bar -->
- <div class="bg-surface-container-low px-3 py-2 text-xs font-semibold text-on-surface-variant border-b flex justify-between items-center" :class="{'rounded-t': !fullscreen, 'mb-2 rounded': fullscreen}">
- <span>Live Result / Preview</span>
- <div class="flex items-center gap-3">
- <button type="button" @click="fullscreen = !fullscreen" class="hover:text-blue-600:text-blue-400 transition flex items-center gap-1" title="Toggle Fullscreen">
- <svg x-show="!fullscreen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
- <svg x-show="fullscreen" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
- <span x-text="fullscreen ? 'Tutup' : 'Fullscreen'"></span>
- </button>
- <button type="button" onclick="refreshIframe('preview-iframe-{{ $submission->id }}')" class="hover:text-blue-600:text-blue-400 transition" title="Refresh Preview">
- <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
- <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
- </svg>
- </button>
- </div>
- </div>
+                                <!-- URL Submission -->
+                                @if($submission->url_link)
+                                    <div>
+                                        <h4 class="text-sm font-bold font-headline text-on-surface mb-3 flex items-center gap-2">
+                                            <span class="material-symbols-outlined text-primary text-[20px]">link</span>
+                                            Tautan / Repositori
+                                        </h4>
+                                        <a href="{{ $submission->url_link }}" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 bg-white border border-outline-variant/30 rounded-xl hover:bg-surface-container-low hover:border-primary transition-all shadow-sm group w-full md:w-auto">
+                                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                                <span class="material-symbols-outlined">public</span>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Buka Tautan Baru</p>
+                                                <p class="text-xs text-on-surface-variant truncate w-full group-hover:underline">{{ $submission->url_link }}</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                @endif
 
- <div class="flex-1 relative min-h-[300px] bg-white rounded-b">
- <iframe id="preview-iframe-{{ $submission->id }}" 
- srcdoc="{{ ($assignment->exercise_config['language'] ?? 'htmlmixed') == 'javascript' ? '<script>' . $submission->code_answer . '<\/script><div style=\'font-family:sans-serif;padding:10px;\'>Check console for JS output, or if it modifies DOM it will appear here.</div>' : $submission->code_answer }}" 
- class="absolute inset-0 w-full h-full border-0 preview-iframe" 
- sandbox="allow-scripts allow-same-origin"></iframe>
- </div>
- </div>
- </div>
- </div>
- </div>
- @endif
+                                <!-- Code Editor / Practical IT -->
+                                @if($submission->code_answer)
+                                    <div class="mt-6">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <h4 class="text-sm font-bold font-headline text-on-surface flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-primary text-[20px]">code</span>
+                                                Source Code Jawaban
+                                            </h4>
+                                            @if($submission->auto_graded || $submission->validation_result)
+                                                <span class="px-3 py-1 bg-violet-100 text-violet-800 text-[10px] uppercase font-bold rounded-full border border-violet-200">
+                                                    Sistem Validasi Otomatis
+                                                </span>
+                                            @endif
+                                        </div>
 
- @if($submission->feedback)
- <p><strong>Feedback Anda:</strong> {{ $submission->feedback }}</p>
- @endif
- </div>
+                                        @if($submission->validation_result)
+                                            <div class="mb-4 bg-slate-50 border border-outline-variant/30 rounded-xl p-4 flex gap-4 items-start shadow-sm">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 {{ $submission->validation_result['passed'] ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600' }}">
+                                                    <span class="material-symbols-outlined">{{ $submission->validation_result['passed'] ? 'check_circle' : 'warning' }}</span>
+                                                </div>
+                                                <div>
+                                                    <h5 class="text-sm font-bold text-on-surface">Validasi Mesin: {{ $submission->validation_result['passed'] ? 'Lulus / Sesuai' : 'Perlu Diperiksa Manual' }}</h5>
+                                                    @if(isset($submission->validation_result['feedback']))
+                                                        <p class="text-xs text-on-surface-variant mt-1 leading-relaxed whitespace-pre-line">{{ $submission->validation_result['feedback'] }}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
 
- <!-- Grading Form -->
- <form action="{{ route('dosen.submissions.grade', $submission) }}" 
- method="POST" 
- class="bg-surface-container-low/50 p-4 rounded">
- @csrf
- 
- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
- <div>
- <label class="block text-sm font-medium text-on-surface-variant mb-1">
- Nilai (0-{{ $assignment->max_score }})
- </label>
- <input type="number" 
- name="score" 
- value="{{ old('score', $submission->score) }}"
- min="0" 
- max="{{ $assignment->max_score }}"
- class="w-full border-outline-variant/30 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- required>
- </div>
- 
- <div>
- <label class="block text-sm font-medium text-on-surface-variant mb-1">
- Feedback (Opsional)
- </label>
- <input type="text" 
- name="feedback" 
- value="{{ old('feedback', $submission->feedback) }}"
- class="w-full border-outline-variant/30 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
- placeholder="Catatan untuk mahasiswa">
- </div>
- </div>
+                                        <div class="border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm flex flex-col md:flex-row h-auto min-h-[400px]">
+                                            <!-- Code Viewer -->
+                                            <div class="flex-1 flex flex-col border-r border-outline-variant/30">
+                                                <div class="bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface-variant flex justify-between items-center border-b border-outline-variant/30">
+                                                    <span class="uppercase tracking-widest">Koding</span>
+                                                    <span class="px-2 py-0.5 rounded bg-surface-container text-[10px]">{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}</span>
+                                                </div>
+                                                <div class="flex-1 w-full relative">
+                                                    <textarea class="code-viewer w-full h-full absolute inset-0" id="code-viewer-{{ $submission->id }}" data-language="{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}" readonly>{{ $submission->code_answer }}</textarea>
+                                                </div>
+                                            </div>
+                                            <!-- Output Preview -->
+                                            <div class="flex-1 flex flex-col bg-white h-[400px] md:h-auto">
+                                                <div class="bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface-variant flex justify-between items-center border-b border-outline-variant/30">
+                                                    <span class="uppercase tracking-widest">Output Visual</span>
+                                                    <button type="button" onclick="refreshIframe('preview-iframe-{{ $submission->id }}')" class="hover:text-primary transition flex items-center gap-1" title="Refresh">
+                                                        <span class="material-symbols-outlined text-[16px]">refresh</span>
+                                                    </button>
+                                                </div>
+                                                <div class="flex-1 relative w-full h-full">
+                                                    <iframe id="preview-iframe-{{ $submission->id }}" 
+                                                    srcdoc="{{ ($assignment->exercise_config['language'] ?? 'htmlmixed') == 'javascript' ? '<script>' . $submission->code_answer . '<\/script><div style=\'font-family:sans-serif;padding:20px;font-size:14px;color:#333;\'>Silakan periksa console browser untuk output JS.<br><br>Atau gunakan DOM API untuk mencetak sesuatu disini.</div>' : $submission->code_answer }}" 
+                                                    class="absolute inset-0 w-full h-full border-0 preview-iframe" 
+                                                    sandbox="allow-scripts allow-same-origin"></iframe>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
 
- <button type="submit" 
- class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">
- {{ $submission->score !== null ? 'Update Nilai' : 'Berikan Nilai' }}
- </button>
- </form>
- </div>
- @empty
- <p class="text-on-surface-variant text-center py-8">
- Belum ada submission untuk tugas ini.
- </p>
- @endforelse
- </div>
- </div>
- </div>
- </div>
- 
- <script>
- document.addEventListener('DOMContentLoaded', function() {
- // Initialize CodeMirror for all code viewers
- document.querySelectorAll('.code-viewer').forEach(function(textarea) {
- const language = textarea.getAttribute('data-language') || 'htmlmixed';
- // Replace textarea with CodeMirror
- const editor = CodeMirror.fromTextArea(textarea, {
- mode: language,
- theme: 'dracula',
- readOnly: true,
- lineNumbers: true,
- lineWrapping: true,
- });
- 
- // Adjust height to match the sibling iframe container precisely if possible, or give it a fixed standard height to look balanced.
- editor.setSize(null, "100%");
- editor.getWrapperElement().style.minHeight = "300px";
- });
- });
+                            </div>
+                            
+                            <!-- Form Penilaian (Bottom Anchored) -->
+                            <div class="p-6 bg-surface-container-lowest border-t border-outline-variant/30 shrink-0">
+                                <form action="{{ route('dosen.submissions.grade', $submission) }}" method="POST">
+                                    @csrf
+                                    <div class="flex flex-col md:flex-row gap-4 items-end">
+                                        <div class="w-full md:w-32 shrink-0">
+                                            <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Nilai (Maks: {{ $assignment->max_score }})</label>
+                                            <input type="number" 
+                                                   name="score" 
+                                                   value="{{ old('score', $submission->score) }}"
+                                                   min="0" 
+                                                   max="{{ $assignment->max_score }}"
+                                                   class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 font-extrabold text-primary text-lg focus:ring-2 focus:ring-primary shadow-inner"
+                                                   placeholder="0"
+                                                   required>
+                                        </div>
+                                        
+                                        <div class="flex-1 w-full">
+                                            <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1.5">Feedback untuk Mahasiswa</label>
+                                            <input type="text" 
+                                                   name="feedback" 
+                                                   value="{{ old('feedback', $submission->feedback) }}"
+                                                   class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary shadow-sm"
+                                                   placeholder="Berikan catatan, pujian, atau saran perbaikan (opsional)">
+                                        </div>
 
- // Function to refresh the execution iframe
- function refreshIframe(iframeId) {
- const iframe = document.getElementById(iframeId);
- if(iframe) {
- // To force re-render, we clone the iframe and replace it
- const clone = iframe.cloneNode(true);
- iframe.parentNode.replaceChild(clone, iframe);
- }
- }
- </script>
+                                        <button type="submit" class="w-full md:w-auto shrink-0 bg-primary hover:bg-primary/90 text-white font-bold font-headline px-8 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
+                                            <span class="material-symbols-outlined text-[20px]">save</span>
+                                            {{ $submission->score !== null ? 'Perbarui' : 'Simpan Nilai' }}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    @endforeach
+                </div>
+
+            </div>
+        @endif
+    </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.querySelectorAll('.code-viewer').forEach(function(textarea) {
+                    const language = textarea.getAttribute('data-language') || 'htmlmixed';
+                    const editor = CodeMirror.fromTextArea(textarea, {
+                        mode: language,
+                        theme: 'material-darker',
+                        readOnly: true,
+                        lineNumbers: true,
+                        lineWrapping: true,
+                    });
+                    
+                    editor.setSize("100%", "100%");
+                });
+            }, 500); // Slight delay for x-show rendering, or trigger properly on Alpine init.
+        });
+
+        function refreshIframe(iframeId) {
+            const iframe = document.getElementById(iframeId);
+            if(iframe) {
+                const clone = iframe.cloneNode(true);
+                iframe.parentNode.replaceChild(clone, iframe);
+            }
+        }
+    </script>
+    @endpush
 </x-app-layout>

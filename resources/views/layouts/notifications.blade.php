@@ -2,7 +2,7 @@
  <button @click="open = !open" class="text-on-surface-variant hover:text-on-surface focus:outline-none relative transition-colors duration-200 p-2 rounded-xl hover:bg-surface-container-low">
  <span class="material-symbols-outlined text-2xl">notifications</span>
  @if(auth()->user()->unreadNotifications->count() > 0)
- <span class="absolute top-1 right-1 inline-flex items-center justify-center min-w-[18px] px-1 py-0.5 text-[10px] font-bold leading-none text-white bg-error rounded-full">
+ <span class="absolute top-0.5 right-0.5 inline-flex items-center justify-center min-w-[18px] px-1 py-0.5 text-[10px] font-bold leading-none text-white bg-error rounded-full">
  {{ auth()->user()->unreadNotifications->count() > 99 ? '99+' : auth()->user()->unreadNotifications->count() }}
  </span>
  @endif

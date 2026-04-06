@@ -65,7 +65,7 @@
  @endif
 
  <!-- Page Content -->
- <main class="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6 lg:p-8 {{ !isset($header) ? 'pt-16 lg:pt-6' : '' }}">
+ <main class="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6 lg:p-8 {{ !isset($header) ? 'pt-24 lg:pt-28' : '' }}">
  {{ $slot }}
  </main>
  </div>
