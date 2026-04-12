@@ -131,15 +131,21 @@
                 <div class="bg-white rounded-[2rem] p-8 border border-outline-variant/20 shadow-sm">
                     <h3 class="text-lg font-bold font-headline mb-6">Pengumuman</h3>
                     <div class="space-y-6">
+                        @forelse($announcements as $announcement)
                         <div class="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-1 before:bottom-0 before:w-1.5 before:bg-primary before:rounded-full">
-                            <span class="text-[10px] font-bold text-primary mb-1 block">SISTEM</span>
-                            <h4 class="text-sm font-bold font-body leading-snug mb-1">Pembaruan Platform v12.0</h4>
-                            <p class="text-[11px] text-on-surface-variant italic line-clamp-2 leading-relaxed">Nikmati tampilan baru Architectural Scholar pada portal mahasiswa mulai hari ini.</p>
+                            <span class="text-[10px] font-bold text-primary mb-1 block uppercase">{{ $announcement->author->role ?? 'SISTEM' }} • {{ $announcement->created_at->diffForHumans() }}</span>
+                            <h4 class="text-sm font-bold font-body leading-snug mb-1">{{ $announcement->title }}</h4>
+                            <p class="text-[11px] text-on-surface-variant italic line-clamp-2 leading-relaxed">{{ Str::limit(strip_tags($announcement->content), 100) }}</p>
                         </div>
+                        @empty
+                        <div class="text-center text-sm text-on-surface-variant italic py-4">
+                            Belum ada pengumuman
+                        </div>
+                        @endforelse
                     </div>
-                    <button class="w-full mt-8 py-3 bg-surface-container-low text-primary text-xs font-bold rounded-xl hover:bg-surface-container transition-colors">
+                    <a href="{{ route('announcements.index') }}" class="mt-8 py-3 bg-surface-container-low text-primary text-xs font-bold rounded-xl hover:bg-surface-container transition-colors block text-center">
                         LIHAT SEMUA UPDATE
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

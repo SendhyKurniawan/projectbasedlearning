@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
- * @property string $name
- * @property string $code
+ * @property string $nama_matkul
+ * @property string $kode_matkul
  * @property string|null $description
  * @property int $dosen_id
+ * @property int|null $semester_id
+ * @property int|null $student_class_id
+ * @property string|null $course_img
+ * @property int $sks
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Assignment> $assignments
@@ -20,22 +24,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read int|null $materials_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $students
  * @property-read int|null $students_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Conference> $conferences
+ * @property-read int|null $conferences_count
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Course query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereDosenId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Course whereUpdatedAt($value)
  * @mixin \Eloquent
  * @mixin IdeHelperCourse
  */
 class Course extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'nama_matkul',
         'kode_matkul',
@@ -70,7 +70,9 @@ class Course extends Model
 
     public function assignments()
     {
-        return $this->hasMany(\App\Models\Assignment::class);
+        // Order by the 'order' column on the assignments table itself.
+        // The xxxx_create_course_assignment_order_table pivot approach was never applied.
+        return $this->hasMany(Assignment::class)->orderBy('order');
     }
 
     public function students()
