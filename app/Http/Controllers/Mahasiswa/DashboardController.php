@@ -34,6 +34,19 @@ class DashboardController extends Controller
             'submitted_assignments' => $mahasiswa->submissions()->count(),
         ];
 
-        return view('mahasiswa.dashboard', compact('enrolled_courses', 'upcoming_assignments', 'stats'));
+        // Get announcements
+        $announcements = \App\Models\Announcement::with('author')
+            ->whereIn('target_audience', ['all', 'mahasiswa'])
+            ->orWhere(function ($query) use ($mahasiswa) {
+                $query->where('target_audience', 'specific')
+                      ->whereHas('targetedUsers', function ($q) use ($mahasiswa) {
+                          $q->where('user_id', $mahasiswa->id);
+                      });
+            })
+            ->latest()
+            ->take(3)
+            ->get();
+
+        return view('mahasiswa.dashboard', compact('enrolled_courses', 'upcoming_assignments', 'stats', 'announcements'));
     }
 }

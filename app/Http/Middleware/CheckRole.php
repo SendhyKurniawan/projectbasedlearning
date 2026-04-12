@@ -14,17 +14,21 @@ class CheckRole
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      * @param  string  $role
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+// ... (lines 1-15) ...
+// ... (lines 17-21) ...
+    public function handle(Request $request, Closure $next, string $requiredRole): Response
     {
         // Check if user is authenticated
         if (!auth()->check()) {
             return redirect()->route('login');
         }
 
-        // Check if user has the required role
-        if (!auth()->user()->hasRole($role)) {
-            // Redirect to appropriate dashboard based on user's role
-            return match(auth()->user()->role) {
+        $user = auth()->user();
+
+        // Check if user role matches the required role provided in the middleware argument
+        if (!in_array($user->role, ['admin', 'dosen', 'mahasiswa']) || $user->role !== $requiredRole) {
+            // Redirect to appropriate dashboard based on user's *actual* role
+            return match ($user->role) {
                 'admin' => redirect()->route('admin.dashboard'),
                 'dosen' => redirect()->route('dosen.dashboard'),
                 'mahasiswa' => redirect()->route('mahasiswa.dashboard'),

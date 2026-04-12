@@ -15,37 +15,30 @@ class AssignmentController extends Controller
 {
     public function index(Course $course)
     {
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+        // Using Policy for authorization instead of manual check
+        $this->authorize('view', $course);
+
         $assignments = $course->assignments()
             ->withCount('submissions')
             ->orderBy('order')
             ->orderBy('deadline', 'desc')
             ->get();
-        
+
         return view('dosen.assignments.index', compact('course', 'assignments'));
     }
 
     public function create(Course $course)
     {
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+        // Using Policy for authorization instead of manual check
+        $this->authorize('create', $course);
+
         return view('dosen.assignments.create', compact('course'));
     }
 
     public function store(Request $request, Course $course)
     {
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+        $this->authorize('create', $course);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -105,24 +98,19 @@ class AssignmentController extends Controller
         $assignment->loadMissing('course');
         $course = $assignment->course;
         
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+        // Using Policy for authorization instead of manual check
+        $this->authorize('view', $course);
+
         return view('dosen.assignments.edit', compact('assignment', 'course'));
     }
 
     public function update(Request $request, Assignment $assignment)
     {
+        $this->authorize('update', $assignment);
+
         $assignment->loadMissing('course');
         $course = $assignment->course;
-        
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -161,26 +149,21 @@ class AssignmentController extends Controller
 
     public function destroy(Assignment $assignment)
     {
+        // Using Policy for authorization instead of manual check
+        $this->authorize('delete', $assignment);
+
         $assignment->loadMissing('course');
         $course = $assignment->course;
-        
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+
         $assignment->delete();
-        
+
         return redirect()->route('dosen.assignments.index', $course)
             ->with('success', 'Berhasil dihapus!');
     }
 
     public function reorder(Request $request, Course $course)
     {
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        $this->authorize('update', $course);
         
         $request->validate([
             'ordered_ids' => 'required|array',
@@ -218,21 +201,19 @@ class AssignmentController extends Controller
     {
         $assignment->loadMissing('course');
         $course = $assignment->course;
-        
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+
+        // Authorization check: Use Policy instead of manual check
+        $this->authorize('view', $course);
+
         $submissions = $assignment->submissions()
             ->with('mahasiswa')
             ->orderBy($assignment->type === 'quiz' ? 'finished_at' : 'submitted_at', 'desc')
             ->get();
-        
+
         if ($assignment->type === 'quiz') {
             return view('dosen.assignments.quiz_attempts', compact('assignment', 'course', 'submissions'));
         }
-        
+
         return view('dosen.assignments.submissions', compact('assignment', 'course', 'submissions'));
     }
 
@@ -259,11 +240,8 @@ class AssignmentController extends Controller
         $submission->loadMissing(['assignment.course']);
         $assignment = $submission->assignment;
         $course = $assignment->course;
-        
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+
+        $this->authorize('view', $course);
         
         $request->validate([
             'score' => 'required|integer|min:0|max:' . $assignment->max_score,
@@ -293,29 +271,26 @@ class AssignmentController extends Controller
 
     public function questions(Assignment $assignment)
     {
+        // Authorization check: Use Policy instead of manual check
+        $this->authorize('view', $assignment->course);
+
         $assignment->loadMissing('course');
-        if ($assignment->course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
         $questions = $assignment->questions()->with('options')->get();
         return view('dosen.assignments.questions.index', compact('assignment', 'questions'));
     }
 
     public function createQuestion(Assignment $assignment)
     {
-        $assignment->loadMissing('course');
-        if ($assignment->course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+        // Authorization check: Use Policy instead of manual check
+        $this->authorize('view', $assignment->course);
+
         return view('dosen.assignments.questions.create', compact('assignment'));
     }
 
     public function storeQuestion(Request $request, Assignment $assignment)
     {
         $assignment->loadMissing('course');
-        if ($assignment->course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $assignment->course);
 
         $request->validate([
             'question_text' => 'required|string',
@@ -350,10 +325,13 @@ class AssignmentController extends Controller
 
     public function editQuestion(\App\Models\QuizQuestion $question)
     {
+        // Load necessary relationships to check authorization
         $question->loadMissing(['assignment.course', 'options']);
-        if ($question->assignment->course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+        $course = $question->assignment->course;
+
+        // Authorization check: Use Policy instead of manual check
+        $this->authorize('view', $course);
+
         $assignment = $question->assignment;
         return view('dosen.assignments.questions.edit', compact('question', 'assignment'));
     }
@@ -361,9 +339,7 @@ class AssignmentController extends Controller
     public function updateQuestion(Request $request, \App\Models\QuizQuestion $question)
     {
         $question->loadMissing('assignment.course');
-        if ($question->assignment->course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $question->assignment->course);
 
         $request->validate([
             'question_text' => 'required|string',
@@ -400,11 +376,13 @@ class AssignmentController extends Controller
     public function destroyQuestion(\App\Models\QuizQuestion $question)
     {
         $question->loadMissing('assignment.course');
-        if ($question->assignment->course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('view', $question->assignment->course);
+
+        $course = $question->assignment->course;
+
         $assignment = $question->assignment;
         $question->delete();
+
         return redirect()->route('dosen.assignments.questions.index', $assignment)
             ->with('success', 'Pertanyaan berhasil dihapus!');
     }

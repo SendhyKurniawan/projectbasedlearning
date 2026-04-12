@@ -79,7 +79,7 @@ services:
 
     livekit:
         image: livekit/livekit-server:latest
-        container_name: pjblcloudflare
+        container_name: pjbllivekit
         restart: unless-stopped
         command: --config /etc/livekit.yaml
         ports:
