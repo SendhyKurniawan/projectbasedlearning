@@ -1,9 +1,9 @@
 /* ============================================
-   COMPONENTS MODULE - The Scholar Tech Design System
-   Reusable UI components with Scholar tonal layering
+   COMPONENTS MODULE - PBL Workspace Design System
+   Reusable UI components with tonal layering
    ============================================ */
 
-/* --- Card Styles (Scholar: Tonal Layering, no hard borders) --- */
+/* --- Card Styles (Tonal Layering, no hard borders) --- */
 .card {
     background: var(--surface-primary);
     border-radius: var(--radius-xl);

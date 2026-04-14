@@ -1,8 +1,8 @@
-﻿<x-guest-layout>
+<x-guest-layout>
  <!-- Page Header -->
  <div class="mb-8">
  <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Registrasi</h2>
- <p class="text-on-surface-variant text-sm">Bergabung dengan The PBL Workspace.</p>
+ <p class="text-on-surface-variant text-sm">Bergabung dengan PBL Workspace.</p>
  </div>
 
  <form method="POST" action="{{ route('register') }}" class="space-y-5">
@@ -27,7 +27,7 @@
  </div>
 
  {{-- Dosen Approval Notice --}}
- <div id="dosen-notice" class="{{ old('role') === 'dosen' ? '' : 'hidden' }} text-sm text-amber-700 bg-amber-50 border-l-4 border-amber-400 rounded-xl p-4">
+ <div id="dosen-notice" class="{{ old('role') === 'dosen' ? '' : 'hidden' }} text-sm text-on-surface-variant bg-surface-container border-l-4 border-primary/40 rounded-xl p-4">
  Akun dosen memerlukan <strong>persetujuan admin</strong> sebelum dapat digunakan.
  </div>
 
@@ -132,7 +132,7 @@
  <footer class="mt-8 text-center">
  <p class="text-on-surface-variant text-sm">
  Sudah punya akun?
- <a class="text-primary font-bold hover:underline underline-offset-4 decoration-2" href="{{ route('login') }}">Login</a>
+ <a class="text-primary font-bold hover:underline underline-offset-4 decoration-2" href="{{ route('login') }}">Masuk</a>
  </p>
  </footer>
 
