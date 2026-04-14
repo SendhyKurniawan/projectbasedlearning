@@ -1,8 +1,8 @@
-﻿<x-guest-layout>
+<x-guest-layout>
  <!-- Page Header -->
  <div class="mb-10">
- <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Login</h2>
- <p class="text-on-surface-variant text-sm">Welcome back to The PBL Workspace.</p>
+ <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Masuk</h2>
+ <p class="text-on-surface-variant text-sm">Selamat datang kembali di PBL Workspace.</p>
  </div>
 
  <!-- Session Status -->
@@ -11,7 +11,7 @@
  <!-- Divider -->
  <div class="relative flex items-center justify-center mb-8">
  <div class="w-full border-t border-outline-variant/30"></div>
- <span class="absolute bg-surface px-4 text-xs font-medium text-on-surface-variant uppercase tracking-widest">Login with email</span>
+ <span class="absolute bg-surface px-4 text-xs font-medium text-on-surface-variant uppercase tracking-widest">Masuk dengan email</span>
  </div>
 
  <!-- Main Login Form -->
@@ -20,7 +20,7 @@
 
  <!-- Email Address -->
  <div class="space-y-2">
- <label class="block text-sm font-semibold text-on-surface-variant" for="email">Email Address</label>
+ <label class="block text-sm font-semibold text-on-surface-variant" for="email">Alamat Email</label>
  <div class="relative">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">alternate_email</span>
  <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
@@ -40,7 +40,7 @@
  <div class="relative" x-data="{ show: false }">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
  <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
- id="password" name="password" :type="show ? 'text' : 'password'" placeholder="Enter your password" required autocomplete="current-password" />
+ id="password" name="password" :type="show ? 'text' : 'password'" placeholder="Masukkan kata sandi Anda" required autocomplete="current-password" />
  <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
  <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
  </button>
@@ -51,12 +51,12 @@
  <!-- Remember Me -->
  <div class="flex items-center gap-3 pt-2">
  <input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary/20" id="remember_me" name="remember" type="checkbox" />
- <label class="text-sm font-medium text-on-surface-variant select-none" for="remember_me">Keep me logged in</label>
+ <label class="text-sm font-medium text-on-surface-variant select-none" for="remember_me">Ingat Akun Saya</label>
  </div>
 
  <!-- Submit Button -->
  <button class="w-full architectural-gradient py-4 rounded-xl text-white font-headline font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all" type="submit">
- Login to Workspace
+ Masuk ke Workspace
  </button>
  </form>
 
