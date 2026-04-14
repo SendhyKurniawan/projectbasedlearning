@@ -1,4 +1,4 @@
-# PBL E-Learning System
+﻿# PBL Workspace
 
 Sistem E-Learning berbasis Project Based Learning (PBL) yang dirancang untuk mendukung proses pembelajaran pada mata kuliah pengembangan website. Sistem ini menyediakan fasilitas pengelolaan materi, tugas, dan interaksi antara dosen dan mahasiswa secara terstruktur.
 
@@ -87,3 +87,4 @@ Setelah menjalankan seeder, gunakan akun berikut untuk pengujian:
 ## Lisensi
 
 Aplikasi ini dikembangkan untuk tujuan edukasi dan mengikuti lisensi [MIT](https://opensource.org/licenses/MIT).
+

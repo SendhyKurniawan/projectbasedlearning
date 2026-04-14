@@ -12,15 +12,15 @@
                     <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">quiz</span>
                 </div>
                 <div>
-                    <h2 class="text-sm font-black italic text-on-surface uppercase tracking-tighter leading-none">{{ $quiz->title }}</h2>
-                    <p class="text-[10px] font-bold text-on-surface-variant italic opacity-60 uppercase tracking-widest mt-1">Sesi Evaluasi Aktif</p>
+                    <h2 class="text-sm font-black text-on-surface uppercase tracking-tighter leading-none">{{ $quiz->title }}</h2>
+                    <p class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase tracking-widest mt-1">Sesi Evaluasi Aktif</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-6">
                 <!-- Progress Indicator -->
                 <div class="hidden md:flex flex-col items-end gap-1.5 min-w-[150px]">
-                    <div class="flex justify-between w-full text-[10px] font-black italic text-on-surface-variant uppercase tracking-widest">
+                    <div class="flex justify-between w-full text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
                         <span>Pengerjaan</span>
                         <span id="progress-text">0%</span>
                     </div>
@@ -67,13 +67,13 @@
                                 
                                 <div class="space-y-6">
                                     <div class="flex items-center gap-4">
-                                        <span class="w-10 h-10 flex items-center justify-center bg-surface-container-low text-primary font-black italic rounded-xl border border-outline-variant/10 text-lg">
+                                        <span class="w-10 h-10 flex items-center justify-center bg-surface-container-low text-primary font-black rounded-xl border border-outline-variant/10 text-lg">
                                             {{ $index + 1 }}
                                         </span>
-                                        <span class="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] italic opacity-60">PERTANYAAN #{{ $index + 1 }}</span>
+                                        <span class="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] opacity-60">PERTANYAAN #{{ $index + 1 }}</span>
                                     </div>
 
-                                    <h3 class="text-xl md:text-2xl font-bold text-on-surface leading-snug italic tracking-tight">
+                                    <h3 class="text-xl md:text-2xl font-bold text-on-surface leading-snug tracking-tight">
                                         {{ $question->question_text }}
                                     </h3>
 
@@ -90,7 +90,7 @@
                                                         {{ $label }}
                                                     </div>
                                                     
-                                                    <span class="text-on-surface font-medium italic peer-checked:text-primary peer-checked:font-bold transition-all">{{ $option->option_text }}</span>
+                                                    <span class="text-on-surface font-medium peer-checked:text-primary peer-checked:font-bold transition-all">{{ $option->option_text }}</span>
                                                     
                                                     <div class="absolute right-6 top-1/2 -translate-y-1/2 text-primary opacity-0 peer-checked:opacity-100 transition-opacity">
                                                         <span class="material-symbols-outlined scale-125" style="font-variation-settings: 'FILL' 1;">check_circle</span>
@@ -102,7 +102,7 @@
                                         <div class="pt-4">
                                             <textarea name="answers[{{ $question->id }}]" rows="5" 
                                                 oninput="updateProgress()"
-                                                class="w-full bg-surface-container-lowest rounded-2xl border-outline-variant/10 focus:border-primary focus:ring-4 focus:ring-primary/5 text-on-surface italic placeholder:opacity-30 p-6 shadow-xs transition-all"
+                                                class="w-full bg-surface-container-lowest rounded-2xl border-outline-variant/10 focus:border-primary focus:ring-4 focus:ring-primary/5 text-on-surface placeholder:opacity-30 p-6 shadow-xs transition-all"
                                                 placeholder="Berikan jawaban lengkap anda di sini..."></textarea>
                                         </div>
                                     @elseif($question->question_type === 'code_snippet')
@@ -123,20 +123,20 @@
 
                             @if(!$loop->last)
                                 <div class="py-4 flex justify-center opacity-10">
-                                    <div class="w-24 h-px bg-on-surface italic"></div>
+                                    <div class="w-24 h-px bg-on-surface "></div>
                                 </div>
                             @endif
                         @endforeach
                     </div>
 
                     <!-- Submit Footer -->
-                    <div class="mt-20 pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row items-center justify-between gap-8 bg-surface-container-lowest/50 p-8 rounded-[3rem] border border-outline-variant/10 italic">
+                    <div class="mt-20 pt-10 border-t border-outline-variant/10 flex flex-col md:flex-row items-center justify-between gap-8 bg-surface-container-lowest/50 p-8 rounded-[3rem] border border-outline-variant/10 ">
                         <div class="text-center md:text-left">
                             <h4 class="text-lg font-black text-on-surface uppercase tracking-tighter">Konfirmasi Akhir</h4>
                             <p class="text-xs text-on-surface-variant mt-1">Pastikan seluruh pertanyaan telah terjawab sebelum mengakhiri sesi.</p>
                         </div>
                         <button type="submit" id="submitQuizBtn"
-                            class="px-12 py-4 bg-primary text-on-primary font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 italic">
+                            class="px-12 py-4 bg-primary text-on-primary font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 ">
                             AKHIRI & KIRIM KUIS
                             <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
                         </button>
@@ -151,13 +151,13 @@
                         <span class="material-symbols-outlined text-6xl">apps</span>
                     </div>
 
-                    <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-6 italic opacity-60">NAVIGASI SOAL</h4>
+                    <h4 class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-6 opacity-60">NAVIGASI SOAL</h4>
                     
                     <div class="grid grid-cols-5 gap-3">
                         @foreach($questions as $index => $question)
                             <a href="#question-{{ $index + 1 }}" 
                                 id="nav-item-{{ $question->id }}"
-                                class="nav-palette-item flex items-center justify-center h-10 w-10 text-[10px] font-black italic rounded-lg border border-outline-variant/10 bg-surface-container-low text-on-surface-variant hover:bg-primary-fixed hover:text-primary transition-all">
+                                class="nav-palette-item flex items-center justify-center h-10 w-10 text-[10px] font-black rounded-lg border border-outline-variant/10 bg-surface-container-low text-on-surface-variant hover:bg-primary-fixed hover:text-primary transition-all">
                                 {{ $index + 1 }}
                             </a>
                         @endforeach
@@ -166,17 +166,17 @@
                     <div class="mt-8 pt-6 border-t border-outline-variant/5 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <div class="w-3 h-3 rounded bg-primary shadow-sm shadow-primary/20"></div>
-                            <span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest italic">Terjawab</span>
+                            <span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest ">Terjawab</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <div class="w-3 h-3 rounded bg-surface-container-low border border-outline-variant/20 italic"></div>
-                            <span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest italic">Belum</span>
+                            <div class="w-3 h-3 rounded bg-surface-container-low border border-outline-variant/20 "></div>
+                            <span class="text-[9px] font-bold text-on-surface-variant uppercase tracking-widest ">Belum</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Tips / Motivational -->
-                <div class="p-8 bg-secondary/5 rounded-[2rem] border border-secondary/10 relative overflow-hidden italic text-xs leading-relaxed text-secondary font-medium">
+                <div class="p-8 bg-secondary/5 rounded-[2rem] border border-secondary/10 relative overflow-hidden text-xs leading-relaxed text-secondary font-medium">
                     <span class="material-symbols-outlined absolute -right-3 -bottom-3 text-7xl opacity-5">lightbulb</span>
                     "Fokuslah pada setiap pertanyaan. Kualitas jawaban anda mencerminkan dedikasi anda pada pembelajaran ini."
                 </div>

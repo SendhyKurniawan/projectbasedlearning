@@ -1,10 +1,10 @@
-# 📄 Panduan Halaman PBL E-Learning
+﻿# ðŸ“„ Panduan Halaman PBL E-Learning
 
 Dokumentasi ini merinci seluruh halaman yang tersedia dalam sistem E-Learning berbasis **Project-Based Learning (PBL)**, dikelompokkan berdasarkan hak akses pengguna dan fitur utama.
 
 ---
 
-## 🔐 Halaman Publik & Autentikasi
+## ðŸ” Halaman Publik & Autentikasi
 Halaman yang dapat diakses sebelum atau sesaat setelah login dasar.
 
 *   **Login (`/login`):** Gerbang utama masuk ke sistem menggunakan email dan password.
@@ -14,7 +14,7 @@ Halaman yang dapat diakses sebelum atau sesaat setelah login dasar.
 
 ---
 
-## 👤 Fitur Umum (Semua Pengguna)
+## ðŸ‘¤ Fitur Umum (Semua Pengguna)
 Halaman yang tersedia untuk Admin, Dosen, dan Mahasiswa.
 
 *   **Profil Saya (`/profile`):** Mengelola informasi pribadi, mengubah password, dan menghapus akun.
@@ -24,7 +24,7 @@ Halaman yang tersedia untuk Admin, Dosen, dan Mahasiswa.
 
 ---
 
-## ⚡ Dashboard Admin (`/admin`)
+## âš¡ Dashboard Admin (`/admin`)
 Halaman khusus untuk manajemen infrastruktur akademik dan pengguna.
 
 *   **Dashboard Utama:** Ringkasan statistik (jumlah user, dosen, mahasiswa, dan mata kuliah aktif).
@@ -40,7 +40,7 @@ Halaman khusus untuk manajemen infrastruktur akademik dan pengguna.
 
 ---
 
-## 👨‍🏫 Dashboard Dosen (`/dosen`)
+## ðŸ‘¨â€ðŸ« Dashboard Dosen (`/dosen`)
 Halaman untuk mengelola proses belajar mengajar.
 
 *   **Dashboard Utama:** Overview aktivitas kelas dan statistik mahasiswa yang diajar.
@@ -59,7 +59,7 @@ Halaman untuk mengelola proses belajar mengajar.
 
 ---
 
-## 🎓 Dashboard Mahasiswa (`/mahasiswa`)
+## ðŸŽ“ Dashboard Mahasiswa (`/mahasiswa`)
 Halaman untuk aktivitas pembelajaran mahasiswa.
 
 *   **Dashboard Utama:** Ringkasan progres belajar, tugas mendatang, dan pengumuman terbaru.
@@ -76,7 +76,8 @@ Halaman untuk aktivitas pembelajaran mahasiswa.
 
 ---
 
-## 🛠️ Fitur Teknis Tambahan
+## ðŸ› ï¸ Fitur Teknis Tambahan
 *   **Mode Gelap (Dark Mode):** Seluruh halaman mendukung optimasi visual untuk kenyamanan mata.
 *   **Web Push Notifications:** Menerima pesan instan bahkan saat browser tidak membuka website.
 *   **LiveKit Integration:** Engine video conference stabil untuk kapasitas kelas besar.
+

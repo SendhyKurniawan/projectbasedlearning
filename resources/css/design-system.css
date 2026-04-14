@@ -1,5 +1,5 @@
-/* ============================================
-   PBL E-Learning Design System
+﻿/* ============================================
+   PBL Workspace Design System
    Entry point importing all modules
    ============================================ */
 
@@ -7,3 +7,4 @@
 @import './base.css';
 @import './components.css';
 @import './utilities.css';
+

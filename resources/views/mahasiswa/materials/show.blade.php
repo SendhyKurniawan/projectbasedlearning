@@ -14,8 +14,8 @@
                 <!-- Course Progress Card -->
                 <div class="bg-surface-container-lowest rounded-3xl p-6 border border-outline-variant/10 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-headline font-black italic text-on-surface uppercase tracking-tighter">Progres Belajar</h3>
-                        <span class="text-secondary font-black italic">{{ $progress }}%</span>
+                        <h3 class="font-headline font-black text-on-surface uppercase tracking-tighter">Progres Belajar</h3>
+                        <span class="text-secondary font-black ">{{ $progress }}%</span>
                     </div>
                     <div class="h-1.5 bg-surface-container rounded-full overflow-hidden mb-6">
                         <div class="h-full bg-secondary rounded-full shadow-[0_0_10px_rgba(33,197,94,0.3)] transition-all duration-1000" style="width: {{ $progress }}%"></div>
@@ -66,10 +66,10 @@
                                         @endif
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-[9px] font-black uppercase tracking-widest italic leading-none mb-1 {{ $isCurrent ? 'text-primary' : 'text-on-surface-variant opacity-60' }}">
+                                        <p class="text-[9px] font-black uppercase tracking-widest leading-none mb-1 {{ $isCurrent ? 'text-primary' : 'text-on-surface-variant opacity-60' }}">
                                             {{ $item['type'] === 'material' ? 'Materi' : ($item['item']->type === 'exercise' ? 'Koding' : 'Tugas') }}
                                         </p>
-                                        <p class="text-xs font-bold truncate leading-tight italic {{ $isCurrent ? 'text-on-surface' : ($isCompleted ? 'text-on-surface/70' : 'text-on-surface/50') }}">
+                                        <p class="text-xs font-bold truncate leading-tight {{ $isCurrent ? 'text-on-surface' : ($isCompleted ? 'text-on-surface/70' : 'text-on-surface/50') }}">
                                             {{ $item['item']->title }}
                                         </p>
                                     </div>
@@ -80,8 +80,8 @@
                                         <span class="material-symbols-outlined text-[18px]">lock</span>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-[9px] font-black uppercase tracking-widest italic leading-none mb-1">Locked</p>
-                                        <p class="text-xs font-bold truncate leading-tight italic">{{ $item['item']->title }}</p>
+                                        <p class="text-[9px] font-black uppercase tracking-widest leading-none mb-1">Locked</p>
+                                        <p class="text-xs font-bold truncate leading-tight ">{{ $item['item']->title }}</p>
                                     </div>
                                 </div>
                             @endif
@@ -92,9 +92,9 @@
                 <!-- Help/TA Card -->
                 <div class="bg-primary rounded-[2rem] p-6 text-on-primary shadow-xl shadow-primary/10 relative overflow-hidden group">
                     <div class="relative z-10">
-                        <h4 class="font-headline font-black italic mb-2 uppercase tracking-tighter">Butuh Bantuan?</h4>
-                        <p class="text-xs text-primary-fixed leading-relaxed mb-4 italic opacity-80">Hubungi dosen atau asisten praktikum jika anda menemui kendala dalam memahami materi ini.</p>
-                        <a href="{{ route('mahasiswa.dashboard') }}" class="inline-block bg-white text-primary font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-primary-fixed transition-all italic">
+                        <h4 class="font-headline font-black mb-2 uppercase tracking-tighter">Butuh Bantuan?</h4>
+                        <p class="text-xs text-primary-fixed leading-relaxed mb-4 opacity-80">Hubungi dosen atau asisten praktikum jika anda menemui kendala dalam memahami materi ini.</p>
+                        <a href="{{ route('mahasiswa.dashboard') }}" class="inline-block bg-white text-primary font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-primary-fixed transition-all ">
                             DISCUSSION FORUM
                         </a>
                     </div>
@@ -108,20 +108,20 @@
             <!-- Header Section -->
             <div class="flex flex-col md:flex-row justify-between items-start gap-4">
                 <div>
-                    <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2 italic">
+                    <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2 ">
                         <span><a href="{{ route('mahasiswa.courses.show', $course) }}" class="hover:text-primary transition-colors">{{ $course->kode_matkul }}</a></span>
                         <span class="material-symbols-outlined text-[10px]">chevron_right</span>
                         <span class="text-primary">Materi #{{ $material->order }}</span>
                     </nav>
-                    <h1 class="text-4xl font-headline font-black text-on-surface italic uppercase tracking-tighter leading-tight">{{ $material->title }}</h1>
+                    <h1 class="text-4xl font-headline font-black text-on-surface uppercase tracking-tighter leading-tight">{{ $material->title }}</h1>
                 </div>
                 <div class="flex gap-2">
-                    <button class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-sm italic hover:translate-y-[-1px] transition-all">
+                    <button class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-sm hover:translate-y-[-1px] transition-all">
                         <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">bookmark</span>
                         SIMPAN
                     </button>
                     @if($material->file_path)
-                        <a href="{{ Storage::url($material->file_path) }}" download class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-sm italic hover:translate-y-[-1px] transition-all">
+                        <a href="{{ Storage::url($material->file_path) }}" download class="bg-surface-container-high text-on-surface-variant px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-sm hover:translate-y-[-1px] transition-all">
                             <span class="material-symbols-outlined text-[18px]">download</span>
                             FILE
                         </a>
@@ -135,7 +135,7 @@
                 <div class="p-8 md:p-12 space-y-10">
                     <!-- Markdown Content -->
                     @if($material->content)
-                        <div class="prose prose-slate max-w-none prose-headings:font-headline prose-headings:italic prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-on-surface markdown-content" 
+                        <div class="prose prose-slate max-w-none prose-headings:font-headline prose-headings:prose-headings:font-black prose-headings:uppercase prose-headings:tracking-tighter prose-strong:text-on-surface markdown-content" 
                              id="material-content" 
                              data-markdown="{{ base64_encode($material->content) }}">
                         </div>
@@ -145,11 +145,11 @@
                     @if($material->file_path)
                         <div x-data="{ fullscreen: false }" class="space-y-4">
                             <div class="flex items-center justify-between px-2">
-                                <h3 class="text-lg font-headline font-black italic uppercase tracking-tighter text-on-surface/80 flex items-center gap-3">
+                                <h3 class="text-lg font-headline font-black uppercase tracking-tighter text-on-surface/80 flex items-center gap-3">
                                     <span class="w-8 h-1 bg-primary rounded-full"></span>
                                     DOKUMEN LAMPIRAN
                                 </h3>
-                                <button @click="fullscreen = !fullscreen" class="text-[10px] font-black uppercase text-primary tracking-widest italic flex items-center gap-2 hover:underline">
+                                <button @click="fullscreen = !fullscreen" class="text-[10px] font-black uppercase text-primary tracking-widest flex items-center gap-2 hover:underline">
                                     <span class="material-symbols-outlined text-[18px]">@if(true) open_in_full @endif</span>
                                     <span x-text="fullscreen ? 'EXIT FULLSCREEN' : 'FULLSCREEN VIEW'"></span>
                                 </button>
@@ -195,8 +195,8 @@
                                     <span class="material-symbols-outlined">arrow_back</span>
                                 </div>
                                 <div class="text-left">
-                                    <p class="text-[9px] font-black uppercase text-on-surface-variant italic opacity-60">PREVIOUS MODULE</p>
-                                    <p class="text-xs font-bold text-on-surface italic">{{ Str::limit($prevItem['item']->title, 35) }}</p>
+                                    <p class="text-[9px] font-black uppercase text-on-surface-variant opacity-60">PREVIOUS MODULE</p>
+                                    <p class="text-xs font-bold text-on-surface ">{{ Str::limit($prevItem['item']->title, 35) }}</p>
                                 </div>
                             </a>
                         @else
@@ -204,7 +204,7 @@
                         @endif
 
                         <div class="hidden md:flex flex-col items-center">
-                            <span class="text-[10px] font-black text-on-surface-variant italic uppercase tracking-[0.3em]">FINISHED?</span>
+                            <span class="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.3em]">FINISHED?</span>
                             <div class="w-8 h-1 bg-outline-variant/20 rounded-full mt-1"></div>
                         </div>
 
@@ -212,8 +212,8 @@
                             @if($nextItem['locked'])
                                 <div class="w-full md:w-auto flex items-center gap-4 p-4 rounded-2xl bg-surface-container-low border border-outline-variant/10 opacity-50 grayscale cursor-not-allowed">
                                     <div class="text-right">
-                                        <p class="text-[9px] font-black uppercase text-on-surface-variant italic leading-none mb-1">NEXT (LOCKED)</p>
-                                        <p class="text-xs font-bold text-on-surface italic">{{ Str::limit($nextItem['item']->title, 35) }}</p>
+                                        <p class="text-[9px] font-black uppercase text-on-surface-variant leading-none mb-1">NEXT (LOCKED)</p>
+                                        <p class="text-xs font-bold text-on-surface ">{{ Str::limit($nextItem['item']->title, 35) }}</p>
                                     </div>
                                     <div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center">
                                         <span class="material-symbols-outlined">lock</span>
@@ -231,8 +231,8 @@
                                 @endphp
                                 <a href="{{ $nextUrl }}" class="group w-full md:w-auto flex items-center gap-4 p-4 rounded-2xl bg-primary text-on-primary hover:shadow-xl hover:shadow-primary/20 transition-all shadow-lg active:scale-[0.98]">
                                     <div class="text-right">
-                                        <p class="text-[9px] font-black uppercase text-primary-fixed italic leading-none mb-1">NEXT MODULE</p>
-                                        <p class="text-xs font-bold italic">{{ Str::limit($nextItem['item']->title, 35) }}</p>
+                                        <p class="text-[9px] font-black uppercase text-primary-fixed leading-none mb-1">NEXT MODULE</p>
+                                        <p class="text-xs font-bold ">{{ Str::limit($nextItem['item']->title, 35) }}</p>
                                     </div>
                                     <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-primary transition-all">
                                         <span class="material-symbols-outlined">arrow_forward</span>
@@ -242,8 +242,8 @@
                         @else
                             <a href="{{ route('mahasiswa.courses.show', $course) }}" class="group w-full md:w-auto flex items-center gap-4 p-4 rounded-2xl bg-secondary text-on-secondary hover:shadow-lg transition-all shadow-md">
                                 <div class="text-right">
-                                    <p class="text-[9px] font-black uppercase text-on-secondary italic leading-none mb-1">COURSE OVERVIEW</p>
-                                    <p class="text-xs font-bold italic">Selesai Membaca</p>
+                                    <p class="text-[9px] font-black uppercase text-on-secondary leading-none mb-1">COURSE OVERVIEW</p>
+                                    <p class="text-xs font-bold ">Selesai Membaca</p>
                                 </div>
                                 <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-secondary transition-all">
                                     <span class="material-symbols-outlined">done_all</span>

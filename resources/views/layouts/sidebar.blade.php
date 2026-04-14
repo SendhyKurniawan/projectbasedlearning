@@ -14,8 +14,8 @@
  <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">school</span>
  </div>
  <div>
- <h1 class="text-xl font-bold tracking-tight text-blue-700 font-headline">The Scholar</h1>
- <p class="text-[0.6875rem] font-label text-on-surface-variant tracking-wider uppercase">PBL Workspace</p>
+ <h1 class="text-xl font-bold tracking-tight text-blue-700 font-headline">PBL Workspace</h1>
+ <p class="text-[0.6875rem] font-label text-on-surface-variant tracking-wider uppercase">Project-Based Learning</p>
  </div>
  </a>
  
@@ -111,7 +111,7 @@
  @endforeach
  </div>
  @else
- <div class="px-4 py-2 text-xs text-slate-400 italic flex items-center gap-2">
+ <div class="px-4 py-2 text-xs text-slate-400 flex items-center gap-2">
  <span class="material-symbols-outlined text-sm">info</span>
  Belum ada mata kuliah
  </div>
@@ -133,10 +133,16 @@
  <span class="material-symbols-outlined" @if(request()->routeIs('mahasiswa.courses.*', 'mahasiswa.materials.*')) style="font-variation-settings: 'FILL' 1;" @endif>auto_stories</span>
  <span class="text-sm font-body">Mata Kuliah</span>
  </a>
- <a href="{{ route('mahasiswa.conferences.index', request()->route('course') instanceof \App\Models\Course ? request()->route('course') : (\App\Models\Course::whereHas('students', fn($q) => $q->where('mahasiswa_id', auth()->id()))->first() ?? 1)) }}" class="{{ request()->routeIs('mahasiswa.conferences.*') ? $activeClass : $inactiveClass }}">
+ @php
+ $activeCourseParam = request()->route('course');
+ $resolvedCourseForConference = $activeCourseParam instanceof \App\Models\Course ? $activeCourseParam : \App\Models\Course::whereHas('students', fn($q) => $q->where('mahasiswa_id', auth()->id()))->first();
+ @endphp
+ @if($resolvedCourseForConference)
+ <a href="{{ route('mahasiswa.conferences.index', $resolvedCourseForConference) }}" class="{{ request()->routeIs('mahasiswa.conferences.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('mahasiswa.conferences.*')) style="font-variation-settings: 'FILL' 1;" @endif>videocam</span>
  <span class="text-sm font-body">Kelas Virtual</span>
  </a>
+ @endif
  @endif
  @endauth
  
@@ -183,3 +189,4 @@
  </div>
  </div>
 </aside>
+

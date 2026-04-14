@@ -27,16 +27,22 @@
  {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
  </p>
 
- <div class="mt-6">
+ <div class="mt-6" x-data="{ show: false }">
  <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
 
+ <div class="relative w-3/4">
  <x-text-input
  id="password"
  name="password"
  type="password"
- class="mt-1 block w-3/4"
+ x-bind:type="show ? 'text' : 'password'"
+ class="mt-1 block w-full pr-12"
  placeholder="{{ __('Password') }}"
  />
+ <button type="button" @click="show = !show" class="absolute right-3 top-[55%] -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
+ <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
+ </button>
+ </div>
 
  <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
  </div>

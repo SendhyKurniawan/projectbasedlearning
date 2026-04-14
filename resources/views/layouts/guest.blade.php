@@ -5,7 +5,7 @@
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <meta name="csrf-token" content="{{ csrf_token() }}">
 
- <title>{{ config('app.name', 'The Scholar') }} | PBL Workspace</title>
+ <title>{{ config('app.name', 'PBL Workspace') }}</title>
 
  <!-- Fonts: Scholar Tech Design System -->
  <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +26,7 @@
  <div class="bg-white/10 backdrop-blur-md p-2.5 rounded-xl">
  <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">school</span>
  </div>
- <span class="font-headline font-bold text-2xl tracking-tighter">The Scholar</span>
+ <span class="font-headline font-bold text-2xl tracking-tighter">PBL Workspace</span>
  </div>
  <h1 class="font-headline text-5xl font-extrabold leading-tight tracking-tight mb-6">
  Building the future of <br/>Academic Excellence.
@@ -36,12 +36,12 @@
  </p>
  </div>
  <!-- Bento-style Stats -->
- <div class="relative z-10 grid grid-cols-2 gap-4 mt-12">
+ <div class="relative z-10 grid grid-cols-2 gap-4 mt-12 items-start">
  <div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
  <div class="text-emerald-300 font-headline font-bold text-3xl mb-1">PBL</div>
  <div class="text-white/50 text-sm">Project-Based Learning</div>
  </div>
- <div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10 mt-8">
+ <div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
  <div class="text-emerald-300 font-headline font-bold text-3xl mb-1">Live</div>
  <div class="text-white/50 text-sm">Real-time Collaboration</div>
  </div>
@@ -56,17 +56,18 @@
  <!-- Brand Mobile Header -->
  <div class="flex items-center gap-2 mb-12 lg:hidden">
  <span class="material-symbols-outlined text-primary text-3xl">school</span>
- <span class="font-headline font-extrabold text-xl text-primary tracking-tighter">Scholar PBL</span>
+ <span class="font-headline font-extrabold text-xl text-primary tracking-tighter">PBL Workspace</span>
  </div>
 
  {{ $slot }}
 
  <!-- Global Footer Links -->
  <div class="mt-auto pt-12 flex gap-6 text-xs font-medium text-on-surface-variant/60">
- <span>&copy; {{ date('Y') }} The Scholar PBL</span>
+ <span>&copy; {{ date('Y') }} PBL Workspace</span>
  </div>
  </div>
  </section>
  </main>
  </body>
 </html>
+

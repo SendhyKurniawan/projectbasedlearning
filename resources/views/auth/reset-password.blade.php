@@ -15,20 +15,30 @@
  </div>
 
  <!-- Password -->
- <div class="mt-4">
+ <div class="mt-4" x-data="{ show: false }">
  <x-input-label for="password" :value="__('Password Baru')" />
- <x-text-input id="password" class="block mt-1 w-full" type="password"
+ <div class="relative">
+ <x-text-input id="password" class="block mt-1 w-full pr-12" type="password" x-bind:type="show ? 'text' : 'password'"
  name="password" required autocomplete="new-password"
  placeholder="Minimal 8 karakter" />
+ <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
+ <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
+ </button>
+ </div>
  <x-input-error :messages="$errors->get('password')" class="mt-2" />
  </div>
 
  <!-- Confirm Password -->
- <div class="mt-4">
+ <div class="mt-4" x-data="{ show: false }">
  <x-input-label for="password_confirmation" :value="__('Konfirmasi Password Baru')" />
- <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password"
+ <div class="relative">
+ <x-text-input id="password_confirmation" class="block mt-1 w-full pr-12" type="password" x-bind:type="show ? 'text' : 'password'"
  name="password_confirmation" required autocomplete="new-password"
  placeholder="Ulangi password baru Anda" />
+ <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
+ <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
+ </button>
+ </div>
  <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
  </div>
 

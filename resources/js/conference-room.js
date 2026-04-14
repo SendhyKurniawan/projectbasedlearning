@@ -184,10 +184,10 @@ const ConferenceUI = {
         const footer = document.getElementById('participants-footer');
         if (footer) {
             footer.innerHTML = `
-                <div class="text-center"><p class="text-white font-medium">${total}</p><p class="text-gray-500 text-xs">Peserta</p></div>
-                <div class="text-center"><p class="text-white font-medium">${micActive}</p><p class="text-gray-500 text-xs">Mik aktif</p></div>
-                <div class="text-center"><p class="text-white font-medium">${vidActive}</p><p class="text-gray-500 text-xs">Video aktif</p></div>
-                <div class="text-center"><p class="text-white font-medium">${hands}</p><p class="text-gray-500 text-xs">Tangan</p></div>`;
+                <div class="text-center"><p class="text-on-surface font-bold">${total}</p><p class="text-on-surface-variant text-xs">Peserta</p></div>
+                <div class="text-center"><p class="text-on-surface font-bold">${micActive}</p><p class="text-on-surface-variant text-xs">Mik aktif</p></div>
+                <div class="text-center"><p class="text-on-surface font-bold">${vidActive}</p><p class="text-on-surface-variant text-xs">Video aktif</p></div>
+                <div class="text-center"><p class="text-on-surface font-bold">${hands}</p><p class="text-on-surface-variant text-xs">Tangan</p></div>`;
         }
     },
 
@@ -204,7 +204,7 @@ const ConferenceUI = {
         const hostIcon = p.isHost ? `<svg class="w-3 h-3 text-yellow-400 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7-2h8.6l.9-4.8-2.9 2.9L12 8.4l-2.3 3.7-2.9-2.9.9 4.8z"/></svg>` : '';
         const handIcon = p.isHandRaised ? '<span class="text-xs">✋</span>' : '';
         return `
-            <div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/5 transition-colors">
+            <div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-container transition-colors">
                 <div class="relative shrink-0">
                     <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold"
                          style="background:${p.color};${speakingRing}">${initials}</div>
@@ -213,7 +213,7 @@ const ConferenceUI = {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-1.5">
                         ${hostIcon}
-                        <span class="text-white text-sm truncate">${p.name}${p.isMe ? '<span class="text-gray-400 ml-1">(Anda)</span>' : ''}</span>
+                        <span class="text-on-surface text-sm truncate inline-block max-w-[120px] lg:max-w-[180px]">${p.name}${p.isMe ? '<span class="text-on-surface-variant ml-1">(Anda)</span>' : ''}</span>
                     </div>
                     ${p.isHandRaised ? '<p class="text-xs text-yellow-400">✋ Tangan terangkat</p>' : ''}
                 </div>
@@ -339,6 +339,7 @@ const Settings = {
     close() {
         document.getElementById('settings-modal')?.classList.add('hidden');
         if (typeof MicTest !== 'undefined' && MicTest.active) MicTest.stop();
+        if (typeof CamTest !== 'undefined' && CamTest.active) CamTest.stop();
     },
     async loadDevices() {
         try {
@@ -364,10 +365,16 @@ const Settings = {
         document.querySelectorAll('.settings-panel').forEach(p => p.classList.add('hidden'));
         document.getElementById('tab-' + tab)?.classList.add('active');
         document.getElementById('panel-' + tab)?.classList.remove('hidden');
+        if (tab === 'video' && typeof CamTest !== 'undefined') CamTest.start();
+        else if (typeof CamTest !== 'undefined') CamTest.stop();
     },
     async applyMic() {
         const id = document.getElementById('select-mic')?.value;
         if (id && room) await room.switchActiveDevice('audioinput', id);
+        if (typeof MicTest !== 'undefined' && MicTest.active) {
+            MicTest.stop();
+            MicTest.start();
+        }
     },
     async applySpeaker() {
         const id = document.getElementById('select-speaker')?.value;
@@ -376,6 +383,10 @@ const Settings = {
     async applyCam() {
         const id = document.getElementById('select-cam')?.value;
         if (id && room) await room.switchActiveDevice('videoinput', id);
+        if (typeof CamTest !== 'undefined' && CamTest.active) {
+            CamTest.stop();
+            CamTest.start();
+        }
     },
     async applyAll() {
         await Promise.all([Settings.applyMic(), Settings.applySpeaker(), Settings.applyCam()]);
@@ -462,6 +473,39 @@ const MicTest = {
 };
 
 window.MicTest = MicTest;
+
+// ---------------------------------------------------------------------------
+// CamTest — MediaDevices Video API Test
+// ---------------------------------------------------------------------------
+const CamTest = {
+    stream: null,
+    active: false,
+    async start() {
+        if (CamTest.active) { CamTest.stop(); return; }
+        const deviceId = document.getElementById('select-cam')?.value;
+        const videoEl = document.getElementById('cam-test-preview');
+        if (!videoEl) return;
+        try {
+            CamTest.stream = await navigator.mediaDevices.getUserMedia({
+                video: deviceId ? { deviceId: { exact: deviceId } } : true,
+                audio: false,
+            });
+            videoEl.srcObject = CamTest.stream;
+            CamTest.active = true;
+        } catch (e) {
+            console.warn('Cannot access camera for test:', e);
+        }
+    },
+    stop() {
+        CamTest.active = false;
+        const videoEl = document.getElementById('cam-test-preview');
+        if (videoEl) videoEl.srcObject = null;
+        CamTest.stream?.getTracks().forEach(t => t.stop());
+        CamTest.stream = null;
+    }
+};
+
+window.CamTest = CamTest;
 
 // ---------------------------------------------------------------------------
 // ConferenceRoom — core LiveKit integration
@@ -793,16 +837,16 @@ window.ConferenceRoom = {
 
         if (camEnabled) {
             btn?.classList.remove('ctrl-off');
-            btn?.classList.add('ctrl-on');
-            if (icon) icon.innerHTML = ConferenceRoom.icons.cam;
+            btn?.classList.add('ctrl-active');
+            if (icon) icon.textContent = ConferenceRoom.icons.cam;
             localAvatar?.classList.add('hidden');
             if (ConferenceUI.participants[window.__myIdentity]) {
                 ConferenceUI.participants[window.__myIdentity].isVideoOff = false;
             }
         } else {
-            btn?.classList.remove('ctrl-on');
+            btn?.classList.remove('ctrl-active');
             btn?.classList.add('ctrl-off');
-            if (icon) icon.innerHTML = ConferenceRoom.icons.camOff;
+            if (icon) icon.textContent = ConferenceRoom.icons.camOff;
             localAvatar?.classList.remove('hidden');
             if (ConferenceUI.participants[window.__myIdentity]) {
                 ConferenceUI.participants[window.__myIdentity].isVideoOff = true;
@@ -820,15 +864,15 @@ window.ConferenceRoom = {
 
         if (micEnabled) {
             btn?.classList.remove('ctrl-off');
-            btn?.classList.add('ctrl-on');
-            if (icon) icon.innerHTML = ConferenceRoom.icons.mic;
+            btn?.classList.add('ctrl-active');
+            if (icon) icon.textContent = ConferenceRoom.icons.mic;
             if (ConferenceUI.participants[window.__myIdentity]) {
                 ConferenceUI.participants[window.__myIdentity].isMuted = false;
             }
         } else {
-            btn?.classList.remove('ctrl-on');
+            btn?.classList.remove('ctrl-active');
             btn?.classList.add('ctrl-off');
-            if (icon) icon.innerHTML = ConferenceRoom.icons.micOff;
+            if (icon) icon.textContent = ConferenceRoom.icons.micOff;
             if (ConferenceUI.participants[window.__myIdentity]) {
                 ConferenceUI.participants[window.__myIdentity].isMuted = true;
             }
@@ -972,9 +1016,9 @@ window.ConferenceRoom = {
     },
 
     icons: {
-        mic: '<path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>',
-        micOff: '<path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3 3 4.27l6.01 6.01V11c0 1.66 1.34 3 3 3 .23 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z"/>',
-        cam: '<path d="M15 8v8H5V8h10m1-2H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4V7c0-.55-.45-1-1-1z"/>',
-        camOff: '<path d="M21 6.5l-4-4-9.96 9.96-2.54-2.5L3 11.46 7.04 15.5 3 19.5l1.5 1.5 4-4 10.5 10.5 1.5-1.5L10.46 16l.54-.54L15 19.5l6-5.96V6.5zM15 9.34V15h-3.34L15 9.34zm-8 5.16V9h5.66L7 14.5z"/>',
+        mic: 'mic',
+        micOff: 'mic_off',
+        cam: 'videocam',
+        camOff: 'videocam_off',
     }
 };
