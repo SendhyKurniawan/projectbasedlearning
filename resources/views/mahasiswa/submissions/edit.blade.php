@@ -2,19 +2,19 @@
     <div class="max-w-4xl mx-auto space-y-10">
         <!-- Header & Breadcrumbs -->
         <div>
-            <nav class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2 italic px-1">
+            <nav class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2 px-1">
                 <span><a href="{{ route('mahasiswa.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
                 <span class="material-symbols-outlined text-[12px]">chevron_right</span>
                 <span><a href="{{ route('mahasiswa.courses.show', $assignment->course_id) }}" class="hover:text-primary transition-colors">Course</a></span>
                 <span class="material-symbols-outlined text-[12px]">chevron_right</span>
-                <span class="text-primary italic">Edit Submission</span>
+                <span class="text-primary ">Edit Submission</span>
             </nav>
-            <h1 class="text-4xl font-headline font-black text-on-surface italic uppercase tracking-tighter leading-tight">Perbarui Pengumpulan</h1>
-            <p class="text-on-surface-variant body-md mt-1 italic">Silakan perbarui hasil pengerjaan anda jika diperlukan sebelum batas waktu berakhir.</p>
+            <h1 class="text-4xl font-headline font-black text-on-surface uppercase tracking-tighter leading-tight">Perbarui Pengumpulan</h1>
+            <p class="text-on-surface-variant body-md mt-1 ">Silakan perbarui hasil pengerjaan anda jika diperlukan sebelum batas waktu berakhir.</p>
         </div>
 
         @if(session('error'))
-            <div class="px-6 py-4 bg-error-container text-on-error-container border-l-4 border-error rounded-2xl text-sm font-bold shadow-sm italic transition-all animate-in fade-in slide-in-from-top-4">
+            <div class="px-6 py-4 bg-error-container text-on-error-container border-l-4 border-error rounded-2xl text-sm font-bold shadow-sm transition-all animate-in fade-in slide-in-from-top-4">
                 {{ session('error') }}
             </div>
         @endif
@@ -26,34 +26,34 @@
                     <div class="absolute top-0 left-0 w-1 h-full bg-secondary opacity-50"></div>
                     <div class="relative space-y-6">
                         <div>
-                            <span class="text-[10px] font-black uppercase text-secondary tracking-widest italic mb-2 block">Detail Monitoring</span>
-                            <h3 class="text-lg font-black italic text-on-surface leading-tight uppercase tracking-tighter">{{ $assignment->title }}</h3>
+                            <span class="text-[10px] font-black uppercase text-secondary tracking-widest mb-2 block">Detail Monitoring</span>
+                            <h3 class="text-lg font-black text-on-surface leading-tight uppercase tracking-tighter">{{ $assignment->title }}</h3>
                         </div>
 
                         <div class="bg-surface-container-low rounded-2xl p-4 space-y-3">
                             <div class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
                                 <div>
-                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest italic leading-none opacity-60">Submitted At</p>
-                                    <p class="text-xs font-black italic text-on-surface">{{ $submission->submitted_at->format('d M, H:i') }}</p>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-none opacity-60">Submitted At</p>
+                                    <p class="text-xs font-black text-on-surface">{{ $submission->submitted_at->format('d M, H:i') }}</p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
                                 <span class="material-symbols-outlined text-tertiary text-[20px]" style="font-variation-settings: 'FILL' 1;">history</span>
                                 <div>
-                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest italic leading-none opacity-60">Status</p>
-                                    <p class="text-xs font-black italic text-on-surface uppercase">{{ $submission->status ?? 'Submitted' }}</p>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-none opacity-60">Status</p>
+                                    <p class="text-xs font-black text-on-surface uppercase">{{ $submission->status ?? 'Submitted' }}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="pt-4 border-t border-outline-variant/10">
                             @if($assignment->submission_format === 'url' && $submission->url_link)
-                                <a href="{{ $submission->url_link }}" target="_blank" class="flex items-center gap-2 text-[10px] font-black text-primary uppercase hover:underline decoration-primary/50 decoration-2 italic transition-all">
+                                <a href="{{ $submission->url_link }}" target="_blank" class="flex items-center gap-2 text-[10px] font-black text-primary uppercase hover:underline decoration-primary/50 decoration-2 transition-all">
                                     <span class="material-symbols-outlined text-sm">open_in_new</span> LIHAT SUBMISI SAAT INI
                                 </a>
                             @elseif($assignment->submission_format === 'pdf' && $submission->file_path)
-                                <a href="{{ Storage::url($submission->file_path) }}" target="_blank" class="flex items-center gap-2 text-[10px] font-black text-primary uppercase hover:underline decoration-primary/50 decoration-2 italic transition-all">
+                                <a href="{{ Storage::url($submission->file_path) }}" target="_blank" class="flex items-center gap-2 text-[10px] font-black text-primary uppercase hover:underline decoration-primary/50 decoration-2 transition-all">
                                     <span class="material-symbols-outlined text-sm">visibility</span> LIHAT FILE SAAT INI
                                 </a>
                             @endif
@@ -75,15 +75,15 @@
 
                         <!-- Form Field: Notes -->
                         <div class="space-y-3">
-                            <label for="notes" class="flex items-center gap-2 text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] italic ml-1 opacity-70">
+                            <label for="notes" class="flex items-center gap-2 text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1 opacity-70">
                                 <span class="material-symbols-outlined text-sm">description</span>
                                 Catatan Perubahan
                             </label>
                             <textarea name="notes" id="notes" rows="4"
-                                class="w-full bg-surface-container-low border-outline-variant/10 text-on-surface text-sm rounded-2xl p-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-inner italic"
+                                class="w-full bg-surface-container-low border-outline-variant/10 text-on-surface text-sm rounded-2xl p-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-inner "
                                 placeholder="Tuliskan catatan singkat jika ada hal khusus mengenai perubahan ini...">{{ old('notes', $submission->notes) }}</textarea>
                             @error('notes')
-                                <p class="text-error text-[11px] font-bold italic mt-1 ml-2 flex items-center gap-1">
+                                <p class="text-error text-[11px] font-bold mt-1 ml-2 flex items-center gap-1">
                                     <span class="material-symbols-outlined text-sm">error</span> {{ $message }}
                                 </p>
                             @enderror
@@ -92,7 +92,7 @@
                         @if($assignment->submission_format === 'url')
                             <!-- Form Field: Update URL -->
                             <div class="space-y-3">
-                                <label for="url_link" class="flex items-center gap-2 text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] italic ml-1 opacity-70">
+                                <label for="url_link" class="flex items-center gap-2 text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1 opacity-70">
                                     <span class="material-symbols-outlined text-sm">alternate_email</span>
                                     Perbarui Tautan (Opsional)
                                 </label>
@@ -104,35 +104,64 @@
                                         <span class="material-symbols-outlined text-[20px]">link</span>
                                     </div>
                                 </div>
-                                <p class="text-[9px] text-on-surface-variant/50 font-bold italic ml-2">Kosongkan jika tidak ingin mengubah link yang sudah dikirim.</p>
+                                <p class="text-[9px] text-on-surface-variant/50 font-bold ml-2">Kosongkan jika tidak ingin mengubah link yang sudah dikirim.</p>
                                 @error('url_link')
-                                    <p class="text-error text-[11px] font-bold italic mt-1 ml-2 flex items-center gap-1">
+                                    <p class="text-error text-[11px] font-bold mt-1 ml-2 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-sm">error</span> {{ $message }}
                                     </p>
                                 @enderror
                             </div>
                         @else
                             <!-- Form Field: Update File -->
-                            <div class="space-y-3">
-                                <label class="flex items-center gap-2 text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] italic ml-1 opacity-70">
+                            <div class="space-y-3" x-data="{ fileName: '', fileSize: '', hasFile: false }">
+                                <label class="flex items-center gap-2 text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] ml-1 opacity-70">
                                     <span class="material-symbols-outlined text-sm">sync_alt</span>
                                     Perbarui Dokumen (Opsional)
                                 </label>
                                 <div class="relative group cursor-pointer">
                                     <input type="file" name="file" id="file"
-                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20">
-                                    <div class="w-full bg-surface-container-low border-2 border-dashed border-outline-variant/20 rounded-[2rem] p-8 text-center group-hover:border-primary/40 group-hover:bg-primary/5 transition-all relative z-10 overflow-hidden">
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                                        @change="
+                                            if ($event.target.files.length > 0) {
+                                                fileName = $event.target.files[0].name;
+                                                fileSize = ($event.target.files[0].size / 1024 / 1024).toFixed(2);
+                                                hasFile = true;
+                                            } else {
+                                                fileName = ''; fileSize = ''; hasFile = false;
+                                            }
+                                        ">
+                                    <div class="w-full bg-surface-container-low border-2 rounded-[2rem] p-8 text-center transition-all relative z-10 overflow-hidden"
+                                        :class="hasFile
+                                            ? 'border-solid border-secondary/60 bg-secondary/5'
+                                            : 'border-dashed border-outline-variant/20 group-hover:border-primary/40 group-hover:bg-primary/5'">
                                         <div class="relative z-10">
-                                            <div class="w-14 h-14 bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/60 group-hover:bg-primary group-hover:text-on-primary transition-all duration-300">
-                                                <span class="material-symbols-outlined text-[28px]">file_upload_off</span>
-                                            </div>
-                                            <p class="text-xs font-black italic text-on-surface group-hover:text-primary transition-colors">Ganti File Submission</p>
-                                            <p class="text-[9px] font-bold text-on-surface-variant italic mt-1 opacity-50">Biarkan kosong jika tidak ingin mengubah file lama</p>
+                                            <!-- State: belum pilih file baru -->
+                                            <template x-if="!hasFile">
+                                                <div>
+                                                    <div class="w-14 h-14 bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-4 border border-white/60 group-hover:bg-primary group-hover:text-on-primary transition-all duration-300">
+                                                        <span class="material-symbols-outlined text-[28px]">file_upload_off</span>
+                                                    </div>
+                                                    <p class="text-xs font-black text-on-surface group-hover:text-primary transition-colors">Ganti File Submission</p>
+                                                    <p class="text-[9px] font-bold text-on-surface-variant mt-1 opacity-50">Biarkan kosong jika tidak ingin mengubah file lama</p>
+                                                </div>
+                                            </template>
+                                            <!-- State: file baru sudah dipilih -->
+                                            <template x-if="hasFile">
+                                                <div>
+                                                    <div class="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-secondary/30 shadow-sm">
+                                                        <span class="material-symbols-outlined text-[28px] text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                                    </div>
+                                                    <p class="text-xs font-black text-secondary">File Baru Siap Dikirim</p>
+                                                    <p class="text-xs font-bold text-on-surface mt-2 truncate max-w-xs mx-auto" x-text="fileName"></p>
+                                                    <p class="text-[10px] text-on-surface-variant font-bold mt-1 opacity-60" x-text="fileSize + ' MB'"></p>
+                                                    <p class="text-[10px] text-primary font-bold mt-3 cursor-pointer hover:underline">Klik untuk ganti file</p>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
                                 @error('file')
-                                    <p class="text-error text-[11px] font-bold italic mt-1 ml-2 flex items-center gap-1">
+                                    <p class="text-error text-[11px] font-bold mt-1 ml-2 flex items-center gap-1">
                                         <span class="material-symbols-outlined text-sm">error</span> {{ $message }}
                                     </p>
                                 @enderror
@@ -141,11 +170,11 @@
 
                         <!-- Action Buttons -->
                         <div class="flex flex-col md:flex-row items-center gap-4 pt-6">
-                            <button type="submit" class="w-full md:flex-1 bg-secondary text-on-secondary font-black text-xs uppercase tracking-[0.2em] py-4 rounded-2xl hover:shadow-2xl hover:shadow-secondary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 italic shadow-lg">
+                            <button type="submit" class="w-full md:flex-1 bg-secondary text-on-secondary font-black text-xs uppercase tracking-[0.2em] py-4 rounded-2xl hover:shadow-2xl hover:shadow-secondary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg">
                                 UPDATE SUBMISSION
                                 <span class="material-symbols-outlined text-sm">save</span>
                             </button>
-                            <a href="{{ route('mahasiswa.courses.show', $assignment->course_id) }}" class="w-full md:w-auto px-10 bg-surface-container text-on-surface-variant font-black text-xs uppercase tracking-widest py-4 rounded-2xl hover:bg-surface-container-high transition-all text-center italic">
+                            <a href="{{ route('mahasiswa.courses.show', $assignment->course_id) }}" class="w-full md:w-auto px-10 bg-surface-container text-on-surface-variant font-black text-xs uppercase tracking-widest py-4 rounded-2xl hover:bg-surface-container-high transition-all text-center ">
                                 BATAL
                             </a>
                         </div>

@@ -91,7 +91,7 @@
  </div>
  </div>
  @empty
- <div class="text-xs text-on-surface-variant italic">Tidak ada mata kuliah warisan semester.</div>
+ <div class="text-xs text-on-surface-variant ">Tidak ada mata kuliah warisan semester.</div>
  @endforelse
  </div>
  </div>

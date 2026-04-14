@@ -21,10 +21,15 @@
  </div>
 
  <!-- Password -->
- <div class="mt-4">
+ <div class="mt-4" x-data="{ show: false }">
  <label for="password" class="block font-medium text-sm text-on-surface-variant">{{ __('Password') }}</label>
- <input id="password" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-indigo-500:ring-indigo-600 rounded-md shadow-sm" 
- type="password" name="password" required autocomplete="current-password" />
+ <div class="relative">
+ <input id="password" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-indigo-500:ring-indigo-600 rounded-md shadow-sm pr-12" 
+ type="password" x-bind:type="show ? 'text' : 'password'" name="password" required autocomplete="current-password" />
+ <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
+ <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
+ </button>
+ </div>
  @error('password')
  <p class="text-sm text-error mt-2">{{ $message }}</p>
  @enderror

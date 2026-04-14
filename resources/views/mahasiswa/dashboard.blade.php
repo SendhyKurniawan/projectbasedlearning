@@ -76,9 +76,9 @@
                             </div>
                             <div class="p-5">
                                 <div class="flex items-start border-l-4 border-secondary pl-3 mb-4">
-                                    <h4 class="font-bold font-headline text-lg group-hover:text-primary transition-colors line-clamp-1 italic">{{ $course->nama_matkul }}</h4>
+                                    <h4 class="font-bold font-headline text-lg group-hover:text-primary transition-colors line-clamp-1 ">{{ $course->nama_matkul }}</h4>
                                 </div>
-                                <div class="flex gap-4 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/70 italic">
+                                <div class="flex gap-4 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/70 ">
                                     <span class="flex items-center gap-1.5">
                                         <span class="material-symbols-outlined text-[16px]">description</span>
                                         {{ $course->materials_count }} Materials
@@ -116,12 +116,12 @@
                                 </div>
                                 <div class="flex-1 border-b border-outline-variant/30 pb-4 group-last:border-0">
                                     <h4 class="text-sm font-bold font-headline line-clamp-1">{{ $assignment->title }}</h4>
-                                    <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider line-clamp-1 italic">{{ $assignment->course->nama_matkul }}</p>
+                                    <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider line-clamp-1 ">{{ $assignment->course->nama_matkul }}</p>
                                 </div>
                             </div>
                         @empty
                             <div class="py-10 text-center">
-                                <p class="text-xs font-semibold text-on-surface-variant italic">Semua tugas telah diselesaikan!</p>
+                                <p class="text-xs font-semibold text-on-surface-variant ">Semua tugas telah diselesaikan!</p>
                             </div>
                         @endforelse
                     </div>
@@ -135,10 +135,10 @@
                         <div class="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-1 before:bottom-0 before:w-1.5 before:bg-primary before:rounded-full">
                             <span class="text-[10px] font-bold text-primary mb-1 block uppercase">{{ $announcement->author->role ?? 'SISTEM' }} • {{ $announcement->created_at->diffForHumans() }}</span>
                             <h4 class="text-sm font-bold font-body leading-snug mb-1">{{ $announcement->title }}</h4>
-                            <p class="text-[11px] text-on-surface-variant italic line-clamp-2 leading-relaxed">{{ Str::limit(strip_tags($announcement->content), 100) }}</p>
+                            <p class="text-[11px] text-on-surface-variant line-clamp-2 leading-relaxed">{{ Str::limit(strip_tags($announcement->content), 100) }}</p>
                         </div>
                         @empty
-                        <div class="text-center text-sm text-on-surface-variant italic py-4">
+                        <div class="text-center text-sm text-on-surface-variant py-4">
                             Belum ada pengumuman
                         </div>
                         @endforelse

@@ -69,11 +69,20 @@
         
         /* Controls */
         .glass-panel { background: rgba(250, 248, 255, 0.85); backdrop-filter: blur(16px); }
-        .ctrl-btn { width: 48px; height: 48px; border-radius: 50%; border: 1px solid transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; background: var(--surface-container-high, #e7e7f3); color: var(--on-surface, #191b23); }
+        .ctrl-btn { width: 48px; height: 48px; border-radius: 50%; border: 1px solid transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); background: var(--surface-container-high, #e7e7f3); color: var(--on-surface, #191b23); }
         .ctrl-btn:hover { background: var(--surface-variant, #e1e2ed); transform: scale(1.05); }
+        .ctrl-btn:active { transform: scale(0.95); opacity: 0.9; }
         .ctrl-btn.ctrl-off { background: var(--error, #ba1a1a); color: var(--on-error, #ffffff); }
         .ctrl-btn.ctrl-off:hover { background: #a41717; }
         .ctrl-btn.ctrl-active { background: var(--primary, #004ac6); color: var(--on-primary, #ffffff); }
+        
+        /* Mic Test */
+        .mic-test-container { display: flex; align-items: center; gap: 4px; margin-top: 12px; }
+        .mic-bar { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-variant); transition: background 0.1s; border: 1px solid rgba(0,0,0,0.1); }
+        .mic-bar.active { border-color: transparent; }
+        .mic-test-status { font-size: 12px; font-weight: 600; color: var(--on-surface-variant); margin-top: 8px; }
+        .mic-test-status.status-active { color: var(--primary); }
+        .mic-test-status.status-error { color: var(--error); }
         
         /* Floating Emojis */
         .reaction-float { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); font-size: 40px; pointer-events: none; z-index: 50; animation: floatUp 2.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
@@ -139,11 +148,11 @@
             <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-40">
                 <div class="glass-panel px-6 py-3 rounded-2xl flex items-center gap-3 shadow-xl border border-outline-variant/30">
                     
-                    <button id="btn-mic" class="ctrl-btn" onclick="ConferenceRoom.toggleMic()" title="Mikrofon">
+                    <button id="btn-mic" class="ctrl-btn ctrl-active" onclick="ConferenceRoom.toggleMic()" title="Mikrofon">
                         <span id="icon-mic" class="material-symbols-outlined text-[20px]">mic</span>
                     </button>
 
-                    <button id="btn-cam" class="ctrl-btn" onclick="ConferenceRoom.toggleCamera()" title="Kamera">
+                    <button id="btn-cam" class="ctrl-btn ctrl-active" onclick="ConferenceRoom.toggleCamera()" title="Kamera">
                         <span id="icon-cam" class="material-symbols-outlined text-[20px]">videocam</span>
                     </button>
 
@@ -196,9 +205,13 @@
 
                     <div class="w-px h-8 bg-outline-variant/40 mx-1"></div>
 
+                    <button onclick="ConferenceRoom.disconnect('{{ route('dosen.conferences.index', $conference->course_id) }}')" class="px-6 py-3 rounded-xl bg-surface-container-high text-on-surface font-bold hover:bg-surface-variant transition-all hover:-translate-y-0.5 active:scale-95 shadow border border-outline-variant/20 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">logout</span> Keluar
+                    </button>
+
                     <form method="POST" action="{{ route('dosen.conferences.end', $conference) }}" onsubmit="return ConferenceRoom.confirmEnd(event)" class="ml-1">
                         @csrf
-                        <button type="submit" class="px-6 py-3 rounded-xl bg-error text-white font-bold hover:bg-red-700 transition-all shadow-md flex items-center gap-2">
+                        <button type="submit" class="px-6 py-3 rounded-xl bg-error text-white font-bold hover:bg-red-700 transition-all hover:-translate-y-0.5 active:scale-95 shadow flex items-center gap-2">
                             <span class="material-symbols-outlined text-[20px]">call_end</span> Akhiri
                         </button>
                     </form>
@@ -276,7 +289,14 @@
             <div id="panel-audio" class="settings-panel space-y-6">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Microphone</label>
-                    <select id="select-mic" class="w-full bg-surface-container border-none rounded-xl p-3 focus:ring-2 focus:ring-primary shadow-inner text-sm font-medium" onchange="Settings.applyMic()"></select>
+                    <div class="flex gap-2 mb-2">
+                        <select id="select-mic" class="flex-1 bg-surface-container border-none rounded-xl p-3 focus:ring-2 focus:ring-primary shadow-inner text-sm font-medium" onchange="Settings.applyMic()"></select>
+                        <button id="btn-mic-test" onclick="MicTest.start()" class="px-4 bg-surface-container hover:bg-surface-variant rounded-xl text-sm font-bold border border-outline-variant/20 transition-colors text-on-surface whitespace-nowrap active:scale-95">Test Mikrofon</button>
+                    </div>
+                    <div class="mic-test-container">
+                        @for($i=0; $i<20; $i++) <div class="mic-bar"></div> @endfor
+                    </div>
+                    <div id="mic-test-status" class="mic-test-status">Klik "Test Mikrofon" untuk mulai.</div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Speaker</label>
@@ -286,7 +306,14 @@
             <div id="panel-video" class="settings-panel hidden space-y-6">
                 <div>
                     <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Camera</label>
-                    <select id="select-cam" class="w-full bg-surface-container border-none rounded-xl p-3 focus:ring-2 focus:ring-primary shadow-inner text-sm font-medium" onchange="Settings.applyCam()"></select>
+                    <select id="select-cam" class="w-full bg-surface-container border-none rounded-xl p-3 focus:ring-2 focus:ring-primary shadow-inner text-sm font-medium mb-4" onchange="Settings.applyCam()"></select>
+                    
+                    <div class="aspect-video w-full bg-neutral-900 rounded-xl overflow-hidden shadow-inner border border-outline-variant/20 flex items-center justify-center relative">
+                        <video id="cam-test-preview" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                        <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent flex justify-center">
+                            <span class="text-xs font-bold tracking-widest text-white/80 uppercase">Preview</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

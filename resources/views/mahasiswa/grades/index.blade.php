@@ -3,17 +3,17 @@
         <!-- Header & Academic Summary -->
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div class="space-y-4">
-                <nav class="flex items-center gap-2 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-[0.2em] mb-2 italic px-1">
+                <nav class="flex items-center gap-2 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-[0.2em] mb-2 px-1">
                     <span><a href="{{ route('mahasiswa.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
                     <span class="material-symbols-outlined text-[12px]">chevron_right</span>
-                    <span class="text-primary italic text-[11px]">Laporan Nilai</span>
+                    <span class="text-primary text-[11px]">Laporan Nilai</span>
                 </nav>
-                <h1 class="text-5xl font-headline font-black text-on-surface italic uppercase tracking-tighter leading-tight">Transkrip Evaluasi</h1>
-                <p class="text-on-surface-variant body-md mt-1 italic opacity-80">Pantau progres akademik dan pencapaian kompetensi anda di seluruh mata kuliah.</p>
+                <h1 class="text-5xl font-headline font-black text-on-surface uppercase tracking-tighter leading-tight">Transkrip Evaluasi</h1>
+                <p class="text-on-surface-variant body-md mt-1 opacity-80">Pantau progres akademik dan pencapaian kompetensi anda di seluruh mata kuliah.</p>
             </div>
 
             <div class="flex gap-4">
-                <div class="bg-surface-container-lowest p-6 rounded-[2.5rem] border border-outline-variant/10 shadow-sm italic flex flex-col items-center min-w-[140px]">
+                <div class="bg-surface-container-lowest p-6 rounded-[2.5rem] border border-outline-variant/10 shadow-sm flex flex-col items-center min-w-[140px]">
                     <span class="text-[9px] font-black uppercase text-on-surface-variant opacity-60 mb-2">Rata-rata Skor</span>
                     <span class="text-4xl font-black text-primary tracking-tighter">
                         @php
@@ -29,7 +29,7 @@
                         {{ number_format($avg, 1) }}
                     </span>
                 </div>
-                <div class="bg-primary p-6 rounded-[2.5rem] shadow-xl shadow-primary/20 italic flex flex-col items-center min-w-[140px] text-on-primary">
+                <div class="bg-primary p-6 rounded-[2.5rem] shadow-xl shadow-primary/20 flex flex-col items-center min-w-[140px] text-on-primary">
                     <span class="text-[9px] font-black uppercase opacity-60 mb-2">Selesai Dinilai</span>
                     <span class="text-4xl font-black tracking-tighter">{{ count($allScores) }}</span>
                 </div>
@@ -38,7 +38,7 @@
 
         <!-- Courses List -->
         <div class="space-y-6">
-            <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] italic px-1 flex items-center gap-3 opacity-60">
+            <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] px-1 flex items-center gap-3 opacity-60">
                 <span class="w-12 h-1 bg-primary rounded-full"></span>
                 DETAIL PER MATA KULIAH
             </h3>
@@ -50,7 +50,7 @@
                     
                     <!-- Card Header -->
                     <button @click="expanded = !expanded" 
-                            class="w-full flex flex-col md:flex-row md:items-center justify-between p-8 text-left hover:bg-surface-container-low/50 transition-colors gap-6 italic">
+                            class="w-full flex flex-col md:flex-row md:items-center justify-between p-8 text-left hover:bg-surface-container-low/50 transition-colors gap-6 ">
                         <div class="flex items-center gap-6">
                             <div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500 shadow-inner">
                                 <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">menu_book</span>
@@ -90,7 +90,7 @@
                         <div class="px-8 pb-10">
                             @if($course->assignments->count() > 0)
                                 <div class="overflow-hidden rounded-[2rem] border border-outline-variant/10">
-                                    <table class="w-full text-left italic">
+                                    <table class="w-full text-left ">
                                         <thead>
                                             <tr class="bg-surface-container-low/50 text-[10px] font-black text-on-surface-variant uppercase tracking-widest">
                                                 <th class="px-8 py-5">Tugas / Evaluasi</th>
@@ -146,7 +146,7 @@
                                     </table>
                                 </div>
                             @else
-                                <div class="p-12 text-center space-y-4 bg-surface-container-low/30 rounded-[2rem] border border-dashed border-outline-variant/20 italic">
+                                <div class="p-12 text-center space-y-4 bg-surface-container-low/30 rounded-[2rem] border border-dashed border-outline-variant/20 ">
                                     <span class="material-symbols-outlined text-4xl text-on-surface-variant/20">inbox</span>
                                     <p class="text-xs text-on-surface-variant opacity-60">Belum ada tugas atau kuis yang terdata untuk mata kuliah ini.</p>
                                 </div>
@@ -155,7 +155,7 @@
                     </div>
                 </div>
             @empty
-                <div class="flex flex-col items-center justify-center py-24 text-center space-y-6 bg-surface-container-lowest rounded-[3rem] border border-outline-variant/10 shadow-sm italic">
+                <div class="flex flex-col items-center justify-center py-24 text-center space-y-6 bg-surface-container-lowest rounded-[3rem] border border-outline-variant/10 shadow-sm ">
                     <div class="w-24 h-24 bg-surface-container-low rounded-[2rem] flex items-center justify-center text-on-surface-variant/20 shadow-inner">
                         <span class="material-symbols-outlined text-[48px]">school</span>
                     </div>

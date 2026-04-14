@@ -8,8 +8,8 @@
                     <span class="material-symbols-outlined text-[12px]">chevron_right</span>
                     <span class="text-primary truncate max-w-[200px]">Semua Kursus</span>
                 </nav>
-                <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-headline italic">Eksplorasi Pembelajaran</h1>
-                <p class="text-on-surface-variant max-w-lg font-medium italic">Temukan dan daftar mata kuliah yang relevan dengan jalur akademik Anda.</p>
+                <h1 class="text-4xl font-extrabold tracking-tight text-on-surface font-headline ">Eksplorasi Pembelajaran</h1>
+                <p class="text-on-surface-variant max-w-lg font-medium ">Temukan dan daftar mata kuliah yang relevan dengan jalur akademik Anda.</p>
             </div>
         </div>
 
@@ -26,7 +26,7 @@
 
         <div class="bg-surface-container-lowest rounded-[2.5rem] p-8 border border-outline-variant/10 shadow-sm">
             <div class="flex items-center justify-between mb-8">
-                <h3 class="text-xl font-black text-on-surface font-headline uppercase tracking-tighter italic">Katalog Mata Kuliah</h3>
+                <h3 class="text-xl font-black text-on-surface font-headline uppercase tracking-tighter ">Katalog Mata Kuliah</h3>
                 <div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/20">
                     <span class="material-symbols-outlined text-sm text-outline">filter_list</span>
                     <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Terbaru</span>
@@ -55,7 +55,7 @@
 
                         <div class="flex-1 flex flex-col">
                             <div class="flex items-start border-l-4 border-primary/30 pl-4 mb-4">
-                                <h4 class="font-bold font-headline text-xl text-on-surface leading-tight italic group-hover:text-primary transition-colors line-clamp-2">
+                                <h4 class="font-bold font-headline text-xl text-on-surface leading-tight group-hover:text-primary transition-colors line-clamp-2">
                                     {{ $course->nama_matkul }}
                                 </h4>
                             </div>
@@ -64,7 +64,7 @@
                                 <div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant/20 flex items-center justify-center">
                                     <span class="material-symbols-outlined text-xs text-on-surface-variant">person</span>
                                 </div>
-                                <span class="text-xs font-bold text-on-surface-variant truncate italic">{{ $course->dosen->name }}</span>
+                                <span class="text-xs font-bold text-on-surface-variant truncate ">{{ $course->dosen->name }}</span>
                             </div>
 
                             <div class="grid grid-cols-3 gap-2 px-4 mb-6 text-center">
@@ -83,7 +83,7 @@
                             </div>
 
                             @if($course->description)
-                                <p class="text-xs text-on-surface-variant italic mb-6 line-clamp-2 px-4 leading-relaxed bg-surface-container-lowest/50 py-2 rounded-lg">
+                                <p class="text-xs text-on-surface-variant mb-6 line-clamp-2 px-4 leading-relaxed bg-surface-container-lowest/50 py-2 rounded-lg">
                                     "{{ $course->description }}"
                                 </p>
                             @endif
@@ -111,8 +111,8 @@
                         <div class="w-20 h-20 bg-surface-container mx-auto rounded-3xl flex items-center justify-center mb-6 transform -rotate-12">
                             <span class="material-symbols-outlined text-outline-variant text-4xl">folder_off</span>
                         </div>
-                        <h3 class="text-2xl font-bold text-on-surface font-headline mb-3 italic">Belum Ada Kursus Tersedia</h3>
-                        <p class="text-on-surface-variant font-medium text-sm max-w-sm italic">Sistem saat ini belum memiliki mata kuliah yang aktif. Harap hubungi administrator atau tunggu hingga periode akademik baru dimulai.</p>
+                        <h3 class="text-2xl font-bold text-on-surface font-headline mb-3 ">Belum Ada Kursus Tersedia</h3>
+                        <p class="text-on-surface-variant font-medium text-sm max-w-sm ">Sistem saat ini belum memiliki mata kuliah yang aktif. Harap hubungi administrator atau tunggu hingga periode akademik baru dimulai.</p>
                     </div>
                 @endforelse
             </div>

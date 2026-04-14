@@ -1,8 +1,8 @@
-<x-guest-layout>
+﻿<x-guest-layout>
  <!-- Page Header -->
  <div class="mb-8">
  <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Registrasi</h2>
- <p class="text-on-surface-variant text-sm">Bergabung dengan The Scholar PBL Workspace.</p>
+ <p class="text-on-surface-variant text-sm">Bergabung dengan The PBL Workspace.</p>
  </div>
 
  <form method="POST" action="{{ route('register') }}" class="space-y-5">
@@ -98,10 +98,13 @@
  {{-- Password --}}
  <div class="space-y-2">
  <label class="block text-sm font-semibold text-on-surface-variant" for="password">Password</label>
- <div class="relative">
+ <div class="relative" x-data="{ show: false }">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
- <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
- id="password" name="password" type="password" placeholder="Minimal 8 karakter" required autocomplete="new-password" />
+ <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="password" name="password" :type="show ? 'text' : 'password'" placeholder="Minimal 8 karakter" required autocomplete="new-password" />
+ <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
+ <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
+ </button>
  </div>
  <x-input-error :messages="$errors->get('password')" class="mt-1" />
  </div>
@@ -109,10 +112,13 @@
  {{-- Confirm Password --}}
  <div class="space-y-2">
  <label class="block text-sm font-semibold text-on-surface-variant" for="password_confirmation">Konfirmasi Password</label>
- <div class="relative">
+ <div class="relative" x-data="{ show: false }">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
- <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
- id="password_confirmation" name="password_confirmation" type="password" placeholder="Ulangi password Anda" required autocomplete="new-password" />
+ <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" placeholder="Ulangi password Anda" required autocomplete="new-password" />
+ <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
+ <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
+ </button>
  </div>
  <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
  </div>

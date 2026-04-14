@@ -60,10 +60,10 @@
 
         /* ---- Topbar Elements ---- */
         .meeting-info { display: flex; flex-direction: column; gap: 2px; }
-        .meeting-title { font-size: 14px; font-weight: 800; color: var(--on-surface); text-transform: uppercase; letter-spacing: 0.05em; font-style: italic; }
-        .meeting-meta { font-size: 11px; font-weight: 600; color: var(--outline-variant); text-transform: uppercase; letter-spacing: 0.1em; italic; }
+        .meeting-title { font-size: 14px; font-weight: 800; color: var(--on-surface); text-transform: uppercase; letter-spacing: 0.05em; font-style: ; }
+        .meeting-meta { font-size: 11px; font-weight: 600; color: var(--outline-variant); text-transform: uppercase; letter-spacing: 0.1em; ; }
 
-        .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; italic; }
+        .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; ; }
         .status-pill.screensharing { background: rgba(0, 74, 198, 0.2); border: 1px solid rgba(0, 74, 198, 0.3); color: #8ab4f8; }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; }
         .status-dot.active { background: #4edea3; box-shadow: 0 0 12px #4edea3; animation: pulse 2s infinite; }
@@ -100,7 +100,7 @@
             color: #fff; 
             text-transform: uppercase; 
             letter-spacing: 0.05em;
-            italic;
+            ;
         }
 
         .avatar-circle { 
@@ -114,7 +114,7 @@
             font-weight: 900; 
             color: #fff; 
             font-family: 'Manrope';
-            font-style: italic;
+            font-style: ;
             box-shadow: 0 8px 24px rgba(0,0,0,0.2);
         }
 
@@ -164,7 +164,7 @@
             font-weight: 900; 
             text-transform: uppercase; 
             letter-spacing: 0.15em;
-            italic;
+            ;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
@@ -190,16 +190,25 @@
         @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
         .panel-header { padding: 32px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; }
-        .panel-header span { font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; italic; }
+        .panel-header span { font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em; ; }
 
         .chat-input-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 8px 16px; margin: 16px; display: flex; gap: 8px; align-items: center; }
-        #chat-input { background: transparent; border: none; color: #fff; font-size: 12px; flex: 1; outline: none; italic; padding: 8px 0; }
+        #chat-input { background: transparent; border: none; color: #fff; font-size: 12px; flex: 1; outline: none; ; padding: 8px 0; }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+
+        .ctrl-btn:active, .ctrl-end:active { transform: scale(0.95) !important; }
+
+        .mic-test-container { display: flex; gap: 4px; height: 24px; align-items: center; justify-content: center; margin-top: 12px; }
+        .mic-bar { width: 4px; height: 4px; background: var(--outline-variant); border-radius: 2px; transition: height 0.1s ease, background 0.1s ease; }
+        .mic-bar.active { background: #4edea3; }
+        .mic-bar.warning { background: #fbbc04; }
+        .mic-bar.danger { background: var(--error); }
+        .mic-test-status { text-align: center; font-size: 11px; margin-top: 8px; color: var(--outline-variant); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
     </style>
 </head>
 <body>
@@ -209,28 +218,28 @@
     <header id="topbar">
         <div class="flex items-center gap-6">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white italic">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white ">
                     <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">videocam</span>
                 </div>
                 <div class="meeting-info">
-                    <h2 class="meeting-title italic">{{ $conference->title }}</h2>
-                    <p class="meeting-meta italic">{{ $conference->course->nama_matkul }}</p>
+                    <h2 class="meeting-title ">{{ $conference->title }}</h2>
+                    <p class="meeting-meta ">{{ $conference->course->nama_matkul }}</p>
                 </div>
             </div>
         </div>
 
         <div class="flex items-center gap-6">
-            <div id="screenshare-status" class="status-pill screensharing hidden italic">
+            <div id="screenshare-status" class="status-pill screensharing hidden ">
                 <span class="status-dot active"></span>
                 ACTIVE BROADCAST
             </div>
             
             <div class="flex flex-col items-end">
                 <div id="elapsed-timer" class="font-mono text-lg font-black tracking-tighter text-primary">00:00</div>
-                <div id="participant-count" class="text-[9px] font-black uppercase tracking-widest text-outline-variant italic">1 Peserta Terkoneksi</div>
+                <div id="participant-count" class="text-[9px] font-black uppercase tracking-widest text-outline-variant ">1 Peserta Terkoneksi</div>
             </div>
             
-            <div id="conn-status" class="px-3 py-1 bg-surface-container rounded-lg text-[9px] font-black uppercase tracking-widest text-[#fbbc04] italic">Menghubungkan...</div>
+            <div id="conn-status" class="px-3 py-1 bg-surface-container rounded-lg text-[9px] font-black uppercase tracking-widest text-[#fbbc04] ">Menghubungkan...</div>
         </div>
     </header>
 
@@ -250,7 +259,7 @@
                                 {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                             </div>
                         </div>
-                        <div class="local-name italic">{{ auth()->user()->name }} (Anda)</div>
+                        <div class="local-name ">{{ auth()->user()->name }} (Anda)</div>
                         <div class="local-hand" id="local-hand-indicator">✋</div>
                     </div>
                 </div>
@@ -262,13 +271,13 @@
             <!-- Chat Panel -->
             <div id="panel-chat" class="panel-hidden h-full flex flex-col">
                 <div class="panel-header">
-                    <span class="italic">Live Discussion</span>
+                    <span class="">Live Discussion</span>
                     <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors" onclick="ConferenceUI.closePanel()">
                         <span class="material-symbols-outlined text-[20px]">close</span>
                     </button>
                 </div>
                 <div id="chat-messages" class="flex-1 overflow-y-auto p-8 space-y-6">
-                    <p class="text-[10px] font-bold text-center text-outline-variant italic uppercase tracking-widest bg-white/5 py-4 rounded-2xl">Pesan hanya terlihat oleh peserta di ruangan ini</p>
+                    <p class="text-[10px] font-bold text-center text-outline-variant uppercase tracking-widest bg-white/5 py-4 rounded-2xl">Pesan hanya terlihat oleh peserta di ruangan ini</p>
                 </div>
                 <div class="chat-input-box">
                     <textarea id="chat-input" rows="1" placeholder="Type a message..."></textarea>
@@ -287,7 +296,7 @@
             <!-- Participants Panel -->
             <div id="panel-participants" class="panel-hidden h-full flex flex-col">
                 <div class="panel-header">
-                    <span class="italic">Peserta Aktif (<span id="panel-participant-total">1</span>)</span>
+                    <span class="">Peserta Aktif (<span id="panel-participant-total">1</span>)</span>
                     <button class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors" onclick="ConferenceUI.closePanel()">
                         <span class="material-symbols-outlined text-[20px]">close</span>
                     </button>
@@ -295,7 +304,7 @@
                 <div class="p-6">
                     <div class="bg-white/5 rounded-2xl flex items-center gap-3 px-4 py-3 border border-white/5">
                         <span class="material-symbols-outlined text-outline-variant text-[20px]">search</span>
-                        <input type="text" id="participant-search" class="bg-transparent border-none text-xs text-white outline-none flex-1 italic" placeholder="Cari teman..." oninput="ConferenceUI.renderParticipants()">
+                        <input type="text" id="participant-search" class="bg-transparent border-none text-xs text-white outline-none flex-1 " placeholder="Cari teman..." oninput="ConferenceUI.renderParticipants()">
                     </div>
                 </div>
                 <div id="participants-list" class="flex-1 overflow-y-auto px-6 pb-6"></div>
@@ -422,7 +431,7 @@
 
 {{-- Settings Modal (Glassmorphism Overhaul) --}}
 <div id="settings-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl">
-    <div class="bg-surface-container-lowest w-[520px] max-w-[95vw] rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl flex flex-col italic">
+    <div class="bg-surface-container-lowest w-[520px] max-w-[95vw] rounded-[3rem] border border-white/5 overflow-hidden shadow-2xl flex flex-col ">
         <div class="p-8 border-b border-white/5 flex items-center justify-between">
             <h2 class="text-xl font-black text-white uppercase tracking-tighter">Konfigurasi Perangkat</h2>
             <button onclick="Settings.close()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/5 transition-colors">
@@ -440,11 +449,18 @@
             <div id="panel-audio" class="space-y-6">
                 <div class="space-y-3">
                     <label class="text-[10px] font-black uppercase tracking-widest text-outline-variant opacity-60">Input Mikrofon</label>
-                    <select id="select-mic" class="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-sm text-white italic outline-none focus:border-primary transition-all appearance-none" onchange="Settings.applyMic()"></select>
+                    <div class="flex gap-2">
+                        <select id="select-mic" class="flex-1 bg-white/5 border border-white/5 rounded-2xl p-4 text-sm text-white outline-none focus:border-primary transition-all appearance-none" onchange="Settings.applyMic()"></select>
+                        <button id="btn-mic-test" onclick="MicTest.start()" class="px-6 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white border border-white/5 transition-colors whitespace-nowrap active:scale-95">Test Mikrofon</button>
+                    </div>
+                    <div class="mic-test-container">
+                        @for($i=0; $i<20; $i++) <div class="mic-bar"></div> @endfor
+                    </div>
+                    <div id="mic-test-status" class="mic-test-status">Klik "Test Mikrofon" untuk mulai.</div>
                 </div>
                 <div class="space-y-3">
                     <label class="text-[10px] font-black uppercase tracking-widest text-outline-variant opacity-60">Output Speaker</label>
-                    <select id="select-speaker" class="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-sm text-white italic outline-none focus:border-primary transition-all appearance-none" onchange="Settings.applySpeaker()"></select>
+                    <select id="select-speaker" class="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-sm text-white outline-none focus:border-primary transition-all appearance-none" onchange="Settings.applySpeaker()"></select>
                 </div>
             </div>
             
@@ -452,14 +468,21 @@
             <div id="panel-video" class="hidden space-y-6">
                 <div class="space-y-3">
                     <label class="text-[10px] font-black uppercase tracking-widest text-outline-variant opacity-60">Sensor Kamera</label>
-                    <select id="select-cam" class="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-sm text-white italic outline-none focus:border-primary transition-all appearance-none" onchange="Settings.applyCam()"></select>
+                    <select id="select-cam" class="w-full bg-white/5 border border-white/5 rounded-2xl p-4 text-sm text-white outline-none focus:border-primary transition-all appearance-none" onchange="Settings.applyCam()"></select>
+                    
+                    <div class="aspect-video w-full bg-black/50 rounded-2xl overflow-hidden shadow-inner border border-white/5 flex items-center justify-center relative mt-4">
+                        <video id="cam-test-preview" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
+                        <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/80 to-transparent flex justify-center">
+                            <span class="text-[10px] font-black tracking-widest text-white/50 uppercase">Preview</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="p-8 border-t border-white/5 flex justify-end gap-4">
-            <button class="px-8 py-3 bg-white/5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest italic" onclick="Settings.close()">BATAL</button>
-            <button class="px-8 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest italic shadow-lg shadow-primary/20" onclick="Settings.applyAll()">SIMPAN PERUBAHAN</button>
+            <button class="px-8 py-3 bg-white/5 text-white rounded-xl text-[10px] font-black uppercase tracking-widest " onclick="Settings.close()">BATAL</button>
+            <button class="px-8 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20" onclick="Settings.applyAll()">SIMPAN PERUBAHAN</button>
         </div>
     </div>
 </div>
