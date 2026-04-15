@@ -1,10 +1,10 @@
 /* ============================================
-   TOKENS MODULE - PBL Workspace Design System
+   TOKENS MODULE - The Scholar Tech Design System
    Material 3 inspired variables and configuration
    ============================================ */
 
 :root {
-    /* PBL Workspace Color Palette (Light Mode) */
+    /* Scholar Tech Color Palette (Light Mode) */
     --color-primary: #004ac6;
     --color-primary-container: #2563eb;
     --color-primary-hover: #003ea8;
@@ -30,7 +30,7 @@
     --color-purple-hover: #2f2ebe;
     --color-purple-light: #e1e0ff;
 
-    /* PBL Workspace Surface Hierarchy */
+    /* Scholar Tech Surface Hierarchy */
     --surface-base: #faf8ff;
     --surface-primary: #ffffff;
     --surface-secondary: #f3f3fe;
@@ -41,14 +41,14 @@
     --surface-container-high: #e7e7f3;
     --surface-container-highest: #e1e2ed;
 
-    /* PBL Workspace Text Colors */
+    /* Scholar Tech Text Colors */
     --text-primary: #191b23;
     --text-secondary: #434655;
     --text-muted: #737686;
     --text-inverted: #ffffff;
     --text-on-primary: #ffffff;
 
-    /* PBL Workspace Border (Ghost Borders) */
+    /* Scholar Tech Border (Ghost Borders) */
     --border-default: rgba(195, 198, 215, 0.2);
     --border-strong: rgba(195, 198, 215, 0.4);
 
@@ -67,7 +67,7 @@
     --radius-xl: 1rem;
     --radius-2xl: 1.5rem;
 
-    /* Shadows (PBL Workspace: Ambient, not heavy) */
+    /* Shadows (Scholar: Ambient, not heavy) */
     --shadow-sm: 0 1px 3px rgba(25, 27, 35, 0.04);
     --shadow-md: 0 4px 12px rgba(25, 27, 35, 0.06);
     --shadow-lg: 0 12px 32px rgba(25, 27, 35, 0.06);
