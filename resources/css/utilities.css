@@ -1,5 +1,5 @@
 /* ============================================
-   UTILITIES MODULE - PBL Workspace Design System
+   UTILITIES MODULE - The Scholar Tech Design System
    Helper classes, overrides, and responsive adjustments
    ============================================ */
 
@@ -19,7 +19,7 @@
     }
 }
 
-/* --- Custom Scrollbar --- */
+/* --- Scholar Custom Scrollbar --- */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -38,28 +38,28 @@
     background: var(--text-muted);
 }
 
-/* --- Smooth Transitions --- */
-.pbl-transition {
+/* --- Scholar Smooth Transitions --- */
+.scholar-transition {
     transition: all 0.2s ease;
 }
 
-/* --- Hover Lift Effect --- */
-.pbl-lift:hover {
+/* --- Scholar Hover Lift Effect --- */
+.scholar-lift:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
 }
 
-/* --- Interactive Elements --- */
-.pbl-interactive {
+/* --- Scholar Interactive Elements --- */
+.scholar-interactive {
     transition: all 0.2s ease;
     cursor: pointer;
 }
 
-.pbl-interactive:hover {
+.scholar-interactive:hover {
     transform: translateY(-2px);
 }
 
-.pbl-interactive:active {
+.scholar-interactive:active {
     transform: scale(0.98);
 }
 

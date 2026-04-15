@@ -1,4 +1,4 @@
-<aside :class="open ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-30 w-72 bg-surface-container-low transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col h-full shrink-0 py-8 px-6 overflow-y-auto border-r border-outline-variant/10">
+<aside :class="open ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-30 w-72 bg-slate-50 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col h-full shrink-0 py-8 px-6 overflow-y-auto">
  <!-- Brand Header -->
  <div class="mb-10 flex items-center gap-3">
  @php
@@ -10,17 +10,17 @@
  };
  @endphp
  <a href="{{ route($dashboardRoute) }}" class="flex items-center gap-3">
- <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shrink-0">
- <span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">school</span>
+ <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+ <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">school</span>
  </div>
  <div>
- <h1 class="text-xl font-bold tracking-tight text-primary font-headline">PBL Workspace</h1>
- <p class="text-[0.6875rem] font-label text-on-surface-variant tracking-wider uppercase">Pembelajaran Berbasis Proyek</p>
+ <h1 class="text-xl font-bold tracking-tight text-blue-700 font-headline">PBL Workspace</h1>
+ <p class="text-[0.6875rem] font-label text-on-surface-variant tracking-wider uppercase">Project-Based Learning</p>
  </div>
  </a>
-
+ 
  <!-- Mobile Close Button -->
- <button @click="open = false" class="lg:hidden ml-auto text-on-surface-variant hover:text-on-surface focus:outline-none transition-colors">
+ <button @click="open = false" class="lg:hidden ml-auto text-slate-400 hover:text-slate-600:text-slate-300 focus:outline-none">
  <span class="material-symbols-outlined">close</span>
  </button>
  </div>
@@ -28,30 +28,29 @@
  <!-- Navigation -->
  <nav class="flex-1 space-y-1">
  @php
- $activeClass = 'flex items-center gap-3 px-4 py-3 text-primary font-bold bg-primary/5 border-r-4 border-secondary transition-all rounded-l-xl';
- $inactiveClass = 'flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200 rounded-xl';
- $sectionLabelClass = 'pt-6 pb-2 pl-4 pr-3 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-widest';
+ $activeClass = 'flex items-center gap-3 px-4 py-3 text-blue-700 font-bold border-r-4 border-emerald-500 bg-blue-50 transition-all rounded-l-lg';
+ $inactiveClass = 'flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-blue-600 hover:bg-slate-200/50:bg-slate-800 transition-colors duration-200 rounded-lg';
  @endphp
  @auth
  @if(auth()->user()->role === 'admin')
  <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.dashboard')) style="font-variation-settings: 'FILL' 1;" @endif>dashboard</span>
- <span class="text-sm font-body">Dasbor</span>
+ <span class="text-sm font-body">Dashboard</span>
  </a>
-
- <div class="{{ $sectionLabelClass }}">Manajemen</div>
-
+ 
+ <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Manajemen</div>
+ 
  <a href="{{ route('admin.grades.index') }}" class="{{ request()->routeIs('admin.grades.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.grades.*')) style="font-variation-settings: 'FILL' 1;" @endif>grade</span>
  <span class="text-sm font-body">Manajemen Nilai</span>
  </a>
  <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.users.*')) style="font-variation-settings: 'FILL' 1;" @endif>group</span>
- <span class="text-sm font-body">Pengguna</span>
+ <span class="text-sm font-body">Users</span>
  </a>
  <a href="{{ route('admin.courses.index') }}" class="{{ request()->routeIs('admin.courses.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.courses.*')) style="font-variation-settings: 'FILL' 1;" @endif>auto_stories</span>
- <span class="text-sm font-body">Mata Kuliah</span>
+ <span class="text-sm font-body">Courses</span>
  </a>
  <a href="{{ route('admin.academic-years.index') }}" class="{{ request()->routeIs('admin.academic-years.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.academic-years.*')) style="font-variation-settings: 'FILL' 1;" @endif>calendar_today</span>
@@ -65,22 +64,22 @@
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.hierarchy.*')) style="font-variation-settings: 'FILL' 1;" @endif>account_tree</span>
  <span class="text-sm font-body">Data Akademik</span>
  </a>
-
+ 
  @elseif(auth()->user()->role === 'dosen')
  <a href="{{ route('dosen.dashboard') }}" class="{{ request()->routeIs('dosen.dashboard') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('dosen.dashboard')) style="font-variation-settings: 'FILL' 1;" @endif>dashboard</span>
- <span class="text-sm font-body">Dasbor</span>
+ <span class="text-sm font-body">Dashboard</span>
  </a>
-
- <div class="{{ $sectionLabelClass }}">Manajemen</div>
-
+ 
+ <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Manajemen</div>
+ 
  <a href="{{ route('dosen.grades.index') }}" class="{{ request()->routeIs('dosen.grades.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('dosen.grades.*')) style="font-variation-settings: 'FILL' 1;" @endif>grade</span>
  <span class="text-sm font-body">Manajemen Nilai</span>
  </a>
-
- <div class="{{ $sectionLabelClass }}">Materi & Tugas</div>
-
+ 
+ <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Materi & Tugas</div>
+ 
  @if(isset($dosenCourses) && $dosenCourses->count() > 0)
  <div class="space-y-3 pb-2">
  @foreach($dosenCourses as $course)
@@ -93,7 +92,7 @@
  <span class="material-symbols-outlined text-primary text-base">book</span>
  <span class="truncate pr-2">{{ Str::limit($course->nama_matkul, 24) }}</span>
  </div>
-
+ 
  <div class="mt-1 ml-4 space-y-0.5 border-l-2 border-outline-variant/30 pl-3">
  <a href="{{ route('dosen.materials.index', $course) }}" class="{{ request()->routeIs('dosen.materials.*') && $reqCourseId == $course->id ? $activeClass : $inactiveClass }} !py-2 !text-xs">
  <span class="material-symbols-outlined text-base">description</span>
@@ -112,20 +111,20 @@
  @endforeach
  </div>
  @else
- <div class="px-4 py-2 text-xs text-on-surface-variant flex items-center gap-2">
+ <div class="px-4 py-2 text-xs text-slate-400 flex items-center gap-2">
  <span class="material-symbols-outlined text-sm">info</span>
  Belum ada mata kuliah
  </div>
  @endif
-
+ 
  @elseif(auth()->user()->role === 'mahasiswa')
  <a href="{{ route('mahasiswa.dashboard') }}" class="{{ request()->routeIs('mahasiswa.dashboard') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('mahasiswa.dashboard')) style="font-variation-settings: 'FILL' 1;" @endif>dashboard</span>
- <span class="text-sm font-body">Dasbor</span>
+ <span class="text-sm font-body">Dashboard</span>
  </a>
-
- <div class="{{ $sectionLabelClass }}">Pembelajaran</div>
-
+ 
+ <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Learning</div>
+ 
  <a href="{{ route('mahasiswa.grades.index') }}" class="{{ request()->routeIs('mahasiswa.grades.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('mahasiswa.grades.*')) style="font-variation-settings: 'FILL' 1;" @endif>grade</span>
  <span class="text-sm font-body">Nilai Saya</span>
@@ -146,9 +145,9 @@
  @endif
  @endif
  @endauth
-
- <div class="{{ $sectionLabelClass }}">Komunitas</div>
-
+ 
+ <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Community</div>
+ 
  <a href="{{ route('discussions.index') }}" class="{{ request()->routeIs('discussions.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('discussions.*')) style="font-variation-settings: 'FILL' 1;" @endif>forum</span>
  <span class="text-sm font-body">Forum Diskusi</span>
@@ -159,10 +158,10 @@
  </a>
  </nav>
 
- <!-- Bottom Section: Profil Pengguna + Aksi -->
- <div class="mt-auto pt-6 border-t border-outline-variant/20 space-y-4">
+ <!-- Bottom Section: User Profile + Actions -->
+ <div class="mt-auto pt-6 border-t border-slate-200/50 space-y-4">
  <div class="flex items-center gap-3">
- <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary text-sm shrink-0">
+ <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary text-sm">
  {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
  </div>
  <div class="flex-1 min-w-0">
@@ -174,19 +173,20 @@
  </p>
  </div>
  </div>
-
+ 
  <div class="space-y-1">
- <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-primary transition-colors rounded-xl hover:bg-surface-container">
+ <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-primary transition-colors rounded-lg hover:bg-slate-100:bg-slate-800">
  <span class="material-symbols-outlined text-sm">person</span>
- <span class="text-xs font-label font-medium">Profil Saya</span>
+ <span class="text-xs font-label font-medium">Profile</span>
  </a>
  <form method="POST" action="{{ route('logout') }}" class="w-full">
  @csrf
- <button type="submit" class="w-full flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:text-error transition-colors rounded-xl hover:bg-error/5">
+ <button type="submit" class="w-full flex items-center gap-3 px-4 py-2 text-slate-500 hover:text-error transition-colors rounded-lg hover:bg-red-50:bg-red-900/10">
  <span class="material-symbols-outlined text-sm">logout</span>
- <span class="text-xs font-label font-medium">Keluar</span>
+ <span class="text-xs font-label font-medium">Logout</span>
  </button>
  </form>
  </div>
  </div>
 </aside>
+

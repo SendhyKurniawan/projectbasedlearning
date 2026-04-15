@@ -5,7 +5,7 @@
             <nav class="inline-flex items-center gap-2 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-[0.2em] mb-4 ">
                 <span>Hasil Evaluasi</span>
                 <span class="material-symbols-outlined text-[12px]">chevron_right</span>
-                <span class="text-primary">{{ $quiz->title }}</span>
+                <span class="text-primary">{{ $assignment->title }}</span>
             </nav>
             <h1 class="text-4xl font-headline font-black text-on-surface uppercase tracking-tighter leading-tight">Analisis Performa</h1>
             <p class="text-on-surface-variant body-md mt-2 opacity-80">Tinjau kembali jawaban anda untuk memperdalam pemahaman materi.</p>
