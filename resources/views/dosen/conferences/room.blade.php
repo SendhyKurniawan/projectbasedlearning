@@ -222,11 +222,33 @@
 
         <!-- Side Panel -->
         <div id="side-panel-wrapper" class="panel-hidden">
-            <!-- Chat Panel -->
-            <div id="panel-chat" class="panel-hidden flex-col h-full">
+            <!-- Participants Panel -->
+            <div id="panel-participants" class="panel-hidden flex-col flex-1 min-h-[50%] border-b border-outline-variant/10">
                 <div class="panel-header bg-surface-container-lowest">
+                    <h3 class="font-headline font-bold text-on-surface text-lg">Peserta (<span id="panel-participant-total">1</span>)</h3>
+                    <button onclick="ConferenceUI.closePanel('participants')" class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md hover:bg-surface-container">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="p-4 bg-surface-container-lowest border-b border-outline-variant/10">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                        <input type="text" id="participant-search" placeholder="Cari mahasiswa..." class="w-full bg-surface-container border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary" oninput="ConferenceUI.renderParticipants()">
+                    </div>
+                </div>
+                <div id="participants-list" class="flex-1 overflow-y-auto p-2 bg-surface"></div>
+                <div id="participants-footer" class="p-4 bg-surface-container-lowest border-t border-outline-variant/10">
+                    <button onclick="ConferenceUI.copyLink()" class="w-full py-2.5 bg-surface-container hover:bg-surface-variant rounded-xl text-sm font-bold flex justify-center items-center gap-2 border border-outline-variant/20 transition-all text-on-surface">
+                        <span class="material-symbols-outlined text-[18px]">link</span> <span id="copy-link-text">Salin Undangan Rapat</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Panel -->
+            <div id="panel-chat" class="panel-hidden flex-col flex-1 min-h-[50%]">
+                <div class="panel-header bg-surface-container-lowest border-t border-outline-variant/10">
                     <h3 class="font-headline font-bold text-on-surface text-lg">Live Discussion</h3>
-                    <button onclick="ConferenceUI.closePanel()" class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md hover:bg-surface-container">
+                    <button onclick="ConferenceUI.closePanel('chat')" class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md hover:bg-surface-container">
                         <span class="material-symbols-outlined">close</span>
                     </button>
                 </div>
@@ -246,28 +268,6 @@
                             @endforeach
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Participants Panel -->
-            <div id="panel-participants" class="panel-hidden flex-col h-full">
-                <div class="panel-header bg-surface-container-lowest">
-                    <h3 class="font-headline font-bold text-on-surface text-lg">Peserta (<span id="panel-participant-total">1</span>)</h3>
-                    <button onclick="ConferenceUI.closePanel()" class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md hover:bg-surface-container">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                </div>
-                <div class="p-4 bg-surface-container-lowest border-b border-outline-variant/10">
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-                        <input type="text" id="participant-search" placeholder="Cari mahasiswa..." class="w-full bg-surface-container border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary" oninput="ConferenceUI.renderParticipants()">
-                    </div>
-                </div>
-                <div id="participants-list" class="flex-1 overflow-y-auto p-2 bg-surface"></div>
-                <div id="participants-footer" class="p-4 bg-surface-container-lowest border-t border-outline-variant/10">
-                    <button onclick="ConferenceUI.copyLink()" class="w-full py-2.5 bg-surface-container hover:bg-surface-variant rounded-xl text-sm font-bold flex justify-center items-center gap-2 border border-outline-variant/20 transition-all text-on-surface">
-                        <span class="material-symbols-outlined text-[18px]">link</span> <span id="copy-link-text">Salin Undangan Rapat</span>
-                    </button>
                 </div>
             </div>
         </div>

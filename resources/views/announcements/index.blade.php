@@ -40,6 +40,13 @@
  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
  Target: {{ ucfirst($announcement->target_audience) }}
  </span>
+ @if($announcement->hasAttachment())
+ <span class="mx-2 text-outline">|</span>
+ <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+ <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 10-5.656-5.656L5.172 10.93a6 6 0 108.485 8.485L20 13.07"/></svg>
+ {{ $announcement->attachmentIsImage() ? 'Gambar' : ($announcement->attachmentIsPdf() ? 'PDF' : 'Lampiran') }}
+ </span>
+ @endif
  </div>
 
  <p class="text-on-surface-variant">

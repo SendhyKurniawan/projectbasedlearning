@@ -21,6 +21,10 @@
                     <span class="material-symbols-outlined">arrow_back</span>
                     Dashboard
                 </a>
+                <a href="{{ route('dosen.exercises.create', $course) }}" class="flex items-center gap-2 px-6 py-3 bg-white border border-outline-variant/30 text-on-surface rounded-xl font-bold hover:shadow-md transition-all text-sm">
+                    <span class="material-symbols-outlined">code</span>
+                    Tambah Latihan Kode
+                </a>
                 <a href="{{ route('dosen.assignments.create', $course) }}" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-secondary to-on-secondary-container text-white rounded-xl font-bold shadow-lg shadow-secondary/20 hover:scale-105 transition-all text-sm">
                     <span class="material-symbols-outlined">add_task</span>
                     Buat Baru

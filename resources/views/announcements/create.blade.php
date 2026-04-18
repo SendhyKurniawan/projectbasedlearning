@@ -14,7 +14,7 @@
  <div class="max-w-4xl mx-auto ">
  <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
  <div class="p-6 text-on-surface">
- <form method="POST" action="{{ route('announcements.store') }}">
+ <form method="POST" action="{{ route('announcements.store') }}" enctype="multipart/form-data">
  @csrf
 
  <!-- Title -->
@@ -56,6 +56,15 @@
  <x-input-label for="content" :value="__('Isi Pengumuman')" />
  <textarea id="content" name="content" rows="8" class="border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full" required>{{ old('content') }}</textarea>
  <x-input-error :messages="$errors->get('content')" class="mt-2" />
+ </div>
+
+ <!-- Attachment -->
+ <div class="mb-4">
+ <x-input-label for="attachment" :value="__('Lampiran (Gambar atau PDF, opsional)')" />
+ <input id="attachment" name="attachment" type="file" accept="image/*,application/pdf"
+ class="block mt-1 w-full text-sm text-on-surface file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+ <p class="mt-1 text-xs text-on-surface-variant">Format yang diizinkan: JPG, JPEG, PNG, GIF, WEBP, atau PDF. Maksimal 10 MB.</p>
+ <x-input-error :messages="$errors->get('attachment')" class="mt-2" />
  </div>
 
  <div class="flex items-center justify-end mt-4 text-right">

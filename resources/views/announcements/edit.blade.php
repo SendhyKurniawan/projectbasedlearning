@@ -14,7 +14,7 @@
  <div class="max-w-4xl mx-auto ">
  <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
  <div class="p-6 text-on-surface">
- <form method="POST" action="{{ route('announcements.update', $announcement) }}">
+ <form method="POST" action="{{ route('announcements.update', $announcement) }}" enctype="multipart/form-data">
  @csrf
  @method('PUT')
 
@@ -65,6 +65,42 @@
  <x-input-label for="content" :value="__('Isi Pengumuman')" />
  <textarea id="content" name="content" rows="8" class="border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full" required>{{ old('content', $announcement->content) }}</textarea>
  <x-input-error :messages="$errors->get('content')" class="mt-2" />
+ </div>
+
+ <!-- Attachment -->
+ <div class="mb-4">
+ <x-input-label for="attachment" :value="__('Lampiran (Gambar atau PDF, opsional)')" />
+
+ @if($announcement->hasAttachment())
+ <div class="mt-2 mb-2 p-3 rounded-md border border-outline-variant/30 bg-surface-container-low/30 flex items-center justify-between gap-3">
+ <div class="flex items-center gap-3 min-w-0">
+ @if($announcement->attachmentIsImage())
+ <img src="{{ Storage::url($announcement->attachment_path) }}" alt="Lampiran saat ini" class="h-12 w-12 object-cover rounded" />
+ @else
+ <span class="inline-flex items-center justify-center h-12 w-12 rounded bg-primary/10 text-primary font-bold">PDF</span>
+ @endif
+ <div class="min-w-0">
+ <p class="text-sm text-on-surface truncate">{{ $announcement->attachment_name }}</p>
+ <a href="{{ Storage::url($announcement->attachment_path) }}" target="_blank" rel="noopener" class="text-xs text-primary hover:underline">Lihat lampiran saat ini</a>
+ </div>
+ </div>
+ <label class="flex items-center gap-2 text-sm text-on-surface-variant whitespace-nowrap">
+ <input type="checkbox" name="remove_attachment" value="1" class="rounded border-outline-variant/30 text-error shadow-sm focus:ring focus:ring-error/20" />
+ Hapus lampiran
+ </label>
+ </div>
+ @endif
+
+ <input id="attachment" name="attachment" type="file" accept="image/*,application/pdf"
+ class="block mt-1 w-full text-sm text-on-surface file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20" />
+ <p class="mt-1 text-xs text-on-surface-variant">
+ @if($announcement->hasAttachment())
+ Mengunggah file baru akan mengganti lampiran saat ini.
+ @else
+ Format yang diizinkan: JPG, JPEG, PNG, GIF, WEBP, atau PDF. Maksimal 10 MB.
+ @endif
+ </p>
+ <x-input-error :messages="$errors->get('attachment')" class="mt-2" />
  </div>
 
  <div class="flex items-center justify-end mt-4 text-right">

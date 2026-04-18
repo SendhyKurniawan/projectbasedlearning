@@ -131,6 +131,12 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::post('/conferences/{conference}/end', [Dosen\ConferenceController::class, 'end'])->name('conferences.end');
     Route::get('/conferences/{conference}/room', [Dosen\ConferenceController::class, 'room'])->name('conferences.room');
     Route::get('/conferences/{conference}/token', [Dosen\ConferenceController::class, 'token'])->name('conferences.token');
+
+    // Code Exercise CRUD (dedicated flow for exercise_config fields)
+    Route::get('/courses/{course}/exercises/create', [Dosen\ExerciseController::class, 'create'])->name('exercises.create');
+    Route::post('/courses/{course}/exercises', [Dosen\ExerciseController::class, 'store'])->name('exercises.store');
+    Route::get('/exercises/{assignment}/edit', [Dosen\ExerciseController::class, 'edit'])->name('exercises.edit');
+    Route::put('/exercises/{assignment}', [Dosen\ExerciseController::class, 'update'])->name('exercises.update');
 });
 
 // Mahasiswa Routes
