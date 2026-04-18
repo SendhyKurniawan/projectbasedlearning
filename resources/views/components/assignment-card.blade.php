@@ -51,7 +51,7 @@
                 <span class="material-symbols-outlined text-[20px]">help_center</span>
             </a>
         @endif
-        <a href="{{ route('dosen.assignments.edit', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-all" title="Edit">
+        <a href="{{ $assignment->type === 'exercise' ? route('dosen.exercises.edit', $assignment) : route('dosen.assignments.edit', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-all" title="Edit">
             <span class="material-symbols-outlined text-[20px]">edit</span>
         </a>
         <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="flex-[3] md:flex-none flex justify-center items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary font-bold text-sm rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm group/btn">

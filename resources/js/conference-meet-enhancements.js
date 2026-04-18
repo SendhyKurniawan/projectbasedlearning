@@ -1,4 +1,4 @@
-﻿const safeEscape = (value) => String(value)
+const safeEscape = (value) => String(value)
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
@@ -97,21 +97,21 @@ function applyMeetEnhancements() {
                 ? '<span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-[#202124]"></span>'
                 : '';
             const pinButton = !p.isMe
-                ? `<button type="button" data-pin-id="${encodeURIComponent(p.identity)}" class="meet-pin-btn text-[11px] px-2 py-1 rounded-md border border-white/15 text-gray-200 hover:bg-white/10 transition">${ConferenceUI.pinnedId === p.identity ? 'Lepas Sematkan' : 'Sematkan'}</button>`
+                ? `<button type="button" data-pin-id="${encodeURIComponent(p.identity)}" class="meet-pin-btn text-[11px] px-2 py-1 rounded-md border border-outline-variant/50 text-on-surface-variant hover:bg-surface-container transition">${ConferenceUI.pinnedId === p.identity ? 'Lepas Sematkan' : 'Sematkan'}</button>`
                 : '';
 
             return `
-                <div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/5 transition-colors">
+                <div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-surface-container transition-colors">
                     <div class="relative shrink-0">
                         <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-semibold" style="background:${p.color};${speakingRing}">${safeEscape((p.name || '').split(' ').slice(0, 2).map((n) => n[0]?.toUpperCase() || '').join(''))}</div>
                         ${speakingDot}
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-1.5">
-                            ${p.isHost ? '<svg class="w-3 h-3 text-yellow-400 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7-2h8.6l.9-4.8-2.9 2.9L12 8.4l-2.3 3.7-2.9-2.9.9 4.8z"/></svg>' : ''}
-                            <span class="text-white text-sm truncate">${safeEscape(p.name || '')}${p.isMe ? '<span class="text-gray-400 ml-1">(Anda)</span>' : ''}</span>
+                            ${p.isHost ? '<svg class="w-3 h-3 text-yellow-600 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7-2h8.6l.9-4.8-2.9 2.9L12 8.4l-2.3 3.7-2.9-2.9.9 4.8z"/></svg>' : ''}
+                            <span class="text-on-surface text-sm truncate max-w-[120px] lg:max-w-[180px]">${safeEscape(p.name || '')}${p.isMe ? '<span class="text-on-surface-variant ml-1">(Anda)</span>' : ''}</span>
                         </div>
-                        ${p.isHandRaised ? '<p class="text-xs text-yellow-400">✋ Tangan terangkat</p>' : ''}
+                        ${p.isHandRaised ? '<p class="text-xs text-yellow-600">✋ Tangan terangkat</p>' : ''}
                     </div>
                     ${pinButton}
                 </div>`;
@@ -119,21 +119,21 @@ function applyMeetEnhancements() {
 
         let html = '';
         if (hosts.length) {
-            html += `<p class="text-xs text-gray-500 px-2 py-1 uppercase tracking-wider">Host (${hosts.length})</p>`;
+            html += `<p class="text-xs text-on-surface-variant px-2 py-1 uppercase tracking-wider">Host (${hosts.length})</p>`;
             hosts.forEach((p) => {
                 html += row(p);
             });
         }
 
         if (guests.length) {
-            html += `<p class="text-xs text-gray-500 px-2 py-1 uppercase tracking-wider mt-2">Peserta (${guests.length})</p>`;
+            html += `<p class="text-xs text-on-surface-variant px-2 py-1 uppercase tracking-wider mt-2">Peserta (${guests.length})</p>`;
             guests.forEach((p) => {
                 html += row(p);
             });
         }
 
         if (!ordered.length) {
-            html = '<div class="text-center text-gray-500 text-sm py-8">Tidak ada peserta ditemukan</div>';
+            html = '<div class="text-center text-on-surface-variant text-sm py-8">Tidak ada peserta ditemukan</div>';
         }
 
         list.innerHTML = html;
@@ -152,10 +152,12 @@ function applyMeetEnhancements() {
         const footer = document.getElementById('participants-footer');
         if (footer) {
             footer.innerHTML = `
-                <div class="text-center"><p class="text-white font-medium">${total}</p><p class="text-gray-500 text-xs">Peserta</p></div>
-                <div class="text-center"><p class="text-white font-medium">${micActive}</p><p class="text-gray-500 text-xs">Mik aktif</p></div>
-                <div class="text-center"><p class="text-white font-medium">${vidActive}</p><p class="text-gray-500 text-xs">Video aktif</p></div>
-                <div class="text-center"><p class="text-white font-medium">${hands}</p><p class="text-gray-500 text-xs">Tangan</p></div>`;
+                <div class="grid grid-cols-4 gap-2 w-full">
+                    <div class="text-center"><p class="text-on-surface font-medium">${total}</p><p class="text-on-surface-variant text-xs">Peserta</p></div>
+                    <div class="text-center"><p class="text-on-surface font-medium">${micActive}</p><p class="text-on-surface-variant text-xs">Mik aktif</p></div>
+                    <div class="text-center"><p class="text-on-surface font-medium">${vidActive}</p><p class="text-on-surface-variant text-xs">Video aktif</p></div>
+                    <div class="text-center"><p class="text-on-surface font-medium">${hands}</p><p class="text-on-surface-variant text-xs">Tangan</p></div>
+                </div>`;
         }
     };
 
