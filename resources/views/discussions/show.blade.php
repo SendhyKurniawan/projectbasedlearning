@@ -22,7 +22,7 @@
  <div class="flex items-center mb-4">
  <div class="mr-3">
  <!-- Avatar Placeholder -->
- <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+ <div class="h-10 w-10 rounded-full bg-surface-container flex items-center justify-center">
  {{ substr($discussion->user->name, 0, 1) }}
  </div>
  </div>
@@ -42,7 +42,7 @@
  <form action="{{ route('discussions.destroy', $discussion) }}" method="POST" class="inline">
  @csrf
  @method('DELETE')
- <button type="submit" class="text-error hover:text-red-700 text-sm" onclick="return confirm('Hapus diskusi ini?')">Hapus</button>
+ <button type="submit" class="text-error hover:text-error/80 text-sm" onclick="return confirm('Hapus diskusi ini?')">Hapus</button>
  </form>
  </div>
  @endif
@@ -58,7 +58,7 @@
  <div class="mb-4 pb-4 border-b border-surface-container-low last:border-0 last:pb-0">
  <div class="flex items-start">
  <div class="mr-3 flex-shrink-0">
- <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-sm">
+ <div class="h-8 w-8 rounded-full bg-surface-container flex items-center justify-center text-sm">
  {{ substr($comment->user->name, 0, 1) }}
  </div>
  </div>

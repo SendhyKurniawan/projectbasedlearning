@@ -36,13 +36,13 @@
  <p class="text-sm mt-2 text-on-surface">
  {{ __('Your email address is unverified.') }}
 
- <button form="send-verification" class="underline text-sm text-on-surface-variant hover:text-on-surface rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/20:ring-offset-gray-800">
+ <button form="send-verification" class="underline text-sm text-on-surface-variant hover:text-on-surface rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary/20">
  {{ __('Click here to re-send the verification email.') }}
  </button>
  </p>
 
  @if (session('status') === 'verification-link-sent')
- <p class="mt-2 font-medium text-sm text-green-600">
+ <p class="mt-2 font-medium text-sm text-secondary">
  {{ __('A new verification link has been sent to your email address.') }}
  </p>
  @endif
@@ -58,7 +58,7 @@
  </div>
  
  @if($user->studentClass)
- <div class="mt-4 p-4 bg-surface-container-low/50/50 rounded-lg border border-surface-container-low">
+ <div class="mt-4 p-4 bg-surface-container-low/50 rounded-lg border border-surface-container-low">
  <h3 class="text-sm font-medium text-on-surface mb-3">{{ __('Informasi Akademik') }}</h3>
  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
  <div>

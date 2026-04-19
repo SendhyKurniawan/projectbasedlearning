@@ -1,0 +1,52 @@
+
+    .dosen-welcome {
+        @apply bg-surface-container-lowest rounded-2xl p-6 mb-6 shadow-ambient;
+    }
+
+    .dosen-welcome-name {
+        @apply font-headline text-2xl font-bold text-on-surface;
+    }
+
+    .dosen-welcome-sub {
+        @apply text-on-surface-variant mt-1;
+    }
+
+    .dosen-course-card {
+        @apply bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/20 hover:shadow-ambient transition-shadow;
+    }
+
+    .dosen-course-title {
+        @apply font-medium text-on-surface;
+    }
+
+    .dosen-course-code {
+        @apply text-xs font-mono text-on-surface-variant;
+    }
+
+    .dosen-course-student-count {
+        @apply inline-flex items-center gap-1 text-xs text-secondary mt-2;
+    }
+
+    .dosen-upcoming-item {
+        @apply flex items-start gap-3 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .dosen-upcoming-date {
+        @apply flex-shrink-0 w-10 text-center;
+    }
+
+    .dosen-upcoming-date-day {
+        @apply font-headline font-bold text-lg text-primary;
+    }
+
+    .dosen-upcoming-date-month {
+        @apply text-xs text-on-surface-variant uppercase;
+    }
+
+    .dosen-upcoming-title {
+        @apply font-medium text-on-surface;
+    }
+
+    .dosen-upcoming-meta {
+        @apply text-xs text-on-surface-variant mt-0.5;
+    }

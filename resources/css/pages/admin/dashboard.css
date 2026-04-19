@@ -1,0 +1,56 @@
+
+    .admin-welcome-banner {
+        @apply bg-surface-container-lowest rounded-2xl p-6 mb-6 flex items-center gap-4 shadow-ambient;
+    }
+
+    .admin-welcome-avatar {
+        @apply w-14 h-14 rounded-full flex items-center justify-center text-2xl font-bold flex-shrink-0;
+    }
+
+    .admin-welcome-name {
+        @apply font-headline text-xl font-bold text-on-surface;
+    }
+
+    .admin-welcome-role {
+        @apply text-sm text-on-surface-variant;
+    }
+
+    .admin-quick-stat {
+        @apply bg-surface-container-lowest rounded-xl p-4 flex items-center gap-3;
+    }
+
+    .admin-quick-stat-icon {
+        @apply w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0;
+    }
+
+    .admin-quick-stat-value {
+        @apply font-headline font-bold text-2xl text-on-surface;
+    }
+
+    .admin-quick-stat-label {
+        @apply text-xs text-on-surface-variant;
+    }
+
+    .admin-recent-table {
+        @apply w-full;
+    }
+
+    .admin-recent-row {
+        @apply flex items-center gap-3 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .admin-user-chip {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+    }
+
+    .admin-user-chip--admin {
+        @apply bg-error-container text-error;
+    }
+
+    .admin-user-chip--dosen {
+        @apply bg-primary-container text-primary;
+    }
+
+    .admin-user-chip--mahasiswa {
+        @apply bg-secondary-container text-secondary;
+    }

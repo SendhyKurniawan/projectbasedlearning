@@ -1,0 +1,52 @@
+
+    .question-bank-row {
+        @apply flex items-start gap-4 py-4 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .question-number {
+        @apply w-8 h-8 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center text-xs font-bold flex-shrink-0;
+    }
+
+    .question-text {
+        @apply text-on-surface font-medium;
+    }
+
+    .question-options-preview {
+        @apply mt-2 grid grid-cols-2 gap-1;
+    }
+
+    .question-option-chip {
+        @apply text-xs px-2 py-1 rounded bg-surface-container text-on-surface-variant truncate;
+    }
+
+    .question-option-chip--correct {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .question-type-tag {
+        @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-container text-primary;
+    }
+
+    .question-points-badge {
+        @apply inline-flex items-center gap-1 text-xs font-medium text-on-surface-variant;
+    }
+
+    .question-edit-panel {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient;
+    }
+
+    .question-options-editor {
+        @apply space-y-2 mt-3;
+    }
+
+    .question-option-row {
+        @apply flex items-center gap-3;
+    }
+
+    .question-option-letter {
+        @apply w-7 h-7 rounded-full border-2 border-outline-variant flex items-center justify-center text-xs font-bold text-on-surface-variant flex-shrink-0;
+    }
+
+    .question-option-letter--correct {
+        @apply border-secondary bg-secondary text-on-secondary;
+    }

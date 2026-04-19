@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/shared/profile.css')
+@endpush
 <x-app-layout>
  <div class="space-y-6">
  <h2 class="text-2xl font-extrabold text-on-surface tracking-tight font-headline">Profile</h2>

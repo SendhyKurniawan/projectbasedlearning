@@ -9,7 +9,7 @@
  {{ __('Manajemen Semester') }}
  </h2>
  </div>
- <a href="{{ route('admin.semesters.create') }}" class="px-4 py-2 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition ease-in-out duration-150">
+ <a href="{{ route('admin.semesters.create') }}" class="px-4 py-2 architectural-gradient text-on-primary text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition ease-in-out duration-150">
  Tambah Semester
  </a>
  </div>
@@ -43,11 +43,11 @@
  </td>
  <td class="px-6 py-4 whitespace-nowrap">
  @if($semester->is_active)
- <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+ <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-secondary-container text-secondary">
  Aktif
  </span>
  @else
- <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+ <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-error-container text-error">
  Tidak Aktif
  </span>
  @endif
@@ -57,7 +57,7 @@
  <form action="{{ route('admin.semesters.destroy', $semester) }}" method="POST" class="inline-block">
  @csrf
  @method('DELETE')
- <button type="submit" class="text-error hover:text-red-700" onclick="return confirm('Apakah Anda yakin ingin menghapus semester ini?')">Hapus</button>
+ <button type="submit" class="text-error hover:text-error/80" onclick="return confirm('Apakah Anda yakin ingin menghapus semester ini?')">Hapus</button>
  </form>
  </td>
  </tr>

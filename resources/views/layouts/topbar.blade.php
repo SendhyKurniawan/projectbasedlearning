@@ -9,6 +9,15 @@
 
  <!-- Right Actions -->
  <div class="flex items-center gap-3">
+ {{-- Dark mode toggle --}}
+ <button
+  onclick="(function(btn){var t=localStorage.getItem('theme')||'system';var next=t==='system'?'dark':t==='dark'?'light':'system';window.setTheme(next);btn.querySelector('.theme-icon').textContent=next==='dark'?'dark_mode':next==='light'?'light_mode':'contrast';})(this)"
+  class="p-2 rounded-xl text-on-surface-variant bg-surface-container-lowest hover:bg-surface-container-low focus:outline-none transition-colors"
+  title="Toggle dark mode"
+ >
+  <span class="material-symbols-outlined text-xl theme-icon">contrast</span>
+ </button>
+
  {{-- Notification Bell --}}
  @include('layouts.notifications')
 

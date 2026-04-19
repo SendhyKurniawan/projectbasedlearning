@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/dashboard.css')
+@endpush
 <x-app-layout>
     <div class="space-y-8">
         <!-- Page Header & Action -->
@@ -36,7 +39,7 @@
             </div>
 
             <!-- Gradient Card -->
-            <div class="md:col-span-2 bg-gradient-to-br from-slate-900 to-blue-900 text-white p-6 rounded-xl relative overflow-hidden shadow-xl">
+            <div class="md:col-span-2 bg-gradient-to-br from-on-surface to-primary text-on-primary p-6 rounded-xl relative overflow-hidden shadow-xl">
                 <div class="relative z-10">
                     <div class="flex justify-between items-center mb-6">
                         <span class="bg-tertiary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Ongoing</span>
@@ -48,7 +51,7 @@
                         <span class="text-white/70 text-sm">Active Tasks</span>
                     </div>
                     <div class="mt-8 flex gap-3">
-                        <a href="{{ route('dosen.grades.index') }}" class="bg-white text-blue-900 px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-secondary-container transition-colors inline-block">Grade Management</a>
+                        <a href="{{ route('dosen.grades.index') }}" class="bg-surface-container-lowest text-on-surface px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-secondary-container transition-colors inline-block">Grade Management</a>
                     </div>
                 </div>
                 <!-- Decorative background icon -->
@@ -74,28 +77,28 @@
                         </div>
                         
                         <div class="grid grid-cols-3 gap-2 my-6">
-                            <div class="bg-white/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
+                            <div class="bg-surface-container-lowest/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
                                 <p class="text-[10px] font-bold text-on-surface-variant uppercase">Students</p>
                                 <p class="font-bold text-on-surface">{{ $course->students_count }}</p>
                             </div>
-                            <div class="bg-white/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
+                            <div class="bg-surface-container-lowest/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
                                 <p class="text-[10px] font-bold text-on-surface-variant uppercase">Materials</p>
                                 <p class="font-bold text-on-surface">{{ $course->materials_count }}</p>
                             </div>
-                            <div class="bg-white/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
+                            <div class="bg-surface-container-lowest/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
                                 <p class="text-[10px] font-bold text-on-surface-variant uppercase">Tasks</p>
                                 <p class="font-bold text-on-surface">{{ $course->assignments_count }}</p>
                             </div>
                         </div>
                         
                         <div class="flex gap-2">
-                            <a href="{{ route('dosen.materials.index', $course) }}" class="flex-1 py-2 bg-white hover:bg-primary-fixed/20 text-primary text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
+                            <a href="{{ route('dosen.materials.index', $course) }}" class="flex-1 py-2 bg-surface-container-lowest hover:bg-primary-fixed/20 text-primary dark:text-primary-fixed-dim text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
                                 <span class="material-symbols-outlined text-[16px]">menu_book</span> Materials
                             </a>
-                            <a href="{{ route('dosen.assignments.index', $course) }}" class="flex-1 py-2 bg-white hover:bg-secondary-fixed/20 text-secondary text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
+                            <a href="{{ route('dosen.assignments.index', $course) }}" class="flex-1 py-2 bg-surface-container-lowest hover:bg-secondary-fixed/20 text-secondary dark:text-secondary-fixed-dim text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
                                 <span class="material-symbols-outlined text-[16px]">assignment</span> Assignments
                             </a>
-                            <a href="{{ route('dosen.conferences.index', $course) }}" class="flex-1 py-2 bg-white hover:bg-tertiary-fixed/20 text-tertiary text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
+                            <a href="{{ route('dosen.conferences.index', $course) }}" class="flex-1 py-2 bg-surface-container-lowest hover:bg-tertiary-fixed/20 text-tertiary dark:text-tertiary-fixed-dim text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
                                 <span class="material-symbols-outlined text-[16px]">videocam</span> Live Lab
                             </a>
                         </div>

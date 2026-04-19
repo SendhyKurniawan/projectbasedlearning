@@ -1,0 +1,36 @@
+
+    .debug-panel {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient;
+    }
+
+    .debug-panel-title {
+        @apply font-headline font-bold text-lg text-on-surface mb-4;
+    }
+
+    .debug-log {
+        @apply font-mono text-xs bg-surface-container-high rounded-xl p-4 max-h-96 overflow-y-auto;
+    }
+
+    .debug-log-entry {
+        @apply py-1 border-b border-outline-variant/20 last:border-0;
+    }
+
+    .debug-log-entry--success {
+        @apply text-secondary;
+    }
+
+    .debug-log-entry--error {
+        @apply text-error;
+    }
+
+    .debug-log-entry--info {
+        @apply text-on-surface-variant;
+    }
+
+    .debug-action-row {
+        @apply flex flex-wrap gap-3 mt-4;
+    }
+
+    .push-target-chip {
+        @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm bg-surface-container text-on-surface-variant;
+    }

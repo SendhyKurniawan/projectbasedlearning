@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/assignments.css')
+@endpush
 <x-app-layout>
  <x-slot name="header">
  <div class="flex justify-between items-center">
@@ -20,12 +23,12 @@
  <!-- Assignment Type -->
  <div class="mb-4">
  <label for="type" class="block text-sm font-medium text-on-surface-variant mb-2">
- Tipe Assignment <span class="text-red-500">*</span>
+ Tipe Assignment <span class="text-error">*</span>
  </label>
  <select name="type" 
  id="type" 
  x-model="type"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  required>
  <option value="tugas">Tugas (Upload File/Link)</option>
  <option value="quiz">Quiz (Pilihan Ganda)</option>
@@ -43,13 +46,13 @@
  <!-- Title -->
  <div class="mb-4">
  <label for="title" class="block text-sm font-medium text-on-surface-variant mb-2">
- Judul Tugas <span class="text-red-500">*</span>
+ Judul Tugas <span class="text-error">*</span>
  </label>
  <input type="text" 
  name="title" 
  id="title" 
  value="{{ old('title') }}"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  required>
  @error('title')
  <p class="text-error text-sm mt-1">{{ $message }}</p>
@@ -64,7 +67,7 @@
  <textarea name="description" 
  id="description" 
  rows="5"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  placeholder="Jelaskan detail tugas...">{{ old('description') }}</textarea>
  @error('description')
  <p class="text-error text-sm mt-1">{{ $message }}</p>
@@ -72,14 +75,14 @@
  </div>
 
  <!-- Tugas Specific Fields -->
- <div x-show="type === 'tugas'" class="mb-4 bg-surface-container-low/50/50 p-4 rounded-lg border border-surface-container-low">
+ <div x-show="type === 'tugas'" class="mb-4 bg-surface-container-low/50 p-4 rounded-lg border border-surface-container-low">
  <label for="submission_format" class="block text-sm font-medium text-on-surface-variant mb-2">
- Format Pengumpulan <span class="text-red-500">*</span>
+ Format Pengumpulan <span class="text-error">*</span>
  </label>
  <select name="submission_format" 
  id="submission_format" 
  x-model="submission_format"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  :required="type === 'tugas'"
  :disabled="type !== 'tugas'">
  <option value="pdf">File Upload (PDF, DOCX, ZIP, dll)</option>
@@ -98,10 +101,10 @@
  <div>
  <div class="flex items-center justify-between mb-2">
  <label for="duration_minutes" class="block text-sm font-medium text-on-surface-variant">
- Durasi (Menit) <span class="text-red-500" x-show="has_duration">*</span>
+ Durasi (Menit) <span class="text-error" x-show="has_duration">*</span>
  </label>
  <label class="inline-flex items-center cursor-pointer">
- <input type="checkbox" name="has_duration" value="true" class="w-4 h-4 text-blue-600 bg-surface-container-low border-outline-variant/30 rounded focus:ring-blue-500:ring-blue-600 focus:ring-2 " x-model="has_duration" :disabled="type !== 'quiz'">
+ <input type="checkbox" name="has_duration" value="true" class="w-4 h-4 text-primary dark:text-primary-fixed-dim bg-surface-container-low border-outline-variant/30 rounded focus:ring-primary focus:ring-2" x-model="has_duration" :disabled="type !== 'quiz'">
  <span class="ms-2 text-sm font-medium text-on-surface">Gunakan Batas Waktu</span>
  </label>
  </div>
@@ -110,7 +113,7 @@
  name="duration_minutes" 
  id="duration_minutes" 
  value="{{ old('duration_minutes') }}"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  :required="type === 'quiz' && has_duration"
  :disabled="type !== 'quiz' || !has_duration">
  @error('duration_minutes')
@@ -126,13 +129,13 @@
  <!-- Deadline -->
  <div class="mb-4">
  <label for="deadline" class="block text-sm font-medium text-on-surface-variant mb-2">
- Deadline <span class="text-red-500">*</span>
+ Deadline <span class="text-error">*</span>
  </label>
  <input type="datetime-local" 
  name="deadline" 
  id="deadline" 
  value="{{ old('deadline') }}"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  required>
  @error('deadline')
  <p class="text-error text-sm mt-1">{{ $message }}</p>
@@ -142,7 +145,7 @@
  <!-- Max Score -->
  <div class="mb-6">
  <label for="max_score" class="block text-sm font-medium text-on-surface-variant mb-2">
- Nilai Maksimal <span class="text-red-500">*</span>
+ Nilai Maksimal <span class="text-error">*</span>
  </label>
  <input type="number" 
  name="max_score" 
@@ -150,7 +153,7 @@
  value="{{ old('max_score', 100) }}"
  min="1"
  max="100"
- class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  required>
  @error('max_score')
  <p class="text-error text-sm mt-1">{{ $message }}</p>
@@ -160,11 +163,11 @@
  <!-- Submit Buttons -->
  <div class="flex gap-3">
  <button type="submit" 
- class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
+ class="bg-primary hover:bg-primary-hover text-on-primary px-6 py-2 rounded">
  Simpan Tugas
  </button>
  <a href="{{ route('dosen.assignments.index', $course) }}"
- class="bg-gray-600 hover:bg-surface-container-high text-white px-6 py-2 rounded">
+ class="bg-surface-container hover:bg-surface-container-high text-on-surface px-6 py-2 rounded">
  Batal
  </a>
  </div>

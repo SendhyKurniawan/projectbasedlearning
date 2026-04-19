@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/exercises.css')
+@endpush
 <x-app-layout>
     @vite(['resources/js/code-editor.js'])
     
@@ -5,7 +8,7 @@
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-white border border-outline-variant/30 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-on-surface">
+                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </a>
                 <div>
@@ -60,7 +63,7 @@
                             </label>
                             <div class="relative">
                                 <select name="exercise_language" id="exercise_language" required
-                                    class="w-full bg-white border border-outline-variant/30 rounded-xl pl-4 pr-10 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl pl-4 pr-10 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
                                     <option value="htmlmixed" {{ old('exercise_language') === 'htmlmixed' ? 'selected' : '' }}>HTML (Mixed)</option>
                                     <option value="html" {{ old('exercise_language') === 'html' ? 'selected' : '' }}>HTML Only</option>
                                     <option value="css" {{ old('exercise_language') === 'css' ? 'selected' : '' }}>CSS</option>
@@ -75,7 +78,7 @@
                                 Tenggat Waktu (Deadline) <span class="text-error">*</span>
                             </label>
                             <input type="datetime-local" name="deadline" id="deadline" value="{{ old('deadline') }}" required
-                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
+                                class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
                         </div>
 
                         <!-- Max Score -->
@@ -84,7 +87,7 @@
                                 Nilai Maksimum <span class="text-error">*</span>
                             </label>
                             <input type="number" name="max_score" id="max_score" value="{{ old('max_score', 100) }}" min="1" max="100" required
-                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
+                                class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
                         </div>
                     </div>
 
@@ -114,7 +117,7 @@
                         <div class="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface shadow-sm focus-within:ring-2 focus-within:ring-primary transition-shadow">
                             <div class="bg-surface-container-low px-4 py-2 border-b border-outline-variant/20 flex justify-between items-center">
                                 <label class="text-xs font-bold uppercase tracking-widest text-on-surface flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-[16px] text-emerald-600">verified</span> Referensi Solusi Kode (Opsional)
+                                    <span class="material-symbols-outlined text-[16px] text-secondary">verified</span> Referensi Solusi Kode (Opsional)
                                 </label>
                                 <span class="text-[10px] text-on-surface-variant font-medium">Hanya untuk referensi Dosen</span>
                             </div>
@@ -130,7 +133,7 @@
                                 Kata Kunci Wajib (Auto-grading)
                             </label>
                             <input type="text" name="required_keywords" id="required_keywords" value="{{ old('required_keywords') }}"
-                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary shadow-inner"
+                                class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary shadow-inner"
                                 placeholder="Contoh: <h1>, <p>, <div>, class=, id=">
                             <p class="text-[10px] font-medium text-on-surface-variant mt-2 flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[12px]">info</span> Pisahkan dengan koma. (Contoh: header, footer)
@@ -143,7 +146,7 @@
                                 Petunjuk Mahasiswa (Hints)
                             </label>
                             <textarea name="hints" id="hints" rows="3"
-                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary shadow-inner"
+                                class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary shadow-inner"
                                 placeholder="Tulis hints per baris&#10;Gunakan tag heading h1 untuk judul&#10;Jangan lupa closing tag">{{ old('hints') }}</textarea>
                             <p class="text-[10px] font-medium text-on-surface-variant mt-2 flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[12px]">info</span> Satu hint per baris pengetikan
@@ -154,7 +157,7 @@
                     <!-- Submit Buttons -->
                     <div class="pt-6 border-t border-outline-variant/20 flex justify-end gap-3">
                         <a href="{{ route('dosen.assignments.index', $course) }}" class="px-6 py-3 border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl hover:bg-surface-container transition-colors text-center">Batal</a>
-                        <button type="submit" class="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
+                        <button type="submit" class="px-8 py-3 bg-primary hover:bg-primary/90 text-on-primary font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
                             <span class="material-symbols-outlined text-[20px]">play_arrow</span> Simpan Latihan
                         </button>
                     </div>

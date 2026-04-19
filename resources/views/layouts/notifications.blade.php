@@ -37,11 +37,11 @@
  <span class="material-symbols-outlined text-lg">auto_stories</span>
  </div>
  @elseif(($notification->data['type'] ?? '') === 'submission')
- <div class="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-secondary">
+ <div class="w-9 h-9 rounded-full bg-secondary-container flex items-center justify-center text-secondary">
  <span class="material-symbols-outlined text-lg">check_circle</span>
  </div>
  @elseif(($notification->data['type'] ?? '') === 'announcement')
- <div class="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-700">
+ <div class="w-9 h-9 rounded-full bg-warning-light flex items-center justify-center text-on-warning">
  <span class="material-symbols-outlined text-lg">campaign</span>
  </div>
  @else

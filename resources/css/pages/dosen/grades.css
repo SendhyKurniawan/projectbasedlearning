@@ -1,0 +1,56 @@
+
+    .grades-course-selector {
+        @apply flex items-center gap-3 mb-6 flex-wrap;
+    }
+
+    .grades-course-chip {
+        @apply px-4 py-2 rounded-xl text-sm font-medium transition-colors cursor-pointer;
+    }
+
+    .grades-course-chip--active {
+        @apply bg-primary-container text-primary;
+    }
+
+    .grades-course-chip--inactive {
+        @apply bg-surface-container text-on-surface-variant hover:bg-surface-container-high;
+    }
+
+    .grades-summary-row {
+        @apply grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6;
+    }
+
+    .grades-summary-item {
+        @apply bg-surface-container-lowest rounded-xl p-4 text-center;
+    }
+
+    .grades-summary-value {
+        @apply font-headline font-bold text-2xl text-on-surface;
+    }
+
+    .grades-summary-label {
+        @apply text-xs text-on-surface-variant mt-1;
+    }
+
+    .grades-input-row {
+        @apply flex items-center gap-3 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .grades-student-name {
+        @apply font-medium text-on-surface flex-1;
+    }
+
+    .grades-score-input {
+        @apply w-20 text-center form-input;
+    }
+
+    .grades-total-score {
+        @apply font-headline font-bold text-lg text-on-surface w-16 text-center;
+    }
+
+    .grades-assignment-col {
+        @apply text-xs text-on-surface-variant text-center;
+    }
+
+    .grades-publish-btn {
+        @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary font-medium hover:bg-primary-hover transition-colors;
+    }

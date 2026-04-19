@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/mahasiswa/submission-upload.css')
+@endpush
 <x-app-layout>
     <div class="max-w-4xl mx-auto space-y-10">
         <!-- Header & Breadcrumbs -->
@@ -58,9 +61,9 @@
                     </div>
                 </div>
                 
-                <div class="p-6 bg-yellow-500/5 border border-yellow-500/20 rounded-[2rem] flex items-start gap-4">
-                    <span class="material-symbols-outlined text-yellow-600 mt-0.5">info</span>
-                    <p class="text-[11px] font-bold text-yellow-800 leading-relaxed ">Pastikan seluruh file atau tautan yang dikirimkan dapat diakses oleh dosen pengampu.</p>
+                <div class="p-6 bg-warning-light/30 border border-warning/20 rounded-[2rem] flex items-start gap-4">
+                    <span class="material-symbols-outlined text-warning mt-0.5">info</span>
+                    <p class="text-[11px] font-bold text-warning leading-relaxed ">Pastikan seluruh file atau tautan yang dikirimkan dapat diakses oleh dosen pengampu.</p>
                 </div>
             </div>
 

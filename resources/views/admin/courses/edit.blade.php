@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/admin/courses.css')
+@endpush
 <x-app-layout>
  <x-slot name="header">
  <div class="flex justify-between items-center">
@@ -14,7 +17,7 @@
  <div class="">
  
  @if(session('success'))
- <div class="px-5 py-4 bg-emerald-50 border-l-4 border-secondary text-secondary rounded-xl text-sm font-medium mb-6">
+ <div class="px-5 py-4 bg-secondary-container border-l-4 border-secondary text-secondary rounded-xl text-sm font-medium mb-6">
  {{ session('success') }}
  </div>
  @endif
@@ -108,7 +111,7 @@
 
  <div class="flex items-center justify-end mt-4">
  <a href="{{ route('admin.courses.index') }}" class="px-5 py-2.5 bg-surface-container-high text-on-surface-variant text-sm font-bold rounded-xl hover:bg-surface-container-highest transition-colors mr-3">Cancel</a>
- <button type="submit" class="px-5 py-2.5 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">Update Details</button>
+ <button type="submit" class="px-5 py-2.5 architectural-gradient text-on-primary text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">Update Details</button>
  </div>
  </form>
  </div>
@@ -159,7 +162,7 @@
  <form action="{{ route('admin.courses.unenroll', [$course, $student]) }}" method="POST" onsubmit="return confirm('Remove {{ $student->name }} from this course?');">
  @csrf
  @method('DELETE')
- <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-medium uppercase">Remove</button>
+ <button type="submit" class="text-error hover:text-error/80 text-xs font-medium uppercase">Remove</button>
  </form>
  </td>
  </tr>

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(sed -i '107s/text-primary bg-surface-container-low/text-primary dark:text-primary-fixed-dim bg-surface-container-low/' resources/views/dosen/assignments/create.blade.php)",
+      "Bash(sed -i '107s/text-primary bg-surface-container-low/text-primary dark:text-primary-fixed-dim bg-surface-container-low/' resources/views/dosen/assignments/edit.blade.php)",
+      "Bash(sed -i '78s/text-secondary border-outline-variant/text-secondary dark:text-secondary-fixed-dim border-outline-variant/' resources/views/dosen/assignments/questions/create.blade.php)",
+      "Bash(sed -i '82s/text-secondary border-outline-variant/text-secondary dark:text-secondary-fixed-dim border-outline-variant/' resources/views/dosen/assignments/questions/edit.blade.php)",
+      "Bash(node scripts/audit-contrast.mjs)",
+      "Bash(npm run *)",
+      "Bash(xargs grep *)"
+    ]
+  }
+}

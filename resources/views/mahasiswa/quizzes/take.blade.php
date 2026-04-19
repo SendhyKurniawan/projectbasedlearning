@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $duration = $quiz->duration_minutes ?? 0;
+        $duration = $assignment->duration_minutes ?? 0;
         $endTime = now()->addMinutes($duration)->getTimestamp();
     @endphp
 
@@ -12,7 +12,7 @@
                     <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">quiz</span>
                 </div>
                 <div>
-                    <h2 class="text-sm font-black text-on-surface uppercase tracking-tighter leading-none">{{ $quiz->title }}</h2>
+                    <h2 class="text-sm font-black text-on-surface uppercase tracking-tighter leading-none">{{ $assignment->title }}</h2>
                     <p class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase tracking-widest mt-1">Sesi Evaluasi Aktif</p>
                 </div>
             </div>
@@ -57,7 +57,7 @@
             
             <!-- Left: Question List -->
             <main class="lg:col-span-8 space-y-12">
-                <form action="{{ route('mahasiswa.quizzes.submit', $quiz) }}" method="POST" id="quizForm" onsubmit="return handleQuizSubmit(this);">
+                <form action="{{ route('mahasiswa.quizzes.submit', $assignment) }}" method="POST" id="quizForm">
                     @csrf
                     
                     <div class="space-y-16">
@@ -67,7 +67,7 @@
                                 
                                 <div class="space-y-6">
                                     <div class="flex items-center gap-4">
-                                        <span class="w-10 h-10 flex items-center justify-center bg-surface-container-low text-primary font-black rounded-xl border border-outline-variant/10 text-lg">
+                                        <span class="w-10 h-10 flex items-center justify-center bg-surface-container-low text-primary dark:text-primary-fixed-dim font-black rounded-xl border border-outline-variant/10 text-lg">
                                             {{ $index + 1 }}
                                         </span>
                                         <span class="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] opacity-60">PERTANYAAN #{{ $index + 1 }}</span>
@@ -135,13 +135,38 @@
                             <h4 class="text-lg font-black text-on-surface uppercase tracking-tighter">Konfirmasi Akhir</h4>
                             <p class="text-xs text-on-surface-variant mt-1">Pastikan seluruh pertanyaan telah terjawab sebelum mengakhiri sesi.</p>
                         </div>
-                        <button type="submit" id="submitQuizBtn"
+                        <button type="button" id="submitQuizBtn" onclick="showQuizModal()"
                             class="px-12 py-4 bg-primary text-on-primary font-black text-xs uppercase tracking-[0.2em] rounded-2xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 ">
                             AKHIRI & KIRIM KUIS
                             <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
                         </button>
                     </div>
                 </form>
+
+                <!-- Confirmation Modal -->
+                <div id="quizConfirmModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div class="bg-surface-container-lowest rounded-[2.5rem] p-10 max-w-md w-full mx-6 border border-outline-variant/10 shadow-2xl">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">quiz</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-on-surface uppercase tracking-tighter">Kirim Kuis?</h3>
+                                <p class="text-xs text-on-surface-variant mt-1">Jawaban tidak dapat diubah setelah pengiriman.</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-on-surface-variant leading-relaxed mb-8">Selesaikan dan kirim kuis sekarang? Pastikan seluruh jawaban telah Anda tinjau kembali sebelum melanjutkan.</p>
+                        <div class="flex gap-4">
+                            <button onclick="document.getElementById('quizConfirmModal').classList.add('hidden')" class="flex-1 px-6 py-3 rounded-2xl border border-outline-variant/20 text-on-surface-variant font-bold text-xs uppercase tracking-widest hover:bg-surface-container transition-all">
+                                Batal
+                            </button>
+                            <button onclick="submitQuizNow()" id="confirmSubmitBtn" class="flex-1 px-6 py-3 rounded-2xl bg-primary text-on-primary font-black text-xs uppercase tracking-widest hover:shadow-xl hover:shadow-primary/30 transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">cloud_upload</span>
+                                Kirim Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </main>
 
             <!-- Right: Question Palette -->
@@ -220,14 +245,15 @@
             if(progressText) progressText.innerText = percent + '%';
         }
 
-        function handleQuizSubmit(form) {
-            if (confirm('Selesaikan dan kirim kuis sekarang? Pastikan seluruh jawaban telah anda tinjau kembali.')) {
-                const btn = document.getElementById('submitQuizBtn');
-                btn.disabled = true;
-                btn.innerHTML = 'MENGIRIM JAWABAN...';
-                return true;
-            }
-            return false;
+        function showQuizModal() {
+            document.getElementById('quizConfirmModal').classList.remove('hidden');
+        }
+
+        function submitQuizNow() {
+            const btn = document.getElementById('confirmSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">sync</span> Mengirim...';
+            document.getElementById('quizForm').submit();
         }
 
         // Initialize progress

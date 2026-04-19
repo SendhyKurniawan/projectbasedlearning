@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/shared/discussions.css')
+@endpush
 <x-app-layout>
  <x-slot name="header">
  <div class="flex justify-between items-center">
@@ -34,7 +37,7 @@
  <!-- Content -->
  <div class="mt-4">
  <x-input-label for="content" :value="__('Isi Diskusi')" />
- <textarea id="content" name="content" rows="6" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm" required>{{ old('content') }}</textarea>
+ <textarea id="content" name="content" rows="6" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm" required>{{ old('content') }}</textarea>
  <x-input-error :messages="$errors->get('content')" class="mt-2" />
  </div>
 

@@ -12,14 +12,33 @@ use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $mahasiswa = auth()->user();
 
-        // Get all available courses with necessary counts in one query
-        $available_courses = Course::with('dosen')
-            ->withCount(['materials', 'assignments', 'students'])
-            ->get();
+        $query = Course::with('dosen')
+            ->withCount(['materials', 'assignments', 'students']);
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_matkul', 'like', "%{$search}%")
+                  ->orWhere('kode_matkul', 'like', "%{$search}%")
+                  ->orWhereHas('dosen', function ($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Sort filter
+        $sort = $request->input('sort', 'terbaru');
+        $available_courses = match ($sort) {
+            'terlama' => $query->oldest()->get(),
+            'nama_az' => $query->orderBy('nama_matkul', 'asc')->get(),
+            'nama_za' => $query->orderBy('nama_matkul', 'desc')->get(),
+            default   => $query->latest()->get(),
+        };
 
         // Get enrolled course IDs using a simple pivot query (no eager load needed here)
         $enrolled_ids = DB::table('enrollments')
@@ -27,7 +46,7 @@ class CourseController extends Controller
             ->pluck('course_id')
             ->toArray();
 
-        return view('mahasiswa.courses.index', compact('available_courses', 'enrolled_ids'));
+        return view('mahasiswa.courses.index', compact('available_courses', 'enrolled_ids', 'sort'));
     }
 
     public function show(Course $course)
