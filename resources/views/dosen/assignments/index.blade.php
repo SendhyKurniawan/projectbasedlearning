@@ -1,7 +1,10 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/assignments.css')
+@endpush
 <x-app-layout>
     <div class="w-full space-y-6">
         @if(session('success'))
-            <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl font-medium shadow-sm">
+            <div class="mb-4 bg-secondary-container border border-secondary text-secondary px-4 py-3 rounded-xl font-medium shadow-sm">
                 {{ session('success') }}
             </div>
         @endif
@@ -17,11 +20,11 @@
                 <p class="text-on-surface-variant max-w-xl text-sm leading-relaxed mt-2">Konfigurasi materi pembelajaran berbasis proyek dan evaluasi kompetensi mahasiswa melalui bank soal cerdas untuk <span class="font-bold text-on-surface">{{ $course->nama_matkul }}</span>.</p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('dosen.dashboard') }}" class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 text-on-surface border border-outline-variant/30 rounded-xl font-bold hover:shadow-md transition-all text-sm">
+                <a href="{{ route('dosen.dashboard') }}" class="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest text-on-surface border border-outline-variant/30 rounded-xl font-bold hover:shadow-md transition-all text-sm">
                     <span class="material-symbols-outlined">arrow_back</span>
                     Dashboard
                 </a>
-                <a href="{{ route('dosen.exercises.create', $course) }}" class="flex items-center gap-2 px-6 py-3 bg-white border border-outline-variant/30 text-on-surface rounded-xl font-bold hover:shadow-md transition-all text-sm">
+                <a href="{{ route('dosen.exercises.create', $course) }}" class="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest border border-outline-variant/30 text-on-surface rounded-xl font-bold hover:shadow-md transition-all text-sm">
                     <span class="material-symbols-outlined">code</span>
                     Tambah Latihan Kode
                 </a>
@@ -91,7 +94,7 @@
                             </p>
                         </div>
                     </div>
-                    <div class="px-4 py-2 bg-white border border-outline-variant/20 rounded-xl flex items-center gap-2 shadow-sm font-bold text-sm">
+                    <div class="px-4 py-2 bg-surface-container-lowest border border-outline-variant/20 rounded-xl flex items-center gap-2 shadow-sm font-bold text-sm">
                         <span class="text-primary">{{ $assignments->where('type', 'tugas')->count() }}</span> 
                         <span class="text-on-surface-variant">TUGAS</span>
                     </div>
@@ -101,7 +104,7 @@
                     @forelse($assignments->where('type', 'tugas') as $assignment)
                         <x-assignment-card :assignment="$assignment" />
                     @empty
-                        <div class="flex flex-col items-center justify-center p-12 bg-white/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
+                        <div class="flex flex-col items-center justify-center p-12 bg-surface-container-lowest/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
                             <span class="material-symbols-outlined text-6xl mb-4 opacity-30 text-primary">folder_open</span>
                             <p class="font-bold text-lg text-on-surface">Belum Ada Tugas</p>
                             <p class="text-base mt-1">Buat tugas proyek baru untuk memulai penilaian.</p>
@@ -114,19 +117,19 @@
             <div class="bg-surface-container-low/30 border border-outline-variant/30 p-8 rounded-[2rem] backdrop-blur-sm">
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-5 border-b border-outline-variant/20 gap-4">
                     <div class="flex items-center gap-5">
-                        <div class="w-14 h-14 rounded-2xl bg-orange-500/10 text-orange-600 flex items-center justify-center shadow-inner">
+                        <div class="w-14 h-14 rounded-2xl bg-warning-light text-on-warning flex items-center justify-center shadow-inner">
                             <span class="material-symbols-outlined text-3xl">quiz</span>
                         </div>
                         <div>
                             <h3 class="text-2xl font-bold font-headline text-on-surface tracking-tight mb-1">Kuis & Latihan</h3>
                             <p class="text-sm font-bold text-on-surface-variant uppercase tracking-widest flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                                <span class="w-2 h-2 rounded-full bg-warning"></span>
                                 Formative Tests
                             </p>
                         </div>
                     </div>
-                    <div class="px-4 py-2 bg-white border border-outline-variant/20 rounded-xl flex items-center gap-2 shadow-sm font-bold text-sm">
-                        <span class="text-orange-600">{{ $assignments->whereIn('type', ['quiz', 'exercise'])->count() }}</span> 
+                    <div class="px-4 py-2 bg-surface-container-lowest border border-outline-variant/20 rounded-xl flex items-center gap-2 shadow-sm font-bold text-sm">
+                        <span class="text-warning">{{ $assignments->whereIn('type', ['quiz', 'exercise'])->count() }}</span> 
                         <span class="text-on-surface-variant">ITEM</span>
                     </div>
                 </div>
@@ -135,8 +138,8 @@
                     @forelse($assignments->whereIn('type', ['quiz', 'exercise']) as $assignment)
                         <x-assignment-card :assignment="$assignment" />
                     @empty
-                        <div class="flex flex-col items-center justify-center p-12 bg-white/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
-                            <span class="material-symbols-outlined text-6xl mb-4 opacity-30 text-orange-600">quiz</span>
+                        <div class="flex flex-col items-center justify-center p-12 bg-surface-container-lowest/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
+                            <span class="material-symbols-outlined text-6xl mb-4 opacity-30 text-warning">quiz</span>
                             <p class="font-bold text-lg text-on-surface">Belum Ada Kuis</p>
                             <p class="text-base mt-1">Buat kuis interaktif atau latihan kode.</p>
                         </div>
@@ -168,7 +171,7 @@
  .then(response => response.json())
  .then(data => {
  let toast = document.createElement('div');
- toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300';
+ toast.className = 'fixed bottom-4 right-4 bg-secondary text-on-secondary px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300';
  toast.innerText = 'Urutan berhasil disimpan!';
  document.body.appendChild(toast);
  setTimeout(() => {

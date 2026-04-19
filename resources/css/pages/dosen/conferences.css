@@ -1,0 +1,40 @@
+
+    .conference-card {
+        @apply bg-surface-container-lowest rounded-2xl p-5 shadow-ambient border border-outline-variant/20;
+    }
+
+    .conference-status-live {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-error-container text-error animate-pulse;
+    }
+
+    .conference-status-scheduled {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary-container text-primary;
+    }
+
+    .conference-status-ended {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-container text-on-surface-variant;
+    }
+
+    .conference-time-display {
+        @apply flex items-center gap-2 text-sm text-on-surface-variant;
+    }
+
+    .conference-participant-count {
+        @apply inline-flex items-center gap-1 text-xs text-on-surface-variant;
+    }
+
+    .conference-join-btn {
+        @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-on-primary text-sm font-medium hover:bg-primary-hover transition-colors;
+    }
+
+    .conference-create-form {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient;
+    }
+
+    .conference-datetime-row {
+        @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+    }
+
+    .conference-recurring-toggle {
+        @apply flex items-center justify-between py-3 border-b border-outline-variant/30;
+    }

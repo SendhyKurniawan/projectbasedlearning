@@ -36,6 +36,67 @@
             </div>
         </div>
 
+        <!-- Filter Section -->
+        <div class="bg-surface-container-lowest rounded-[2.5rem] p-8 border border-outline-variant/10 shadow-sm">
+            <form method="GET" action="{{ route('mahasiswa.grades.index') }}" class="flex flex-col md:flex-row md:items-end gap-5">
+                <div class="w-full md:w-64">
+                    <label for="search" class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2">Cari Mata Kuliah</label>
+                    <div class="relative focus-within:text-primary text-on-surface-variant">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="material-symbols-outlined text-[18px]">search</span>
+                        </div>
+                        <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Nama / kode matkul..."
+                            class="block w-full rounded-xl border border-outline-variant/30 bg-surface pl-10 pr-3 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow placeholder:text-on-surface-variant/50">
+                    </div>
+                </div>
+
+                <div class="w-full md:flex-1">
+                    <label for="academic_year_id" class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2">Tahun Akademik</label>
+                    <div class="relative focus-within:text-primary text-on-surface-variant">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                        </div>
+                        <select name="academic_year_id" id="academic_year_id"
+                            class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                            <option value="">Semua Tahun</option>
+                            @foreach($availableYears as $year)
+                                <option value="{{ $year->id }}" {{ request('academic_year_id') == $year->id ? 'selected' : '' }}>
+                                    {{ $year->year_start }}/{{ $year->year_end }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="w-full md:flex-1">
+                    <label for="semester_id" class="block text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-2">Semester</label>
+                    <div class="relative focus-within:text-primary text-on-surface-variant">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="material-symbols-outlined text-[18px]">view_timeline</span>
+                        </div>
+                        <select name="semester_id" id="semester_id"
+                            class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                            <option value="">Semua Semester</option>
+                            @foreach($availableSemesters as $sem)
+                                <option value="{{ $sem->id }}" {{ request('semester_id') == $sem->id ? 'selected' : '' }} data-year="{{ $sem->academic_year_id }}">
+                                    {{ $sem->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 mt-4 md:mt-0">
+                    <a href="{{ route('mahasiswa.grades.index') }}" class="flex items-center justify-center gap-2 h-[42px] px-5 border border-outline-variant/30 bg-surface rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors shadow-sm w-full md:w-auto">
+                        <span class="material-symbols-outlined text-[18px]">restart_alt</span> Reset
+                    </a>
+                    <button type="submit" class="flex items-center justify-center gap-2 h-[42px] px-6 bg-primary hover:bg-primary/90 text-on-primary rounded-xl shadow-md font-bold transition-all w-full md:w-auto hover:-translate-y-0.5 active:translate-y-0">
+                        <span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
         <!-- Courses List -->
         <div class="space-y-6">
             <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] px-1 flex items-center gap-3 opacity-60">
@@ -52,7 +113,7 @@
                     <button @click="expanded = !expanded" 
                             class="w-full flex flex-col md:flex-row md:items-center justify-between p-8 text-left hover:bg-surface-container-low/50 transition-colors gap-6 ">
                         <div class="flex items-center gap-6">
-                            <div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500 shadow-inner">
+                            <div class="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center text-primary dark:text-primary-fixed-dim group-hover:scale-110 transition-transform duration-500 shadow-inner">
                                 <span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">menu_book</span>
                             </div>
                             <div class="space-y-1">
@@ -160,12 +221,48 @@
                         <span class="material-symbols-outlined text-[48px]">school</span>
                     </div>
                     <div class="space-y-2">
-                        <h4 class="text-xl font-black text-on-surface uppercase tracking-tighter">BELUM TERDAFTAR</h4>
-                        <p class="text-sm text-on-surface-variant opacity-60 max-w-xs mx-auto">Anda belum mendaftar di mata kuliah apapun pada semester ini.</p>
+                        <h4 class="text-xl font-black text-on-surface uppercase tracking-tighter">TIDAK ADA HASIL</h4>
+                        <p class="text-sm text-on-surface-variant opacity-60 max-w-xs mx-auto">Tidak ada mata kuliah yang cocok dengan filter. Coba ubah kriteria pencarian.</p>
                     </div>
-                    <a href="{{ route('mahasiswa.dashboard') }}" class="px-10 py-4 bg-primary text-on-primary rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-xl transition-all">Kembali ke Dashboard</a>
+                    <a href="{{ route('mahasiswa.grades.index') }}" class="px-10 py-4 bg-primary text-on-primary rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-xl transition-all">Reset Filter</a>
                 </div>
             @endforelse
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const yearSelect = document.getElementById('academic_year_id');
+            const semesterSelect = document.getElementById('semester_id');
+
+            if (yearSelect && semesterSelect) {
+                yearSelect.addEventListener('change', function() {
+                    const yearId = this.value;
+                    const options = semesterSelect.querySelectorAll('option');
+
+                    options.forEach(option => {
+                        if (option.value === '') {
+                            option.style.display = '';
+                            return;
+                        }
+                        if (!yearId || option.dataset.year === yearId) {
+                            option.style.display = '';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+
+                    if (semesterSelect.selectedOptions[0].style.display === 'none') {
+                        semesterSelect.value = '';
+                    }
+                });
+
+                if (yearSelect.value) {
+                    yearSelect.dispatchEvent(new Event('change'));
+                }
+            }
+        });
+    </script>
+    @endpush
 </x-app-layout>

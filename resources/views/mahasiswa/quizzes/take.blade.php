@@ -67,7 +67,7 @@
                                 
                                 <div class="space-y-6">
                                     <div class="flex items-center gap-4">
-                                        <span class="w-10 h-10 flex items-center justify-center bg-surface-container-low text-primary font-black rounded-xl border border-outline-variant/10 text-lg">
+                                        <span class="w-10 h-10 flex items-center justify-center bg-surface-container-low text-primary dark:text-primary-fixed-dim font-black rounded-xl border border-outline-variant/10 text-lg">
                                             {{ $index + 1 }}
                                         </span>
                                         <span class="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] opacity-60">PERTANYAAN #{{ $index + 1 }}</span>

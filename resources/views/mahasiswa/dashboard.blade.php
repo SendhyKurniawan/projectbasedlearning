@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/mahasiswa/dashboard.css')
+@endpush
 <x-app-layout>
     <div class="space-y-10">
         <!-- Welcome Hero -->
@@ -14,7 +17,7 @@
             </div>
             <!-- Abstract architectural shapes for visual depth -->
             <div class="absolute right-[-10%] top-[-20%] w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-            <div class="absolute right-20 bottom-[-30%] w-64 h-64 bg-emerald-400/20 rounded-full blur-2xl"></div>
+            <div class="absolute right-20 bottom-[-30%] w-64 h-64 bg-secondary/20 rounded-full blur-2xl"></div>
         </section>
 
         <!-- Statistics Grid -->
@@ -67,7 +70,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @forelse($enrolled_courses as $course)
                         <a href="{{ route('mahasiswa.courses.show', $course) }}" class="group bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all p-2 border border-outline-variant/10">
-                            <div class="relative h-40 rounded-[1.5rem] overflow-hidden bg-slate-100">
+                            <div class="relative h-40 rounded-[1.5rem] overflow-hidden bg-surface-container-low">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                                 <div class="absolute top-4 left-4 bg-primary text-on-primary text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest">Active</div>
                                 <div class="absolute bottom-4 left-4 right-4 text-white">
@@ -128,7 +131,7 @@
                 </div>
 
                 <!-- Small Info / Announcements Mock -->
-                <div class="bg-white rounded-[2rem] p-8 border border-outline-variant/20 shadow-sm">
+                <div class="bg-surface-container-lowest rounded-[2rem] p-8 border border-outline-variant/20 shadow-sm">
                     <h3 class="text-lg font-bold font-headline mb-6">Pengumuman</h3>
                     <div class="space-y-6">
                         @forelse($announcements as $announcement)
@@ -143,7 +146,7 @@
                         </div>
                         @endforelse
                     </div>
-                    <a href="{{ route('announcements.index') }}" class="mt-8 py-3 bg-surface-container-low text-primary text-xs font-bold rounded-xl hover:bg-surface-container transition-colors block text-center">
+                    <a href="{{ route('announcements.index') }}" class="mt-8 py-3 bg-surface-container-low text-primary dark:text-primary-fixed-dim text-xs font-bold rounded-xl hover:bg-surface-container transition-colors block text-center">
                         LIHAT SEMUA UPDATE
                     </a>
                 </div>

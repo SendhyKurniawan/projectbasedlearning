@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/materials.css')
+@endpush
 <x-app-layout>
     @vite(['resources/js/markdown-editor.js'])
     

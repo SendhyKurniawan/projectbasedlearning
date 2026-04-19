@@ -302,7 +302,7 @@
                     <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Camera</label>
                     <select id="select-cam" class="w-full bg-surface-container border-none rounded-xl p-3 focus:ring-2 focus:ring-primary shadow-inner text-sm font-medium mb-4" onchange="Settings.applyCam()"></select>
                     
-                    <div class="aspect-video w-full bg-neutral-900 rounded-xl overflow-hidden shadow-inner border border-outline-variant/20 flex items-center justify-center relative">
+                    <div class="aspect-video w-full bg-on-surface rounded-xl overflow-hidden shadow-inner border border-outline-variant/20 flex items-center justify-center relative">
                         <video id="cam-test-preview" autoplay playsinline muted class="w-full h-full object-cover transform scale-x-[-1]"></video>
                         <div class="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/60 to-transparent flex justify-center">
                             <span class="text-xs font-bold tracking-widest text-white/80 uppercase">Preview</span>

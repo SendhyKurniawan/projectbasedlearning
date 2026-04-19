@@ -3,6 +3,23 @@
    Reusable UI components with Scholar tonal layering
    ============================================ */
 
+/*
+ * CONTRAST RULEBOOK — approved foreground/background pairings (WCAG AA ≥4.5:1)
+ *
+ * Surface                                                    | Approved text utilities
+ * ----------------------------------------------------------|---------------------------------------------
+ * bg-surface, bg-background, bg-surface-container-lowest    | text-on-surface, text-on-surface-variant
+ * bg-surface-container-low, bg-surface-container,           | text-on-surface, text-on-surface-variant
+ *   bg-surface-container-high, bg-surface-container-highest |
+ * bg-primary, bg-primary-container                          | text-on-primary
+ * bg-secondary, bg-secondary-container                      | text-on-secondary
+ * bg-error, bg-error-container                              | text-on-error
+ * bg-warning-light                                          | text-on-warning
+ *
+ * FORBIDDEN: text-outline* on any bg-surface* (always sub-AA)
+ * CAUTION:   text-on-surface-variant on bg-surface-container-highest in light mode (borderline) — use text-on-surface instead
+ */
+
 /* --- Card Styles (Scholar: Tonal Layering, no hard borders) --- */
 .card {
     background: var(--surface-primary);
@@ -670,4 +687,128 @@
 .markdown-content th {
     background: var(--surface-inset);
     font-weight: 600;
+}
+
+/* ─── Page layout primitives ─── */
+
+.page-header {
+    @apply flex items-center justify-between mb-6 flex-wrap gap-3;
+}
+
+.page-title {
+    @apply font-headline text-2xl font-bold text-on-surface;
+}
+
+.page-subtitle {
+    @apply text-sm text-on-surface-variant mt-0.5;
+}
+
+/* ─── Sidebar navigation ─── */
+
+.sidebar-nav-item {
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant text-sm font-medium transition-all hover:bg-surface-container hover:text-on-surface;
+}
+
+.sidebar-nav-item--active {
+    @apply bg-primary-container text-primary font-semibold;
+}
+
+/* ─── Topbar ─── */
+
+.topbar {
+    @apply flex items-center justify-between px-6 py-4 bg-surface-container-lowest border-b border-outline-variant/30;
+}
+
+.topbar-action {
+    @apply flex items-center gap-2;
+}
+
+/* ─── Data table ─── */
+
+.data-table {
+    @apply w-full border-collapse;
+}
+
+.data-table th {
+    @apply text-left text-xs font-semibold text-on-surface-variant px-4 py-3 bg-surface-container-low border-b border-outline-variant;
+}
+
+.data-table-row {
+    @apply border-b border-outline-variant/30 hover:bg-surface-container-low transition-colors;
+}
+
+.data-table-cell {
+    @apply px-4 py-3 text-sm text-on-surface;
+}
+
+/* ─── Filter bar ─── */
+
+.filter-bar {
+    @apply flex items-end gap-3 flex-wrap mb-6;
+}
+
+/* ─── Kebab menu ─── */
+
+.kebab-menu {
+    @apply relative;
+}
+
+.kebab-menu-item {
+    @apply flex items-center gap-2 px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low transition-colors w-full text-left;
+}
+
+/* ─── Modal shell ─── */
+
+.modal-shell {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-on-surface/30 backdrop-blur-sm;
+}
+
+.modal-header {
+    @apply flex items-center justify-between px-6 py-4 border-b border-outline-variant;
+}
+
+.modal-footer {
+    @apply flex items-center justify-end gap-3 px-6 py-4 border-t border-outline-variant;
+}
+
+/* ─── Tag chip ─── */
+
+.tag-chip {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 text-xs rounded-full bg-surface-container text-on-surface-variant;
+}
+
+/* ─── Avatar ─── */
+
+.avatar {
+    @apply rounded-full object-cover flex-shrink-0;
+}
+
+.avatar-sm {
+    @apply w-7 h-7;
+}
+
+.avatar-md {
+    @apply w-10 h-10;
+}
+
+.avatar-lg {
+    @apply w-14 h-14;
+}
+
+/* ─── Breadcrumb ─── */
+
+.breadcrumb {
+    @apply flex items-center gap-1 text-sm text-on-surface-variant flex-wrap;
+}
+
+.breadcrumb-item {
+    @apply flex items-center gap-1;
+}
+
+.breadcrumb-item a {
+    @apply hover:text-primary transition-colors;
+}
+
+.breadcrumb-item:last-child {
+    @apply text-on-surface font-medium;
 }

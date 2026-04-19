@@ -1,0 +1,60 @@
+
+    .hierarchy-breadcrumb {
+        @apply flex items-center gap-1.5 text-sm text-on-surface-variant mb-6;
+    }
+
+    .hierarchy-breadcrumb-sep {
+        @apply text-outline;
+    }
+
+    .hierarchy-breadcrumb-current {
+        @apply text-on-surface font-medium;
+    }
+
+    .hierarchy-node {
+        @apply bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/30 hover:border-outline-variant transition-colors;
+    }
+
+    .hierarchy-node-title {
+        @apply font-medium text-on-surface;
+    }
+
+    .hierarchy-node-meta {
+        @apply text-xs text-on-surface-variant mt-1;
+    }
+
+    .hierarchy-node-count {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary-container text-primary;
+    }
+
+    .hierarchy-grid {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3;
+    }
+
+    .semester-chip {
+        @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium;
+    }
+
+    .semester-chip--active {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .semester-chip--inactive {
+        @apply bg-surface-container text-on-surface-variant;
+    }
+
+    .study-program-row {
+        @apply flex items-center justify-between py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .department-header {
+        @apply bg-primary-container/30 rounded-xl p-4 mb-4;
+    }
+
+    .department-name {
+        @apply font-headline font-bold text-lg text-on-surface;
+    }
+
+    .department-code {
+        @apply text-sm text-on-surface-variant;
+    }

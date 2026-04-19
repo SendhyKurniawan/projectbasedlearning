@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/conferences.css')
+@endpush
 <x-app-layout>
     <div class="space-y-8 max-w-3xl mx-auto">
         <!-- Header -->

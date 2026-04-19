@@ -1,9 +1,12 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/assignments.css')
+@endpush
 <x-app-layout>
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.index', $quiz->course) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-white border border-outline-variant/30 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-on-surface">
+                <a href="{{ route('dosen.assignments.index', $quiz->course) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </a>
                 <div>
@@ -42,9 +45,9 @@
                                 <th class="px-6 py-4 text-xs font-extrabold text-on-surface-variant uppercase tracking-widest font-headline text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-outline-variant/10 bg-white">
+                        <tbody class="divide-y divide-outline-variant/10 bg-surface-container-lowest">
                             @foreach($attempts as $attempt)
-                                <tr class="hover:bg-slate-50 transition-colors group">
+                                <tr class="hover:bg-surface-container-low transition-colors group">
                                     <td class="px-6 py-4">
                                         <div class="flex items-center gap-3">
                                             <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-tertiary text-white flex items-center justify-center font-bold font-headline shrink-0 uppercase shadow-inner">
@@ -59,11 +62,11 @@
                                     <td class="px-6 py-4">
                                         @if($attempt->finished_at)
                                             <div class="flex items-center gap-2 text-sm text-on-surface font-medium">
-                                                <span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+                                                <span class="material-symbols-outlined text-[16px] text-secondary">check_circle</span>
                                                 {{ $attempt->finished_at->format('d M Y, H:i') }}
                                             </div>
                                         @else
-                                            <div class="flex items-center gap-2 text-sm text-amber-700 font-bold bg-amber-50 px-2 py-1 rounded inline-flex">
+                                            <div class="flex items-center gap-2 text-sm text-on-warning font-bold bg-warning-light px-2 py-1 rounded inline-flex">
                                                 <span class="material-symbols-outlined text-[16px]">sync</span>
                                                 Sedang Dikerjakan
                                             </div>
@@ -80,12 +83,12 @@
                                     </td>
                                     <td class="px-6 py-4 text-right">
                                         @if($attempt->finished_at)
-                                            <a href="{{ route('dosen.quizzes.attempts.show', [$quiz, $attempt]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-primary/5 border border-outline-variant/30 hover:border-primary/30 text-primary rounded-xl text-sm font-bold transition-all shadow-sm">
+                                            <a href="{{ route('dosen.quizzes.attempts.show', [$quiz, $attempt]) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-lowest hover:bg-primary/5 border border-outline-variant/30 hover:border-primary/30 text-primary dark:text-primary-fixed-dim rounded-xl text-sm font-bold transition-all shadow-sm">
                                                 <span>Detail</span>
                                                 <span class="material-symbols-outlined text-[18px]">visibility</span>
                                             </a>
                                         @else
-                                            <span class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container text-outline border border-transparent rounded-xl text-sm font-bold cursor-not-allowed">
+                                            <span class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container text-on-surface-variant border border-transparent rounded-xl text-sm font-bold cursor-not-allowed">
                                                 <span>Detail</span>
                                                 <span class="material-symbols-outlined text-[18px]">visibility</span>
                                             </span>

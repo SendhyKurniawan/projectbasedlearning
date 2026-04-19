@@ -4,6 +4,18 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <meta name="csrf-token" content="{{ csrf_token() }}">
+ <script>
+  (function(){
+   var t=localStorage.getItem('theme')||'system';
+   var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+   if(t==='dark'||(t==='system'&&prefersDark))document.documentElement.classList.add('dark');
+   window.setTheme=function(mode){
+    localStorage.setItem('theme',mode);
+    var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark',dark);
+   };
+  })();
+ </script>
 
  <title>{{ config('app.name', 'PBL Workspace') }}</title>
 
@@ -16,6 +28,7 @@
 
  <!-- Scripts -->
  @vite(['resources/css/app.css', 'resources/css/design-system.css', 'resources/js/app.js'])
+ @stack('styles')
  @livewireStyles
  </head>
  <body class="font-body antialiased h-screen overflow-hidden bg-background text-on-surface">

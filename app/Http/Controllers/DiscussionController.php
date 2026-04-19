@@ -13,18 +13,19 @@ class DiscussionController extends Controller
      */
     public function index(Request $request)
     {
-        $topic = $request->query('topic');
         $query = Discussion::with('user')->withCount('comments')->latest();
-        
-        if ($topic) {
-            $query->where('topic', 'like', "%{$topic}%");
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
         }
 
-        $discussions = $query->paginate(10);
-        
-        return view('discussions.index', compact('discussions', 'topic'));
+        $discussions = $query->paginate(10)->withQueryString();
 
-
+        return view('discussions.index', compact('discussions'));
     }
 
     /**

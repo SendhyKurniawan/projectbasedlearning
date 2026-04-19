@@ -19,7 +19,7 @@
  @method('PUT')
  <div class="mb-4">
  <x-input-label for="study_program_id" :value="__('Program Studi')" />
- <select id="study_program_id" name="study_program_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm" required>
+ <select id="study_program_id" name="study_program_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm" required>
  <option value="">Pilih Prodi</option>
  @foreach($studyPrograms as $prodi)
  <option value="{{ $prodi->id }}" {{ old('study_program_id', $studentClass->study_program_id) == $prodi->id ? 'selected' : '' }}>{{ $prodi->name }} ({{ $prodi->level }})</option>
@@ -30,7 +30,7 @@
 
  <div class="mb-4">
  <x-input-label for="semester_id" :value="__('Semester Aktif')" />
- <select id="semester_id" name="semester_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm" required>
+ <select id="semester_id" name="semester_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm" required>
  <option value="">Pilih Semester</option>
  @foreach($semesters as $sem)
  <option value="{{ $sem->id }}" {{ old('semester_id', $studentClass->semester_id) == $sem->id ? 'selected' : '' }}>{{ $sem->name }} ({{ $sem->academicYear->year_start }}/{{ $sem->academicYear->year_end }})</option>

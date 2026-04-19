@@ -1,6 +1,6 @@
 @props(['assignment'])
 
-<div class="group bg-surface-container-lowest p-6 rounded-2xl flex flex-col md:flex-row md:items-center gap-6 {{ $assignment->type === 'tugas' ? 'border-l-4 border-secondary' : 'border-l-4 border-tertiary' }} transition-all hover:bg-white hover:shadow-xl hover:shadow-primary/5 cursor-grab drag-handle relative sortable-item ring-1 ring-outline-variant/20" data-id="{{ $assignment->id }}">
+<div class="group bg-surface-container-lowest p-6 rounded-2xl flex flex-col md:flex-row md:items-center gap-6 {{ $assignment->type === 'tugas' ? 'border-l-4 border-secondary' : 'border-l-4 border-tertiary' }} transition-all hover:bg-surface-container-lowest hover:shadow-xl hover:shadow-primary/5 cursor-grab drag-handle relative sortable-item ring-1 ring-outline-variant/20" data-id="{{ $assignment->id }}">
     
     <div class="w-16 h-16 rounded-2xl bg-surface-container-low flex items-center justify-center {{ $assignment->type === 'tugas' ? 'text-primary' : 'text-tertiary' }} shrink-0">
         <span class="material-symbols-outlined text-3xl">
@@ -16,7 +16,7 @@
                 @if($assignment->type === 'exercise')
                     <span class="px-2 py-0.5 bg-tertiary-fixed text-on-tertiary-fixed-variant text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">EXERCISE</span>
                 @elseif($assignment->type === 'quiz')
-                    <span class="px-2 py-0.5 bg-orange-100 text-orange-800 text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">QUIZ</span>
+                    <span class="px-2 py-0.5 bg-warning-light text-on-warning text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">QUIZ</span>
                 @else
                     <span class="px-2 py-0.5 bg-secondary-container/30 text-on-secondary-container text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">TUGAS</span>
                 @endif
@@ -24,7 +24,7 @@
                 @if($assignment->deadline < now())
                     <span class="px-2 py-0.5 bg-surface-variant text-on-surface-variant text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">CLOSED</span>
                 @else
-                    <span class="px-2 py-0.5 bg-green-100 text-green-800 text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">ACTIVE</span>
+                    <span class="px-2 py-0.5 bg-secondary-container text-secondary text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">ACTIVE</span>
                 @endif
             </div>
         </div>
@@ -47,21 +47,21 @@
     
     <div class="flex flex-wrap md:flex-nowrap items-center gap-2 mt-4 md:mt-0 ml-auto shrink-0 w-full md:w-auto">
         @if($assignment->type === 'quiz')
-            <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-green-100 hover:text-green-700 rounded-xl transition-all" title="Kelola Pertanyaan">
+            <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-secondary-container hover:text-secondary rounded-xl transition-all" title="Kelola Pertanyaan">
                 <span class="material-symbols-outlined text-[20px]">help_center</span>
             </a>
         @endif
-        <a href="{{ $assignment->type === 'exercise' ? route('dosen.exercises.edit', $assignment) : route('dosen.assignments.edit', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-all" title="Edit">
+        <a href="{{ $assignment->type === 'exercise' ? route('dosen.exercises.edit', $assignment) : route('dosen.assignments.edit', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-primary-container hover:text-primary rounded-xl transition-all" title="Edit">
             <span class="material-symbols-outlined text-[20px]">edit</span>
         </a>
-        <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="flex-[3] md:flex-none flex justify-center items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary font-bold text-sm rounded-xl hover:bg-primary hover:text-white transition-all shadow-sm group/btn">
+        <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="flex-[3] md:flex-none flex justify-center items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary font-bold text-sm rounded-xl hover:bg-primary hover:text-on-primary transition-all shadow-sm group/btn">
             <span class="material-symbols-outlined text-[18px] group-hover/btn:scale-110 transition-transform">fact_check</span>
             Reviews
         </a>
         <form action="{{ route('dosen.assignments.destroy', $assignment) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus ini?')" class="m-0 p-0 flex-1 md:flex-none flex">
             @csrf
             @method('DELETE')
-            <button type="submit" class="w-full flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-red-100 hover:text-red-700 rounded-xl transition-all" title="Hapus">
+            <button type="submit" class="w-full flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-error-container hover:text-error rounded-xl transition-all" title="Hapus">
                 <span class="material-symbols-outlined text-[20px]">delete</span>
             </button>
         </form>

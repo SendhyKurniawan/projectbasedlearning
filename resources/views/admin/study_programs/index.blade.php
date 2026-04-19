@@ -9,7 +9,7 @@
  {{ __('Manajemen Program Studi') }}
  </h2>
  </div>
- <a href="{{ route('admin.study-programs.create') }}" class="px-4 py-2 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition ease-in-out duration-150">
+ <a href="{{ route('admin.study-programs.create') }}" class="px-4 py-2 architectural-gradient text-on-primary text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition ease-in-out duration-150">
  Tambah Prodi
  </a>
  </div>
@@ -20,7 +20,7 @@
  <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
  <div class="p-6 text-on-surface">
  @if(session('success'))
- <div class="mb-4 font-medium text-sm text-green-600">
+ <div class="mb-4 font-medium text-sm text-secondary">
  {{ session('success') }}
  </div>
  @endif
@@ -42,7 +42,7 @@
  {{ $prodi->code }}
  </td>
  <td class="px-6 py-4 whitespace-nowrap">
- <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+ <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-primary-container text-on-primary">
  {{ $prodi->level }}
  </span>
  </td>
@@ -57,7 +57,7 @@
  <form action="{{ route('admin.study-programs.destroy', $prodi) }}" method="POST" class="inline-block">
  @csrf
  @method('DELETE')
- <button type="submit" class="text-error hover:text-red-700" onclick="return confirm('Apakah Anda yakin ingin menghapus prodi ini? Ini juga akan menghapus kelas terkait.')">Hapus</button>
+ <button type="submit" class="text-error hover:text-error/80" onclick="return confirm('Apakah Anda yakin ingin menghapus prodi ini? Ini juga akan menghapus kelas terkait.')">Hapus</button>
  </form>
  </td>
  </tr>

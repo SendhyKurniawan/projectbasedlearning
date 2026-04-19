@@ -18,7 +18,7 @@
  @csrf
  <div class="mb-4">
  <x-input-label for="department_id" :value="__('Jurusan')" />
- <select id="department_id" name="department_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm" required>
+ <select id="department_id" name="department_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm" required>
  <option value="">Pilih Jurusan</option>
  @foreach($departments as $dept)
  <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
@@ -29,7 +29,7 @@
 
  <div class="mb-4">
  <x-input-label for="level" :value="__('Jenjang')" />
- <select id="level" name="level" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm" required>
+ <select id="level" name="level" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm" required>
  <option value="D3" {{ old('level') == 'D3' ? 'selected' : '' }}>D3</option>
  <option value="D4" {{ old('level') == 'D4' ? 'selected' : '' }}>D4</option>
  <option value="S1" {{ old('level') == 'S1' ? 'selected' : '' }}>S1</option>
