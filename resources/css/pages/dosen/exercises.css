@@ -1,0 +1,40 @@
+
+    .exercise-language-badge {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-surface-container-high text-on-surface;
+    }
+
+    .exercise-difficulty-badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .exercise-difficulty-badge--easy {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .exercise-difficulty-badge--medium {
+        @apply bg-warning-light text-warning;
+    }
+
+    .exercise-difficulty-badge--hard {
+        @apply bg-error-container text-error;
+    }
+
+    .exercise-testcase-row {
+        @apply flex items-start gap-3 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .exercise-testcase-number {
+        @apply w-6 h-6 rounded bg-surface-container text-on-surface-variant text-xs flex items-center justify-center font-bold flex-shrink-0;
+    }
+
+    .exercise-io-label {
+        @apply text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-1;
+    }
+
+    .exercise-io-code {
+        @apply font-mono text-xs bg-surface-container-high rounded p-2 text-on-surface whitespace-pre;
+    }
+
+    .exercise-create-card {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient mb-4;
+    }

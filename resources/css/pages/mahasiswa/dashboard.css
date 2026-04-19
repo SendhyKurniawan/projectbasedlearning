@@ -1,0 +1,68 @@
+
+    .student-welcome {
+        @apply bg-surface-container-lowest rounded-2xl p-6 mb-6 shadow-ambient;
+    }
+
+    .student-welcome-name {
+        @apply font-headline text-2xl font-bold text-on-surface;
+    }
+
+    .student-welcome-sub {
+        @apply text-on-surface-variant mt-1;
+    }
+
+    .student-progress-ring {
+        @apply relative w-16 h-16 flex-shrink-0;
+    }
+
+    .student-task-item {
+        @apply flex items-start gap-3 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .student-task-title {
+        @apply font-medium text-on-surface;
+    }
+
+    .student-task-course {
+        @apply text-xs text-on-surface-variant;
+    }
+
+    .student-task-deadline {
+        @apply text-xs font-medium;
+    }
+
+    .student-task-deadline--urgent {
+        @apply text-error;
+    }
+
+    .student-task-deadline--soon {
+        @apply text-warning;
+    }
+
+    .student-task-deadline--ok {
+        @apply text-on-surface-variant;
+    }
+
+    .student-activity-feed {
+        @apply space-y-3;
+    }
+
+    .student-activity-item {
+        @apply flex items-start gap-3;
+    }
+
+    .student-activity-dot {
+        @apply w-2 h-2 rounded-full mt-2 flex-shrink-0;
+    }
+
+    .student-course-progress {
+        @apply flex items-center gap-2;
+    }
+
+    .student-course-progress-bar {
+        @apply flex-1 h-1.5 bg-surface-container rounded-full overflow-hidden;
+    }
+
+    .student-course-progress-fill {
+        @apply h-full bg-primary rounded-full transition-all;
+    }

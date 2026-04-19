@@ -1,0 +1,80 @@
+
+    .notification-item {
+        @apply flex items-start gap-4 p-4 border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low transition-colors;
+    }
+
+    .notification-item--unread {
+        @apply bg-primary-container/10;
+    }
+
+    .notification-icon {
+        @apply w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0;
+    }
+
+    .notification-icon--assignment {
+        @apply bg-primary-container text-primary;
+    }
+
+    .notification-icon--grade {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .notification-icon--announcement {
+        @apply bg-warning-light text-warning;
+    }
+
+    .notification-icon--discussion {
+        @apply bg-surface-container-high text-on-surface-variant;
+    }
+
+    .notification-icon--system {
+        @apply bg-surface-container text-on-surface-variant;
+    }
+
+    .notification-title {
+        @apply font-medium text-on-surface text-sm;
+    }
+
+    .notification-body {
+        @apply text-sm text-on-surface-variant mt-0.5;
+    }
+
+    .notification-time {
+        @apply text-xs text-outline mt-1;
+    }
+
+    .notification-unread-dot {
+        @apply w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2;
+    }
+
+    .notification-filter-bar {
+        @apply flex gap-2 mb-4 flex-wrap;
+    }
+
+    .notification-filter-chip {
+        @apply px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer;
+    }
+
+    .notification-filter-chip--active {
+        @apply bg-primary text-on-primary;
+    }
+
+    .notification-filter-chip--inactive {
+        @apply bg-surface-container text-on-surface-variant hover:bg-surface-container-high;
+    }
+
+    .notification-mark-all-btn {
+        @apply inline-flex items-center gap-1.5 text-xs text-primary font-medium hover:underline;
+    }
+
+    .notification-empty {
+        @apply text-center py-16;
+    }
+
+    .notification-empty-icon {
+        @apply text-5xl text-outline mx-auto mb-3;
+    }
+
+    .notification-empty-text {
+        @apply text-on-surface-variant;
+    }

@@ -1,0 +1,84 @@
+
+    .discussion-thread {
+        @apply bg-surface-container-lowest rounded-2xl shadow-ambient;
+    }
+
+    .discussion-thread-header {
+        @apply p-5 border-b border-outline-variant/30;
+    }
+
+    .discussion-thread-title {
+        @apply font-headline font-bold text-xl text-on-surface;
+    }
+
+    .discussion-thread-meta {
+        @apply flex items-center gap-3 mt-2 text-sm text-on-surface-variant;
+    }
+
+    .discussion-post {
+        @apply p-5 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .discussion-post-author {
+        @apply flex items-center gap-3 mb-3;
+    }
+
+    .discussion-post-avatar {
+        @apply w-9 h-9 rounded-full bg-primary-container text-primary flex items-center justify-center text-sm font-bold flex-shrink-0;
+    }
+
+    .discussion-post-author-name {
+        @apply font-medium text-on-surface;
+    }
+
+    .discussion-post-time {
+        @apply text-xs text-on-surface-variant;
+    }
+
+    .discussion-post-body {
+        @apply text-on-surface text-sm leading-relaxed ml-12;
+    }
+
+    .discussion-post-actions {
+        @apply flex items-center gap-4 mt-3 ml-12;
+    }
+
+    .discussion-action-btn {
+        @apply inline-flex items-center gap-1.5 text-xs text-on-surface-variant hover:text-primary transition-colors;
+    }
+
+    .discussion-reply-indent {
+        @apply ml-12 border-l-2 border-outline-variant/40 pl-4 mt-3;
+    }
+
+    .discussion-reply-form {
+        @apply p-5 bg-surface-container-low rounded-b-2xl;
+    }
+
+    .discussion-new-post-form {
+        @apply bg-surface-container-lowest rounded-2xl p-5 shadow-ambient mb-4;
+    }
+
+    .discussion-category-chip {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-container text-primary;
+    }
+
+    .discussion-list-row {
+        @apply flex items-start gap-4 py-4 border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low -mx-2 px-2 rounded-xl transition-colors cursor-pointer;
+    }
+
+    .discussion-list-votes {
+        @apply flex flex-col items-center gap-0.5 flex-shrink-0;
+    }
+
+    .discussion-list-vote-count {
+        @apply font-bold text-sm text-on-surface;
+    }
+
+    .discussion-list-vote-label {
+        @apply text-xs text-on-surface-variant;
+    }
+
+    .discussion-reply-count {
+        @apply inline-flex items-center gap-1 text-xs text-on-surface-variant;
+    }

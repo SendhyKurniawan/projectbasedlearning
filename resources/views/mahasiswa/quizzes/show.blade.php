@@ -1,6 +1,6 @@
 <x-app-layout>
     @php
-        $submission = $submissions[$quiz->id] ?? null;
+        $submission = $existingSubmission;
         $isFinished = $submission && $submission->finished_at;
     @endphp
 
@@ -10,7 +10,7 @@
             <nav class="flex items-center gap-2 text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mb-2 px-1">
                 <span><a href="{{ route('mahasiswa.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
                 <span class="material-symbols-outlined text-[12px]">chevron_right</span>
-                <span><a href="{{ route('mahasiswa.courses.show', $quiz->assignment->course_id) }}" class="hover:text-primary transition-colors">Course</a></span>
+                <span><a href="{{ route('mahasiswa.courses.show', $assignment->course_id) }}" class="hover:text-primary transition-colors">Course</a></span>
                 <span class="material-symbols-outlined text-[12px]">chevron_right</span>
                 <span class="text-primary ">Detail Kuis</span>
             </nav>
@@ -32,7 +32,7 @@
                     <div class="relative space-y-8">
                         <div>
                             <span class="text-[10px] font-black uppercase text-primary tracking-[0.2em] mb-3 block">Informasi Kuis</span>
-                            <h2 class="text-2xl font-black text-on-surface leading-tight uppercase tracking-tighter">{{ $quiz->title }}</h2>
+                            <h2 class="text-2xl font-black text-on-surface leading-tight uppercase tracking-tighter">{{ $assignment->title }}</h2>
                         </div>
 
                         <div class="space-y-4">
@@ -42,7 +42,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60 leading-none mb-1">Jumlah Soal</p>
-                                    <p class="text-sm font-black text-on-surface">{{ $quiz->questions->count() }} Pertanyaan</p>
+                                    <p class="text-sm font-black text-on-surface">{{ $assignment->questions->count() }} Pertanyaan</p>
                                 </div>
                             </div>
 
@@ -52,7 +52,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60 leading-none mb-1">Durasi</p>
-                                    <p class="text-sm font-black text-on-surface">{{ $quiz->duration_minutes }} Menit</p>
+                                    <p class="text-sm font-black text-on-surface">{{ $assignment->duration_minutes ?? '-' }} Menit</p>
                                 </div>
                             </div>
 
@@ -62,7 +62,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest opacity-60 leading-none mb-1">Nilai Maksimal</p>
-                                    <p class="text-sm font-black text-on-surface">{{ $quiz->assignment->max_score }} Poin</p>
+                                    <p class="text-sm font-black text-on-surface">{{ $assignment->max_score }} Poin</p>
                                 </div>
                             </div>
                         </div>
@@ -82,7 +82,7 @@
                              <div class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1 opacity-60">CORRECT SCORE</div>
                              <div class="text-3xl font-black text-secondary">{{ $submission->score ?? '0' }}</div>
                         </div>
-                        <a href="{{ route('mahasiswa.quizzes.result', $quiz) }}" class="w-full py-3 bg-secondary text-on-secondary font-black text-[10px] uppercase tracking-widest rounded-xl hover:shadow-lg transition-all"> LIHAT REVIEW HASIL </a>
+                        <a href="{{ route('mahasiswa.quizzes.result', $assignment) }}" class="w-full py-3 bg-secondary text-on-secondary font-black text-[10px] uppercase tracking-widest rounded-xl hover:shadow-lg transition-all"> LIHAT REVIEW HASIL </a>
                     </div>
                 @endif
             </div>
@@ -96,7 +96,7 @@
                             PERATURAN & INSTRUKSI
                         </h3>
                         <div class="prose prose-slate prose-sm max-w-none text-on-surface-variant leading-loose space-y-4">
-                            <p>{{ $quiz->assignment->description ?? 'Kuis ini dirancang untuk menguji pemahaman anda mengenai topik yang telah dipelajari dalam modul ini. Harap kerjakan dengan jujur dan teliti.' }}</p>
+                            <p>{{ $assignment->description ?? 'Kuis ini dirancang untuk menguji pemahaman anda mengenai topik yang telah dipelajari dalam modul ini. Harap kerjakan dengan jujur dan teliti.' }}</p>
                             <ul class="list-none p-0 space-y-3 font-bold text-xs text-on-surface">
                                 <li class="flex items-start gap-3">
                                     <span class="material-symbols-outlined text-primary text-sm mt-0.5">check_circle</span>
@@ -120,7 +120,8 @@
                     
                     @if(!$isFinished)
                         <div class="pt-10 border-t border-outline-variant/10 flex flex-col sm:flex-row items-center gap-6">
-                            <form action="{{ route('mahasiswa.quizzes.take', $quiz) }}" method="GET" class="w-full sm:w-auto flex-1">
+                            <form action="{{ route('mahasiswa.quizzes.start', $assignment) }}" method="POST" class="w-full sm:w-auto flex-1">
+                                @csrf
                                 <button type="submit" class="w-full bg-primary text-on-primary font-black text-xs uppercase tracking-[0.2em] py-4 rounded-2xl hover:shadow-2xl hover:shadow-primary/30 active:scale-[0.98] transition-all flex items-center justify-center gap-3 ">
                                     MULAI KUIS SEKARANG
                                     <span class="material-symbols-outlined text-[20px]">play_circle</span>
@@ -132,7 +133,7 @@
                         </div>
                     @else
                         <div class="pt-10 border-t border-outline-variant/10">
-                            <a href="{{ route('mahasiswa.courses.show', $quiz->assignment->course_id) }}" class="inline-flex items-center gap-2 p-4 px-8 bg-surface-container text-on-surface-variant rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all ">
+                            <a href="{{ route('mahasiswa.courses.show', $assignment->course_id) }}" class="inline-flex items-center gap-2 p-4 px-8 bg-surface-container text-on-surface-variant rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-surface-container-high transition-all ">
                                 <span class="material-symbols-outlined">arrow_back</span>
                                 KEMBALI KE COURSE
                             </a>

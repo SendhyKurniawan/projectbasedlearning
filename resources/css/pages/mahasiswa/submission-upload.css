@@ -1,0 +1,72 @@
+
+    .submission-card {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient;
+    }
+
+    .submission-assignment-info {
+        @apply bg-surface-container rounded-xl p-4 mb-6;
+    }
+
+    .submission-assignment-title {
+        @apply font-headline font-semibold text-on-surface;
+    }
+
+    .submission-assignment-meta {
+        @apply text-sm text-on-surface-variant mt-1;
+    }
+
+    .submission-deadline-warning {
+        @apply flex items-center gap-2 px-4 py-3 rounded-xl bg-warning-light text-warning text-sm mt-3;
+    }
+
+    .submission-dropzone {
+        @apply border-2 border-dashed border-outline-variant rounded-2xl p-10 text-center cursor-pointer transition-colors hover:border-primary hover:bg-primary-container/10;
+    }
+
+    .submission-dropzone--dragover {
+        @apply border-primary bg-primary-container/20;
+    }
+
+    .submission-dropzone-icon {
+        @apply text-5xl text-outline mx-auto mb-3;
+    }
+
+    .submission-dropzone-text {
+        @apply text-on-surface font-medium;
+    }
+
+    .submission-dropzone-subtext {
+        @apply text-sm text-on-surface-variant mt-1;
+    }
+
+    .submission-file-preview {
+        @apply flex items-center gap-3 p-3 bg-surface-container rounded-xl border border-outline-variant/30;
+    }
+
+    .submission-file-icon {
+        @apply w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0;
+    }
+
+    .submission-file-name {
+        @apply font-medium text-on-surface text-sm flex-1 truncate;
+    }
+
+    .submission-file-size {
+        @apply text-xs text-on-surface-variant;
+    }
+
+    .submission-file-remove {
+        @apply text-outline hover:text-error transition-colors;
+    }
+
+    .submission-notes-area {
+        @apply form-textarea min-h-32;
+    }
+
+    .submission-history-row {
+        @apply flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .submission-history-version {
+        @apply w-7 h-7 rounded-full bg-surface-container text-on-surface-variant text-xs flex items-center justify-center font-bold flex-shrink-0;
+    }

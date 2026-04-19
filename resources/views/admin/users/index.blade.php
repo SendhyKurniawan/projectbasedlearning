@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/admin/users.css')
+@endpush
 <x-app-layout>
  <div class="space-y-6">
  <!-- Page Header -->
@@ -5,8 +8,8 @@
  <div class="flex items-center gap-3">
  <h2 class="text-2xl font-extrabold text-on-surface tracking-tight font-headline">Manajemen User</h2>
  @if($pendingDosen > 0)
- <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200/50">
- <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+ <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-warning-light text-on-warning border border-warning/20">
+ <span class="w-2 h-2 rounded-full bg-warning animate-pulse"></span>
  {{ $pendingDosen }} menunggu
  </span>
  @endif
@@ -19,13 +22,13 @@
 
  {{-- Flash Messages --}}
  @if(session('success'))
- <div class="px-5 py-4 bg-emerald-50 border-l-4 border-secondary text-secondary rounded-xl text-sm font-medium flex items-center gap-3">
+ <div class="px-5 py-4 bg-secondary-container border-l-4 border-secondary text-secondary rounded-xl text-sm font-medium flex items-center gap-3">
  <span class="material-symbols-outlined text-lg">check_circle</span>
  {{ session('success') }}
  </div>
  @endif
  @if(session('error'))
- <div class="px-5 py-4 bg-red-50 border-l-4 border-error text-error rounded-xl text-sm font-medium flex items-center gap-3">
+ <div class="px-5 py-4 bg-error-container border-l-4 border-error text-error rounded-xl text-sm font-medium flex items-center gap-3">
  <span class="material-symbols-outlined text-lg">error</span>
  {{ session('error') }}
  </div>
@@ -33,12 +36,12 @@
 
  {{-- Pending Dosen Alert --}}
  @if($pendingDosen > 0)
- <div class="px-5 py-4 bg-amber-50 border-l-4 border-amber-400 rounded-xl flex items-center gap-3">
- <span class="material-symbols-outlined text-amber-600 text-lg">warning</span>
- <p class="text-sm text-amber-800 flex-1">
+ <div class="px-5 py-4 bg-warning-light border-l-4 border-warning rounded-xl flex items-center gap-3">
+ <span class="material-symbols-outlined text-warning text-lg">warning</span>
+ <p class="text-sm text-warning flex-1">
  Ada <strong>{{ $pendingDosen }} akun dosen</strong> yang menunggu persetujuan.
  </p>
- <a href="{{ route('admin.users.index', ['role' => 'dosen', 'status' => 'inactive']) }}" class="text-xs font-bold text-amber-800 underline hover:no-underline whitespace-nowrap">Lihat Sekarang</a>
+ <a href="{{ route('admin.users.index', ['role' => 'dosen', 'status' => 'inactive']) }}" class="text-xs font-bold text-warning underline hover:no-underline whitespace-nowrap">Lihat Sekarang</a>
  </div>
  @endif
 
@@ -63,7 +66,7 @@
  <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
  <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
  </select>
- <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary-container transition-colors">
+ <button type="submit" class="inline-flex items-center gap-2 px-5 py-3 bg-primary text-on-primary text-sm font-bold rounded-xl hover:bg-primary-hover transition-colors">
  <span class="material-symbols-outlined text-sm">filter_list</span>
  Filter
  </button>
@@ -103,7 +106,7 @@
  <input type="hidden" name="user_ids[]" :value="id">
  </template>
  <button type="button" @click="if(confirm('Yakin ingin menghapus ' + selectedUsers.length + ' user terpilih?')) $refs.bulkDeleteForm.submit()"
- class="px-4 py-2 bg-error hover:bg-red-800 text-white text-xs font-bold rounded-lg transition shadow-sm">
+ class="px-4 py-2 bg-error hover:bg-error/80 text-on-primary text-xs font-bold rounded-lg transition shadow-sm">
  Hapus Terpilih
  </button>
  </form>
@@ -134,16 +137,16 @@
  @if($user->id !== auth()->id())
  <input type="checkbox" value="{{ $user->id }}" x-model="selectedUsers" @change="checkSelection" class="user-checkbox rounded border-outline-variant text-primary focus:ring-primary/20">
  @else
- <input type="checkbox" disabled class="rounded border-outline-variant text-outline bg-surface-container opacity-50 cursor-not-allowed">
+ <input type="checkbox" disabled class="rounded border-outline-variant text-on-surface-variant bg-surface-container opacity-50 cursor-not-allowed">
  @endif
  </td>
  <td class="px-5 py-4 whitespace-nowrap">
  <div class="flex items-center gap-3">
  @php
  $avatarBg = match($user->role) {
- 'admin' => 'bg-red-100 text-red-700',
- 'dosen' => 'bg-primary-fixed text-primary',
- 'mahasiswa' => 'bg-emerald-100 text-secondary',
+ 'admin' => 'bg-error-container text-error',
+ 'dosen' => 'bg-primary-container text-primary',
+ 'mahasiswa' => 'bg-secondary-container text-secondary',
  default => 'bg-surface-container text-on-surface-variant'
  };
  @endphp
@@ -176,9 +179,9 @@
  <td class="px-5 py-4 whitespace-nowrap">
  @php
  $roleClass = match($user->role) {
- 'admin' => 'bg-red-50 text-red-700',
- 'dosen' => 'bg-blue-50 text-primary',
- 'mahasiswa' => 'bg-emerald-50 text-secondary',
+ 'admin' => 'bg-error-container text-error',
+ 'dosen' => 'bg-primary-container text-primary',
+ 'mahasiswa' => 'bg-secondary-container text-secondary',
  default => 'bg-surface-container text-on-surface-variant',
  };
  @endphp
@@ -186,13 +189,13 @@
  </td>
  <td class="px-5 py-4 whitespace-nowrap">
  @if($user->is_active)
- <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-50 text-secondary">
+ <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full bg-secondary-container text-secondary">
  <span class="w-1.5 h-1.5 rounded-full bg-secondary inline-block"></span>
  Aktif
  </span>
  @else
- <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full bg-amber-50 text-amber-700">
- <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+ <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full bg-warning-light text-on-warning">
+ <span class="w-1.5 h-1.5 rounded-full bg-warning inline-block"></span>
  Menunggu
  </span>
  @endif
@@ -205,7 +208,7 @@
  @csrf
  @method('PATCH')
  <button type="submit" title="{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
- class="px-3 py-1.5 text-xs font-bold rounded-lg {{ $user->is_active ? 'bg-amber-50 text-amber-700 hover:bg-amber-100' : 'bg-emerald-50 text-secondary hover:bg-emerald-100' }} transition">
+ class="px-3 py-1.5 text-xs font-bold rounded-lg {{ $user->is_active ? 'bg-warning-light text-on-warning hover:bg-warning/20' : 'bg-secondary-container text-secondary hover:bg-secondary/20' }} transition">
  {{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
  </button>
  </form>
@@ -215,7 +218,7 @@
  <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
  @csrf
  @method('DELETE')
- <button type="submit" onclick="return confirm('Hapus user {{ addslashes($user->name) }}?')" class="text-error hover:text-red-700 text-xs font-bold transition-colors">Hapus</button>
+ <button type="submit" onclick="return confirm('Hapus user {{ addslashes($user->name) }}?')" class="text-error hover:text-error/80 text-xs font-bold transition-colors">Hapus</button>
  </form>
  @endif
  </div>

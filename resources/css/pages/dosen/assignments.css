@@ -1,0 +1,104 @@
+
+    .assignment-type-badge {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+    }
+
+    .assignment-type-badge--quiz {
+        @apply bg-primary-container text-primary;
+    }
+
+    .assignment-type-badge--upload {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .assignment-type-badge--essay {
+        @apply bg-warning-light text-warning;
+    }
+
+    .assignment-deadline-chip {
+        @apply inline-flex items-center gap-1 text-xs;
+    }
+
+    .assignment-deadline-chip--overdue {
+        @apply text-error;
+    }
+
+    .assignment-deadline-chip--soon {
+        @apply text-warning;
+    }
+
+    .assignment-deadline-chip--ok {
+        @apply text-on-surface-variant;
+    }
+
+    .submission-row {
+        @apply flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .submission-status-submitted {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-secondary-container text-secondary;
+    }
+
+    .submission-status-graded {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary-container text-primary;
+    }
+
+    .submission-status-pending {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-surface-container text-on-surface-variant;
+    }
+
+    .submission-status-late {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-error-container text-error;
+    }
+
+    .grade-input-cell {
+        @apply w-20 text-center;
+    }
+
+    .quiz-attempt-table {
+        @apply w-full;
+    }
+
+    .quiz-attempt-row {
+        @apply border-b border-outline-variant/30 last:border-0;
+    }
+
+    .quiz-attempt-score {
+        @apply font-headline font-bold text-lg;
+    }
+
+    .quiz-attempt-score--pass {
+        @apply text-secondary;
+    }
+
+    .quiz-attempt-score--fail {
+        @apply text-error;
+    }
+
+    .question-builder-item {
+        @apply bg-surface-container-lowest rounded-xl p-4 mb-3 border border-outline-variant/30;
+    }
+
+    .question-builder-number {
+        @apply w-7 h-7 rounded-full bg-primary-container text-primary flex items-center justify-center text-xs font-bold flex-shrink-0;
+    }
+
+    .option-row {
+        @apply flex items-center gap-3 py-2;
+    }
+
+    .option-correct-indicator {
+        @apply w-4 h-4 rounded-full border-2 border-secondary flex-shrink-0;
+    }
+
+    .option-correct-indicator--selected {
+        @apply bg-secondary border-secondary;
+    }
+
+    .assignment-create-section {
+        @apply bg-surface-container-lowest rounded-2xl p-6 mb-4 shadow-ambient;
+    }
+
+    .assignment-create-section-title {
+        @apply font-headline font-semibold text-base text-on-surface mb-4 flex items-center gap-2;
+    }

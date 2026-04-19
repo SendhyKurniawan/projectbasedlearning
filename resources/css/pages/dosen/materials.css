@@ -1,0 +1,60 @@
+
+    .material-type-chip {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+    }
+
+    .material-type-chip--pdf {
+        @apply bg-error-container text-error;
+    }
+
+    .material-type-chip--video {
+        @apply bg-primary-container text-primary;
+    }
+
+    .material-type-chip--link {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .material-type-chip--text {
+        @apply bg-surface-container text-on-surface-variant;
+    }
+
+    .material-card-row {
+        @apply flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .material-icon-box {
+        @apply w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0;
+    }
+
+    .material-title {
+        @apply font-medium text-on-surface;
+    }
+
+    .material-meta {
+        @apply text-xs text-on-surface-variant mt-0.5;
+    }
+
+    .material-create-dropzone {
+        @apply border-2 border-dashed border-outline-variant rounded-xl p-8 text-center hover:border-primary transition-colors cursor-pointer;
+    }
+
+    .material-create-dropzone-icon {
+        @apply text-5xl text-outline mx-auto mb-3;
+    }
+
+    .material-create-dropzone-text {
+        @apply text-on-surface-variant text-sm;
+    }
+
+    .material-order-handle {
+        @apply text-outline cursor-grab active:cursor-grabbing;
+    }
+
+    .material-content-preview {
+        @apply bg-surface-container-lowest rounded-xl border border-outline-variant/30 overflow-hidden;
+    }
+
+    .material-video-embed {
+        @apply w-full aspect-video rounded-xl overflow-hidden;
+    }

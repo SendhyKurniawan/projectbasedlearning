@@ -1,0 +1,84 @@
+
+    .profile-header {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient mb-6 flex items-center gap-5;
+    }
+
+    .profile-avatar-large {
+        @apply w-20 h-20 rounded-full object-cover flex-shrink-0;
+    }
+
+    .profile-avatar-placeholder {
+        @apply w-20 h-20 rounded-full bg-primary-container text-primary flex items-center justify-center text-3xl font-bold flex-shrink-0;
+    }
+
+    .profile-name {
+        @apply font-headline text-2xl font-bold text-on-surface;
+    }
+
+    .profile-role-chip {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium mt-1;
+    }
+
+    .profile-role-chip--admin {
+        @apply bg-error-container text-error;
+    }
+
+    .profile-role-chip--dosen {
+        @apply bg-primary-container text-primary;
+    }
+
+    .profile-role-chip--mahasiswa {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .profile-section-card {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient mb-4;
+    }
+
+    .profile-section-title {
+        @apply font-headline font-semibold text-on-surface mb-4 pb-3 border-b border-outline-variant;
+    }
+
+    .profile-info-row {
+        @apply flex items-center py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .profile-info-label {
+        @apply text-sm text-on-surface-variant w-40 flex-shrink-0;
+    }
+
+    .profile-info-value {
+        @apply text-sm text-on-surface font-medium;
+    }
+
+    .profile-avatar-upload {
+        @apply flex items-center gap-4;
+    }
+
+    .profile-avatar-upload-btn {
+        @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-outline-variant text-sm text-on-surface hover:bg-surface-container transition-colors cursor-pointer;
+    }
+
+    .profile-password-strength {
+        @apply h-1.5 rounded-full transition-all mt-1;
+    }
+
+    .profile-password-strength--weak {
+        @apply bg-error w-1/4;
+    }
+
+    .profile-password-strength--medium {
+        @apply bg-warning w-1/2;
+    }
+
+    .profile-password-strength--strong {
+        @apply bg-secondary w-full;
+    }
+
+    .profile-danger-zone {
+        @apply bg-error-container/30 border border-error/20 rounded-2xl p-5;
+    }
+
+    .profile-danger-title {
+        @apply font-semibold text-error mb-1;
+    }

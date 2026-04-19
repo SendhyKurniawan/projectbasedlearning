@@ -1,0 +1,72 @@
+
+    .viewer-layout {
+        @apply flex gap-6 items-start;
+    }
+
+    .viewer-main {
+        @apply flex-1 min-w-0;
+    }
+
+    .viewer-sidebar {
+        @apply w-64 flex-shrink-0 sticky top-0;
+    }
+
+    .viewer-pdf-frame {
+        @apply w-full min-h-screen rounded-2xl overflow-hidden border border-outline-variant/30;
+    }
+
+    .viewer-video-frame {
+        @apply w-full aspect-video rounded-2xl overflow-hidden;
+    }
+
+    .viewer-nav-btn {
+        @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors;
+    }
+
+    .viewer-nav-btn--prev {
+        @apply bg-surface-container text-on-surface hover:bg-surface-container-high;
+    }
+
+    .viewer-nav-btn--next {
+        @apply bg-primary text-on-primary hover:bg-primary-hover;
+    }
+
+    .viewer-toc-item {
+        @apply flex items-center gap-2 py-2 px-3 rounded-lg text-sm transition-colors cursor-pointer;
+    }
+
+    .viewer-toc-item--active {
+        @apply bg-primary-container text-primary font-medium;
+    }
+
+    .viewer-toc-item--done {
+        @apply text-secondary;
+    }
+
+    .viewer-toc-item--pending {
+        @apply text-on-surface-variant hover:bg-surface-container;
+    }
+
+    .viewer-toc-check {
+        @apply w-4 h-4 rounded-full flex items-center justify-center text-xs flex-shrink-0;
+    }
+
+    .viewer-toc-check--done {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .viewer-toc-check--pending {
+        @apply border border-outline-variant;
+    }
+
+    .viewer-progress {
+        @apply h-1 bg-surface-container rounded-full overflow-hidden mb-4;
+    }
+
+    .viewer-progress-fill {
+        @apply h-full bg-primary rounded-full transition-all;
+    }
+
+    .viewer-link-card {
+        @apply flex items-center gap-3 p-4 bg-surface-container-lowest rounded-xl border border-outline-variant/30 hover:border-primary transition-colors;
+    }

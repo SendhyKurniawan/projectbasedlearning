@@ -1,0 +1,72 @@
+
+    .announcement-card {
+        @apply bg-surface-container-lowest rounded-2xl p-5 shadow-ambient border border-outline-variant/20 hover:shadow-ambient-lg transition-shadow;
+    }
+
+    .announcement-title {
+        @apply font-headline font-semibold text-on-surface;
+    }
+
+    .announcement-excerpt {
+        @apply text-sm text-on-surface-variant mt-2 line-clamp-3;
+    }
+
+    .announcement-meta {
+        @apply flex items-center gap-3 mt-3 text-xs text-on-surface-variant;
+    }
+
+    .announcement-author-chip {
+        @apply flex items-center gap-1.5;
+    }
+
+    .announcement-author-avatar {
+        @apply w-5 h-5 rounded-full bg-primary-container text-primary flex items-center justify-center text-xs font-bold;
+    }
+
+    .announcement-pinned-badge {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-warning-light text-warning;
+    }
+
+    .announcement-show-header {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient mb-6;
+    }
+
+    .announcement-show-title {
+        @apply font-headline font-bold text-2xl text-on-surface;
+    }
+
+    .announcement-show-body {
+        @apply text-sm text-on-surface mt-6 max-w-none leading-relaxed;
+    }
+
+    .announcement-attachment-row {
+        @apply flex items-center gap-3 p-3 bg-surface-container rounded-xl border border-outline-variant/30 hover:border-primary transition-colors;
+    }
+
+    .announcement-attachment-icon {
+        @apply w-9 h-9 rounded-lg bg-primary-container text-primary flex items-center justify-center flex-shrink-0;
+    }
+
+    .announcement-attachment-name {
+        @apply text-sm font-medium text-on-surface flex-1 truncate;
+    }
+
+    .announcement-audience-chip {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .announcement-audience-chip--all {
+        @apply bg-surface-container text-on-surface-variant;
+    }
+
+    .announcement-audience-chip--dosen {
+        @apply bg-primary-container text-primary;
+    }
+
+    .announcement-audience-chip--mahasiswa {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .announcement-create-form {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient;
+    }

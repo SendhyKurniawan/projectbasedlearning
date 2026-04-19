@@ -1,0 +1,65 @@
+
+    .grades-history-semester-header {
+        @apply font-headline font-semibold text-on-surface mb-3 pb-2 border-b border-outline-variant flex items-center justify-between;
+    }
+
+    .grades-history-gpa-chip {
+        @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-bold bg-primary-container text-primary;
+    }
+
+    .grades-history-table {
+        @apply w-full;
+    }
+
+    .grades-history-table th {
+        @apply text-left text-xs font-semibold text-on-surface-variant px-3 py-2;
+    }
+
+    .grades-history-table td {
+        @apply px-3 py-3 text-sm text-on-surface border-b border-outline-variant/20 last:border-0;
+    }
+
+    .grades-history-letter {
+        @apply inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm;
+    }
+
+    .grades-history-letter--a {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .grades-history-letter--b {
+        @apply bg-primary-container text-primary;
+    }
+
+    .grades-history-letter--c {
+        @apply bg-warning-light text-warning;
+    }
+
+    .grades-history-letter--d,
+    .grades-history-letter--e {
+        @apply bg-error-container text-error;
+    }
+
+    .grades-history-cumulative {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient mb-6;
+    }
+
+    .grades-history-cumulative-gpa {
+        @apply font-headline font-bold text-5xl text-on-surface;
+    }
+
+    .grades-history-cumulative-label {
+        @apply text-on-surface-variant;
+    }
+
+    .grades-history-credit-bar {
+        @apply h-2 bg-surface-container rounded-full overflow-hidden mt-3;
+    }
+
+    .grades-history-credit-fill {
+        @apply h-full bg-primary rounded-full;
+    }
+
+    .grades-history-semester-block {
+        @apply bg-surface-container-lowest rounded-2xl p-5 shadow-ambient mb-4;
+    }

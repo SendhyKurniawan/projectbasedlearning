@@ -1,10 +1,13 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/assignments.css')
+@endpush
 <x-app-layout>
     @vite(['resources/js/code-editor.js'])
     
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 bg-white border border-outline-variant/30 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-on-surface">
+                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </a>
                 <div>
@@ -29,7 +32,7 @@
 
     <div class="w-full">
         @if(session('success'))
-            <div class="mb-6 bg-emerald-50 border border-emerald-200 text-secondary-fixed-variant px-5 py-4 rounded-xl font-bold shadow-sm flex items-center gap-3">
+            <div class="mb-6 bg-secondary-container border border-secondary/20 text-secondary px-5 py-4 rounded-xl font-bold shadow-sm flex items-center gap-3">
                 <span class="material-symbols-outlined text-secondary">check_circle</span>
                 {{ session('success') }}
             </div>
@@ -71,11 +74,11 @@
                                             {{ $submission->submitted_at->format('d M, H:i') }}
                                         </p>
                                         @if($submission->score !== null)
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-secondary-container text-secondary">
                                                 {{ $submission->score }}/{{ $assignment->max_score }}
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-100 text-amber-800">
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-warning-light text-on-warning">
                                                 UNGRADED
                                             </span>
                                         @endif
@@ -122,11 +125,11 @@
                             <div class="flex-1 overflow-y-auto p-6 bg-surface space-y-6">
                                 
                                 @if($submission->notes)
-                                    <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl shadow-sm">
-                                        <h5 class="text-xs font-bold text-blue-800 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                    <div class="bg-primary-container/30 border-l-4 border-primary p-5 rounded-r-xl shadow-sm">
+                                        <h5 class="text-xs font-bold text-primary uppercase tracking-widest mb-2 flex items-center gap-2">
                                             <span class="material-symbols-outlined text-[16px]">format_quote</span> Catatan Mahasiswa
                                         </h5>
-                                        <p class="text-sm text-blue-900 leading-relaxed font-medium">{{ $submission->notes }}</p>
+                                        <p class="text-sm text-on-surface leading-relaxed font-medium">{{ $submission->notes }}</p>
                                     </div>
                                 @endif
 
@@ -138,7 +141,7 @@
                                             Lampiran File
                                         </h4>
                                         <a href="{{ Storage::url($submission->file_path) }}" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 bg-white border border-outline-variant/30 rounded-xl hover:bg-surface-container-low hover:border-primary transition-all shadow-sm group">
-                                            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-600 flex items-center justify-center">
+                                            <div class="w-10 h-10 rounded-lg bg-error-container text-error flex items-center justify-center">
                                                 <span class="material-symbols-outlined">picture_as_pdf</span>
                                             </div>
                                             <div>
@@ -149,7 +152,7 @@
 
                                         @if(Str::endsWith(strtolower($submission->file_path), ['.jpg', '.jpeg', '.png', '.webp']))
                                             <div class="mt-4 border border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
-                                                 <img src="{{ Storage::url($submission->file_path) }}" class="w-full object-contain max-h-[500px] bg-slate-50">
+                                                 <img src="{{ Storage::url($submission->file_path) }}" class="w-full object-contain max-h-[500px] bg-surface-container-low">
                                             </div>
                                         @endif
                                     </div>
@@ -163,7 +166,7 @@
                                             Tautan / Repositori
                                         </h4>
                                         <a href="{{ $submission->url_link }}" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 bg-white border border-outline-variant/30 rounded-xl hover:bg-surface-container-low hover:border-primary transition-all shadow-sm group w-full md:w-auto">
-                                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                                            <div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0">
                                                 <span class="material-symbols-outlined">public</span>
                                             </div>
                                             <div class="min-w-0">
@@ -183,15 +186,15 @@
                                                 Source Code Jawaban
                                             </h4>
                                             @if($submission->auto_graded || $submission->validation_result)
-                                                <span class="px-3 py-1 bg-violet-100 text-violet-800 text-[10px] uppercase font-bold rounded-full border border-violet-200">
+                                                <span class="px-3 py-1 bg-primary-container text-on-primary text-[10px] uppercase font-bold rounded-full border border-primary/20">
                                                     Sistem Validasi Otomatis
                                                 </span>
                                             @endif
                                         </div>
 
                                         @if($submission->validation_result)
-                                            <div class="mb-4 bg-slate-50 border border-outline-variant/30 rounded-xl p-4 flex gap-4 items-start shadow-sm">
-                                                <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 {{ $submission->validation_result['passed'] ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600' }}">
+                                            <div class="mb-4 bg-surface-container-low border border-outline-variant/30 rounded-xl p-4 flex gap-4 items-start shadow-sm">
+                                                <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 {{ $submission->validation_result['passed'] ? 'bg-secondary-container text-secondary' : 'bg-warning-light text-on-warning' }}">
                                                     <span class="material-symbols-outlined">{{ $submission->validation_result['passed'] ? 'check_circle' : 'warning' }}</span>
                                                 </div>
                                                 <div>
@@ -247,7 +250,7 @@
                                                    value="{{ old('score', $submission->score) }}"
                                                    min="0" 
                                                    max="{{ $assignment->max_score }}"
-                                                   class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 font-extrabold text-primary text-lg focus:ring-2 focus:ring-primary shadow-inner"
+                                                   class="w-full bg-surface-container-low border border-outline-variant/30 rounded-xl px-4 py-3 font-extrabold text-on-surface text-lg focus:ring-2 focus:ring-primary shadow-inner"
                                                    placeholder="0"
                                                    required>
                                         </div>
@@ -261,7 +264,7 @@
                                                    placeholder="Berikan catatan, pujian, atau saran perbaikan (opsional)">
                                         </div>
 
-                                        <button type="submit" class="w-full md:w-auto shrink-0 bg-primary hover:bg-primary/90 text-white font-bold font-headline px-8 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
+                                        <button type="submit" class="w-full md:w-auto shrink-0 bg-primary hover:bg-primary-hover text-on-primary font-bold font-headline px-8 py-3 rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
                                             <span class="material-symbols-outlined text-[20px]">save</span>
                                             {{ $submission->score !== null ? 'Perbarui' : 'Simpan Nilai' }}
                                         </button>

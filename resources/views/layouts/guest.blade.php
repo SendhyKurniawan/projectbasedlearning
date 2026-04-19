@@ -4,6 +4,18 @@
  <meta charset="utf-8">
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <meta name="csrf-token" content="{{ csrf_token() }}">
+ <script>
+  (function(){
+   var t=localStorage.getItem('theme')||'system';
+   var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+   if(t==='dark'||(t==='system'&&prefersDark))document.documentElement.classList.add('dark');
+   window.setTheme=function(mode){
+    localStorage.setItem('theme',mode);
+    var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.classList.toggle('dark',dark);
+   };
+  })();
+ </script>
 
  <title>{{ config('app.name', 'PBL Workspace') }}</title>
 
@@ -16,6 +28,7 @@
 
  <!-- Scripts -->
  @vite(['resources/css/app.css', 'resources/css/design-system.css', 'resources/js/app.js'])
+ @stack('styles')
  </head>
  <body class="font-body text-on-surface antialiased min-h-screen bg-surface">
  <main class="flex w-full min-h-screen overflow-hidden">
@@ -38,11 +51,11 @@
  <!-- Bento-style Stats -->
  <div class="relative z-10 grid grid-cols-2 gap-4 mt-12 items-start">
  <div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
- <div class="text-emerald-300 font-headline font-bold text-3xl mb-1">PBL</div>
+ <div class="text-secondary-container font-headline font-bold text-3xl mb-1">PBL</div>
  <div class="text-white/50 text-sm">Project-Based Learning</div>
  </div>
  <div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
- <div class="text-emerald-300 font-headline font-bold text-3xl mb-1">Live</div>
+ <div class="text-secondary-container font-headline font-bold text-3xl mb-1">Live</div>
  <div class="text-white/50 text-sm">Real-time Collaboration</div>
  </div>
  </div>

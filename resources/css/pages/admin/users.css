@@ -1,0 +1,64 @@
+
+    .user-avatar-circle {
+        @apply w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0;
+    }
+
+    .user-avatar-circle--admin {
+        @apply bg-error-container text-error;
+    }
+
+    .user-avatar-circle--dosen {
+        @apply bg-primary-container text-primary;
+    }
+
+    .user-avatar-circle--mahasiswa {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .user-role-badge {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .user-role-badge--admin {
+        @apply bg-error-container text-error;
+    }
+
+    .user-role-badge--dosen {
+        @apply bg-primary-container text-primary;
+    }
+
+    .user-role-badge--mahasiswa {
+        @apply bg-secondary-container text-secondary;
+    }
+
+    .user-status-active {
+        @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-secondary-container text-secondary;
+    }
+
+    .user-status-pending {
+        @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-warning-light text-warning;
+    }
+
+    .user-status-dot {
+        @apply w-1.5 h-1.5 rounded-full animate-pulse;
+    }
+
+    .pending-alert {
+        @apply rounded-xl p-4 mb-6 flex items-start gap-3 bg-warning-light border border-warning/20;
+    }
+
+    .pending-alert-text {
+        @apply text-sm text-warning;
+    }
+
+    .user-action-btn {
+        @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors;
+    }
+
+    .user-action-btn--deactivate {
+        @apply bg-warning-light text-warning hover:bg-warning/20;
+    }
+
+    .user-action-btn--activate {
+        @apply bg-secondary-container text-secondary hover:bg-secondary/20;
+    }

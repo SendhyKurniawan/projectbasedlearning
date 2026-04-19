@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/mahasiswa/quiz-take.css')
+@endpush
 <x-app-layout>
  <div class="min-h-screen bg-surface-container-low space-y-6">
  <div class="px-6 lg:px-8">
@@ -8,8 +11,8 @@
  <p class="text-sm text-on-surface-variant">Question {{ $quiz->questions->count() }} Items</p>
  </div>
  
- <div class="flex items-center gap-2 bg-surface-container-lowest px-4 py-2 rounded-lg shadow-sm border border-red-100">
- <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+ <div class="flex items-center gap-2 bg-surface-container-lowest px-4 py-2 rounded-lg shadow-sm border border-error-container">
+ <svg class="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
  <span class="text-lg font-mono font-bold text-error" x-text="formattedTime">00:00:00</span>
  </div>
  </div>
@@ -22,7 +25,7 @@
  <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-container-low overflow-hidden">
  <div class="p-6">
  <div class="flex items-start gap-4 mb-4">
- <div class="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+ <div class="flex-shrink-0 w-8 h-8 bg-primary-container text-on-primary rounded-full flex items-center justify-center font-bold text-sm">
  {{ $index + 1 }}
  </div>
  <div class="flex-1">
@@ -40,7 +43,7 @@
  <input type="radio" 
  name="answers[{{ $question->id }}]" 
  value="{{ $option->id }}" 
- class="w-4 h-4 text-blue-600 border-outline-variant/30 focus:ring-blue-500:ring-blue-600 ">
+ class="w-4 h-4 text-primary border-outline-variant/30 focus:ring-primary">
  <span class="ml-3 text-on-surface-variant">{{ $option->option_text }}</span>
  </label>
  @endforeach
@@ -48,7 +51,7 @@
  @elseif($question->question_type === 'essay' || $question->question_type === 'code_snippet')
  <textarea name="answers[{{ $question->id }}]" 
  rows="5" 
- class="w-full rounded-lg border-outline-variant/30 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm p-4"
+ class="w-full rounded-lg border-outline-variant/30 focus:ring-primary focus:border-primary font-mono text-sm p-4"
  placeholder="Type your answer here..."></textarea>
  @endif
  </div>
@@ -59,7 +62,7 @@
 
  <div class="mt-8 flex justify-end">
  <button type="submit" 
- class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
+ class="px-8 py-3 bg-primary hover:bg-primary-hover text-on-primary font-semibold rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-0.5"
  onclick="return confirm('Are you sure you want to submit your quiz? You cannot undo this action.')">
  Submit Quiz
  </button>

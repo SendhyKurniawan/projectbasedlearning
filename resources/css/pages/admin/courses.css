@@ -1,0 +1,40 @@
+
+    .course-card-grid {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+    }
+
+    .course-card-cover {
+        @apply w-full h-36 rounded-xl object-cover bg-surface-container;
+    }
+
+    .course-card-meta {
+        @apply flex items-center gap-2 text-xs text-on-surface-variant mt-2;
+    }
+
+    .course-code-chip {
+        @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-surface-container text-on-surface-variant;
+    }
+
+    .course-status-active {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-secondary-container text-secondary;
+    }
+
+    .course-status-inactive {
+        @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface-container text-on-surface-variant;
+    }
+
+    .course-dosen-chip {
+        @apply flex items-center gap-2 mt-3 text-sm text-on-surface-variant;
+    }
+
+    .course-dosen-avatar {
+        @apply w-6 h-6 rounded-full bg-primary-container text-primary text-xs flex items-center justify-center font-bold;
+    }
+
+    .course-create-form {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient;
+    }
+
+    .course-section-header {
+        @apply font-headline font-semibold text-base text-on-surface mb-4 pb-2 border-b border-outline-variant;
+    }

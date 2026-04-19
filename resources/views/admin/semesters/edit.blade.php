@@ -21,7 +21,7 @@
  <!-- Academic Year -->
  <div>
  <x-input-label for="academic_year_id" :value="__('Tahun Akademik')" />
- <select id="academic_year_id" name="academic_year_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm">
+ <select id="academic_year_id" name="academic_year_id" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm">
  @foreach($academicYears as $year)
  <option value="{{ $year->id }}" {{ old('academic_year_id', $semester->academic_year_id) == $year->id ? 'selected' : '' }}>
  {{ $year->year_start }}/{{ $year->year_end }}
@@ -34,7 +34,7 @@
  <!-- Semester Name -->
  <div class="mt-4">
  <x-input-label for="name" :value="__('Semester')" />
- <select id="name" name="name" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm">
+ <select id="name" name="name" class="block mt-1 w-full border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm">
  <option value="Ganjil" {{ old('name', $semester->name) == 'Ganjil' ? 'selected' : '' }}>Ganjil</option>
  <option value="Genap" {{ old('name', $semester->name) == 'Genap' ? 'selected' : '' }}>Genap</option>
  </select>
@@ -60,7 +60,7 @@
  <!-- Is Active -->
  <div class="block mt-4">
  <label for="is_active" class="inline-flex items-center">
- <input id="is_active" type="checkbox" class="rounded border-outline-variant/30 text-primary shadow-sm focus:ring-primary/20:ring-indigo-600:ring-offset-gray-800" name="is_active" {{ old('is_active', $semester->is_active) ? 'checked' : '' }}>
+ <input id="is_active" type="checkbox" class="rounded border-outline-variant/30 text-primary shadow-sm focus:ring-primary/20" name="is_active" {{ old('is_active', $semester->is_active) ? 'checked' : '' }}>
  <span class="ms-2 text-sm text-on-surface-variant">{{ __('Set as Active Semester') }}</span>
  </label>
  </div>

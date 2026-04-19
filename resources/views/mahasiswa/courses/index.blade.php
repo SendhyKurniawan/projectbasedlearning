@@ -25,12 +25,30 @@
         @endif
 
         <div class="bg-surface-container-lowest rounded-[2.5rem] p-8 border border-outline-variant/10 shadow-sm">
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <h3 class="text-xl font-black text-on-surface font-headline uppercase tracking-tighter ">Katalog Mata Kuliah</h3>
-                <div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full border border-outline-variant/20">
-                    <span class="material-symbols-outlined text-sm text-outline">filter_list</span>
-                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Terbaru</span>
-                </div>
+                <form method="GET" action="{{ route('mahasiswa.courses.index') }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 md:max-w-xl">
+                    <div class="relative flex-1">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, kode, atau dosen..."
+                            class="w-full pl-10 pr-4 py-2.5 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 outline-none text-on-surface text-sm placeholder:text-outline/60">
+                    </div>
+                    <select name="sort" class="py-2.5 px-4 bg-surface-container-highest rounded-xl border-none text-on-surface text-sm focus:ring-2 focus:ring-primary/20 outline-none appearance-none cursor-pointer min-w-[140px]">
+                        <option value="terbaru" {{ ($sort ?? 'terbaru') === 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                        <option value="terlama" {{ ($sort ?? '') === 'terlama' ? 'selected' : '' }}>Terlama</option>
+                        <option value="nama_az" {{ ($sort ?? '') === 'nama_az' ? 'selected' : '' }}>Nama A-Z</option>
+                        <option value="nama_za" {{ ($sort ?? '') === 'nama_za' ? 'selected' : '' }}>Nama Z-A</option>
+                    </select>
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-on-primary text-sm font-bold rounded-xl hover:bg-primary/90 transition-colors">
+                        <span class="material-symbols-outlined text-sm">filter_list</span>
+                        Filter
+                    </button>
+                    @if(request()->hasAny(['search','sort']) && (request('search') || request('sort') !== 'terbaru'))
+                    <a href="{{ route('mahasiswa.courses.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-surface-container-high text-on-surface-variant text-sm font-bold rounded-xl hover:bg-surface-container-highest transition-colors">
+                        Reset
+                    </a>
+                    @endif
+                </form>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

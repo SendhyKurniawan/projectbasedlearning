@@ -51,14 +51,13 @@ const ConferenceUI = {
 
     // ---- Panel management ----
     togglePanel(panel) {
-        if (ConferenceUI.sidePanel === panel) {
-            ConferenceUI.closePanel();
-        } else {
-            ConferenceUI.sidePanel = panel;
-            document.getElementById('panel-chat')?.classList.add('panel-hidden');
-            document.getElementById('panel-participants')?.classList.add('panel-hidden');
-            const target = document.getElementById('panel-' + panel);
-            target?.classList.remove('panel-hidden');
+        const target = document.getElementById('panel-' + panel);
+        if (!target) return;
+        
+        const isHidden = target.classList.contains('panel-hidden');
+        
+        if (isHidden) {
+            target.classList.remove('panel-hidden');
             document.getElementById('side-panel-wrapper')?.classList.remove('panel-hidden');
             if (panel === 'chat') {
                 ConferenceUI.unreadCount = 0;
@@ -72,12 +71,28 @@ const ConferenceUI = {
             if (panel === 'participants') {
                 ConferenceUI.renderParticipants();
             }
+        } else {
+            target.classList.add('panel-hidden');
+            const chatHidden = document.getElementById('panel-chat')?.classList.contains('panel-hidden') !== false;
+            const participantsHidden = document.getElementById('panel-participants')?.classList.contains('panel-hidden') !== false;
+            if (chatHidden && participantsHidden) {
+                document.getElementById('side-panel-wrapper')?.classList.add('panel-hidden');
+            }
         }
     },
 
-    closePanel() {
-        ConferenceUI.sidePanel = null;
-        document.getElementById('side-panel-wrapper')?.classList.add('panel-hidden');
+    closePanel(panel) {
+        if (panel) {
+            const target = document.getElementById('panel-' + panel);
+            if (target && !target.classList.contains('panel-hidden')) {
+                this.togglePanel(panel);
+            }
+        } else {
+            ConferenceUI.sidePanel = null;
+            document.getElementById('side-panel-wrapper')?.classList.add('panel-hidden');
+            document.getElementById('panel-chat')?.classList.add('panel-hidden');
+            document.getElementById('panel-participants')?.classList.add('panel-hidden');
+        }
     },
 
     // ---- Chat ----
@@ -131,9 +146,9 @@ const ConferenceUI = {
             <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0 self-end"
                  style="background:${msg.senderColor}">${initials}</div>
             <div class="max-w-[75%] flex flex-col gap-0.5 ${msg.isMe ? 'items-end' : 'items-start'}">
-                ${!msg.isMe ? `<span class="text-xs text-gray-400 px-1">${msg.senderName}</span>` : ''}
-                <div class="px-3 py-2 rounded-2xl text-sm text-white ${msg.isMe ? 'rounded-br-sm bg-blue-600' : 'rounded-bl-sm bg-[#3c4043]'}">${msg.message}</div>
-                <span class="text-xs text-gray-500 px-1">${time}</span>
+                ${!msg.isMe ? `<span class="text-xs text-on-surface-variant px-1">${msg.senderName}</span>` : ''}
+                <div class="px-3 py-2 rounded-2xl text-sm ${msg.isMe ? 'rounded-br-sm bg-primary text-on-primary' : 'rounded-bl-sm bg-surface-container text-on-surface'}">${msg.message}</div>
+                <span class="text-xs text-on-surface-variant px-1">${time}</span>
             </div>`;
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
@@ -164,15 +179,15 @@ const ConferenceUI = {
 
         let html = '';
         if (hosts.length > 0) {
-            html += `<p class="text-xs text-gray-500 px-2 py-1 uppercase tracking-wider">Host (${hosts.length})</p>`;
+            html += `<p class="text-xs text-on-surface-variant px-2 py-1 uppercase tracking-wider">Host (${hosts.length})</p>`;
             hosts.forEach(p => { html += ConferenceUI.participantItemHtml(p); });
         }
         if (guests.length > 0) {
-            html += `<p class="text-xs text-gray-500 px-2 py-1 uppercase tracking-wider mt-2">Peserta (${guests.length})</p>`;
+            html += `<p class="text-xs text-on-surface-variant px-2 py-1 uppercase tracking-wider mt-2">Peserta (${guests.length})</p>`;
             guests.forEach(p => { html += ConferenceUI.participantItemHtml(p); });
         }
         if (filtered.length === 0) {
-            html = '<div class="text-center text-gray-500 text-sm py-8">Tidak ada peserta ditemukan</div>';
+            html = '<div class="text-center text-on-surface-variant text-sm py-8">Tidak ada peserta ditemukan</div>';
         }
         list.innerHTML = html;
 
@@ -184,10 +199,12 @@ const ConferenceUI = {
         const footer = document.getElementById('participants-footer');
         if (footer) {
             footer.innerHTML = `
-                <div class="text-center"><p class="text-on-surface font-bold">${total}</p><p class="text-on-surface-variant text-xs">Peserta</p></div>
-                <div class="text-center"><p class="text-on-surface font-bold">${micActive}</p><p class="text-on-surface-variant text-xs">Mik aktif</p></div>
-                <div class="text-center"><p class="text-on-surface font-bold">${vidActive}</p><p class="text-on-surface-variant text-xs">Video aktif</p></div>
-                <div class="text-center"><p class="text-on-surface font-bold">${hands}</p><p class="text-on-surface-variant text-xs">Tangan</p></div>`;
+                <div class="grid grid-cols-4 gap-2 w-full">
+                    <div class="text-center"><p class="text-on-surface font-bold">${total}</p><p class="text-on-surface-variant text-xs">Peserta</p></div>
+                    <div class="text-center"><p class="text-on-surface font-bold">${micActive}</p><p class="text-on-surface-variant text-xs">Mik aktif</p></div>
+                    <div class="text-center"><p class="text-on-surface font-bold">${vidActive}</p><p class="text-on-surface-variant text-xs">Video aktif</p></div>
+                    <div class="text-center"><p class="text-on-surface font-bold">${hands}</p><p class="text-on-surface-variant text-xs">Tangan</p></div>
+                </div>`;
         }
     },
 

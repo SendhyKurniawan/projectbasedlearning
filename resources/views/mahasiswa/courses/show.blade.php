@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/mahasiswa/courses.css')
+@endpush
 <x-app-layout>
     @php
         $totalItems = count($learningPath);
@@ -166,7 +169,7 @@
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="text-xl font-headline font-black uppercase tracking-tighter">Evaluasi & Kuis</h3>
                     <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+                        <span class="w-2 h-2 rounded-full bg-warning animate-pulse"></span>
                         <span class="text-[10px] font-black uppercase text-on-surface-variant tracking-widest">Active</span>
                     </div>
                 </div>

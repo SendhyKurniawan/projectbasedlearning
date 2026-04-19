@@ -1,9 +1,12 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/questions.css')
+@endpush
 <x-app-layout>
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-white border border-outline-variant/30 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-on-surface">
+                <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </a>
                 <div>
@@ -40,7 +43,7 @@
                             </label>
                             <div class="relative">
                                 <select name="question_type" id="question_type" x-model="type" required
-                                    class="w-full bg-white border border-outline-variant/30 rounded-xl pl-4 pr-10 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl pl-4 pr-10 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
                                     <option value="pilihan_ganda">Pilihan Ganda (Multiple Choice)</option>
                                     <option value="essay">Uraian (Essay)</option>
                                     <option value="code_snippet">Snippet Kode / Praktik IT</option>
@@ -54,7 +57,7 @@
                                 Bobot Nilai
                             </label>
                             <input type="number" name="score_weight" id="score_weight" value="{{ old('score_weight', 1) }}" required min="1"
-                                class="w-full bg-white border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
+                                class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-4 py-3 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary shadow-inner">
                             <p class="text-[10px] uppercase font-bold text-on-surface-variant mt-2 flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">info</span> Poin nilai jika jawaban benar.</p>
                         </div>
                     </div>
@@ -69,10 +72,10 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             @for($i = 0; $i < 4; $i++)
                                 <div class="relative group">
-                                    <div class="flex items-center gap-3 p-3 bg-white border border-outline-variant/30 rounded-xl shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+                                    <div class="flex items-center gap-3 p-3 bg-surface-container-lowest border border-outline-variant/30 rounded-xl shadow-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
                                         <div class="flex items-center justify-center shrink-0">
                                             <input type="radio" name="correct_idx" id="opt_{{ $i }}" @click="$refs.correctIdxInput_{{ $i }}.checked = true; $refs.correctInput_{{ $i }}.value = 1" 
-                                                class="w-5 h-5 text-emerald-600 border-outline-variant/40 bg-surface-container-high focus:ring-emerald-600 cursor-pointer transition-colors"
+                                                class="w-5 h-5 text-secondary dark:text-secondary-fixed-dim border-outline-variant/40 bg-surface-container-high focus:ring-secondary/30 cursor-pointer transition-colors"
                                                 {{ $i === 0 ? 'checked' : '' }}>
                                         </div>
                                         <label for="opt_{{ $i }}" class="w-6 h-6 rounded bg-surface-container-highest text-on-surface text-[10px] font-bold flex items-center justify-center shrink-0 border border-outline-variant/20 uppercase tracking-widest cursor-pointer">
@@ -102,7 +105,7 @@
 
                     <div class="pt-6 border-t border-outline-variant/20 flex flex-col sm:flex-row justify-end gap-3">
                         <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" class="px-6 py-3 border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl hover:bg-surface-container transition-colors text-center">Batalkan</a>
-                        <button type="submit" class="px-8 py-3 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
+                        <button type="submit" class="px-8 py-3 bg-primary hover:bg-primary/90 text-on-primary font-bold rounded-xl shadow-md flex items-center justify-center gap-2 transition-transform hover:scale-105 active:scale-95">
                             <span class="material-symbols-outlined text-[20px]">save</span> Simpan Pertanyaan
                         </button>
                     </div>
