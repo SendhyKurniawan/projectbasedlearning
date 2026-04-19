@@ -1,9 +1,12 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/assignments.css')
+@endpush
 <x-app-layout>
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.quizzes.attempts.index', $quiz) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-white border border-outline-variant/30 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-on-surface">
+                <a href="{{ route('dosen.quizzes.attempts.index', $quiz) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
                     <span class="material-symbols-outlined">arrow_back</span>
                 </a>
                 <div>
@@ -19,7 +22,7 @@
                 <!-- Info Mahasiswa -->
                 <div class="bg-surface-container-lowest border border-outline-variant/30 p-6 rounded-2xl shadow-sm relative overflow-hidden">
                     <div class="flex items-center gap-4 mb-6 relative z-10">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container text-white flex items-center justify-center font-bold font-headline text-2xl uppercase shadow-inner">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary flex items-center justify-center font-bold font-headline text-2xl uppercase shadow-inner">
                             {{ substr($attempt->mahasiswa->name ?? 'U', 0, 1) }}
                         </div>
                         <div>
@@ -82,7 +85,7 @@
                             @endif
 
                             <div class="flex items-start gap-5 relative z-10">
-                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 mt-1 {{ $question->question_type === 'pilihan_ganda' ? ($isCorrect ? 'bg-emerald-100 text-emerald-700 ring-4 ring-emerald-50' : 'bg-error-container text-on-error-container ring-4 ring-error/10') : 'bg-surface-container-highest text-on-surface ring-4 ring-surface' }}">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 mt-1 {{ $question->question_type === 'pilihan_ganda' ? ($isCorrect ? 'bg-secondary-container text-secondary ring-4 ring-secondary/10' : 'bg-error-container text-on-error-container ring-4 ring-error/10') : 'bg-surface-container-highest text-on-surface ring-4 ring-surface' }}">
                                     {{ $index + 1 }}
                                 </div>
                                 
@@ -99,16 +102,16 @@
                                                     $isCorrectChoice = $option->is_correct;
                                                     
                                                     $cardClass = 'bg-surface border border-outline-variant/20';
-                                                    if ($isUserChoice && $isCorrect) $cardClass = 'bg-emerald-50 border border-emerald-300 shadow-sm';
+                                                    if ($isUserChoice && $isCorrect) $cardClass = 'bg-secondary-container border border-secondary/30 shadow-sm';
                                                     elseif ($isUserChoice && !$isCorrect) $cardClass = 'bg-error-container/30 border border-error/30';
-                                                    elseif (!$isUserChoice && $isCorrectChoice) $cardClass = 'bg-emerald-50/50 border border-emerald-300/50 border-dashed';
+                                                    elseif (!$isUserChoice && $isCorrectChoice) $cardClass = 'bg-secondary-container/50 border border-secondary/30 border-dashed';
                                                 @endphp
 
                                                 <div class="p-3 md:p-4 rounded-xl flex items-center justify-between gap-4 {{ $cardClass }} transition-colors">
                                                     <div class="flex items-center gap-3">
                                                         @if($isUserChoice)
                                                             @if($isCorrect)
-                                                                <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+                                                                <span class="material-symbols-outlined text-secondary">check_circle</span>
                                                             @else
                                                                 <span class="material-symbols-outlined text-error">cancel</span>
                                                             @endif
@@ -121,7 +124,7 @@
                                                     <!-- Badges -->
                                                     <div class="flex items-center gap-2 shrink-0">
                                                         @if($isCorrectChoice)
-                                                            <span class="px-2 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase rounded-md">Kunci Jawaban</span>
+                                                            <span class="px-2 py-1 bg-secondary-container text-secondary text-[10px] font-bold uppercase rounded-md">Kunci Jawaban</span>
                                                         @endif
                                                         @if($isUserChoice && !$isCorrect)
                                                             <span class="px-2 py-1 bg-error/10 text-error text-[10px] font-bold uppercase rounded-md">Pilihan Mahasiswa</span>
@@ -139,10 +142,10 @@
                                                 <div class="p-4 bg-surface-container-low rounded-xl border border-outline-variant/20 font-mono text-sm whitespace-pre-wrap shadow-inner text-on-surface">{{ $userAnswer ?? 'Tidak ada jawaban' }}</div>
                                             </div>
                                             <div>
-                                                <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                                                <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                                     <span class="material-symbols-outlined text-[14px]">verified</span> Kriteria Rubrik / Kunci Jawaban:
                                                 </p>
-                                                <div class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-200 text-sm text-emerald-900 font-medium">
+                                                <div class="p-4 bg-secondary-container/50 rounded-xl border border-secondary/20 text-sm text-on-surface font-medium">
                                                     {{ $question->correct_answer ?? 'Kunci jawaban tidak tersedia.' }}
                                                 </div>
                                             </div>

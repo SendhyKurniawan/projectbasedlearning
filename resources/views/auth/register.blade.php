@@ -15,19 +15,19 @@
  <div class="flex gap-3">
  <button type="button" id="tab-mahasiswa" onclick="switchRole('mahasiswa')"
  class="flex-1 py-3 px-4 text-sm font-bold rounded-xl border-2 transition-all duration-200
- {{ old('role', 'mahasiswa') !== 'dosen' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:bg-surface-container-high' }}">
+ {{ old('role', 'mahasiswa') !== 'dosen' ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:bg-surface-container-high' }}">
  Mahasiswa
  </button>
  <button type="button" id="tab-dosen" onclick="switchRole('dosen')"
  class="flex-1 py-3 px-4 text-sm font-bold rounded-xl border-2 transition-all duration-200
- {{ old('role') === 'dosen' ? 'bg-primary text-white border-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:bg-surface-container-high' }}">
+ {{ old('role') === 'dosen' ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border-transparent hover:bg-surface-container-high' }}">
  Dosen
  </button>
  </div>
  </div>
 
  {{-- Dosen Approval Notice --}}
- <div id="dosen-notice" class="{{ old('role') === 'dosen' ? '' : 'hidden' }} text-sm text-amber-700 bg-amber-50 border-l-4 border-amber-400 rounded-xl p-4">
+ <div id="dosen-notice" class="{{ old('role') === 'dosen' ? '' : 'hidden' }} text-sm text-on-warning bg-warning-light border-l-4 border-warning rounded-xl p-4">
  Akun dosen memerlukan <strong>persetujuan admin</strong> sebelum dapat digunakan.
  </div>
 
@@ -36,7 +36,7 @@
  <label class="block text-sm font-semibold text-on-surface-variant" for="name">Nama Lengkap</label>
  <div class="relative">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">person</span>
- <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
  id="name" name="name" type="text" :value="old('name')" placeholder="Nama lengkap Anda" required autofocus autocomplete="name" />
  </div>
  <x-input-error :messages="$errors->get('name')" class="mt-1" />
@@ -47,7 +47,7 @@
  <label class="block text-sm font-semibold text-on-surface-variant" for="email">Email</label>
  <div class="relative">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">alternate_email</span>
- <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
  id="email" name="email" type="email" :value="old('email')" placeholder="contoh@email.com" required autocomplete="username" />
  </div>
  <x-input-error :messages="$errors->get('email')" class="mt-1" />
@@ -58,7 +58,7 @@
  <label class="block text-sm font-semibold text-on-surface-variant" for="nim">NIM</label>
  <div class="relative">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">badge</span>
- <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
  id="nim" name="nim" type="text" :value="old('nim')" placeholder="Nomor Induk Mahasiswa" autocomplete="off" maxlength="20" />
  </div>
  <x-input-error :messages="$errors->get('nim')" class="mt-1" />
@@ -70,7 +70,7 @@
  <div class="relative">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">meeting_room</span>
  <select id="student_class_id" name="student_class_id"
- class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface appearance-none">
+ class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface appearance-none">
  <option value="">Pilih Kode Kelas</option>
  @isset($studentClasses)
  @foreach($studentClasses as $klass)
@@ -89,7 +89,7 @@
  <label class="block text-sm font-semibold text-on-surface-variant" for="nip">NIP</label>
  <div class="relative">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">badge</span>
- <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ <input class="w-full pl-12 pr-4 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
  id="nip" name="nip" type="text" :value="old('nip')" placeholder="Nomor Induk Pegawai" autocomplete="off" maxlength="20" />
  </div>
  <x-input-error :messages="$errors->get('nip')" class="mt-1" />
@@ -100,7 +100,7 @@
  <label class="block text-sm font-semibold text-on-surface-variant" for="password">Password</label>
  <div class="relative" x-data="{ show: false }">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
- <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
  id="password" name="password" :type="show ? 'text' : 'password'" placeholder="Minimal 8 karakter" required autocomplete="new-password" />
  <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
  <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
@@ -114,7 +114,7 @@
  <label class="block text-sm font-semibold text-on-surface-variant" for="password_confirmation">Konfirmasi Password</label>
  <div class="relative" x-data="{ show: false }">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
- <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none text-on-surface placeholder:text-outline/60"
+ <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
  id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" placeholder="Ulangi password Anda" required autocomplete="new-password" />
  <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
  <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>

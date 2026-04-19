@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/dosen/grades.css')
+@endpush
 <x-app-layout>
     <div class="space-y-6">
         <!-- Header -->
@@ -92,7 +95,7 @@
                                         <h3 class="font-extrabold text-lg font-headline text-on-surface leading-tight">{{ $course->nama_matkul }}</h3>
                                         <div class="flex items-center gap-2 mt-1">
                                             <span class="text-xs font-bold font-mono text-on-surface-variant bg-surface-container px-2 py-0.5 rounded uppercase">{{ $course->kode_matkul }}</span>
-                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest bg-blue-100/50 text-blue-700 border border-blue-200">
+                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest bg-primary-container text-on-primary border border-primary/20">
                                                 {{ $course->semester->name ?? 'Semua Semester' }} ({{ $course->semester->academicYear->year_start ?? '' }}/{{ $course->semester->academicYear->year_end ?? '' }})
                                             </span>
                                         </div>
@@ -150,7 +153,7 @@
                                                             <span class="bg-surface border border-outline-variant/30 px-2.5 py-1 rounded-md text-xs">
                                                                 {{ $student->pivot->enrolled_at ? \Carbon\Carbon::parse($student->pivot->enrolled_at)->format('Y') : '-' }} 
                                                                 <span class="text-outline-variant/50 mx-1">|</span> 
-                                                                <span class="{{ $student->pivot->enrolled_at && \Carbon\Carbon::parse($student->pivot->enrolled_at)->month > 6 ? 'text-blue-600' : 'text-amber-600' }}">
+                                                                <span class="{{ $student->pivot->enrolled_at && \Carbon\Carbon::parse($student->pivot->enrolled_at)->month > 6 ? 'text-primary' : 'text-warning' }}">
                                                                     {{ $student->pivot->enrolled_at && \Carbon\Carbon::parse($student->pivot->enrolled_at)->month > 6 ? 'Ganjil' : 'Genap' }}
                                                                 </span>
                                                             </span>
@@ -167,7 +170,7 @@
                                                             @endphp
                                                             <td class="px-6 py-4 whitespace-nowrap">
                                                                 @if($score !== null)
-                                                                    <div class="inline-flex items-center justify-center min-w-[3rem] px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-sm font-extrabold shadow-sm">
+                                                                    <div class="inline-flex items-center justify-center min-w-[3rem] px-2.5 py-1 bg-secondary-container text-secondary border border-secondary/20 rounded-lg text-sm font-extrabold shadow-sm">
                                                                         {{ $score }}
                                                                     </div>
                                                                 @else
@@ -178,7 +181,7 @@
                                                         <td class="px-6 py-4 whitespace-nowrap text-right bg-primary/5 border-l border-outline-variant/10">
                                                             @if($count > 0)
                                                                 @php $avg = $totalScore / $count; @endphp
-                                                                <span class="inline-flex items-center justify-center min-w-[3.5rem] px-3 py-1.5 {{ $avg >= 80 ? 'bg-primary text-white shadow-md' : ($avg >= 60 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-error-container text-on-error-container border border-error/30') }} rounded-xl text-sm font-extrabold">
+                                                                <span class="inline-flex items-center justify-center min-w-[3.5rem] px-3 py-1.5 {{ $avg >= 80 ? 'bg-primary text-on-primary shadow-md' : ($avg >= 60 ? 'bg-warning-light text-warning border border-warning/30' : 'bg-error-container text-on-error-container border border-error/30') }} rounded-xl text-sm font-extrabold">
                                                                     {{ number_format($avg, 1) }}
                                                                 </span>
                                                             @else

@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/shared/announcements.css')
+@endpush
 <x-app-layout>
  <x-slot name="header">
  <div class="flex justify-between items-center">
@@ -5,7 +8,7 @@
  {{ __('Pusat Pengumuman') }}
  </h2>
  @if(Auth::user()->role === 'admin' || Auth::user()->role === 'dosen')
- <a href="{{ route('announcements.create') }}" class="px-4 py-2 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition ease-in-out duration-150">
+ <a href="{{ route('announcements.create') }}" class="px-4 py-2 architectural-gradient text-on-primary text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition ease-in-out duration-150">
  + Buat Pengumuman
  </a>
  @endif
@@ -18,16 +21,41 @@
  <div class="p-6 text-on-surface">
 
  @if(session('success'))
- <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4" role="alert">
+ <div class="mb-4 bg-secondary-container border-l-4 border-secondary text-secondary p-4" role="alert">
  <p>{{ session('success') }}</p>
  </div>
  @endif
+
+ <form method="GET" action="{{ route('announcements.index') }}" class="mb-6 flex flex-col sm:flex-row gap-3">
+     <input
+         type="text"
+         name="search"
+         value="{{ request('search') }}"
+         placeholder="Cari judul atau isi pengumuman..."
+         class="flex-1 px-4 py-2 rounded-xl border border-outline/30 bg-surface-container text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
+     >
+     <select name="target" class="px-4 py-2 rounded-xl border border-outline/30 bg-surface-container text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+         <option value="">Semua Target</option>
+         <option value="all" {{ request('target') === 'all' ? 'selected' : '' }}>Semua Pengguna</option>
+         <option value="mahasiswa" {{ request('target') === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
+         <option value="dosen" {{ request('target') === 'dosen' ? 'selected' : '' }}>Dosen</option>
+         <option value="specific" {{ request('target') === 'specific' ? 'selected' : '' }}>Spesifik</option>
+     </select>
+     <button type="submit" class="px-5 py-2 architectural-gradient text-on-primary text-sm font-bold rounded-xl shadow shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition ease-in-out duration-150">
+         Cari
+     </button>
+     @if(request('search') || request('target'))
+     <a href="{{ route('announcements.index') }}" class="px-4 py-2 rounded-xl border border-outline/30 text-on-surface-variant text-sm font-medium hover:bg-surface-container transition ease-in-out duration-150 text-center">
+         Reset
+     </a>
+     @endif
+ </form>
 
  <div class="space-y-6">
  @forelse ($announcements as $announcement)
  <div class="bg-surface-container-low/50 p-6 rounded-lg border border-surface-container-low shadow-sm relative">
  <h3 class="text-xl font-bold mb-2">
- <a href="{{ route('announcements.show', $announcement) }}" class="text-primary hover:text-primary-container:text-indigo-300">
+ <a href="{{ route('announcements.show', $announcement) }}" class="text-primary hover:text-primary-hover">
  {{ $announcement->title }}
  </a>
  </h3>
@@ -37,7 +65,7 @@
  <span class="mx-2 text-outline">|</span>
  <span class="text-on-surface-variant">{{ $announcement->created_at->format('d M Y, H:i') }}</span>
  <span class="mx-2 text-outline">|</span>
- <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+ <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-container text-on-primary">
  Target: {{ ucfirst($announcement->target_audience) }}
  </span>
  @if($announcement->hasAttachment())
@@ -55,11 +83,11 @@
 
  @if(Auth::id() === $announcement->user_id || Auth::user()->role === 'admin')
  <div class="absolute top-4 right-4 flex space-x-2">
- <a href="{{ route('announcements.edit', $announcement) }}" class="text-sm text-yellow-600 hover:text-yellow-900:text-yellow-300">Edit</a>
+ <a href="{{ route('announcements.edit', $announcement) }}" class="text-sm text-warning hover:text-warning/80">Edit</a>
  <form action="{{ route('announcements.destroy', $announcement) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?');">
  @csrf
  @method('DELETE')
- <button type="submit" class="text-sm text-error hover:text-red-700:text-red-300">Hapus</button>
+ <button type="submit" class="text-sm text-error hover:text-error/80">Hapus</button>
  </form>
  </div>
  @endif

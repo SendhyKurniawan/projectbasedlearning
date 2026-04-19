@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/admin/academic-hierarchy.css')
+@endpush
 <x-app-layout>
  <x-slot name="header">
  <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
@@ -12,8 +15,8 @@
  <h3 class="text-lg font-medium mb-4">Pilih Jurusan</h3>
  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
  @forelse($departments as $department)
- <a href="{{ route('admin.hierarchy.departments.show', $department) }}" class="block p-6 bg-indigo-50 border border-indigo-100 rounded-lg hover:shadow-md hover:bg-indigo-100 transition duration-150">
- <h4 class="text-xl font-bold text-indigo-700 mb-2">{{ $department->name }}</h4>
+ <a href="{{ route('admin.hierarchy.departments.show', $department) }}" class="block p-6 bg-primary-container border border-primary/10 rounded-lg hover:shadow-md hover:bg-primary-container/80 transition duration-150">
+ <h4 class="text-xl font-bold text-primary mb-2">{{ $department->name }}</h4>
  <p class="text-sm text-on-surface-variant">
  {{ $department->study_programs_count }} Program Studi
  </p>

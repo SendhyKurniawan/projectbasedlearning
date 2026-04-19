@@ -1,0 +1,68 @@
+
+    .code-exercise-layout {
+        @apply flex gap-4 h-full min-h-screen items-start;
+    }
+
+    .code-exercise-problem {
+        @apply w-80 flex-shrink-0 bg-surface-container-lowest rounded-2xl shadow-ambient overflow-y-auto sticky top-0 max-h-screen;
+    }
+
+    .code-exercise-problem-header {
+        @apply p-5 border-b border-outline-variant/30;
+    }
+
+    .code-exercise-problem-title {
+        @apply font-headline font-bold text-on-surface;
+    }
+
+    .code-exercise-problem-body {
+        @apply p-5 text-sm text-on-surface leading-relaxed;
+    }
+
+    .code-exercise-editor {
+        @apply flex-1 bg-surface-container-lowest rounded-2xl shadow-ambient overflow-hidden;
+    }
+
+    .code-exercise-editor-toolbar {
+        @apply flex items-center gap-2 px-4 py-3 border-b border-outline-variant/30;
+    }
+
+    .code-exercise-lang-select {
+        @apply text-sm bg-surface-container rounded-lg px-3 py-1.5 text-on-surface border border-outline-variant;
+    }
+
+    .code-exercise-codemirror {
+        @apply h-96 font-mono text-sm;
+    }
+
+    .code-exercise-output {
+        @apply border-t border-outline-variant/30 p-4;
+    }
+
+    .code-exercise-output-title {
+        @apply text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-2;
+    }
+
+    .code-exercise-output-console {
+        @apply font-mono text-xs bg-surface-container-high rounded-xl p-4 min-h-24 text-on-surface whitespace-pre-wrap;
+    }
+
+    .code-exercise-testcase-result {
+        @apply flex items-center gap-2 py-2 text-sm;
+    }
+
+    .code-exercise-testcase-result--pass {
+        @apply text-secondary;
+    }
+
+    .code-exercise-testcase-result--fail {
+        @apply text-error;
+    }
+
+    .code-exercise-run-btn {
+        @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-on-secondary font-medium hover:bg-secondary/90 transition-colors;
+    }
+
+    .code-exercise-submit-btn {
+        @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-on-primary font-medium hover:bg-primary-hover transition-colors;
+    }

@@ -1,0 +1,60 @@
+
+    .conference-join-card {
+        @apply bg-surface-container-lowest rounded-2xl p-6 shadow-ambient max-w-lg mx-auto;
+    }
+
+    .conference-join-title {
+        @apply font-headline font-bold text-xl text-on-surface mb-1;
+    }
+
+    .conference-join-host {
+        @apply text-sm text-on-surface-variant;
+    }
+
+    .conference-join-time {
+        @apply flex items-center gap-2 text-sm text-on-surface-variant mt-3;
+    }
+
+    .conference-join-status-live {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-error-container text-error;
+    }
+
+    .conference-join-status-upcoming {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary-container text-primary;
+    }
+
+    .conference-join-status-ended {
+        @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-container text-on-surface-variant;
+    }
+
+    .conference-join-preview {
+        @apply w-full aspect-video bg-surface-container-high rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden;
+    }
+
+    .conference-join-preview-label {
+        @apply absolute bottom-3 left-3 px-2 py-0.5 rounded text-xs bg-on-surface/60 text-surface backdrop-blur-sm;
+    }
+
+    .conference-join-controls {
+        @apply flex items-center justify-center gap-4 mb-6;
+    }
+
+    .conference-join-toggle {
+        @apply w-12 h-12 rounded-full flex items-center justify-center transition-colors;
+    }
+
+    .conference-join-toggle--on {
+        @apply bg-surface-container text-on-surface hover:bg-surface-container-high;
+    }
+
+    .conference-join-toggle--off {
+        @apply bg-error-container text-error hover:bg-error/20;
+    }
+
+    .conference-join-btn {
+        @apply w-full py-3 rounded-xl bg-primary text-on-primary font-medium hover:bg-primary-hover transition-colors;
+    }
+
+    .conference-list-row {
+        @apply flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0;
+    }

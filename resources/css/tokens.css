@@ -72,11 +72,31 @@
     --shadow-md: 0 4px 12px rgba(25, 27, 35, 0.06);
     --shadow-lg: 0 12px 32px rgba(25, 27, 35, 0.06);
     --shadow-xl: 0 16px 48px rgba(25, 27, 35, 0.1);
+
+    /* Material token RGB channels (for Tailwind opacity modifier support) */
+    --surface-rgb: 250 248 255;
+    --surface-dim-rgb: 217 217 229;
+    --surface-bright-rgb: 250 248 255;
+    --surface-tint-rgb: 0 83 219;
+    --surface-variant-rgb: 225 226 237;
+    --surface-container-rgb: 237 237 249;
+    --surface-container-low-rgb: 243 243 254;
+    --surface-container-high-rgb: 231 231 243;
+    --surface-container-highest-rgb: 225 226 237;
+    --surface-container-lowest-rgb: 255 255 255;
+    --on-surface-rgb: 25 27 35;
+    --on-surface-variant-rgb: 67 70 85;
+    --background-rgb: 250 248 255;
+    --on-background-rgb: 25 27 35;
+    --outline-rgb: 115 118 134;
+    --outline-variant-rgb: 195 198 215;
+    --inverse-surface-rgb: 46 48 57;
+    --inverse-on-surface-rgb: 240 240 251;
+    --inverse-primary-rgb: 180 197 255;
 }
 
-/* Dark mode token overrides via prefers-color-scheme */
-@media (prefers-color-scheme: dark) {
-    :root {
+/* Dark mode token overrides — toggled via .dark class on <html> */
+:root.dark {
         --color-primary: #b4c5ff;
         --color-primary-container: #003ea8;
         --color-primary-hover: #dbe1ff;
@@ -125,5 +145,25 @@
         --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
         --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.3);
         --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.4);
-    }
+
+        /* Material token RGB channels - dark mode */
+        --surface-rgb: 17 19 24;
+        --surface-dim-rgb: 17 19 24;
+        --surface-bright-rgb: 55 57 63;
+        --surface-tint-rgb: 180 197 255;
+        --surface-variant-rgb: 67 70 85;
+        --surface-container-rgb: 29 31 39;
+        --surface-container-low-rgb: 25 27 35;
+        --surface-container-high-rgb: 40 42 50;
+        --surface-container-highest-rgb: 51 53 61;
+        --surface-container-lowest-rgb: 13 14 20;
+        --on-surface-rgb: 227 226 238;
+        --on-surface-variant-rgb: 195 198 215;
+        --background-rgb: 17 19 24;
+        --on-background-rgb: 227 226 238;
+        --outline-rgb: 141 143 158;
+        --outline-variant-rgb: 67 70 85;
+        --inverse-surface-rgb: 227 226 238;
+        --inverse-on-surface-rgb: 46 48 57;
+        --inverse-primary-rgb: 0 74 198;
 }

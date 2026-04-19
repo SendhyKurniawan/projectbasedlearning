@@ -28,7 +28,7 @@
  </div>
 
  @if(Auth::user()->role === 'admin' || Auth::id() === $announcement->user_id)
- <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+ <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-container text-on-primary">
  Target Audiens: {{ ucfirst($announcement->target_audience) }}
  </div>
  @endif
@@ -69,7 +69,7 @@
 
  @if(Auth::id() === $announcement->user_id || Auth::user()->role === 'admin')
  <div class="mt-8 pt-6 border-t border-surface-container-low flex justify-end gap-3">
- <a href="{{ route('announcements.edit', $announcement) }}" class="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition ease-in-out duration-150">
+ <a href="{{ route('announcements.edit', $announcement) }}" class="px-4 py-2 bg-warning hover:bg-warning/90 border border-transparent rounded-md font-semibold text-xs text-on-surface uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-warning/30 focus:ring-offset-2 transition ease-in-out duration-150">
  Edit Pengumuman
  </a>
  </div>

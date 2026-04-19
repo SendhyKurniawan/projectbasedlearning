@@ -1,7 +1,10 @@
+@push('styles')
+    @vite('resources/css/pages/admin/academic-hierarchy.css')
+@endpush
 <x-app-layout>
  <x-slot name="header">
  <div class="flex items-center gap-2">
- <a href="{{ route('admin.hierarchy.departments.index') }}" class="text-primary hover:text-primary-container:text-indigo-300">
+ <a href="{{ route('admin.hierarchy.departments.index') }}" class="text-primary hover:text-primary-hover">
  Data Akademik
  </a>
  <span class="text-on-surface-variant">/</span>
@@ -19,10 +22,10 @@
  
  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
  @forelse($studyPrograms as $prodi)
- <a href="{{ route('admin.hierarchy.study-programs.show', $prodi) }}" class="block p-6 bg-purple-50 border border-purple-100 rounded-lg hover:shadow-md hover:bg-purple-100 transition duration-150">
+ <a href="{{ route('admin.hierarchy.study-programs.show', $prodi) }}" class="block p-6 bg-primary-container/50 border border-primary/10 rounded-lg hover:shadow-md hover:bg-primary-container/80 transition duration-150">
  <div class="flex justify-between items-start mb-2">
- <h4 class="text-xl font-bold text-purple-700">{{ $prodi->name }}</h4>
- <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-200 text-purple-800">
+ <h4 class="text-xl font-bold text-on-surface">{{ $prodi->name }}</h4>
+ <span class="px-2 py-1 text-xs font-semibold rounded-full bg-primary-container text-on-primary">
  {{ $prodi->level }}
  </span>
  </div>
@@ -32,7 +35,7 @@
  </p>
  </a>
  @empty
- <p class="text-on-surface-variant col-span-full">Belum ada program studi di jurusan ini. <a href="{{ route('admin.study-programs.create') }}" class="text-purple-600 underline">Tambah Prodi</a>.</p>
+ <p class="text-on-surface-variant col-span-full">Belum ada program studi di jurusan ini. <a href="{{ route('admin.study-programs.create') }}" class="text-primary underline">Tambah Prodi</a>.</p>
  @endforelse
  </div>
 

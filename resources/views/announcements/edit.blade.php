@@ -28,7 +28,7 @@
  <!-- Target Audience -->
  <div class="mb-4">
  <x-input-label for="target_audience" :value="__('Target Pengguna (Audiens)')" />
- <select id="target_audience" name="target_audience" class="border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full" onchange="toggleSpecificUsers()">
+ <select id="target_audience" name="target_audience" class="border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm block mt-1 w-full" onchange="toggleSpecificUsers()">
  @foreach($targets as $value => $label)
  <option value="{{ $value }}" {{ old('target_audience', $announcement->target_audience) === $value ? 'selected' : '' }}>{{ $label }}</option>
  @endforeach
@@ -50,7 +50,7 @@
  $isChecked = true;
  }
  @endphp
- <input type="checkbox" name="specific_users[]" value="{{ $user->id }}" class="rounded border-outline-variant/30 text-primary shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" {{ $isChecked ? 'checked' : '' }}>
+ <input type="checkbox" name="specific_users[]" value="{{ $user->id }}" class="rounded border-outline-variant/30 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary/20" {{ $isChecked ? 'checked' : '' }}>
  <span class="ml-2">{{ $user->name }} ({{ ucfirst($user->role) }})</span>
  </label>
  @empty
@@ -63,7 +63,7 @@
  <!-- Content -->
  <div class="mb-4">
  <x-input-label for="content" :value="__('Isi Pengumuman')" />
- <textarea id="content" name="content" rows="8" class="border-outline-variant/30 text-on-surface focus:border-indigo-500:border-indigo-600 focus:ring-primary/20:ring-indigo-600 rounded-md shadow-sm block mt-1 w-full" required>{{ old('content', $announcement->content) }}</textarea>
+ <textarea id="content" name="content" rows="8" class="border-outline-variant/30 text-on-surface focus:border-primary focus:ring-primary/20 rounded-md shadow-sm block mt-1 w-full" required>{{ old('content', $announcement->content) }}</textarea>
  <x-input-error :messages="$errors->get('content')" class="mt-2" />
  </div>
 

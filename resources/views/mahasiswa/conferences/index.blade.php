@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/mahasiswa/conference-join.css')
+@endpush
 <x-app-layout>
     <div class="space-y-12 pb-20 px-4 sm:px-6 lg:px-8">
         <!-- Header & Breadcrumbs -->
@@ -38,8 +41,8 @@
                 <span class="w-10 h-1 bg-primary rounded-full"></span>
                 LIVE SEKARANG
                 <span class="relative flex h-2 w-2">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
                 </span>
             </h3>
 

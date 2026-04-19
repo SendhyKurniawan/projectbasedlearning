@@ -12,7 +12,7 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Course::query()->with('dosen:id,name')->select('id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'sks', 'semester_id', 'student_class_id', 'created_at')->withCount('students');
+        $query = \App\Models\Course::query()->with('dosen:id,name', 'semester:id,name,academic_year_id', 'semester.academicYear:id,year_start,year_end')->select('id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'sks', 'semester_id', 'student_class_id', 'created_at')->withCount('students');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -25,9 +25,22 @@ class CourseController extends Controller
             });
         }
 
+        if ($request->filled('semester_id')) {
+            $query->where('semester_id', $request->semester_id);
+        }
+
+        if ($request->filled('dosen_id')) {
+            $query->where('dosen_id', $request->dosen_id);
+        }
+
         $courses = $query->latest()->paginate(10);
 
-        return view('admin.courses.index', compact('courses'));
+        $availableSemesters = \App\Models\Semester::with('academicYear:id,year_start,year_end')
+            ->orderBy('start_date', 'desc')->get();
+        $availableDosens = \App\Models\User::where('role', 'dosen')
+            ->orderBy('name')->select('id', 'name')->get();
+
+        return view('admin.courses.index', compact('courses', 'availableSemesters', 'availableDosens'));
     }
 
     /**

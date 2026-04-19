@@ -1,0 +1,68 @@
+
+    .course-show-header {
+        @apply bg-surface-container-lowest rounded-2xl p-6 mb-6 shadow-ambient;
+    }
+
+    .course-show-title {
+        @apply font-headline text-2xl font-bold text-on-surface;
+    }
+
+    .course-show-code {
+        @apply text-sm font-mono text-on-surface-variant;
+    }
+
+    .course-tab-nav {
+        @apply flex gap-1 bg-surface-container rounded-xl p-1 mb-6;
+    }
+
+    .course-tab-btn {
+        @apply flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors;
+    }
+
+    .course-tab-btn--active {
+        @apply bg-surface-container-lowest text-on-surface shadow-sm;
+    }
+
+    .course-tab-btn--inactive {
+        @apply text-on-surface-variant hover:text-on-surface;
+    }
+
+    .material-list-item {
+        @apply flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0 hover:bg-surface-container-low -mx-2 px-2 rounded-lg transition-colors cursor-pointer;
+    }
+
+    .material-list-icon {
+        @apply w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0;
+    }
+
+    .material-list-title {
+        @apply font-medium text-on-surface;
+    }
+
+    .material-list-meta {
+        @apply text-xs text-on-surface-variant;
+    }
+
+    .assignment-list-item {
+        @apply flex items-center gap-4 py-3 border-b border-outline-variant/30 last:border-0;
+    }
+
+    .assignment-list-status-done {
+        @apply w-6 h-6 rounded-full bg-secondary-container text-secondary flex items-center justify-center flex-shrink-0;
+    }
+
+    .assignment-list-status-pending {
+        @apply w-6 h-6 rounded-full border-2 border-outline-variant flex-shrink-0;
+    }
+
+    .dosen-profile-chip {
+        @apply flex items-center gap-2;
+    }
+
+    .dosen-profile-avatar {
+        @apply w-8 h-8 rounded-full bg-primary-container text-primary flex items-center justify-center text-sm font-bold;
+    }
+
+    .dosen-profile-name {
+        @apply text-sm font-medium text-on-surface;
+    }

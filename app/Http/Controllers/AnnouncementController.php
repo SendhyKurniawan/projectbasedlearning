@@ -15,13 +15,12 @@ class AnnouncementController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $query = Announcement::with('author')->latest();
 
         if ($user->role === 'mahasiswa') {
-            // Mahasiswa sees 'all', 'mahasiswa', and 'specific' (if they are in the pivot)
             $query->where(function ($q) use ($user) {
                 $q->whereIn('target_audience', ['all', 'mahasiswa'])
                   ->orWhereHas('targetedUsers', function ($subq) use ($user) {
@@ -29,18 +28,28 @@ class AnnouncementController extends Controller
                   });
             });
         } elseif ($user->role === 'dosen') {
-             // Dosen sees 'all', 'dosen', announcements they authored, or targeted specifically to them
              $query->where(function ($q) use ($user) {
                 $q->whereIn('target_audience', ['all', 'dosen'])
-                  ->orWhere('user_id', $user->id) // Ones they authored
+                  ->orWhere('user_id', $user->id)
                   ->orWhereHas('targetedUsers', function ($subq) use ($user) {
                       $subq->where('user_id', $user->id);
                   });
             });
         }
-        // Admin sees everything
 
-        $announcements = $query->paginate(10);
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('target') && in_array($request->target, ['all', 'dosen', 'mahasiswa', 'specific'])) {
+            $query->where('target_audience', $request->target);
+        }
+
+        $announcements = $query->paginate(10)->withQueryString();
 
         return view('announcements.index', compact('announcements'));
     }

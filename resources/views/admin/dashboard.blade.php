@@ -1,3 +1,6 @@
+@push('styles')
+    @vite('resources/css/pages/admin/dashboard.css')
+@endpush
 <x-app-layout>
  <div class="space-y-8">
  <!-- Header Section -->
@@ -14,7 +17,7 @@
  <div class="bg-surface-container-lowest p-6 rounded-2xl relative overflow-hidden group hover:bg-surface-bright transition-all shadow-sm">
  <div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
  <div class="flex justify-between items-start mb-4">
- <div class="p-3 bg-blue-50 text-primary rounded-lg">
+ <div class="p-3 bg-primary-container text-on-primary rounded-lg">
  <span class="material-symbols-outlined">groups</span>
  </div>
  </div>
@@ -27,7 +30,7 @@
  <div class="bg-surface-container-lowest p-6 rounded-2xl relative overflow-hidden group hover:bg-surface-bright transition-all shadow-sm">
  <div class="absolute top-0 left-0 w-1 h-full bg-primary"></div>
  <div class="flex justify-between items-start mb-4">
- <div class="p-3 bg-emerald-50 text-secondary rounded-lg">
+ <div class="p-3 bg-secondary-container text-secondary rounded-lg">
  <span class="material-symbols-outlined">school</span>
  </div>
  <span class="text-xs font-bold text-primary bg-primary-fixed px-2.5 py-1 rounded-full">Active</span>
@@ -91,9 +94,9 @@
  <div class="flex items-center gap-3">
  @php
  $avatarBg = match($user->role) {
- 'admin' => 'bg-red-100 text-red-700',
- 'dosen' => 'bg-primary-fixed text-primary',
- 'mahasiswa' => 'bg-emerald-100 text-secondary',
+ 'admin' => 'bg-error-container text-error',
+ 'dosen' => 'bg-primary-container text-on-primary',
+ 'mahasiswa' => 'bg-secondary-container text-secondary',
  default => 'bg-surface-container text-on-surface-variant'
  };
  @endphp
@@ -109,9 +112,9 @@
  <td class="px-6 py-4">
  @php
  $roleBadge = match($user->role) {
- 'admin' => 'bg-red-50 text-red-700',
- 'dosen' => 'bg-blue-50 text-primary',
- 'mahasiswa' => 'bg-emerald-50 text-secondary',
+ 'admin' => 'bg-error-container text-error',
+ 'dosen' => 'bg-primary-container text-on-primary',
+ 'mahasiswa' => 'bg-secondary-container text-secondary',
  default => 'bg-surface-container text-on-surface-variant'
  };
  @endphp
@@ -160,7 +163,7 @@
  </div>
  @endforeach
  </div>
- <a href="{{ route('admin.courses.index') }}" class="block w-full mt-6 py-3 bg-surface-container-lowest text-primary text-xs font-bold rounded-xl text-center hover:bg-surface-container transition-colors">
+ <a href="{{ route('admin.courses.index') }}" class="block w-full mt-6 py-3 bg-surface-container-lowest text-primary dark:text-primary-fixed-dim text-xs font-bold rounded-xl text-center hover:bg-surface-container transition-colors">
  View All Courses
  </a>
  </div>
