@@ -5,9 +5,14 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "audit:contrast": "node scripts/audit-contrast.mjs"
+        "audit:contrast": "node scripts/audit-contrast.mjs",
+        "test:pw": "playwright test",
+        "test:pw:headed": "playwright test --headed",
+        "test:pw:ui": "playwright test --ui",
+        "test:pw:report": "playwright show-report"
     },
     "devDependencies": {
+        "@playwright/test": "^1.59.1",
         "@tailwindcss/forms": "^0.5.2",
         "alpinejs": "^3.4.2",
         "autoprefixer": "^10.4.2",
