@@ -53,7 +53,7 @@ class AssignmentController extends Controller
             'deadline' => 'required|date|after:now',
             'max_score' => 'required|integer|min:1|max:100',
             'type' => 'required|in:tugas,quiz,exercise',
-            'has_duration' => 'nullable|boolean',
+            'has_duration' => 'nullable|in:0,1,true,false',
             'submission_format' => $type === 'tugas' ? 'required|in:pdf,url' : 'nullable',
             'duration_minutes' => 'nullable|integer|min:1',
             'required_material_id' => [
@@ -122,7 +122,7 @@ class AssignmentController extends Controller
             'deadline' => 'required|date',
             'max_score' => 'required|integer|min:1|max:100',
             'type' => 'required|in:tugas,quiz,exercise',
-            'has_duration' => 'nullable|boolean',
+            'has_duration' => 'nullable|in:0,1,true,false',
             'submission_format' => $type === 'tugas' ? 'required|in:pdf,url' : 'nullable',
             'duration_minutes' => 'nullable|integer|min:1',
             'required_material_id' => [

@@ -43,7 +43,7 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
     await expect(btn).toBeEnabled({ timeout: 10_000 });
     await Promise.all([
       page.waitForURL(/\/(questions|assignments)$/, { timeout: 30_000 }),
-      btn.click(),
+      btn.click({ noWaitAfter: true }),
     ]);
     await expect(page.locator('body')).toContainText('PW Quiz ' + stamp);
   });
@@ -99,7 +99,7 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
     await expect(btn).toBeEnabled({ timeout: 10_000 });
     await Promise.all([
       page.waitForURL(/\/dosen\/courses\/.+\/(assignments|exercises)$/, { timeout: 30_000 }),
-      btn.click(),
+      btn.click({ noWaitAfter: true }),
     ]);
     await expect(page.locator('body')).toContainText('PW Exercise Java ' + stamp);
   });
@@ -186,7 +186,7 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
     await expect(delBtn).toBeEnabled({ timeout: 10_000 });
     await Promise.all([
       page.waitForURL(/\/(questions|assignments)$/, { timeout: 30_000 }),
-      delBtn.click(),
+      delBtn.click({ noWaitAfter: true }),
     ]);
     // Go to assignments list to find delete button
     await page.goto(`/dosen/courses/${IDS.course.if101}/assignments`);
