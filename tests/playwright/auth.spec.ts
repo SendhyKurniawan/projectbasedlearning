@@ -111,10 +111,11 @@ test.describe('Flow 1 — Auth & Access Control', () => {
 
   test('AUTH-11 password reset request form accepts an email', async ({ page }) => {
     await page.goto('/forgot-password');
+    await expect(page.locator('#email')).toBeVisible();
     await page.locator('#email').fill('mahasiswa@pjbl.test');
-    // Submit form directly so we don't block on the mailer's redirect navigation.
-    await page.locator('form[action*="forgot-password"]').first().evaluate((f: HTMLFormElement) => f.submit());
-    await page.waitForLoadState('domcontentloaded');
+    await page.getByRole('button', { name: /kirim/i }).click();
+    await page.waitForLoadState('load');
+    await expect(page.locator('body')).not.toBeEmpty();
     await expect(page.locator('body')).not.toContainText(/whoops|server error|exception/i);
   });
 

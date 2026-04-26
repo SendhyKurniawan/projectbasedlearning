@@ -122,19 +122,14 @@ test.describe('Flow 5 — Shared · Discussions (DSC)', () => {
     const link = page.locator('a[href*="/discussions/"]:not([href*="/create"]):not([href*="/edit"])').first();
     if (!(await link.count())) test.skip(true, 'No discussion');
     await link.click();
-    await page.locator('#newComment').waitFor({ state: 'visible' });
+    const ta = page.locator('#newComment');
+    await ta.waitFor({ state: 'visible' });
     const text = 'Komentar PW ' + Date.now();
-    // Drive Livewire 4 directly via window.Livewire.first() which returns the only on-page component.
-    await page.evaluate(async (msg) => {
-      const lw = (window as any).Livewire;
-      if (!lw) throw new Error('window.Livewire missing');
-      const components = lw.all() ?? [];
-      const target = components.find((c: any) => 'newComment' in (c.snapshot?.data ?? {}) || 'newComment' in (c?.data ?? {}))
-                  ?? components[components.length - 1];
-      if (!target) throw new Error('No Livewire component with newComment');
-      await target.$wire.set('newComment', msg);
-      await target.$wire.call('addComment');
-    }, text);
+    await ta.click();
+    await ta.pressSequentially(text, { delay: 5 });
+    await ta.blur();
+    await page.waitForTimeout(200);
+    await page.getByRole('button', { name: /kirim komentar/i }).click();
     await expect(page.locator('body')).toContainText(text, { timeout: 20_000 });
   });
 
@@ -144,18 +139,14 @@ test.describe('Flow 5 — Shared · Discussions (DSC)', () => {
     const link = page.locator('a[href*="/discussions/"]:not([href*="/create"]):not([href*="/edit"])').first();
     if (!(await link.count())) test.skip(true, 'No discussion');
     await link.click();
-    await page.locator('#newComment').waitFor({ state: 'visible' });
+    const ta = page.locator('#newComment');
+    await ta.waitFor({ state: 'visible' });
     const long = 'x'.repeat(1100);
-    await page.evaluate(async (msg) => {
-      const lw = (window as any).Livewire;
-      if (!lw) throw new Error('window.Livewire missing');
-      const components = lw.all() ?? [];
-      const target = components.find((c: any) => 'newComment' in (c.snapshot?.data ?? {}) || 'newComment' in (c?.data ?? {}))
-                  ?? components[components.length - 1];
-      if (!target) throw new Error('No Livewire component with newComment');
-      await target.$wire.set('newComment', msg);
-      try { await target.$wire.call('addComment'); } catch (e) { /* validation error throws — expected */ }
-    }, long);
+    await ta.click();
+    await ta.fill(long);
+    await ta.blur();
+    await page.waitForTimeout(200);
+    await page.getByRole('button', { name: /kirim komentar/i }).click();
     await expect(page.locator('body')).toContainText(/max|1000|panjang|tidak boleh|greater|character|exceed/i, { timeout: 20_000 });
   });
 
