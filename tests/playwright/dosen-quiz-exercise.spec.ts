@@ -89,6 +89,12 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
     await page.locator('#max_score').fill('100');
     await page.locator('#required_keywords').fill('public,class,Main');
     await setCodeMirror(page, '#starter-code-editor', 'public class Main { public static void main(String[] a) {} }');
+    // Force-sync CodeMirror editors to their textarea before submit
+    await page.evaluate(() => {
+      document.querySelectorAll('.CodeMirror').forEach((el: any) => {
+        if (el.CodeMirror) el.CodeMirror.save();
+      });
+    });
     const btn = page.getByRole('button', { name: /simpan latihan/i });
     await expect(btn).toBeEnabled({ timeout: 10_000 });
     await Promise.all([
@@ -106,6 +112,11 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
     await page.locator('#deadline').fill(futureDeadline());
     await page.locator('#max_score').fill('100');
     await setCodeMirror(page, '#starter-code-editor', '<!DOCTYPE html><html><body></body></html>');
+    await page.evaluate(() => {
+      document.querySelectorAll('.CodeMirror').forEach((el: any) => {
+        if (el.CodeMirror) el.CodeMirror.save();
+      });
+    });
     await page.getByRole('button', { name: /simpan latihan/i }).click();
     await expect(page.locator('body')).toContainText('PW Exercise HTML ' + stamp);
   });
