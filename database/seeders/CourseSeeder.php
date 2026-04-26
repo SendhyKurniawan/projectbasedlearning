@@ -2,94 +2,59 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Course;
+use App\Models\Material;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class CourseSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // Get dosen users
-        $dosen1 = \App\Models\User::where('email', 'budi.dosen@pjbl.test')->first();
-        $dosen2 = \App\Models\User::where('email', 'siti.dosen@pjbl.test')->first();
+        $dosen      = User::where('email', 'dosen@pjbl.test')->firstOrFail();
+        $otherDosen = User::where('email', 'other.dosen@pjbl.test')->firstOrFail();
+        $mahasiswa  = User::where('email', 'mahasiswa@pjbl.test')->firstOrFail();
+        $otherMhs   = User::where('email', 'other@pjbl.test')->firstOrFail();
 
-        // Create Courses
-        $course1 = \App\Models\Course::create([
-            'nama_matkul' => 'Pengembangan Website Dasar',
-            'kode_matkul' => 'WEB101',
-            'sks' => 3,
-            'description' => 'Mata kuliah dasar pengembangan website menggunakan HTML, CSS, dan JavaScript',
-            'dosen_id' => $dosen1->id,
+        // id=1 — main course used by most tests
+        $course1 = Course::create([
+            'nama_matkul'     => 'Pemrograman Dasar',
+            'kode_matkul'     => 'IF101',
+            'sks'             => 3,
+            'description'     => 'Dasar-dasar logika pemrograman.',
+            'dosen_id'        => $dosen->id,
             'student_class_id' => 1,
-            'semester_id' => 1,
+            'semester_id'     => 1,
         ]);
+        $course1->students()->attach($mahasiswa->id, ['enrolled_at' => now()]);
+        $course1->students()->attach($otherMhs->id,  ['enrolled_at' => now()]);
 
-        $course2 = \App\Models\Course::create([
-            'nama_matkul' => 'Sistem Basis Data',
-            'kode_matkul' => 'DB201',
-            'sks' => 4,
-            'description' => 'Mata kuliah sistem basis data relasional dan SQL',
-            'dosen_id' => $dosen2->id,
-            'student_class_id' => 2,
-            'semester_id' => 1,
-        ]);
-
-        // Create Materials for Course 1
-        \App\Models\Material::create([
+        // id=1 — material "Modul 1" (with content)
+        Material::create([
             'course_id' => $course1->id,
-            'title' => 'Pengenalan HTML',
-            'content' => '<h1>HTML Dasar</h1><p>HTML adalah bahasa markup untuk membuat halaman web.</p>',
-            'order' => 1,
+            'title'     => 'Modul 1',
+            'content'   => '<h1>Modul 1</h1><p>Pengantar pemrograman dasar.</p>',
+            'order'     => 1,
         ]);
 
-        \App\Models\Material::create([
+        // id=2 — material "Modul 2" (no file attachment, CRS-07)
+        Material::create([
             'course_id' => $course1->id,
-            'title' => 'CSS Fundamentals',
-            'content' => '<h1>CSS Dasar</h1><p>CSS digunakan untuk styling halaman web.</p>',
-            'order' => 2,
+            'title'     => 'Modul 2',
+            'content'   => '<h1>Modul 2</h1><p>Materi lanjutan pemrograman.</p>',
+            'order'     => 2,
         ]);
 
-        // Create Materials for Course 2
-        \App\Models\Material::create([
-            'course_id' => $course2->id,
-            'title' => 'Pengenalan Database',
-            'content' => '<h1>Sistem Basis Data</h1><p>Database adalah kumpulan data yang terorganisir.</p>',
-            'order' => 1,
+        // id=2 — Dasar Jaringan (mahasiswa NOT enrolled — CRS-03 enroll test)
+        $course2 = Course::create([
+            'nama_matkul'     => 'Dasar Jaringan',
+            'kode_matkul'     => 'IF202',
+            'sks'             => 3,
+            'description'     => 'Dasar-dasar jaringan komputer.',
+            'dosen_id'        => $otherDosen->id,
+            'student_class_id' => 1,
+            'semester_id'     => 1,
         ]);
-
-        // Create Assignments for Course 1
-        \App\Models\Assignment::create([
-            'course_id' => $course1->id,
-            'title' => 'Tugas 1: Membuat Halaman HTML Sederhana',
-            'description' => 'Buat halaman HTML dengan struktur dasar',
-            'type' => 'tugas',
-            'deadline' => now()->addDays(7),
-            'max_score' => 100,
-        ]);
-
-        \App\Models\Assignment::create([
-            'course_id' => $course1->id,
-            'title' => 'Tugas 2: Styling dengan CSS',
-            'description' => 'Buat halaman web dengan styling CSS',
-            'type' => 'tugas',
-            'deadline' => now()->addDays(14),
-            'max_score' => 100,
-        ]);
-
-        // Enroll students to courses
-        $students = \App\Models\User::where('role', 'mahasiswa')->get();
-        foreach ($students as $student) {
-            $course1->students()->attach($student->id, [
-                'enrolled_at' => now(),
-            ]);
-            if ($student->id % 2 == 0) {
-                $course2->students()->attach($student->id, [
-                    'enrolled_at' => now(),
-                ]);
-            }
-        }
+        $course2->students()->attach($otherMhs->id, ['enrolled_at' => now()]);
     }
 }
