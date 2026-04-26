@@ -12,13 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class AssignmentSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // 1. Clean existing assignments and dependencies
-        // Due to foreign keys, clearing Assignments will clear Submissions and Quiz Questions
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Submission::truncate();
         QuizOption::truncate();
@@ -26,104 +21,125 @@ class AssignmentSeeder extends Seeder
         Assignment::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $courses = Course::all();
+        $course1 = Course::where('kode_matkul', 'IF101')->firstOrFail();
 
-        foreach ($courses as $course) {
-            
-            // --- 1. TUGAS (UPLOAD FILE PDF) ---
+        // id=1 — tugasPdf
+        Assignment::create([
+            'course_id'         => $course1->id,
+            'title'             => 'Tugas PDF',
+            'description'       => 'Kumpulkan resume materi dalam format PDF.',
+            'type'              => 'tugas',
+            'submission_format' => 'pdf',
+            'assignment_number' => 1,
+            'max_score'         => 100,
+            'deadline'          => now()->addDays(7),
+        ]);
+
+        // id=2 — tugasUrl
+        Assignment::create([
+            'course_id'         => $course1->id,
+            'title'             => 'Tugas URL',
+            'description'       => 'Kumpulkan link repository project.',
+            'type'              => 'tugas',
+            'submission_format' => 'url',
+            'assignment_number' => 2,
+            'max_score'         => 100,
+            'deadline'          => now()->addDays(14),
+        ]);
+
+        // id=3 — tugasTerkunci (requires viewing Modul 1 first)
+        Assignment::create([
+            'course_id'            => $course1->id,
+            'title'                => 'Tugas Terkunci',
+            'description'          => 'Tugas ini terkunci sampai Anda membaca Modul 1.',
+            'type'                 => 'tugas',
+            'submission_format'    => 'pdf',
+            'assignment_number'    => 3,
+            'max_score'            => 100,
+            'deadline'             => now()->addDays(10),
+            'required_material_id' => 1,
+        ]);
+
+        // id=4 — quizCepat
+        $quizCepat = Assignment::create([
+            'course_id'        => $course1->id,
+            'title'            => 'Quiz Cepat',
+            'description'      => 'Kuis singkat 30 menit.',
+            'type'             => 'quiz',
+            'quiz_number'      => 1,
+            'max_score'        => 100,
+            'duration_minutes' => 30,
+            'deadline'         => now()->addDays(7),
+        ]);
+
+        // quiz_questions id=1 (mc)
+        $mc = QuizQuestion::create([
+            'assignment_id' => $quizCepat->id,
+            'question_text' => 'Manakah pernyataan yang benar tentang pemrograman?',
+            'question_type' => 'pilihan_ganda',
+            'score_weight'  => 50,
+        ]);
+        QuizOption::create(['question_id' => $mc->id, 'option_text' => 'Program harus memiliki logika.', 'is_correct' => true]);
+        QuizOption::create(['question_id' => $mc->id, 'option_text' => 'Program tidak membutuhkan variabel.', 'is_correct' => false]);
+        QuizOption::create(['question_id' => $mc->id, 'option_text' => 'Bug tidak perlu diperbaiki.', 'is_correct' => false]);
+        QuizOption::create(['question_id' => $mc->id, 'option_text' => 'Kompiler bukan termasuk software.', 'is_correct' => false]);
+
+        // quiz_questions id=2 (essay)
+        QuizQuestion::create([
+            'assignment_id' => $quizCepat->id,
+            'question_text' => 'Jelaskan perbedaan antara variabel dan konstanta!',
+            'question_type' => 'essay',
+            'score_weight'  => 50,
+        ]);
+
+        // id=5 — exerciseHtml
+        Assignment::create([
+            'course_id'        => $course1->id,
+            'title'            => 'Exercise HTML',
+            'description'      => 'Buat halaman HTML sederhana.',
+            'type'             => 'exercise',
+            'assignment_number' => 4,
+            'max_score'        => 100,
+            'deadline'         => now()->addDays(7),
+            'exercise_config'  => [
+                'language'     => 'htmlmixed',
+                'starter_code' => "<!DOCTYPE html>\n<html>\n<body>\n  <h1>Hello</h1>\n</body>\n</html>",
+                'hints'        => ['Gunakan tag <h1> untuk judul.'],
+            ],
+        ]);
+
+        // Generic assignments for remaining courses
+        foreach (Course::where('kode_matkul', '!=', 'IF101')->get() as $course) {
             Assignment::create([
-                'course_id' => $course->id,
-                'title' => 'Tugas 1: Resume Materi ' . $course->nama_matkul,
-                'description' => 'Silakan buat rangkuman dari pertemuan pertama hingga ketiga dalam format PDF (Maksimal 10MB).',
-                'type' => 'tugas',
+                'course_id'         => $course->id,
+                'title'             => 'Tugas 1: Resume ' . $course->nama_matkul,
+                'description'       => 'Buat rangkuman materi.',
+                'type'              => 'tugas',
                 'submission_format' => 'pdf',
                 'assignment_number' => 1,
-                'max_score' => 100,
-                'deadline' => now()->addDays(5),
+                'max_score'         => 100,
+                'deadline'          => now()->addDays(7),
             ]);
 
-            // --- 2. TUGAS KELOMPOK/PROJECT (UPLOAD LINK URL) ---
-            Assignment::create([
-                'course_id' => $course->id,
-                'title' => 'Project Akhir: Implementasi ' . $course->nama_matkul,
-                'description' => 'Kerjakan project akhir sesuai dengan kelompok masing-masing. Kumpulkan Link Repository Github atau Link Google Drive yang berisi source code dan laporan.',
-                'type' => 'tugas',
-                'submission_format' => 'url',
-                'assignment_number' => 2,
-                'max_score' => 100,
-                'deadline' => now()->addWeeks(2),
-            ]);
-
-            // --- 3. QUIZ (PILIHAN GANDA DENGAN DURASI) ---
-            $quizPG = Assignment::create([
-                'course_id' => $course->id,
-                'title' => 'Kuis Tengah Semester: ' . $course->nama_matkul,
-                'description' => 'Kuis ini berisi soal pilihan ganda evaluasi tengah semester. Durasi pengerjaan adalah 60 Menit.',
-                'type' => 'quiz',
-                'quiz_number' => 1,
-                'max_score' => 100,
+            $quiz = Assignment::create([
+                'course_id'        => $course->id,
+                'title'            => 'Kuis ' . $course->nama_matkul,
+                'description'      => 'Kuis evaluasi.',
+                'type'             => 'quiz',
+                'quiz_number'      => 1,
+                'max_score'        => 100,
                 'duration_minutes' => 60,
-                'deadline' => now()->addDays(7),
+                'deadline'         => now()->addDays(7),
             ]);
 
-            // Create some dummy questions for the PG Quiz
-            $q1 = QuizQuestion::create([
-                'assignment_id' => $quizPG->id,
-                'question_text' => 'Manakah di bawah ini yang merupakan pernyataan paling tepat mengenai materi mata kuliah ini?',
+            $q = QuizQuestion::create([
+                'assignment_id' => $quiz->id,
+                'question_text' => 'Soal pilihan ganda untuk ' . $course->nama_matkul,
                 'question_type' => 'pilihan_ganda',
-                'score_weight' => 50,
+                'score_weight'  => 100,
             ]);
-            QuizOption::create(['question_id' => $q1->id, 'option_text' => 'Pernyataan benar yang sesuai.', 'is_correct' => true]);
-            QuizOption::create(['question_id' => $q1->id, 'option_text' => 'Pengecoh pertama.', 'is_correct' => false]);
-            QuizOption::create(['question_id' => $q1->id, 'option_text' => 'Pengecoh kedua.', 'is_correct' => false]);
-
-            $q2 = QuizQuestion::create([
-                'assignment_id' => $quizPG->id,
-                'question_text' => 'Apa tujuan utama dari proses yang telah kita pelajari sejauh ini?',
-                'question_type' => 'pilihan_ganda',
-                'score_weight' => 50,
-            ]);
-            QuizOption::create(['question_id' => $q2->id, 'option_text' => 'Mengoptimalkan performa.', 'is_correct' => true]);
-            QuizOption::create(['question_id' => $q2->id, 'option_text' => 'Memperbanyak bug.', 'is_correct' => false]);
-            QuizOption::create(['question_id' => $q2->id, 'option_text' => 'Meminimalisir fungsi.', 'is_correct' => false]);
-
-            // --- 4. EXERCISE (LATIHAN CODING) ---
-            Assignment::create([
-                'course_id' => $course->id,
-                'title' => 'Exercise 1: Logic Dasar',
-                'description' => 'Lengkapilah potongan kode berikut (jika relevan dengan matkul Praktek) agar menghasilkan nilai True.',
-                'type' => 'exercise',
-                'assignment_number' => 3,
-                'max_score' => 100,
-                'deadline' => now()->addDays(3),
-                'exercise_config' => [
-                    'language' => 'javascript',
-                    'starter_code' => "function checkLogic() {\n   // Tulis kondisi if dan return nilai true\n   \n}\n\nconsole.log(checkLogic());",
-                    'hints' => [
-                        'Gunakan syntax return true;',
-                        'Jangan lupa cek console untuk melihat hasil Output preview.'
-                    ]
-                ],
-            ]);
-
-             // --- 5. QUIZ (ESSAY TANPA BATAS WAKTU) ---
-             $quizEssay = Assignment::create([
-                'course_id' => $course->id,
-                'title' => 'Kuis Pemahaman Teori',
-                'description' => 'Kuis berformat essay bebas waktu. Uraikan dengan bahasa Anda sendiri.',
-                'type' => 'quiz',
-                'quiz_number' => 2,
-                'max_score' => 100,
-                'deadline' => now()->addDays(10),
-            ]);
-            
-            QuizQuestion::create([
-                'assignment_id' => $quizEssay->id,
-                'question_text' => 'Jelaskan seberapa jauh Anda memahami implementasi teori ' . $course->nama_matkul . ' di dunia industri sesungguhnya?',
-                'question_type' => 'essay',
-                'score_weight' => 100,
-            ]);
-
+            QuizOption::create(['question_id' => $q->id, 'option_text' => 'Jawaban benar.', 'is_correct' => true]);
+            QuizOption::create(['question_id' => $q->id, 'option_text' => 'Pengecoh.', 'is_correct' => false]);
         }
     }
 }
