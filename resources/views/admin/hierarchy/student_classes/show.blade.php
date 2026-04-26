@@ -12,11 +12,11 @@
  {{ $studentClass->studyProgram->department->name }}
  </a>
  <span class="text-on-surface-variant">/</span>
- <a href="{{ route('admin.hierarchy.study-programs.show', $studentClass->studyProgram_id) }}" class="text-primary hover:text-primary-hover">
+ <a href="{{ route('admin.hierarchy.study-programs.show', $studentClass->study_program_id) }}" class="text-primary hover:text-primary-hover">
  {{ $studentClass->studyProgram->name }}
  </a>
  <span class="text-on-surface-variant">/</span>
- <a href="{{ route('admin.hierarchy.study-programs.semesters.show', [$studentClass->studyProgram_id, $studentClass->semester_id]) }}" class="text-primary hover:text-primary-hover">
+ <a href="{{ route('admin.hierarchy.study-programs.semesters.show', [$studentClass->study_program_id, $studentClass->semester_id]) }}" class="text-primary hover:text-primary-hover">
  {{ $studentClass->semester->name }}
  </a>
  <span class="text-on-surface-variant">/</span>
