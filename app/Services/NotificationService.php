@@ -5,7 +5,8 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Assignment;
-use App\Models\Submission;
+use App\Models\Material;
+use App\Models\Conference;
 use App\Notifications\AcademicUpdateNotification;
 use App\Notifications\GradeNotification;
 use Illuminate\Support\Facades\Notification;
@@ -13,57 +14,88 @@ use Illuminate\Database\Eloquent\Collection;
 
 class NotificationService
 {
-    /**
-     * Sends a notification when a new assignment is created for a course.
-     * @param Collection<User> $users The collection of students enrolled in the course.
-     * @param Assignment $assignment The newly created assignment.
-     * @param Course $course The course associated with the assignment.
-     */
     public function sendAssignmentCreatedNotification(Collection $users, Assignment $assignment, Course $course): void
     {
-        $typeLabel = ucfirst($assignment->type);
-        $message = "{$typeLabel} baru '{$assignment->title}' telah ditambahkan pada mata kuliah {$course->nama_matkul}.";
-        $url = route('mahasiswa.courses.show', $course); // Use actual route resolution if possible
+        if ($users->isEmpty()) {
+            return;
+        }
 
-        $users->each(function (User $user) use ($typeLabel, $message, $url) {
-            Notification::send($user, new AcademicUpdateNotification(
-                "{$typeLabel} Baru Ditambahkan",
-                $message,
-                $url
-            ));
-        });
+        $typeLabel = ucfirst($assignment->type);
+        Notification::send($users, new AcademicUpdateNotification(
+            "{$typeLabel} Baru Ditambahkan",
+            "{$typeLabel} baru '{$assignment->title}' telah ditambahkan pada mata kuliah {$course->nama_matkul}.",
+            route('mahasiswa.courses.show', $course)
+        ));
     }
 
-    /**
-     * Sends a notification when an assignment is updated.
-     * @param Collection<User> $users The collection of students enrolled in the course.
-     * @param Assignment $assignment The updated assignment.
-     * @param Course $course The course associated with the assignment.
-     */
     public function sendAssignmentUpdatedNotification(Collection $users, Assignment $assignment, Course $course): void
     {
-        $typeLabel = ucfirst($assignment->type);
-        $message = "{$typeLabel} '{$assignment->title}' pada mata kuliah {$course->nama_matkul} telah diperbarui.";
-        $url = route('mahasiswa.courses.show', $course);
+        if ($users->isEmpty()) {
+            return;
+        }
 
-        $users->each(function (User $user) use ($typeLabel, $message, $url) {
-            Notification::send($user, new AcademicUpdateNotification(
-                "{$typeLabel} Diperbarui",
-                $message,
-                $url
-            ));
-        });
+        $typeLabel = ucfirst($assignment->type);
+        Notification::send($users, new AcademicUpdateNotification(
+            "{$typeLabel} Diperbarui",
+            "{$typeLabel} '{$assignment->title}' pada mata kuliah {$course->nama_matkul} telah diperbarui.",
+            route('mahasiswa.courses.show', $course)
+        ));
     }
 
-    /**
-     * Sends a notification when a student's grade is recorded.
-     * @param User $student The student who needs to be notified.
-     * @param Assignment $assignment The assignment that was graded.
-     * @param Course $course The course containing the assignment.
-     */
     public function sendGradeReceivedNotification(User $student, Assignment $assignment, Course $course): void
     {
-        $notification = new GradeNotification($assignment->title, $course->id);
-        Notification::send($student, $notification);
+        Notification::send($student, new GradeNotification($assignment->title, $course->id));
+    }
+
+    public function sendMaterialCreatedNotification(Collection $users, Material $material, Course $course): void
+    {
+        if ($users->isEmpty()) {
+            return;
+        }
+
+        Notification::send($users, new AcademicUpdateNotification(
+            'Materi Baru Ditambahkan',
+            "Materi baru '{$material->title}' telah ditambahkan pada mata kuliah {$course->nama_matkul}.",
+            route('mahasiswa.materials.show', [$course, $material])
+        ));
+    }
+
+    public function sendMaterialUpdatedNotification(Collection $users, Material $material, Course $course): void
+    {
+        if ($users->isEmpty()) {
+            return;
+        }
+
+        Notification::send($users, new AcademicUpdateNotification(
+            'Materi Diperbarui',
+            "Materi '{$material->title}' pada mata kuliah {$course->nama_matkul} telah diperbarui.",
+            route('mahasiswa.materials.show', [$course, $material])
+        ));
+    }
+
+    public function sendConferenceCreatedNotification(Collection $users, Conference $conference, Course $course): void
+    {
+        if ($users->isEmpty()) {
+            return;
+        }
+
+        Notification::send($users, new AcademicUpdateNotification(
+            'Jadwal Kelas Virtual Baru',
+            "Kelas virtual '{$conference->title}' telah dijadwalkan pada mata kuliah {$course->nama_matkul}.",
+            route('mahasiswa.conferences.index', $course)
+        ));
+    }
+
+    public function sendConferenceUpdatedNotification(Collection $users, Conference $conference, Course $course): void
+    {
+        if ($users->isEmpty()) {
+            return;
+        }
+
+        Notification::send($users, new AcademicUpdateNotification(
+            'Jadwal Kelas Virtual Diperbarui',
+            "Jadwal kelas virtual '{$conference->title}' pada mata kuliah {$course->nama_matkul} telah diperbarui.",
+            route('mahasiswa.conferences.index', $course)
+        ));
     }
 }

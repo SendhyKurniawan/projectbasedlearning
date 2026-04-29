@@ -6,34 +6,46 @@ use App\Http\Controllers\Controller;
 use App\Models\Conference;
 use App\Models\Course;
 use App\Models\User;
-use App\Notifications\AcademicUpdateNotification;
+use App\Services\NotificationService;
 use Agence104\LiveKit\AccessToken;
 use Agence104\LiveKit\AccessTokenOptions;
 use Agence104\LiveKit\VideoGrant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Notification;
 
 class ConferenceController extends Controller
 {
+    public function __construct(private NotificationService $notifications)
+    {
+    }
+
     public function index(Course $course)
     {
-        $this->authorizeDosen($course);
-        $conferences = $course->conferences()->orderByDesc('scheduled_at')->paginate(10);
+        $this->authorize('view', $course);
 
-        return view('dosen.conferences.index', compact('course', 'conferences'));
+        $activeConferences = $course->conferences()
+            ->where('status', '!=', 'ended')
+            ->orderByDesc('scheduled_at')
+            ->get();
+
+        $endedConferences = $course->conferences()
+            ->where('status', 'ended')
+            ->orderByDesc('ended_at')
+            ->paginate(10);
+
+        return view('dosen.conferences.index', compact('course', 'activeConferences', 'endedConferences'));
     }
 
     public function create(Course $course)
     {
-        $this->authorizeDosen($course);
+        $this->authorize('update', $course);
 
         return view('dosen.conferences.create', compact('course'));
     }
 
     public function store(Request $request, Course $course)
     {
-        $this->authorizeDosen($course);
+        $this->authorize('update', $course);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -48,17 +60,8 @@ class ConferenceController extends Controller
             'status' => 'scheduled',
         ]);
 
-        // Notify enrolled students
-        $students = User::whereHas('enrollments', function($q) use ($course) {
-            $q->where('course_id', $course->id);
-        })->get();
-        if ($students->isNotEmpty()) {
-            Notification::send($students, new AcademicUpdateNotification(
-                'Jadwal Kelas Virtual Baru',
-                "Kelas virtual '{$conference->title}' telah dijadwalkan pada mata kuliah {$course->nama_matkul}.",
-                route('mahasiswa.conferences.index', $course)
-            ));
-        }
+        $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $course->id))->get();
+        $this->notifications->sendConferenceCreatedNotification($students, $conference, $course);
 
         return redirect()
             ->route('dosen.conferences.index', $course)
@@ -67,34 +70,28 @@ class ConferenceController extends Controller
 
     public function edit(Conference $conference)
     {
+        $this->authorize('update', $conference->course);
+
         $course = $conference->course;
-        $this->authorizeDosen($course);
 
         return view('dosen.conferences.edit', compact('conference', 'course'));
     }
 
     public function update(Request $request, Conference $conference)
     {
-        $this->authorizeDosen($conference->course);
+        $this->authorize('update', $conference->course);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'scheduled_at' => 'required|date',
+            'scheduled_at' => 'required|date|after:now',
         ]);
 
         $conference->update($validated);
 
-        // Notify enrolled students
-        $students = User::whereHas('enrollments', function($q) use ($conference) {
-            $q->where('course_id', $conference->course_id);
-        })->get();
-        if ($students->isNotEmpty()) {
-            Notification::send($students, new AcademicUpdateNotification(
-                'Jadwal Kelas Virtual Diperbarui',
-                "Jadwal kelas virtual '{$conference->title}' pada mata kuliah {$conference->course->nama_matkul} telah diperbarui.",
-                route('mahasiswa.conferences.index', $conference->course)
-            ));
+        if ($conference->wasChanged(['title', 'scheduled_at'])) {
+            $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $conference->course_id))->get();
+            $this->notifications->sendConferenceUpdatedNotification($students, $conference, $conference->course);
         }
 
         return redirect()
@@ -105,7 +102,7 @@ class ConferenceController extends Controller
     public function destroy(Conference $conference)
     {
         $course = $conference->course;
-        $this->authorizeDosen($course);
+        $this->authorize('update', $course);
 
         $conference->delete();
 
@@ -116,7 +113,7 @@ class ConferenceController extends Controller
 
     public function start(Conference $conference)
     {
-        $this->authorizeDosen($conference->course);
+        $this->authorize('update', $conference->course);
 
         $conference->update(['status' => 'live']);
 
@@ -127,7 +124,7 @@ class ConferenceController extends Controller
 
     public function end(Conference $conference)
     {
-        $this->authorizeDosen($conference->course);
+        $this->authorize('update', $conference->course);
 
         $conference->update([
             'status' => 'ended',
@@ -141,7 +138,7 @@ class ConferenceController extends Controller
 
     public function room(Conference $conference)
     {
-        $this->authorizeDosen($conference->course);
+        $this->authorize('update', $conference->course);
 
         if ($conference->isEnded()) {
             return redirect()
@@ -154,10 +151,11 @@ class ConferenceController extends Controller
 
     public function token(Conference $conference)
     {
-        $this->authorizeDosen($conference->course);
+        $this->authorize('update', $conference->course);
 
         $user = auth()->user();
-        $token = $this->generateToken($conference->room_name, $user->name . ' (Dosen)', true);
+        $identity = $user->id . ':' . $user->name . ' (Dosen)';
+        $token = $this->generateToken($conference->room_name, $identity, true);
 
         return response()->json(['token' => $token]);
     }
@@ -181,12 +179,5 @@ class ConferenceController extends Controller
             ->init($tokenOptions)
             ->setGrant($videoGrant)
             ->toJwt();
-    }
-
-    private function authorizeDosen(Course $course): void
-    {
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
     }
 }

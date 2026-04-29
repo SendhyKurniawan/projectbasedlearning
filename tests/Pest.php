@@ -1,5 +1,23 @@
 <?php
 
+pest()->extend(Tests\DuskTestCase::class)
+//  ->use(Illuminate\Foundation\Testing\DatabaseMigrations::class)
+    ->in('Browser');
+
+pest()->extend(Tests\DuskTestCase::class)
+//  ->use(Illuminate\Foundation\Testing\DatabaseMigrations::class)
+    ->in('Browser');
+
+pest()->extend(Tests\DuskTestCase::class)
+    ->beforeEach(function () {
+        // Seed only when DB is empty to avoid concurrent-seeder conflicts.
+        // Run `php artisan migrate:fresh --seeder=DuskSeeder` to force a fresh seed.
+        if (\App\Models\User::count() === 0) {
+            $this->seed(\Database\Seeders\DuskSeeder::class);
+        }
+    })
+    ->in('Browser');
+
 /*
 |--------------------------------------------------------------------------
 | Test Case

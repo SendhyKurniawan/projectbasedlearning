@@ -43,6 +43,8 @@ services:
             MYSQL_PASSWORD: password
             SERVICE_TAGS: dev
             SERVICE_NAME: mysql
+        ports:
+            - "3306:3306"
         volumes:
             - dbdata:/var/lib/mysql
         networks:
@@ -91,10 +93,26 @@ services:
         networks:
             - pjbl-network
 
+    piston:
+        image: ghcr.io/engineer-man/piston
+        container_name: pjbl-piston
+        restart: unless-stopped
+        privileged: true
+        ports:
+            - "2000:2000"
+        volumes:
+            - piston-packages:/piston/packages
+        tmpfs:
+            - /piston/jobs
+        networks:
+            - pjbl-network
+
 networks:
     pjbl-network:
         driver: bridge
 
 volumes:
     dbdata:
+        driver: local
+    piston-packages:
         driver: local

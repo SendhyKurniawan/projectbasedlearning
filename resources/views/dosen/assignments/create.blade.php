@@ -31,8 +31,7 @@
  class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  required>
  <option value="tugas">Tugas (Upload File/Link)</option>
- <option value="quiz">Quiz (Pilihan Ganda)</option>
- <option value="quiz">Quiz (Essay)</option>
+ <option value="quiz">Quiz (Pilihan Ganda / Essay)</option>
  <option value="exercise">Exercise (Coding)</option>
  </select>
  <p class="text-xs text-on-surface-variant mt-1" x-show="type === 'quiz'">
@@ -147,15 +146,38 @@
  <label for="max_score" class="block text-sm font-medium text-on-surface-variant mb-2">
  Nilai Maksimal <span class="text-error">*</span>
  </label>
- <input type="number" 
- name="max_score" 
- id="max_score" 
+ <input type="number"
+ name="max_score"
+ id="max_score"
  value="{{ old('max_score', 100) }}"
  min="1"
  max="100"
  class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary"
  required>
  @error('max_score')
+ <p class="text-error text-sm mt-1">{{ $message }}</p>
+ @enderror
+ </div>
+
+ <!-- Required Material (Prerequisite Gating) -->
+ <div class="mb-6">
+ <label for="required_material_id" class="block text-sm font-medium text-on-surface-variant mb-2">
+ Prasyarat Materi
+ </label>
+ <select name="required_material_id"
+ id="required_material_id"
+ class="w-full border-outline-variant/30 text-on-surface rounded-md shadow-sm focus:border-primary focus:ring-primary">
+ <option value="">Tidak ada prasyarat</option>
+ @foreach($materials as $material)
+ <option value="{{ $material->id }}" {{ old('required_material_id') == $material->id ? 'selected' : '' }}>
+ {{ $material->title }}
+ </option>
+ @endforeach
+ </select>
+ <p class="text-xs text-on-surface-variant mt-1">
+ Jika dipilih, mahasiswa hanya dapat mengerjakan tugas ini setelah membuka materi prasyarat.
+ </p>
+ @error('required_material_id')
  <p class="text-error text-sm mt-1">{{ $message }}</p>
  @enderror
  </div>

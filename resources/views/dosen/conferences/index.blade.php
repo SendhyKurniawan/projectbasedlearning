@@ -33,11 +33,6 @@
             </div>
         @endif
 
-        @php
-            $activeConferences = $conferences->filter(fn($c) => $c->status !== 'ended');
-            $endedConferences = $conferences->filter(fn($c) => $c->status === 'ended');
-        @endphp
-
         <!-- Upcoming & Live Conferences List -->
         <div>
             <h2 class="text-lg font-extrabold text-on-surface mb-4 flex items-center gap-2">
@@ -167,9 +162,9 @@
             </div>
         @endif
 
-        @if($conferences->hasPages())
+        @if($endedConferences->hasPages())
             <div class="mt-8">
-                {{ $conferences->links() }}
+                {{ $endedConferences->links() }}
             </div>
         @endif
     </div>

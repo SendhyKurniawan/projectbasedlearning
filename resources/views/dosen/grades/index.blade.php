@@ -12,7 +12,7 @@
             <div class="flex gap-4">
                 <div class="bg-surface border border-outline-variant/30 px-4 py-2 rounded-xl shadow-sm text-center">
                     <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-0.5">Total Matkul</span>
-                    <span class="text-lg font-extrabold text-primary leading-none">{{ $courses->count() }}</span>
+                    <span class="text-lg font-extrabold text-primary leading-none">{{ $courses->total() }}</span>
                 </div>
             </div>
         </div>
@@ -222,6 +222,12 @@
                         </div>
                     @endforelse
                 </div>
+
+                @if($courses->hasPages())
+                    <div class="mt-8">
+                        {{ $courses->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
