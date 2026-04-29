@@ -1,0 +1,49 @@
+- main [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e7]: school
+        - generic [ref=e8]: PBL Workspace
+      - heading "Building the future of Academic Excellence." [level=1] [ref=e9]:
+        - text: Building the future of
+        - text: Academic Excellence.
+      - paragraph [ref=e10]: A digital workspace for Project-Based Learning, where rigorous structure meets high-tech collaboration.
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: PBL
+        - generic [ref=e14]: Project-Based Learning
+      - generic [ref=e15]:
+        - generic [ref=e16]: Live
+        - generic [ref=e17]: Real-time Collaboration
+  - generic [ref=e20]:
+    - generic [ref=e21]:
+      - heading "Login" [level=2] [ref=e22]
+      - paragraph [ref=e23]: Welcome back to The PBL Workspace.
+    - generic [ref=e26]: Login with email
+    - generic [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: Email Address
+        - generic [ref=e30]:
+          - generic [ref=e31]: alternate_email
+          - textbox "Email Address" [active] [ref=e32]:
+            - /placeholder: scholar@workspace.edu
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - generic [ref=e35]: Password
+          - link "Lupa Password?" [ref=e36] [cursor=pointer]:
+            - /url: http://127.0.0.1:8000/forgot-password
+        - generic [ref=e37]:
+          - generic [ref=e38]: lock
+          - textbox "Password" [ref=e39]:
+            - /placeholder: Enter your password
+          - button "visibility" [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]: visibility
+      - generic [ref=e42]:
+        - checkbox "Keep me logged in" [ref=e43]
+        - generic [ref=e44]: Keep me logged in
+      - button "Login to Workspace" [ref=e45] [cursor=pointer]
+    - paragraph [ref=e47]:
+      - text: Belum punya akun?
+      - link "Daftar Sekarang" [ref=e48] [cursor=pointer]:
+        - /url: http://127.0.0.1:8000/register
+    - generic [ref=e50]: © 2026 PBL Workspace

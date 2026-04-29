@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Dosen;
 use App\Http\Controllers\Mahasiswa;
+use App\Http\Controllers\CodeExecutionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\NotificationController;
@@ -30,6 +31,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
     Route::get('/notifications/{id}/redirect', [NotificationController::class, 'readAndRedirect'])->name('notifications.readAndRedirect');
+
+    // Code execution proxy (server-side languages via Piston API)
+    Route::post('/execute-code', [CodeExecutionController::class, 'execute'])->name('execute.code')->middleware('throttle:10,1');
 
     // Push Notifications Endpoint
     Route::post('/push-subscribe', [App\Http\Controllers\PushSubscriptionController::class, 'store']);
@@ -91,6 +95,23 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
     Route::get('/dashboard', [Dosen\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/grades', [Dosen\GradeController::class, 'index'])->name('grades.index');
+
+    // Bare-URL fallbacks: redirect to first course or show "contact admin" page
+    $sectionFallback = function (string $routeName, string $section) {
+        $firstCourse = auth()->user()->courses()->where('dosen_id', auth()->id())->first();
+        if ($firstCourse) {
+            return redirect()->route($routeName, $firstCourse);
+        }
+        return response()->view('dosen.no-course', [
+            'title'   => 'Belum Ada Mata Kuliah',
+            'section' => $section,
+        ]);
+    };
+    Route::get('/materials',   function () use ($sectionFallback) { return $sectionFallback('dosen.materials.index', 'Manajemen Materi'); })->name('materials.bare');
+    Route::get('/assignments', function () use ($sectionFallback) { return $sectionFallback('dosen.assignments.index', 'Manajemen Tugas'); })->name('assignments.bare');
+    Route::get('/exercises',   function () use ($sectionFallback) { return $sectionFallback('dosen.assignments.index', 'Latihan Kode'); })->name('exercises.bare');
+    Route::get('/conferences', function () use ($sectionFallback) { return $sectionFallback('dosen.conferences.index', 'Kelas Virtual'); })->name('conferences.bare');
+
     Route::get('/courses/{course}/materials', [Dosen\MaterialController::class, 'index'])->name('materials.index');
     Route::get('/courses/{course}/materials/create', [Dosen\MaterialController::class, 'create'])->name('materials.create');
     Route::post('/courses/{course}/materials', [Dosen\MaterialController::class, 'store'])->name('materials.store');

@@ -206,18 +206,33 @@
                                             </div>
                                         @endif
 
+                                        @php
+                                            $lang = $assignment->exercise_config['language'] ?? 'htmlmixed';
+                                            $isServerLang = in_array($lang, ['java', 'php', 'csharp']);
+                                            $code = $submission->code_answer;
+                                            if (!$isServerLang) {
+                                                if ($lang === 'javascript') {
+                                                    $srcdoc = '<!DOCTYPE html><html><body><script>' . $code . '<\/script></body></html>';
+                                                } elseif ($lang === 'css') {
+                                                    $srcdoc = '<!DOCTYPE html><html><head><style>' . $code . '</style></head><body><p style="font-family:sans-serif;padding:20px">CSS Preview</p></body></html>';
+                                                } else {
+                                                    $srcdoc = $code;
+                                                }
+                                            }
+                                        @endphp
                                         <div class="border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm flex flex-col md:flex-row h-auto min-h-[400px]">
                                             <!-- Code Viewer -->
-                                            <div class="flex-1 flex flex-col border-r border-outline-variant/30">
+                                            <div class="{{ $isServerLang ? 'w-full' : 'flex-1' }} flex flex-col {{ $isServerLang ? '' : 'border-r border-outline-variant/30' }}">
                                                 <div class="bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface-variant flex justify-between items-center border-b border-outline-variant/30">
                                                     <span class="uppercase tracking-widest">Koding</span>
-                                                    <span class="px-2 py-0.5 rounded bg-surface-container text-[10px]">{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}</span>
+                                                    <span class="px-2 py-0.5 rounded bg-surface-container text-[10px]">{{ $lang }}</span>
                                                 </div>
                                                 <div class="flex-1 w-full relative">
-                                                    <textarea class="code-viewer w-full h-full absolute inset-0" id="code-viewer-{{ $submission->id }}" data-language="{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}" readonly>{{ $submission->code_answer }}</textarea>
+                                                    <textarea class="code-viewer w-full h-full absolute inset-0" id="code-viewer-{{ $submission->id }}" data-language="{{ $lang }}" readonly>{{ $submission->code_answer }}</textarea>
                                                 </div>
                                             </div>
-                                            <!-- Output Preview -->
+                                            <!-- Output Preview (browser-runnable languages only) -->
+                                            @if(!$isServerLang)
                                             <div class="flex-1 flex flex-col bg-white h-[400px] md:h-auto">
                                                 <div class="bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface-variant flex justify-between items-center border-b border-outline-variant/30">
                                                     <span class="uppercase tracking-widest">Output Visual</span>
@@ -226,12 +241,13 @@
                                                     </button>
                                                 </div>
                                                 <div class="flex-1 relative w-full h-full">
-                                                    <iframe id="preview-iframe-{{ $submission->id }}" 
-                                                    srcdoc="{{ ($assignment->exercise_config['language'] ?? 'htmlmixed') == 'javascript' ? '<script>' . $submission->code_answer . '<\/script><div style=\'font-family:sans-serif;padding:20px;font-size:14px;color:#333;\'>Silakan periksa console browser untuk output JS.<br><br>Atau gunakan DOM API untuk mencetak sesuatu disini.</div>' : $submission->code_answer }}" 
-                                                    class="absolute inset-0 w-full h-full border-0 preview-iframe" 
-                                                    sandbox="allow-scripts allow-same-origin"></iframe>
+                                                    <iframe id="preview-iframe-{{ $submission->id }}"
+                                                    srcdoc="{{ $srcdoc }}"
+                                                    class="absolute inset-0 w-full h-full border-0 preview-iframe"
+                                                    sandbox="allow-scripts"></iframe>
                                                 </div>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif

@@ -73,7 +73,7 @@
                                 
                                 @if($material->content)
                                     <div class="text-sm text-on-surface-variant leading-relaxed line-clamp-2 mb-4">
-                                        {!! Str::limit(strip_tags($material->content), 150) !!}
+                                        {{ Str::limit(strip_tags($material->content), 150) }}
                                     </div>
                                 @endif
 
@@ -191,7 +191,14 @@
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('Gagal menyimpan urutan materi.');
+                        let toast = document.createElement('div');
+                        toast.className = 'fixed bottom-8 right-8 bg-error-container text-on-error-container px-6 py-3 rounded-xl shadow-lg border border-error/20 transition-all duration-300 font-bold text-sm flex items-center gap-2 z-50';
+                        toast.innerHTML = '<span class="material-symbols-outlined text-[20px]">error</span> Gagal menyimpan urutan materi.';
+                        document.body.appendChild(toast);
+                        setTimeout(() => {
+                            toast.classList.add('opacity-0', 'translate-y-4');
+                            setTimeout(() => toast.remove(), 300);
+                        }, 3000);
                     });
                 }
             });
