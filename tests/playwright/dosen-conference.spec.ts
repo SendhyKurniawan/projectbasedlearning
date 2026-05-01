@@ -1,17 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { IDS } from './fixtures';
 import { loginAs } from './helpers/auth';
-
-function future(days = 2): string {
-  const d = new Date(Date.now() + days * 24 * 3600 * 1000);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-function past(): string {
-  const d = new Date(Date.now() - 24 * 3600 * 1000);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
+import { futureDeadline, pastDeadline } from './helpers/dates';
 
 test.describe('Flow 3 — Dosen · Conference (CONF)', () => {
   test.beforeEach(async ({ page }) => {
@@ -23,7 +13,7 @@ test.describe('Flow 3 — Dosen · Conference (CONF)', () => {
     await page.goto(`/dosen/courses/${IDS.course.if101}/conferences/create`);
     await page.locator('#title').fill('PW Conf ' + stamp);
     await page.locator('#description').fill('Sesi PW.');
-    await page.locator('#scheduled_at').fill(future(3));
+    await page.locator('#scheduled_at').fill(futureDeadline(3));
     await page.getByRole('button', { name: /simpan jadwal/i }).click();
     await expect(page).toHaveURL(/\/dosen\/courses\/.+\/conferences/);
     await expect(page.locator('body')).toContainText('PW Conf ' + stamp);
@@ -32,7 +22,7 @@ test.describe('Flow 3 — Dosen · Conference (CONF)', () => {
   test('CONF-02 past date rejected', async ({ page }) => {
     await page.goto(`/dosen/courses/${IDS.course.if101}/conferences/create`);
     await page.locator('#title').fill('Past conference');
-    await page.locator('#scheduled_at').fill(past());
+    await page.locator('#scheduled_at').fill(pastDeadline());
     await page.getByRole('button', { name: /simpan jadwal/i }).click();
     await expect(page).toHaveURL(/\/conferences\/create/);
     await expect(page.locator('body')).toContainText(/scheduled|setelah|after/i);
@@ -42,7 +32,7 @@ test.describe('Flow 3 — Dosen · Conference (CONF)', () => {
     await page.goto(`/dosen/conferences/${IDS.conference.kelasVirtual1}/edit`);
     await page.locator('#title').fill('Kelas Virtual Edited');
     // ensure scheduled_at remains in future (re-fill)
-    await page.locator('#scheduled_at').fill(future(2));
+    await page.locator('#scheduled_at').fill(futureDeadline(2));
     await page.getByRole('button', { name: /perbarui jadwal|simpan jadwal|update/i }).click();
     await expect(page).toHaveURL(/\/conferences/);
     await expect(page.locator('body')).toContainText('Kelas Virtual Edited');
@@ -53,7 +43,7 @@ test.describe('Flow 3 — Dosen · Conference (CONF)', () => {
     const stamp = Date.now();
     await page.goto(`/dosen/courses/${IDS.course.if101}/conferences/create`);
     await page.locator('#title').fill('PW Del Conf ' + stamp);
-    await page.locator('#scheduled_at').fill(future(4));
+    await page.locator('#scheduled_at').fill(futureDeadline(4));
     await page.getByRole('button', { name: /simpan jadwal/i }).click();
     await page.waitForURL(/\/conferences/);
 

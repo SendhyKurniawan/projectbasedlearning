@@ -1,12 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { IDS } from './fixtures';
 import { loginAs } from './helpers/auth';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PDF = path.join(__dirname, 'assets', 'sample.pdf');
+import { SAMPLE_PDF as PDF } from './helpers/assets';
 
 test.describe('Flow 4 — Mahasiswa · Submission (SUB)', () => {
   test.beforeEach(async ({ page }) => {

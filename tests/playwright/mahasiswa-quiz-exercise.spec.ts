@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { IDS } from './fixtures';
-import { loginAs } from './helpers/auth';
+import { loginAs, getCsrfAndCookies } from './helpers/auth';
 
 test.describe('Flow 4 — Mahasiswa · Quiz & Exercise (QUIZ)', () => {
   test.beforeEach(async ({ page }) => {
@@ -79,9 +79,7 @@ test.describe('Flow 4 — Mahasiswa · Quiz & Exercise (QUIZ)', () => {
 
   test('QUIZ-10 exercise submit endpoint accepts a request (server-side Piston = manual)', async ({ page, baseURL, request }) => {
     await page.goto(`/mahasiswa/exercises/${IDS.assignment.exerciseHtml}/solve`);
-    const csrf = await page.evaluate(() => (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? '');
-    const cookies = await page.context().cookies();
-    const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+    const { csrf, cookieHeader } = await getCsrfAndCookies(page);
     const res = await request.post(`${baseURL}/mahasiswa/exercises/submit`, {
       headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', Cookie: cookieHeader, 'Content-Type': 'application/json' },
       data: { assignment_id: IDS.assignment.exerciseHtml, code: '<html><body><h1>Hello</h1></body></html>' },

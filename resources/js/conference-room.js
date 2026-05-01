@@ -191,21 +191,23 @@ const ConferenceUI = {
         }
         list.innerHTML = html;
 
-        // Footer stats
+        ConferenceUI.renderParticipantsFooter(all);
+    },
+
+    renderParticipantsFooter(all) {
+        const footer = document.getElementById('participants-footer');
+        if (!footer) return;
         const total = all.length;
         const micActive = all.filter(p => !p.isMuted).length;
         const vidActive = all.filter(p => !p.isVideoOff).length;
         const hands = all.filter(p => p.isHandRaised).length;
-        const footer = document.getElementById('participants-footer');
-        if (footer) {
-            footer.innerHTML = `
-                <div class="grid grid-cols-4 gap-2 w-full">
-                    <div class="text-center"><p class="text-on-surface font-bold">${total}</p><p class="text-on-surface-variant text-xs">Peserta</p></div>
-                    <div class="text-center"><p class="text-on-surface font-bold">${micActive}</p><p class="text-on-surface-variant text-xs">Mik aktif</p></div>
-                    <div class="text-center"><p class="text-on-surface font-bold">${vidActive}</p><p class="text-on-surface-variant text-xs">Video aktif</p></div>
-                    <div class="text-center"><p class="text-on-surface font-bold">${hands}</p><p class="text-on-surface-variant text-xs">Tangan</p></div>
-                </div>`;
-        }
+        footer.innerHTML = `
+            <div class="grid grid-cols-4 gap-2 w-full">
+                <div class="text-center"><p class="text-on-surface font-medium">${total}</p><p class="text-on-surface-variant text-xs">Peserta</p></div>
+                <div class="text-center"><p class="text-on-surface font-medium">${micActive}</p><p class="text-on-surface-variant text-xs">Mik aktif</p></div>
+                <div class="text-center"><p class="text-on-surface font-medium">${vidActive}</p><p class="text-on-surface-variant text-xs">Video aktif</p></div>
+                <div class="text-center"><p class="text-on-surface font-medium">${hands}</p><p class="text-on-surface-variant text-xs">Tangan</p></div>
+            </div>`;
     },
 
     participantItemHtml(p) {
@@ -589,152 +591,115 @@ window.ConferenceRoom = {
     },
 
     setupRoomEvents() {
-        room.on(RoomEvent.LocalTrackPublished, (publication) => {
-            if (publication.track?.kind === Track.Kind.Video) {
-                if (publication.source === Track.Source.ScreenShare) {
-                    ConferenceRoom.showScreenShare(publication.track, true);
+        room.on(RoomEvent.LocalTrackPublished,     pub         => ConferenceRoom.onLocalTrackPublished(pub));
+        room.on(RoomEvent.LocalTrackUnpublished,   pub         => ConferenceRoom.onLocalTrackUnpublished(pub));
+        room.on(RoomEvent.ParticipantConnected,    participant => ConferenceRoom.onParticipantConnected(participant));
+        room.on(RoomEvent.ParticipantDisconnected, participant => ConferenceRoom.onParticipantDisconnected(participant));
+        room.on(RoomEvent.TrackSubscribed,   (track, pub, p)  => ConferenceRoom.attachRemoteTrack(track, p.identity));
+        room.on(RoomEvent.TrackUnsubscribed, (track, pub, p)  => ConferenceRoom.onTrackUnsubscribed(track, pub, p));
+        room.on(RoomEvent.ActiveSpeakersChanged, speakers     => ConferenceRoom.onActiveSpeakersChanged(speakers));
+        room.on(RoomEvent.TrackMuted,   (pub, p) => ConferenceRoom.onTrackMuteChanged(pub, p, true));
+        room.on(RoomEvent.TrackUnmuted, (pub, p) => ConferenceRoom.onTrackMuteChanged(pub, p, false));
+        room.on(RoomEvent.DataReceived, (data, p) => ConferenceUI.handleDataReceived(data, p));
+        room.on(RoomEvent.Disconnected, () => ConferenceRoom.setStatus('disconnected'));
+        ConferenceRoom.syncExistingParticipants();
+    },
+
+    onLocalTrackPublished(publication) {
+        if (publication.track?.kind !== Track.Kind.Video) return;
+        if (publication.source === Track.Source.ScreenShare) {
+            ConferenceRoom.showScreenShare(publication.track, true);
+        } else {
+            ConferenceRoom.renderLocalVideo(publication.track);
+        }
+    },
+
+    onLocalTrackUnpublished(publication) {
+        if (publication.source !== Track.Source.ScreenShare) return;
+        ConferenceRoom.hideScreenShare();
+        screenShareEnabled = false;
+        const btn = document.getElementById('btn-screen');
+        btn?.classList.remove('ctrl-active');
+        btn?.classList.add('ctrl-action');
+        document.getElementById('screenshare-status')?.classList.add('hidden');
+    },
+
+    registerRemoteParticipant(participant) {
+        const color = getAvatarColor(participant.identity);
+        ConferenceUI.participants[participant.identity] = {
+            name: participant.identity, color,
+            isMuted: false, isVideoOff: false, isHandRaised: false,
+            isSpeaking: false, isHost: false, isMe: false,
+        };
+        ConferenceRoom.addTile(participant.identity, participant.identity, color);
+        ConferenceRoom.updateParticipantCount();
+    },
+
+    onParticipantConnected(participant) {
+        ConferenceRoom.registerRemoteParticipant(participant);
+        participant.on(RoomEvent.TrackSubscribed, track => ConferenceRoom.attachRemoteTrack(track, participant.identity));
+    },
+
+    onParticipantDisconnected(participant) {
+        delete ConferenceUI.participants[participant.identity];
+        ConferenceRoom.removeTile(participant.identity);
+        ConferenceRoom.updateParticipantCount();
+        if (ConferenceUI.sidePanel === 'participants') ConferenceUI.renderParticipants();
+    },
+
+    onTrackUnsubscribed(track, pub, participant) {
+        track.detach().forEach(el => el.remove());
+        if (pub.source !== Track.Source.Camera) return;
+        const id = ConferenceRoom.safeId(participant.identity);
+        document.getElementById('avatar-' + id)?.classList.remove('hidden');
+        if (ConferenceUI.participants[participant.identity]) {
+            ConferenceUI.participants[participant.identity].isVideoOff = true;
+        }
+    },
+
+    onActiveSpeakersChanged(speakers) {
+        Object.values(ConferenceUI.participants).forEach(p => { p.isSpeaking = false; });
+        document.querySelectorAll('.participant-tile').forEach(t => t.classList.remove('speaking', 'speaker-focus'));
+        document.getElementById('local-pip')?.classList.remove('speaking');
+
+        if (speakers.length > 0) {
+            const dominant = speakers[0];
+            speakers.forEach(speaker => {
+                if (ConferenceUI.participants[speaker.identity]) {
+                    ConferenceUI.participants[speaker.identity].isSpeaking = true;
+                }
+                if (speaker.isLocal) {
+                    document.getElementById('local-pip')?.classList.add('speaking');
                 } else {
-                    ConferenceRoom.renderLocalVideo(publication.track);
+                    document.getElementById('tile-' + ConferenceRoom.safeId(speaker.identity))?.classList.add('speaking');
                 }
-            }
-        });
-
-        room.on(RoomEvent.LocalTrackUnpublished, (publication) => {
-            if (publication.source === Track.Source.ScreenShare) {
-                ConferenceRoom.hideScreenShare();
-                screenShareEnabled = false;
-                const btn = document.getElementById('btn-screen');
-                btn?.classList.remove('ctrl-active');
-                btn?.classList.add('ctrl-action');
-                document.getElementById('screenshare-status')?.classList.add('hidden');
-            }
-        });
-
-        room.on(RoomEvent.ParticipantConnected, (participant) => {
-            const color = getAvatarColor(participant.identity);
-            ConferenceUI.participants[participant.identity] = {
-                name: participant.identity,
-                color,
-                isMuted: false,
-                isVideoOff: false,
-                isHandRaised: false,
-                isSpeaking: false,
-                isHost: false,
-                isMe: false,
-            };
-            ConferenceRoom.addTile(participant.identity, participant.identity, color);
-            ConferenceRoom.updateParticipantCount();
-            participant.on(RoomEvent.TrackSubscribed, (track) => {
-                ConferenceRoom.attachRemoteTrack(track, participant.identity);
             });
-        });
-
-        room.on(RoomEvent.ParticipantDisconnected, (participant) => {
-            delete ConferenceUI.participants[participant.identity];
-            ConferenceRoom.removeTile(participant.identity);
-            ConferenceRoom.updateParticipantCount();
-            if (ConferenceUI.sidePanel === 'participants') ConferenceUI.renderParticipants();
-        });
-
-        room.on(RoomEvent.TrackSubscribed, (track, pub, participant) => {
-            ConferenceRoom.attachRemoteTrack(track, participant.identity);
-        });
-
-        room.on(RoomEvent.TrackUnsubscribed, (track, pub, participant) => {
-            track.detach().forEach(el => el.remove());
-            const id = ConferenceRoom.safeId(participant.identity);
-            if (pub.source === Track.Source.Camera) {
-                const avatarEl = document.getElementById('avatar-' + id);
-                avatarEl?.classList.remove('hidden');
-                if (ConferenceUI.participants[participant.identity]) {
-                    ConferenceUI.participants[participant.identity].isVideoOff = true;
-                }
+            if (!dominant.isLocal && ConferenceUI.viewMode === 'spotlight') {
+                document.getElementById('tile-' + ConferenceRoom.safeId(dominant.identity))?.classList.add('speaker-focus');
+                ConferenceRoom.reflow();
             }
-        });
+        }
+        if (ConferenceUI.sidePanel === 'participants') ConferenceUI.renderParticipants();
+    },
 
-        room.on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
-            // Reset all
-            Object.keys(ConferenceUI.participants).forEach(key => {
-                ConferenceUI.participants[key].isSpeaking = false;
-            });
-            document.querySelectorAll('.participant-tile').forEach(t => t.classList.remove('speaking'));
-            document.getElementById('local-pip')?.classList.remove('speaking');
-            document.querySelectorAll('.participant-tile').forEach(t => t.classList.remove('speaker-focus'));
+    onTrackMuteChanged(pub, participant, isMuted) {
+        if (pub.kind !== Track.Kind.Audio) return;
+        if (ConferenceUI.participants[participant.identity]) {
+            ConferenceUI.participants[participant.identity].isMuted = isMuted;
+        }
+        const ind = document.getElementById('mic-ind-' + ConferenceRoom.safeId(participant.identity));
+        if (ind) {
+            ind.classList.toggle('mic-on', !isMuted);
+            ind.classList.toggle('mic-off', isMuted);
+        }
+    },
 
-            if (speakers.length > 0) {
-                const dominant = speakers[0];
-                speakers.forEach(speaker => {
-                    if (ConferenceUI.participants[speaker.identity]) {
-                        ConferenceUI.participants[speaker.identity].isSpeaking = true;
-                    }
-                    if (speaker.isLocal) {
-                        document.getElementById('local-pip')?.classList.add('speaking');
-                    } else {
-                        const tile = document.getElementById('tile-' + ConferenceRoom.safeId(speaker.identity));
-                        tile?.classList.add('speaking');
-                    }
-                });
-
-                // Dominant speaker gets focus
-                if (!dominant.isLocal && ConferenceUI.viewMode === 'spotlight') {
-                    const tile = document.getElementById('tile-' + ConferenceRoom.safeId(dominant.identity));
-                    tile?.classList.add('speaker-focus');
-                    ConferenceRoom.reflow();
-                }
-            }
-            if (ConferenceUI.sidePanel === 'participants') ConferenceUI.renderParticipants();
-        });
-
-        room.on(RoomEvent.TrackMuted, (pub, participant) => {
-            if (pub.kind === Track.Kind.Audio && ConferenceUI.participants[participant.identity]) {
-                ConferenceUI.participants[participant.identity].isMuted = true;
-                const id = ConferenceRoom.safeId(participant.identity);
-                const ind = document.getElementById('mic-ind-' + id);
-                if (ind) {
-                    ind.classList.remove('mic-on');
-                    ind.classList.add('mic-off');
-                }
-            }
-        });
-
-        room.on(RoomEvent.TrackUnmuted, (pub, participant) => {
-            if (pub.kind === Track.Kind.Audio && ConferenceUI.participants[participant.identity]) {
-                ConferenceUI.participants[participant.identity].isMuted = false;
-                const id = ConferenceRoom.safeId(participant.identity);
-                const ind = document.getElementById('mic-ind-' + id);
-                if (ind) {
-                    ind.classList.remove('mic-off');
-                    ind.classList.add('mic-on');
-                }
-            }
-        });
-
-        room.on(RoomEvent.DataReceived, (data, participant) => {
-            ConferenceUI.handleDataReceived(data, participant);
-        });
-
-        room.on(RoomEvent.Disconnected, () => {
-            ConferenceRoom.setStatus('disconnected');
-        });
-
-        // Existing remote participants
-        room.remoteParticipants.forEach((participant) => {
-            const color = getAvatarColor(participant.identity);
-            ConferenceUI.participants[participant.identity] = {
-                name: participant.identity,
-                color,
-                isMuted: false,
-                isVideoOff: false,
-                isHandRaised: false,
-                isSpeaking: false,
-                isHost: false,
-                isMe: false,
-            };
-            ConferenceRoom.addTile(participant.identity, participant.identity, color);
+    syncExistingParticipants() {
+        room.remoteParticipants.forEach(participant => {
+            ConferenceRoom.registerRemoteParticipant(participant);
             participant.trackPublications.forEach(pub => {
                 if (pub.track) ConferenceRoom.attachRemoteTrack(pub.track, participant.identity);
             });
-            ConferenceRoom.updateParticipantCount();
         });
     },
 
@@ -927,61 +892,59 @@ window.ConferenceRoom = {
         const sidebar = document.getElementById('participants-sidebar');
         if (!grid) return;
         const count = grid.children.length;
-
-        if (sidebar) {
-            sidebar.classList.toggle('solo-mode', count === 0);
-        }
-
+        if (sidebar) sidebar.classList.toggle('solo-mode', count === 0);
         if (count === 0) return;
 
-        const isScreenshare = document.getElementById('main-area')?.classList.contains('screenshare-active');
         const tiles = grid.querySelectorAll('.participant-tile');
+        const isScreenshare = document.getElementById('main-area')?.classList.contains('screenshare-active');
 
-        if (isScreenshare) {
-            grid.style.gridTemplateColumns = '1fr';
-            grid.style.gridTemplateRows = 'auto';
-            tiles.forEach(t => { t.style.aspectRatio = '16/9'; t.style.height = 'auto'; });
-            return;
+        if (isScreenshare) return ConferenceRoom._reflowScreenshare(grid, tiles);
+        if (ConferenceUI.viewMode === 'spotlight' && count > 1) return ConferenceRoom._reflowSpotlight(grid, tiles);
+        ConferenceRoom._reflowGrid(grid, tiles, count);
+    },
+
+    _reflowScreenshare(grid, tiles) {
+        grid.style.gridTemplateColumns = '1fr';
+        grid.style.gridTemplateRows = 'auto';
+        tiles.forEach(t => { t.style.aspectRatio = '16/9'; t.style.height = 'auto'; });
+    },
+
+    _reflowSpotlight(grid, tiles) {
+        const focusTile = ConferenceUI.pinnedId
+            ? document.getElementById('tile-' + ConferenceRoom.safeId(ConferenceUI.pinnedId))
+            : grid.querySelector('.speaker-focus') || grid.firstElementChild;
+
+        tiles.forEach(t => {
+            t.style.aspectRatio = 'unset';
+            t.style.height = '100%';
+            t.classList.remove('spotlight-featured', 'spotlight-secondary');
+        });
+
+        if (focusTile) {
+            grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+            grid.style.gridTemplateRows = 'repeat(4, 1fr)';
+            focusTile.style.gridColumn = 'span 3';
+            focusTile.style.gridRow = 'span 4';
         }
+    },
 
-        // Spotlight mode: only show 1 tile prominently
-        if (ConferenceUI.viewMode === 'spotlight' && count > 1) {
-            const focusTile = ConferenceUI.pinnedId
-                ? document.getElementById('tile-' + ConferenceRoom.safeId(ConferenceUI.pinnedId))
-                : grid.querySelector('.speaker-focus') || grid.firstElementChild;
-
-            tiles.forEach(t => {
-                t.style.aspectRatio = 'unset';
-                t.style.height = '100%';
-                t.classList.remove('spotlight-featured', 'spotlight-secondary');
-            });
-
-            if (focusTile) {
-                grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
-                grid.style.gridTemplateRows = 'repeat(4, 1fr)';
-                focusTile.style.gridColumn = 'span 3';
-                focusTile.style.gridRow = 'span 4';
-            }
-            return;
-        }
-
-        // Grid mode
-        let cols = 1, rows = 1;
+    _reflowGrid(grid, tiles, count) {
         const hasFocus = grid.querySelector('.speaker-focus') !== null;
+        let cols = 1, rows = 1;
 
         if (hasFocus) {
-            if (count <= 3) { cols = 3; rows = 2; }
+            if (count <= 3)      { cols = 3; rows = 2; }
             else if (count <= 8) { cols = 4; rows = 3; }
-            else { cols = 5; rows = 4; }
+            else                 { cols = 5; rows = 4; }
         } else {
-            if (count === 1) { cols = 1; rows = 1; }
-            else if (count === 2) { cols = 2; rows = 1; }
-            else if (count <= 4) { cols = 2; rows = 2; }
-            else if (count <= 6) { cols = 3; rows = 2; }
-            else if (count <= 9) { cols = 3; rows = 3; }
-            else if (count <= 12) { cols = 4; rows = 3; }
-            else if (count <= 16) { cols = 4; rows = 4; }
-            else { cols = 5; rows = Math.ceil(count / 5); }
+            if      (count === 1)  { cols = 1; rows = 1; }
+            else if (count === 2)  { cols = 2; rows = 1; }
+            else if (count <= 4)   { cols = 2; rows = 2; }
+            else if (count <= 6)   { cols = 3; rows = 2; }
+            else if (count <= 9)   { cols = 3; rows = 3; }
+            else if (count <= 12)  { cols = 4; rows = 3; }
+            else if (count <= 16)  { cols = 4; rows = 4; }
+            else                   { cols = 5; rows = Math.ceil(count / 5); }
         }
 
         grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;

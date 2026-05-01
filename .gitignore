@@ -35,3 +35,4 @@ _ide_helper_models.php
 /.playwright-mcp/test-results
 /tests/playwright/.auth
 /test-results
+.fallow/

@@ -1,12 +1,19 @@
 import { test, expect } from '@playwright/test';
 import { loginAs } from './helpers/auth';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+import { SAMPLE_PDF as PDF, SAMPLE_PNG as PNG } from './helpers/assets';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PNG = path.join(__dirname, 'assets', 'sample.png');
-const PDF = path.join(__dirname, 'assets', 'sample.pdf');
+async function gotoFirstDiscussion(page: import('@playwright/test').Page): Promise<void> {
+  await page.goto('/discussions');
+  const link = page.locator('a[href*="/discussions/"]:not([href*="/create"]):not([href*="/edit"])').first();
+  if (!(await link.count())) test.skip(true, 'No discussion');
+  await link.click();
+}
+
+async function openCommentForm(page: import('@playwright/test').Page) {
+  const ta = page.locator('#newComment');
+  await ta.waitFor({ state: 'visible' });
+  return ta;
+}
 
 test.describe('Flow 5 — Shared · Announcements (ANN)', () => {
   test('ANN-01 create announcement with image (admin)', async ({ page }) => {
@@ -108,22 +115,15 @@ test.describe('Flow 5 — Shared · Discussions (DSC)', () => {
 
   test('DSC-02 view discussion show page', async ({ page }) => {
     await loginAs(page, 'mahasiswa');
-    await page.goto('/discussions');
-    const link = page.locator('a[href*="/discussions/"]:not([href*="/create"]):not([href*="/edit"])').first();
-    if (!(await link.count())) test.skip(true, 'No discussion to view');
-    await link.click();
+    await gotoFirstDiscussion(page);
     await expect(page).toHaveURL(/\/discussions\/\d+/);
     await expect(page.locator('h3', { hasText: /Komentar/i })).toBeVisible();
   });
 
   test('DSC-03 add comment via Livewire', async ({ page }) => {
     await loginAs(page, 'mahasiswa');
-    await page.goto('/discussions');
-    const link = page.locator('a[href*="/discussions/"]:not([href*="/create"]):not([href*="/edit"])').first();
-    if (!(await link.count())) test.skip(true, 'No discussion');
-    await link.click();
-    const ta = page.locator('#newComment');
-    await ta.waitFor({ state: 'visible' });
+    await gotoFirstDiscussion(page);
+    const ta = await openCommentForm(page);
     const text = 'Komentar PW ' + Date.now();
     await ta.click();
     await ta.pressSequentially(text, { delay: 5 });
@@ -135,12 +135,8 @@ test.describe('Flow 5 — Shared · Discussions (DSC)', () => {
 
   test('DSC-04 comment > 1000 chars rejected', async ({ page }) => {
     await loginAs(page, 'mahasiswa');
-    await page.goto('/discussions');
-    const link = page.locator('a[href*="/discussions/"]:not([href*="/create"]):not([href*="/edit"])').first();
-    if (!(await link.count())) test.skip(true, 'No discussion');
-    await link.click();
-    const ta = page.locator('#newComment');
-    await ta.waitFor({ state: 'visible' });
+    await gotoFirstDiscussion(page);
+    const ta = await openCommentForm(page);
     const long = 'x'.repeat(1100);
     await ta.click();
     await ta.fill(long);
@@ -152,10 +148,7 @@ test.describe('Flow 5 — Shared · Discussions (DSC)', () => {
 
   test('DSC-05 delete own discussion', async ({ page }) => {
     await loginAs(page, 'mahasiswa');
-    await page.goto('/discussions');
-    const link = page.locator('a[href*="/discussions/"]:not([href*="/create"]):not([href*="/edit"])').first();
-    if (!(await link.count())) test.skip(true, 'No discussion');
-    await link.click();
+    await gotoFirstDiscussion(page);
     page.once('dialog', d => d.accept());
     const delBtn = page.locator('form button[type="submit"]', { hasText: /hapus/i }).first();
     if (!(await delBtn.count())) test.skip(true, 'No delete button (not owner)');

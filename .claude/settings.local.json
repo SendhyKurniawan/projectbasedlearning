@@ -45,7 +45,12 @@
       "Bash(curl -s -c /tmp/c.txt -b /tmp/c.txt http://127.0.0.1:8000/discussions/1)",
       "mcp__plugin_playwright_playwright__browser_console_messages",
       "Read(//c/Users/User/AppData/Local/Temp/claude/D--Projects-pjbl/e17ec3a0-069f-4bff-9d80-dda5f682c4d6/tasks/**)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8000)",
+      "Bash(fallow dead-code *)",
+      "Bash(fallow list *)",
+      "Bash(fallow --version)",
+      "Bash(npx fallow *)",
+      "Bash(grep *)"
     ]
   }
 }

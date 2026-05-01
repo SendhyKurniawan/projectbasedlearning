@@ -1,11 +1,22 @@
 import { test, expect } from '@playwright/test';
 import { IDS } from './fixtures';
-import { loginAs } from './helpers/auth';
+import { loginAs, getCsrfAndCookies } from './helpers/auth';
+import { futureDeadline } from './helpers/dates';
 
-function futureDeadline(days = 14): string {
-  const d = new Date(Date.now() + days * 24 * 3600 * 1000);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+async function createQuiz(page: import('@playwright/test').Page, title: string, durationMinutes: string): Promise<void> {
+  await page.goto(`/dosen/courses/${IDS.course.if101}/assignments/create`);
+  await page.locator('#type').selectOption('quiz');
+  await expect(page.locator('#duration_minutes')).toBeEditable({ timeout: 10_000 });
+  await page.locator('#title').fill(title);
+  await page.locator('#duration_minutes').fill(durationMinutes);
+  await page.locator('#deadline').fill(futureDeadline());
+  await page.locator('#max_score').fill('100');
+  const btn = page.getByRole('button', { name: /simpan tugas/i });
+  await expect(btn).toBeEnabled({ timeout: 10_000 });
+  await Promise.all([
+    page.waitForURL(/\/(questions|assignments)$/, { timeout: 30_000 }),
+    btn.click({ noWaitAfter: true }),
+  ]);
 }
 
 async function setCodeMirror(page: import('@playwright/test').Page, textareaSelector: string, value: string) {
@@ -30,21 +41,7 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
 
   test('QEX-01 create quiz with duration', async ({ page }) => {
     const stamp = Date.now();
-    await page.goto(`/dosen/courses/${IDS.course.if101}/assignments/create`);
-    await expect(page.locator('#type')).toBeVisible();
-    await page.locator('#type').selectOption('quiz');
-    // Fill title AFTER type select — Alpine re-renders form on type change
-    await expect(page.locator('#duration_minutes')).toBeEditable({ timeout: 10_000 });
-    await page.locator('#title').fill('PW Quiz ' + stamp);
-    await page.locator('#duration_minutes').fill('15');
-    await page.locator('#deadline').fill(futureDeadline());
-    await page.locator('#max_score').fill('100');
-    const btn = page.getByRole('button', { name: /simpan tugas/i });
-    await expect(btn).toBeEnabled({ timeout: 10_000 });
-    await Promise.all([
-      page.waitForURL(/\/(questions|assignments)$/, { timeout: 30_000 }),
-      btn.click({ noWaitAfter: true }),
-    ]);
+    await createQuiz(page, 'PW Quiz ' + stamp, '15');
     await expect(page.locator('body')).toContainText('PW Quiz ' + stamp);
   });
 
@@ -123,9 +120,7 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
 
   test('QEX-07 unsupported language rejected (request-level)', async ({ page, baseURL, request }) => {
     await page.goto(`/dosen/courses/${IDS.course.if101}/exercises/create`);
-    const csrf = await page.evaluate(() => (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? '');
-    const cookies = await page.context().cookies();
-    const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+    const { csrf, cookieHeader } = await getCsrfAndCookies(page);
     const res = await request.post(`${baseURL}/dosen/courses/${IDS.course.if101}/exercises`, {
       headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'text/html', Cookie: cookieHeader },
       form: {
@@ -172,22 +167,8 @@ test.describe('Flow 3 — Dosen · Quiz & Exercise (QEX)', () => {
   });
 
   test('QEX-12 delete quiz cascades questions', async ({ page }) => {
-    // create a quiz to delete
     const stamp = Date.now();
-    await page.goto(`/dosen/courses/${IDS.course.if101}/assignments/create`);
-    await page.locator('#type').selectOption('quiz');
-    // Fill title AFTER type select — Alpine re-renders on type change
-    await expect(page.locator('#duration_minutes')).toBeEditable({ timeout: 10_000 });
-    await page.locator('#title').fill('PW DelQuiz ' + stamp);
-    await page.locator('#duration_minutes').fill('5');
-    await page.locator('#deadline').fill(futureDeadline());
-    await page.locator('#max_score').fill('100');
-    const delBtn = page.getByRole('button', { name: /simpan tugas/i });
-    await expect(delBtn).toBeEnabled({ timeout: 10_000 });
-    await Promise.all([
-      page.waitForURL(/\/(questions|assignments)$/, { timeout: 30_000 }),
-      delBtn.click({ noWaitAfter: true }),
-    ]);
+    await createQuiz(page, 'PW DelQuiz ' + stamp, '5');
     // Go to assignments list to find delete button
     await page.goto(`/dosen/courses/${IDS.course.if101}/assignments`);
 

@@ -5,14 +5,7 @@ const safeEscape = (value) => String(value)
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
-function applyMeetEnhancements() {
-    const ConferenceUI = window.ConferenceUI;
-    const ConferenceRoom = window.ConferenceRoom;
-
-    if (!ConferenceUI || !ConferenceRoom) {
-        return;
-    }
-
+function patchPinning(ConferenceUI, ConferenceRoom) {
     ConferenceUI.togglePinByEncoded = function togglePinByEncoded(encodedIdentity) {
         ConferenceUI.togglePin(decodeURIComponent(encodedIdentity));
     };
@@ -33,7 +26,9 @@ function applyMeetEnhancements() {
             ConferenceUI.renderParticipants();
         }
     };
+}
 
+function patchControls(ConferenceUI) {
     ConferenceUI.toggleFullscreen = function toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen?.();
@@ -67,7 +62,9 @@ function applyMeetEnhancements() {
 
         originalCopyLink?.();
     };
+}
 
+function patchParticipantsPanel(ConferenceUI) {
     ConferenceUI.renderParticipants = function renderParticipants() {
         const list = document.getElementById('participants-list');
         if (!list) return;
@@ -120,18 +117,12 @@ function applyMeetEnhancements() {
         let html = '';
         if (hosts.length) {
             html += `<p class="text-xs text-on-surface-variant px-2 py-1 uppercase tracking-wider">Host (${hosts.length})</p>`;
-            hosts.forEach((p) => {
-                html += row(p);
-            });
+            hosts.forEach((p) => { html += row(p); });
         }
-
         if (guests.length) {
             html += `<p class="text-xs text-on-surface-variant px-2 py-1 uppercase tracking-wider mt-2">Peserta (${guests.length})</p>`;
-            guests.forEach((p) => {
-                html += row(p);
-            });
+            guests.forEach((p) => { html += row(p); });
         }
-
         if (!ordered.length) {
             html = '<div class="text-center text-on-surface-variant text-sm py-8">Tidak ada peserta ditemukan</div>';
         }
@@ -144,23 +135,11 @@ function applyMeetEnhancements() {
             });
         });
 
-        const total = all.length;
-        const micActive = all.filter((p) => !p.isMuted).length;
-        const vidActive = all.filter((p) => !p.isVideoOff).length;
-        const hands = all.filter((p) => p.isHandRaised).length;
-
-        const footer = document.getElementById('participants-footer');
-        if (footer) {
-            footer.innerHTML = `
-                <div class="grid grid-cols-4 gap-2 w-full">
-                    <div class="text-center"><p class="text-on-surface font-medium">${total}</p><p class="text-on-surface-variant text-xs">Peserta</p></div>
-                    <div class="text-center"><p class="text-on-surface font-medium">${micActive}</p><p class="text-on-surface-variant text-xs">Mik aktif</p></div>
-                    <div class="text-center"><p class="text-on-surface font-medium">${vidActive}</p><p class="text-on-surface-variant text-xs">Video aktif</p></div>
-                    <div class="text-center"><p class="text-on-surface font-medium">${hands}</p><p class="text-on-surface-variant text-xs">Tangan</p></div>
-                </div>`;
-        }
+        ConferenceUI.renderParticipantsFooter(all);
     };
+}
 
+function patchRoomInit(ConferenceUI, ConferenceRoom) {
     const originalInit = ConferenceRoom.init.bind(ConferenceRoom);
     ConferenceRoom.init = async function initWithShortcuts(...args) {
         await originalInit(...args);
@@ -180,32 +159,30 @@ function applyMeetEnhancements() {
                 ConferenceRoom.toggleMic();
                 return;
             }
-
             if (event.ctrlKey && event.key.toLowerCase() === 'e') {
                 event.preventDefault();
                 ConferenceRoom.toggleCamera();
                 return;
             }
-
             if (event.key.toLowerCase() === 'c') {
                 event.preventDefault();
                 ConferenceUI.togglePanel('chat');
                 return;
             }
-
             if (event.key.toLowerCase() === 'f') {
                 event.preventDefault();
                 ConferenceUI.toggleFullscreen();
             }
         });
     };
+}
 
+function patchTilesAndLayout(ConferenceUI, ConferenceRoom) {
     const originalAddTile = ConferenceRoom.addTile.bind(ConferenceRoom);
     ConferenceRoom.addTile = function addTileWithPin(identity, displayName, avatarColor) {
         originalAddTile(identity, displayName, avatarColor);
 
-        const tileId = `tile-${ConferenceRoom.safeId(identity)}`;
-        const tile = document.getElementById(tileId);
+        const tile = document.getElementById(`tile-${ConferenceRoom.safeId(identity)}`);
         if (!tile || tile.dataset.meetEnhanced === '1') return;
 
         tile.dataset.meetEnhanced = '1';
@@ -261,6 +238,18 @@ function applyMeetEnhancements() {
             panelTotal.textContent = badge.textContent || '1';
         }
     };
+}
+
+function applyMeetEnhancements() {
+    const ConferenceUI = window.ConferenceUI;
+    const ConferenceRoom = window.ConferenceRoom;
+    if (!ConferenceUI || !ConferenceRoom) return;
+
+    patchPinning(ConferenceUI, ConferenceRoom);
+    patchControls(ConferenceUI);
+    patchParticipantsPanel(ConferenceUI);
+    patchRoomInit(ConferenceUI, ConferenceRoom);
+    patchTilesAndLayout(ConferenceUI, ConferenceRoom);
 }
 
 if (document.readyState === 'loading') {

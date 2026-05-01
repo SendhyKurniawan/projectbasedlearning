@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { USERS, DASHBOARD_URL } from './fixtures';
-import { loginAs, logout } from './helpers/auth';
+import { loginAs, logout, getCsrfAndCookies } from './helpers/auth';
 
 test.describe('Flow 1 — Auth & Access Control', () => {
   test('AUTH-01a admin valid login → admin dashboard', async ({ page }) => {
@@ -114,9 +114,7 @@ test.describe('Flow 1 — Auth & Access Control', () => {
     await page.goto('/forgot-password', { waitUntil: 'domcontentloaded' });
     await expect(page.locator('#email')).toBeVisible();
     // Request-level POST: confirm endpoint doesn't 500. SMTP send is allowed to fail.
-    const csrf = await page.evaluate(() => (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? '');
-    const cookies = await page.context().cookies();
-    const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+    const { csrf, cookieHeader } = await getCsrfAndCookies(page);
     const res = await request.post(`${baseURL}/forgot-password`, {
       headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'text/html', Cookie: cookieHeader },
       form: { _token: csrf, email: 'mahasiswa@pjbl.test' },
