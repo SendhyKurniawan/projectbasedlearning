@@ -395,16 +395,16 @@
             '{{ auth()->user()->name }}',
             true
         );
-    });
 
-    ConferenceRoom.confirmEnd = function(e) {
-        if (!confirm('Akhiri sesi live ini untuk semua mahasiswa?')) {
-            e.preventDefault();
-            return false;
-        }
-        ConferenceRoom.disconnect();
-        return true;
-    };
+        ConferenceRoom.confirmEnd = function(e) {
+            if (!confirm('Akhiri sesi live ini untuk semua mahasiswa?')) {
+                e.preventDefault();
+                return false;
+            }
+            ConferenceRoom.disconnect();
+            return true;
+        };
+    });
 </script>
 </body>
 </html>

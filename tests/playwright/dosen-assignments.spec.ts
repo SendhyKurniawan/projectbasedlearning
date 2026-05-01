@@ -1,24 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { IDS } from './fixtures';
-import { loginAs } from './helpers/auth';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PDF = path.join(__dirname, 'assets', 'sample.pdf');
-
-function futureDeadline(days = 14): string {
-  const d = new Date(Date.now() + days * 24 * 3600 * 1000);
-  // HTML datetime-local format YYYY-MM-DDTHH:mm
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-function pastDeadline(): string {
-  const d = new Date(Date.now() - 24 * 3600 * 1000);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
+import { loginAs, getCsrfAndCookies } from './helpers/auth';
+import { futureDeadline, pastDeadline } from './helpers/dates';
+import { SAMPLE_PDF as PDF } from './helpers/assets';
 
 test.describe('Flow 3 — Dosen · Assignments (ASG)', () => {
   test.beforeEach(async ({ page }) => {
@@ -151,9 +135,7 @@ test.describe('Flow 3 — Dosen · Assignments (ASG)', () => {
 
   test('ASG-13 reorder POST endpoint accepts ordered_ids JSON', async ({ page, request, baseURL }) => {
     await page.goto(`/dosen/courses/${IDS.course.if101}/assignments`);
-    const csrf = await page.evaluate(() => (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? '');
-    const cookies = await page.context().cookies();
-    const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+    const { csrf, cookieHeader } = await getCsrfAndCookies(page);
     const res = await request.post(`${baseURL}/dosen/courses/${IDS.course.if101}/assignments/reorder`, {
       headers: {
         'Content-Type': 'application/json',

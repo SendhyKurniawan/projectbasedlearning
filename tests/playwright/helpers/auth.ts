@@ -2,6 +2,15 @@ import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { USERS, DASHBOARD_URL, type Role } from '../fixtures';
 
+export async function getCsrfAndCookies(page: Page): Promise<{ csrf: string; cookieHeader: string }> {
+  const csrf = await page.evaluate(
+    () => (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null)?.content ?? ''
+  );
+  const cookies = await page.context().cookies();
+  const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+  return { csrf, cookieHeader };
+}
+
 /**
  * Log in via the real /login form and wait for the role-based redirect.
  * Uses the same selectors a real user would: #email and #password from

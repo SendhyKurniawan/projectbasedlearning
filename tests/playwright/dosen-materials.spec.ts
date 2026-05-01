@@ -1,12 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { IDS } from './fixtures';
-import { loginAs } from './helpers/auth';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PDF = path.join(__dirname, 'assets', 'sample.pdf');
+import { loginAs, getCsrfAndCookies } from './helpers/auth';
+import { SAMPLE_PDF as PDF } from './helpers/assets';
 
 test.describe('Flow 3 — Dosen · Materials (MAT)', () => {
   test.beforeEach(async ({ page }) => {
@@ -44,13 +39,8 @@ test.describe('Flow 3 — Dosen · Materials (MAT)', () => {
 
   test('MAT-04 reorder POST persists order via AJAX', async ({ page, request, baseURL }) => {
     await page.goto(`/dosen/courses/${IDS.course.if101}/materials`);
-    const csrfToken = await page.evaluate(() => {
-      const meta = document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement | null;
-      return meta?.content ?? '';
-    });
     // Capture cookies and send a real reorder request to validate endpoint shape
-    const cookies = await page.context().cookies();
-    const cookieHeader = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+    const { csrf: csrfToken, cookieHeader } = await getCsrfAndCookies(page);
     const res = await request.post(`${baseURL}/dosen/courses/${IDS.course.if101}/materials/reorder`, {
       headers: {
         'Content-Type': 'application/json',
