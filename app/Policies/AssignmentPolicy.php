@@ -64,7 +64,7 @@ class AssignmentPolicy
      */
     public function delete(User $user, Assignment $assignment): bool
     {
-        $course = $assignment->course;
-        return $user->isAdmin() || ($user->isDosen() && $user->id === $course->dosen_id);
+        // Only Admin should have permission to delete a core resource.
+        return $user->isAdmin();
     }
 }

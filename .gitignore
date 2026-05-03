@@ -26,13 +26,3 @@ _ide_helper.php
 _ide_helper_models.php
 .phpstorm.meta.php
 /.agent/rules
-.env.dusk.local
-/tests/Browser/screenshots/
-/tests/Browser/console/
-/tests/Browser/source/
-/tests/Browser/fixtures/sample-large.pdf
-/playwright-report
-/.playwright-mcp/test-results
-/tests/playwright/.auth
-/test-results
-.fallow/
