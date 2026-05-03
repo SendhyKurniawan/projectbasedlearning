@@ -6,17 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Conference;
 use App\Models\Course;
 use App\Models\User;
+use App\Services\JaasTokenService;
 use App\Services\NotificationService;
-use Agence104\LiveKit\AccessToken;
-use Agence104\LiveKit\AccessTokenOptions;
-use Agence104\LiveKit\VideoGrant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ConferenceController extends Controller
 {
-    public function __construct(private NotificationService $notifications)
-    {
+    public function __construct(
+        private NotificationService $notifications,
+        private JaasTokenService $jaas,
+    ) {
     }
 
     public function index(Course $course)
@@ -146,38 +146,15 @@ class ConferenceController extends Controller
                 ->with('error', 'Sesi konferensi sudah berakhir.');
         }
 
-        return view('dosen.conferences.room', compact('conference'));
-    }
-
-    public function token(Conference $conference)
-    {
-        $this->authorize('update', $conference->course);
-
         $user = auth()->user();
-        $identity = $user->id . ':' . $user->name . ' (Dosen)';
-        $token = $this->generateToken($conference->room_name, $identity, true);
+        $jwt = $this->jaas->mint(
+            room: $conference->room_name,
+            userId: $user->id,
+            name: $user->name,
+            moderator: true,
+            email: $user->email,
+        );
 
-        return response()->json(['token' => $token]);
-    }
-
-    private function generateToken(string $roomName, string $participantName, bool $canPublish = true): string
-    {
-        $tokenOptions = (new AccessTokenOptions())
-            ->setIdentity($participantName)
-            ->setTtl(3600);
-
-        $videoGrant = (new VideoGrant())
-            ->setRoomJoin()
-            ->setRoomName($roomName)
-            ->setCanPublish($canPublish)
-            ->setCanSubscribe();
-
-        return (new AccessToken(
-            config('services.livekit.api_key'),
-            config('services.livekit.api_secret')
-        ))
-            ->init($tokenOptions)
-            ->setGrant($videoGrant)
-            ->toJwt();
+        return view('dosen.conferences.room', compact('conference', 'jwt'));
     }
 }
