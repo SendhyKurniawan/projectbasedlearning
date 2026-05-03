@@ -151,7 +151,6 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::post('/conferences/{conference}/start', [Dosen\ConferenceController::class, 'start'])->name('conferences.start');
     Route::post('/conferences/{conference}/end', [Dosen\ConferenceController::class, 'end'])->name('conferences.end');
     Route::get('/conferences/{conference}/room', [Dosen\ConferenceController::class, 'room'])->name('conferences.room');
-    Route::get('/conferences/{conference}/token', [Dosen\ConferenceController::class, 'token'])->name('conferences.token');
 
     // Code Exercise CRUD (dedicated flow for exercise_config fields)
     Route::get('/courses/{course}/exercises/create', [Dosen\ExerciseController::class, 'create'])->name('exercises.create');
@@ -185,7 +184,6 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     // Conference (Kelas Virtual)
     Route::get('/courses/{course}/conferences', [Mahasiswa\ConferenceController::class, 'index'])->name('conferences.index');
     Route::get('/conferences/{conference}/room', [Mahasiswa\ConferenceController::class, 'room'])->name('conferences.room');
-    Route::get('/conferences/{conference}/token', [Mahasiswa\ConferenceController::class, 'token'])->name('conferences.token');
 });
 
 require __DIR__.'/auth.php';

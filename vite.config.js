@@ -12,8 +12,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/code-editor.js',
                 'resources/js/markdown-editor.js',
-                'resources/js/conference-room.js',
-                'resources/js/conference-meet-enhancements.js'
+                'resources/js/conference-jitsi.js'
             ],
             refresh: true,
         }),
