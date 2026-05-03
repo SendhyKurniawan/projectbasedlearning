@@ -43,7 +43,7 @@ class ExerciseController extends Controller
     {
         $request->validate([
             'assignment_id' => 'required|exists:assignments,id',
-            'code_answer' => 'required|string|max:50000',
+            'code_answer' => 'required|string',
         ]);
         
         $mahasiswa = auth()->user();
@@ -67,11 +67,7 @@ class ExerciseController extends Controller
         if ($existing) {
             return redirect()->back()->with('error', 'Anda sudah mengumpulkan exercise ini.');
         }
-
-        if (now()->greaterThan($assignment->deadline)) {
-            return redirect()->back()->with('error', 'Deadline telah terlewat.');
-        }
-
+        
         // Validate code server-side
         $validationResult = $this->validateCode($assignment, $request->code_answer);
         
@@ -101,14 +97,10 @@ class ExerciseController extends Controller
         
         // Check required keywords
         if (isset($config['required_keywords']) && !empty($config['required_keywords'])) {
-            $keywords = array_values(array_filter(
-                array_map('trim', $config['required_keywords']),
-                fn ($k) => $k !== ''
-            ));
-            $totalKeywords = count($keywords);
+            $totalKeywords = count($config['required_keywords']);
             $foundKeywords = 0;
-
-            foreach ($keywords as $keyword) {
+            
+            foreach ($config['required_keywords'] as $keyword) {
                 if (stripos($code, $keyword) !== false) {
                     $foundKeywords++;
                 } else {

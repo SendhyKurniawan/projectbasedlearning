@@ -5,15 +5,13 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Conference;
 use App\Models\Course;
-use App\Services\JaasTokenService;
+use Agence104\LiveKit\AccessToken;
+use Agence104\LiveKit\AccessTokenOptions;
+use Agence104\LiveKit\VideoGrant;
 use Illuminate\Support\Facades\DB;
 
 class ConferenceController extends Controller
 {
-    public function __construct(private JaasTokenService $jaas)
-    {
-    }
-
     public function index(Course $course)
     {
         $this->authorizeEnrolled($course);
@@ -36,16 +34,42 @@ class ConferenceController extends Controller
                 ->with('error', 'Sesi konferensi ini belum dimulai atau sudah berakhir.');
         }
 
-        $user = auth()->user();
-        $jwt = $this->jaas->mint(
-            room: $conference->room_name,
-            userId: $user->id,
-            name: $user->name,
-            moderator: false,
-            email: $user->email,
-        );
+        return view('mahasiswa.conferences.room', compact('conference'));
+    }
 
-        return view('mahasiswa.conferences.room', compact('conference', 'jwt'));
+    public function token(Conference $conference)
+    {
+        $this->authorizeEnrolled($conference->course);
+
+        if (!$conference->isLive()) {
+            abort(403, 'Sesi belum aktif.');
+        }
+
+        $user = auth()->user();
+        $token = $this->generateToken($conference->room_name, $user->name);
+
+        return response()->json(['token' => $token]);
+    }
+
+    private function generateToken(string $roomName, string $participantName): string
+    {
+        $tokenOptions = (new AccessTokenOptions())
+            ->setIdentity($participantName)
+            ->setTtl(3600);
+
+        $videoGrant = (new VideoGrant())
+            ->setRoomJoin()
+            ->setRoomName($roomName)
+            ->setCanPublish()
+            ->setCanSubscribe();
+
+        return (new AccessToken(
+            config('services.livekit.api_key'),
+            config('services.livekit.api_secret')
+        ))
+            ->init($tokenOptions)
+            ->setGrant($videoGrant)
+            ->toJwt();
     }
 
     private function authorizeEnrolled(Course $course): void
