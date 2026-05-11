@@ -8,7 +8,8 @@
       "Bash(sed -i '82s/text-secondary border-outline-variant/text-secondary dark:text-secondary-fixed-dim border-outline-variant/' resources/views/dosen/assignments/questions/edit.blade.php)",
       "Bash(node scripts/audit-contrast.mjs)",
       "Bash(npm run *)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "WebFetch(domain:api.anthropic.com)"
     ]
   }
 }

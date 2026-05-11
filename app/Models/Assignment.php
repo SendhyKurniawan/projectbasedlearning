@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $max_score
  * @property string $type
  * @property array<array-key, mixed>|null $exercise_config
- * @property bool $auto_grade
  * @property int|null $order
  * @property int|null $assignment_number
  * @property int|null $quiz_number
@@ -55,10 +54,12 @@ class Assignment extends Model
         'max_score',
         'type', // tugas, quiz, exercise
         'exercise_config',
-        'auto_grade',
         'required_material_id',
         'duration_minutes',
         'quiz_number',
+        'is_group',
+        'max_group_size',
+        'grading_mode',
     ];
 
     protected function casts(): array
@@ -66,7 +67,7 @@ class Assignment extends Model
         return [
             'deadline' => 'datetime',
             'exercise_config' => 'array',
-            'auto_grade' => 'boolean',
+            'is_group' => 'boolean',
         ];
     }
 

@@ -2,155 +2,169 @@
     @vite('resources/css/pages/mahasiswa/dashboard.css')
 @endpush
 <x-app-layout>
-    <div class="space-y-10">
-        <!-- Welcome Hero -->
-        <section class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary to-primary-container p-10 text-white shadow-lg shadow-primary/10">
-            <div class="relative z-10 max-w-2xl">
-                <h2 class="text-4xl font-extrabold font-headline mb-4">Mulai Belajar, {{ Auth::user()->name }}!</h2>
-                <p class="text-on-primary-container text-lg font-body leading-relaxed opacity-90">
-                    Anda memiliki <span class="font-bold text-secondary-container">{{ $stats['enrolled_courses'] }} mata kuliah</span> terdaftar. Selesaikan <span class="font-bold text-tertiary-fixed">{{ $stats['total_assignments'] - $stats['submitted_assignments'] }} tugas</span> yang masih tersisa minggu ini.
-                </p>
-                <div class="mt-8 flex gap-4">
-                    <a href="{{ route('mahasiswa.courses.index') }}" class="px-6 py-3 bg-white text-primary font-bold rounded-xl text-sm shadow-xl shadow-black/10 transition-transform active:scale-95">LIHAT MATAKULIAH</a>
-                    <a href="#assignments" class="px-6 py-3 border border-white/30 hover:bg-white/10 text-white font-bold rounded-xl text-sm transition-all">CEK TUGAS</a>
-                </div>
-            </div>
-            <!-- Abstract architectural shapes for visual depth -->
-            <div class="absolute right-[-10%] top-[-20%] w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
-            <div class="absolute right-20 bottom-[-30%] w-64 h-64 bg-secondary/20 rounded-full blur-2xl"></div>
-        </section>
+    @php
+        $pendingCount = max(0, ($stats['total_assignments'] ?? 0) - ($stats['submitted_assignments'] ?? 0));
+        $thisWeekDue = $upcoming_assignments->filter(fn($a) => $a->deadline && $a->deadline->lte(now()->addWeek()))->count();
+    @endphp
 
-        <!-- Statistics Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-surface-container-lowest p-6 rounded-3xl relative overflow-hidden group hover:shadow-md transition-all border border-outline-variant/10">
-                <div class="absolute top-0 left-0 w-1.5 h-full bg-primary"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
-                        <span class="material-symbols-outlined">auto_stories</span>
-                    </div>
-                </div>
-                <h3 class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Mata Kuliah</h3>
-                <p class="text-3xl font-black text-on-surface mt-1 font-headline">{{ $stats['enrolled_courses'] }}</p>
+    <div class="space-y-8">
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Halo, {{ Auth::user()->name }} 👋</h1>
+                <p class="mt-1 text-sm text-on-surface-variant max-w-xl">Berikut ringkasan progres belajar dan agenda kamu hari ini.</p>
             </div>
-
-            <div class="bg-surface-container-lowest p-6 rounded-3xl relative overflow-hidden group hover:shadow-md transition-all border border-outline-variant/10">
-                <div class="absolute top-0 left-0 w-1.5 h-full bg-tertiary"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 bg-tertiary/10 text-tertiary rounded-xl flex items-center justify-center">
-                        <span class="material-symbols-outlined">assignment</span>
-                    </div>
-                </div>
-                <h3 class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Total Tugas</h3>
-                <p class="text-3xl font-black text-on-surface mt-1 font-headline">{{ $stats['total_assignments'] }}</p>
-            </div>
-
-            <div class="bg-surface-container-lowest p-6 rounded-3xl relative overflow-hidden group hover:shadow-md transition-all border border-outline-variant/10">
-                <div class="absolute top-0 left-0 w-1.5 h-full bg-secondary"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-12 h-12 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center">
-                        <span class="material-symbols-outlined">check_circle</span>
-                    </div>
-                </div>
-                <h3 class="text-on-surface-variant text-xs font-bold uppercase tracking-widest">Selesai</h3>
-                <p class="text-3xl font-black text-on-surface mt-1 font-headline">{{ $stats['submitted_assignments'] }}</p>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('mahasiswa.courses.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 text-sm font-bold text-on-surface hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined text-base">add</span>
+                    Gabung Kelas
+                </a>
+                <a href="#jadwal" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm hover:shadow transition-all">
+                    <span class="material-symbols-outlined text-base">calendar_month</span>
+                    Lihat Jadwal
+                </a>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Left Column: My Courses -->
+        {{-- 4-Stat Row --}}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach([
+                ['Kelas Aktif', $stats['enrolled_courses'] ?? 0, 'Semester ini', 'auto_stories', 'primary'],
+                ['Tugas Pending', $pendingCount, $thisWeekDue . ' due minggu ini', 'assignment', 'tertiary'],
+                ['Tugas Selesai', $stats['submitted_assignments'] ?? 0, 'Total submit', 'check_circle', 'secondary'],
+                ['Total Tugas', $stats['total_assignments'] ?? 0, 'Semua MK', 'fact_check', 'primary'],
+            ] as [$label, $value, $hint, $icon, $accent])
+                <div class="bg-surface-container-lowest p-5 rounded-2xl relative overflow-hidden border border-outline-variant/10">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-{{ $accent }}"></div>
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-{{ $accent }}/10 text-{{ $accent }} flex items-center justify-center">
+                            <span class="material-symbols-outlined text-xl">{{ $icon }}</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{{ $label }}</p>
+                    <p class="font-headline text-3xl font-extrabold text-on-surface mt-1 leading-none">{{ $value }}</p>
+                    <p class="text-[11px] text-on-surface-variant mt-2">{{ $hint }}</p>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Main 2-Col --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {{-- LEFT: Upcoming + Progress --}}
             <div class="lg:col-span-8 space-y-6">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-2xl font-extrabold font-headline text-on-surface flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary">ifl</span>
-                        Mata Kuliah Saya
-                    </h3>
-                    <a href="{{ route('mahasiswa.courses.index') }}" class="text-primary text-sm font-bold hover:underline">Lihat Semua</a>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    @forelse($enrolled_courses as $course)
-                        <a href="{{ route('mahasiswa.courses.show', $course) }}" class="group bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-sm hover:shadow-xl transition-all p-2 border border-outline-variant/10">
-                            <div class="relative h-40 rounded-[1.5rem] overflow-hidden bg-surface-container-low">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                                <div class="absolute top-4 left-4 bg-primary text-on-primary text-[10px] font-black px-2 py-1 rounded-full uppercase tracking-widest">Active</div>
-                                <div class="absolute bottom-4 left-4 right-4 text-white">
-                                    <span class="text-[10px] font-bold uppercase tracking-wider opacity-80">{{ $course->kode_matkul }}</span>
+                {{-- Tugas Mendatang --}}
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden">
+                    <header class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
+                        <h2 class="font-headline text-lg font-bold">Tugas Mendatang</h2>
+                        <a href="#" class="text-xs font-bold text-primary hover:underline">Lihat semua →</a>
+                    </header>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-surface-container-low/40 text-[10px] uppercase tracking-widest text-on-surface-variant">
+                                    <th class="text-left px-6 py-3 font-bold">Tugas</th>
+                                    <th class="text-left px-4 py-3 font-bold">Mata Kuliah</th>
+                                    <th class="text-left px-4 py-3 font-bold">Tipe</th>
+                                    <th class="text-left px-4 py-3 font-bold">Deadline</th>
+                                    <th class="px-4 py-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline-variant/10">
+                                @forelse($upcoming_assignments as $a)
+                                    @php
+                                        $hours = now()->diffInHours($a->deadline, false);
+                                        $tagClass = $hours < 48 ? 'bg-error/10 text-error' : ($hours < 168 ? 'bg-tertiary/10 text-tertiary' : 'bg-surface-container text-on-surface-variant');
+                                    @endphp
+                                    <tr class="hover:bg-surface-bright transition-colors">
+                                        <td class="px-6 py-3 font-bold text-on-surface">{{ $a->title }}</td>
+                                        <td class="px-4 py-3 text-on-surface-variant">{{ $a->course->nama_matkul ?? '—' }}</td>
+                                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md bg-surface-container text-[10px] font-bold uppercase">{{ ucfirst($a->type ?? 'tugas') }}</span></td>
+                                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[10px] font-bold {{ $tagClass }}">{{ $a->deadline ? $a->deadline->diffForHumans() : '—' }}</span></td>
+                                        <td class="px-4 py-3 text-right">
+                                            <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $a->id]) }}" class="text-xs font-bold text-primary hover:underline">Buka</a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="5" class="px-6 py-8 text-center text-sm text-on-surface-variant">Tidak ada tugas mendatang.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                {{-- Progres Mata Kuliah --}}
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                    <h2 class="font-headline text-lg font-bold mb-4">Progres Mata Kuliah</h2>
+                    <div class="space-y-4">
+                        @forelse($enrolled_courses as $c)
+                            @php
+                                $total = max(1, ($c->materials_count ?? 0) + ($c->assignments_count ?? 0));
+                                $pct = min(100, round((($c->assignments_count ?? 0) / $total) * 100));
+                            @endphp
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1.5">
+                                    <span class="font-bold text-on-surface">{{ $c->nama_matkul }}</span>
+                                    <span class="text-on-surface-variant">{{ $pct }}%</span>
+                                </div>
+                                <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                                    <div class="h-full bg-primary rounded-full" style="width: {{ $pct }}%"></div>
                                 </div>
                             </div>
-                            <div class="p-5">
-                                <div class="flex items-start border-l-4 border-secondary pl-3 mb-4">
-                                    <h4 class="font-bold font-headline text-lg group-hover:text-primary transition-colors line-clamp-1 ">{{ $course->nama_matkul }}</h4>
-                                </div>
-                                <div class="flex gap-4 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/70 ">
-                                    <span class="flex items-center gap-1.5">
-                                        <span class="material-symbols-outlined text-[16px]">description</span>
-                                        {{ $course->materials_count }} Materials
-                                    </span>
-                                    <span class="flex items-center gap-1.5">
-                                        <span class="material-symbols-outlined text-[16px]">assignment</span>
-                                        {{ $course->assignments_count }} Tasks
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
-                    @empty
-                        <div class="col-span-full py-16 bg-surface border-2 border-dashed border-outline-variant/30 rounded-[2rem] flex flex-col items-center justify-center text-center">
-                            <span class="material-symbols-outlined text-outline-variant text-5xl mb-4">auto_stories</span>
-                            <h3 class="text-xl font-bold text-on-surface font-headline mb-2">Belum Terdaftar Matakuliah</h3>
-                            <a href="{{ route('mahasiswa.courses.index') }}" class="text-primary font-bold text-sm hover:underline">Cari Matakuliah Sekarang</a>
-                        </div>
-                    @endforelse
-                </div>
+                        @empty
+                            <p class="text-sm text-on-surface-variant">Belum terdaftar mata kuliah.</p>
+                        @endforelse
+                    </div>
+                </section>
             </div>
 
-            <!-- Right Column: Deadlines -->
-            <div id="assignments" class="lg:col-span-4 space-y-8">
-                <div class="bg-surface-container-low rounded-[2rem] p-8 border border-outline-variant/10">
-                    <h3 class="text-xl font-bold font-headline mb-6 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-error">event_upcoming</span>
-                        Tugas Terdekat
-                    </h3>
-                    <div class="space-y-6">
-                        @forelse($upcoming_assignments as $assignment)
-                            <div class="flex gap-4 group">
-                                <div class="flex-shrink-0 w-12 h-14 bg-surface-container-lowest rounded-xl flex flex-col items-center justify-center shadow-sm">
-                                    <span class="text-[10px] font-black text-on-surface-variant uppercase">{{ $assignment->deadline->format('M') }}</span>
-                                    <span class="text-lg font-bold text-primary">{{ $assignment->deadline->format('d') }}</span>
+            {{-- RIGHT: Schedule + Announcement + Activity --}}
+            <aside class="lg:col-span-4 space-y-6">
+                <section id="jadwal" class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                    <h2 class="font-headline text-lg font-bold mb-4">Jadwal Hari Ini</h2>
+                    <div class="space-y-1">
+                        @forelse($enrolled_courses->take(3) as $c)
+                            <div class="flex items-center gap-3 py-2.5 border-b border-dashed border-outline-variant/20 last:border-0">
+                                <span class="font-mono text-[11px] text-on-surface-variant w-12">{{ sprintf('%02d:00', 8 + ($loop->index * 2)) }}</span>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold truncate">{{ $c->nama_matkul }}</p>
+                                    <p class="text-[10px] text-on-surface-variant truncate">{{ $c->dosen->name ?? 'Dosen' }}</p>
                                 </div>
-                                <div class="flex-1 border-b border-outline-variant/30 pb-4 group-last:border-0">
-                                    <h4 class="text-sm font-bold font-headline line-clamp-1">{{ $assignment->title }}</h4>
-                                    <p class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider line-clamp-1 ">{{ $assignment->course->nama_matkul }}</p>
-                                </div>
+                                @if($loop->first)
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-secondary/10 text-secondary">Live</span>
+                                @endif
                             </div>
                         @empty
-                            <div class="py-10 text-center">
-                                <p class="text-xs font-semibold text-on-surface-variant ">Semua tugas telah diselesaikan!</p>
-                            </div>
+                            <p class="text-sm text-on-surface-variant">Tidak ada jadwal.</p>
                         @endforelse
                     </div>
-                </div>
+                </section>
 
-                <!-- Small Info / Announcements Mock -->
-                <div class="bg-surface-container-lowest rounded-[2rem] p-8 border border-outline-variant/20 shadow-sm">
-                    <h3 class="text-lg font-bold font-headline mb-6">Pengumuman</h3>
-                    <div class="space-y-6">
-                        @forelse($announcements as $announcement)
-                        <div class="relative pl-6 before:content-[''] before:absolute before:left-0 before:top-1 before:bottom-0 before:w-1.5 before:bg-primary before:rounded-full">
-                            <span class="text-[10px] font-bold text-primary mb-1 block uppercase">{{ $announcement->author->role ?? 'SISTEM' }} • {{ $announcement->created_at->diffForHumans() }}</span>
-                            <h4 class="text-sm font-bold font-body leading-snug mb-1">{{ $announcement->title }}</h4>
-                            <p class="text-[11px] text-on-surface-variant line-clamp-2 leading-relaxed">{{ Str::limit(strip_tags($announcement->content), 100) }}</p>
-                        </div>
+                <section class="bg-tertiary-fixed/40 rounded-2xl border border-tertiary/20 p-6">
+                    <h2 class="font-headline text-base font-bold mb-3 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-tertiary">campaign</span>
+                        Pengumuman Terbaru
+                    </h2>
+                    <div class="space-y-3">
+                        @forelse($announcements as $ann)
+                            <div>
+                                <p class="text-xs font-bold text-on-surface line-clamp-1">{{ $ann->title }}</p>
+                                <p class="text-[11px] text-on-surface-variant line-clamp-2 mt-0.5">{{ Str::limit(strip_tags($ann->content), 80) }}</p>
+                            </div>
                         @empty
-                        <div class="text-center text-sm text-on-surface-variant py-4">
-                            Belum ada pengumuman
-                        </div>
+                            <p class="text-xs text-on-surface-variant">Belum ada pengumuman.</p>
                         @endforelse
                     </div>
-                    <a href="{{ route('announcements.index') }}" class="mt-8 py-3 bg-surface-container-low text-primary dark:text-primary-fixed-dim text-xs font-bold rounded-xl hover:bg-surface-container transition-colors block text-center">
-                        LIHAT SEMUA UPDATE
+                    <a href="{{ route('announcements.index') }}" class="mt-4 block text-xs font-bold text-primary hover:underline">Lihat semua →</a>
+                </section>
+
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                    <h2 class="font-headline text-base font-bold mb-3">Aktivitas Forum</h2>
+                    <a href="{{ route('discussions.index') }}" class="flex items-center justify-between text-xs font-bold text-primary hover:underline">
+                        Buka Forum Diskusi
+                        <span class="material-symbols-outlined text-base">arrow_forward</span>
                     </a>
-                </div>
-            </div>
+                </section>
+            </aside>
         </div>
     </div>
 </x-app-layout>

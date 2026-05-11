@@ -1,39 +1,54 @@
 <x-app-layout>
-    <div class="space-y-12 pb-20 px-4 sm:px-6 lg:px-8">
-        <!-- Header & Academic Summary -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
-            <div class="space-y-4">
-                <nav class="flex items-center gap-2 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-[0.2em] mb-2 px-1">
-                    <span><a href="{{ route('mahasiswa.dashboard') }}" class="hover:text-primary transition-colors">Overview</a></span>
-                    <span class="material-symbols-outlined text-[12px]">chevron_right</span>
-                    <span class="text-primary text-[11px]">Laporan Nilai</span>
-                </nav>
-                <h1 class="text-5xl font-headline font-black text-on-surface uppercase tracking-tighter leading-tight">Transkrip Evaluasi</h1>
-                <p class="text-on-surface-variant body-md mt-1 opacity-80">Pantau progres akademik dan pencapaian kompetensi anda di seluruh mata kuliah.</p>
-            </div>
+    @php
+        $allScores = [];
+        $totalAssignments = 0;
+        foreach($courses as $c) {
+            foreach($c->assignments as $a) {
+                $totalAssignments++;
+                $sub = $a->submissions->first();
+                if($sub && $sub->score !== null) $allScores[] = $sub->score;
+            }
+        }
+        $avg = count($allScores) > 0 ? array_sum($allScores) / count($allScores) : 0;
+        $maxScore = count($allScores) ? max($allScores) : 0;
+        $predikat = $avg >= 85 ? 'Sangat Baik' : ($avg >= 70 ? 'Baik' : ($avg >= 60 ? 'Cukup' : ($avg > 0 ? 'Kurang' : '—')));
+    @endphp
 
-            <div class="flex gap-4">
-                <div class="bg-surface-container-lowest p-6 rounded-[2.5rem] border border-outline-variant/10 shadow-sm flex flex-col items-center min-w-[140px]">
-                    <span class="text-[9px] font-black uppercase text-on-surface-variant opacity-60 mb-2">Rata-rata Skor</span>
-                    <span class="text-4xl font-black text-primary tracking-tighter">
-                        @php
-                            $allScores = [];
-                            foreach($courses as $c) {
-                                foreach($c->assignments as $a) {
-                                    $sub = $a->submissions->first();
-                                    if($sub && $sub->score !== null) $allScores[] = $sub->score;
-                                }
-                            }
-                            $avg = count($allScores) > 0 ? array_sum($allScores) / count($allScores) : 0;
-                        @endphp
-                        {{ number_format($avg, 1) }}
-                    </span>
-                </div>
-                <div class="bg-primary p-6 rounded-[2.5rem] shadow-xl shadow-primary/20 flex flex-col items-center min-w-[140px] text-on-primary">
-                    <span class="text-[9px] font-black uppercase opacity-60 mb-2">Selesai Dinilai</span>
-                    <span class="text-4xl font-black tracking-tighter">{{ count($allScores) }}</span>
-                </div>
+    <div class="space-y-8 pb-20 px-4 sm:px-6 lg:px-8">
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Riwayat Nilai</h1>
+                <p class="mt-1 text-sm text-on-surface-variant max-w-xl">Rekap penilaian per mata kuliah dan transkrip akademik.</p>
             </div>
+        </div>
+
+        {{-- 4-Stat Row --}}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach([
+                ['Rata-rata Skor', number_format($avg, 1), 'Skala 100', 'analytics', 'primary'],
+                ['Selesai Dinilai', count($allScores), 'dari ' . $totalAssignments . ' tugas', 'task_alt', 'secondary'],
+                ['Skor Tertinggi', $maxScore ?: '—', 'Pencapaian terbaik', 'workspace_premium', 'tertiary'],
+                ['Predikat', $predikat, 'Berdasarkan rata-rata', 'star', 'primary'],
+            ] as [$label, $value, $hint, $icon, $accent])
+                <div class="bg-surface-container-lowest p-5 rounded-2xl relative overflow-hidden border border-outline-variant/10">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-{{ $accent }}"></div>
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-{{ $accent }}/10 text-{{ $accent }} flex items-center justify-center">
+                            <span class="material-symbols-outlined text-xl">{{ $icon }}</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{{ $label }}</p>
+                    <p class="font-headline text-3xl font-extrabold mt-1 leading-none">{{ $value }}</p>
+                    <p class="text-[11px] text-on-surface-variant mt-2">{{ $hint }}</p>
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Tabs --}}
+        <div class="flex flex-wrap gap-2 border-b border-outline-variant/10 pb-3">
+            <span class="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-bold">Detail per Mata Kuliah</span>
+            <a href="{{ route('mahasiswa.dashboard') }}" class="px-3 py-1.5 rounded-lg text-on-surface-variant text-xs font-bold hover:bg-surface-container-low">Kembali ke Overview</a>
         </div>
 
         <!-- Filter Section -->
@@ -98,12 +113,7 @@
         </div>
 
         <!-- Courses List -->
-        <div class="space-y-6">
-            <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] px-1 flex items-center gap-3 opacity-60">
-                <span class="w-12 h-1 bg-primary rounded-full"></span>
-                DETAIL PER MATA KULIAH
-            </h3>
-
+        <div class="space-y-4">
             @forelse($courses as $course)
                 <div x-data="{ expanded: false }" 
                      class="bg-surface-container-lowest rounded-[2.5rem] border border-outline-variant/10 shadow-sm overflow-hidden group transition-all duration-500"

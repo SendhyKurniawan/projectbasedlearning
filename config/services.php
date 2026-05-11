@@ -41,4 +41,9 @@ return [
         'api_secret' => env('LIVEKIT_API_SECRET'),
     ],
 
+    'piston' => [
+        'url' => env('PISTON_URL', 'https://emkc.org/api/v2/piston'),
+        'timeout' => (int) env('PISTON_TIMEOUT', 10),
+    ],
+
 ];

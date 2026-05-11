@@ -2,32 +2,30 @@
     @vite('resources/css/pages/admin/academic-hierarchy.css')
 @endpush
 <x-app-layout>
- <x-slot name="header">
- <div class="flex items-center gap-2 text-sm sm:text-base flex-wrap">
- <a href="{{ route('admin.hierarchy.departments.index') }}" class="text-primary hover:text-primary-hover">
- Data Akademik
- </a>
- <span class="text-on-surface-variant">/</span>
- <a href="{{ route('admin.hierarchy.departments.show', $studentClass->studyProgram->department_id) }}" class="text-primary hover:text-primary-hover">
- {{ $studentClass->studyProgram->department->name }}
- </a>
- <span class="text-on-surface-variant">/</span>
- <a href="{{ route('admin.hierarchy.study-programs.show', $studentClass->study_program_id) }}" class="text-primary hover:text-primary-hover">
- {{ $studentClass->studyProgram->name }}
- </a>
- <span class="text-on-surface-variant">/</span>
- <a href="{{ route('admin.hierarchy.study-programs.semesters.show', [$studentClass->study_program_id, $studentClass->semester_id]) }}" class="text-primary hover:text-primary-hover">
- {{ $studentClass->semester->name }}
- </a>
- <span class="text-on-surface-variant">/</span>
- <h2 class="font-semibold text-on-surface leading-tight">
- Kelas {{ $studentClass->name }}
- </h2>
+ <div class="space-y-6">
+ {{-- Section Header --}}
+ <div class="flex flex-wrap items-end justify-between gap-4">
+ <div>
+ <nav class="flex flex-wrap items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+ <a href="{{ route('admin.hierarchy.departments.index') }}" class="hover:text-primary transition-colors">Struktur</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <a href="{{ route('admin.hierarchy.departments.show', $studentClass->studyProgram->department_id) }}" class="hover:text-primary transition-colors">{{ $studentClass->studyProgram->department->name }}</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <a href="{{ route('admin.hierarchy.study-programs.show', $studentClass->study_program_id) }}" class="hover:text-primary transition-colors">{{ $studentClass->studyProgram->name }}</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <a href="{{ route('admin.hierarchy.study-programs.semesters.show', [$studentClass->study_program_id, $studentClass->semester_id]) }}" class="hover:text-primary transition-colors">{{ $studentClass->semester->name }}</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <span class="text-primary">{{ $studentClass->name }}</span>
+ </nav>
+ <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Kelas {{ $studentClass->name }}</h1>
+ <p class="mt-1 text-sm text-on-surface-variant">Anggota kelas dan mata kuliah yang berlaku.</p>
  </div>
- </x-slot>
+ <div class="flex items-center gap-2">
+ <span class="px-3 py-2 rounded-xl bg-primary-container text-on-primary text-xs font-bold">{{ $students->count() }} Mahasiswa</span>
+ </div>
+ </div>
 
  <div class="space-y-6">
- <div class="max-w-7xl mx-auto space-y-6">
  
  {{-- Flash Messages --}}
  @if(session('success'))

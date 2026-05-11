@@ -69,7 +69,39 @@
 
             <!-- Right: Form Section -->
             <div class="col-span-1 md:col-span-2">
-                @if($existing)
+                @if($assignment->is_group && !empty($existingGroup))
+                    <div class="bg-surface-container-lowest rounded-[2.5rem] p-10 border border-outline-variant/10 shadow-sm space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-primary text-[28px]">groups</span>
+                            <div>
+                                <h3 class="text-xl font-black text-on-surface uppercase tracking-tighter">Kelompok Anda</h3>
+                                <p class="text-sm text-on-surface-variant">{{ $existingGroup->group_name }}</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            @foreach($existingGroup->members as $m)
+                                <div class="flex items-center justify-between bg-surface-container-low rounded-xl px-4 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-tertiary text-white flex items-center justify-center font-bold uppercase">
+                                            {{ substr($m->mahasiswa->name ?? 'U', 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-bold text-on-surface">{{ $m->mahasiswa->name ?? '-' }}</p>
+                                            <p class="text-xs text-on-surface-variant">{{ $m->mahasiswa->nim ?? '-' }}</p>
+                                        </div>
+                                    </div>
+                                    @if($existingGroup->created_by_mahasiswa_id === $m->mahasiswa_id)
+                                        <span class="text-[10px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2 py-1 rounded-full">Pembuat</span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                        <p class="text-xs text-on-surface-variant">
+                            Anggota lain di kelompok Anda telah mengumpulkan tugas ini. Anda dapat melihat status di halaman course.
+                        </p>
+                        <a href="{{ route('mahasiswa.courses.show', $assignment->course_id) }}" class="inline-block px-6 py-3 bg-primary text-on-primary font-black text-xs uppercase tracking-widest rounded-xl">Kembali ke Course</a>
+                    </div>
+                @elseif($existing)
                     <div class="bg-surface-container-lowest rounded-[2.5rem] p-10 border border-outline-variant/10 shadow-sm text-center space-y-6 ">
                         <div class="w-16 h-16 bg-secondary/10 text-secondary rounded-full flex items-center justify-center mx-auto shadow-inner">
                             <span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">verified</span>
@@ -89,9 +121,60 @@
                             <span class="material-symbols-outlined text-[120px] rotate-12">send</span>
                         </div>
 
-                        <form action="{{ route('mahasiswa.submissions.store') }}" method="POST" enctype="multipart/form-data" class="relative z-10 space-y-8">
+                        <form action="{{ route('mahasiswa.submissions.store') }}" method="POST" enctype="multipart/form-data" class="relative z-10 space-y-8" x-data="{ memberIds: {{ json_encode(old('member_ids', [])) }} }">
                             @csrf
                             <input type="hidden" name="assignment_id" value="{{ $assignment->id }}">
+
+                            @if($assignment->is_group)
+                                <div class="bg-primary/5 border border-primary/20 rounded-2xl p-5 space-y-4">
+                                    <div class="flex items-start gap-3">
+                                        <span class="material-symbols-outlined text-primary">groups</span>
+                                        <div>
+                                            <p class="text-sm font-black text-on-surface uppercase tracking-tight">Tugas Kelompok</p>
+                                            <p class="text-[11px] text-on-surface-variant font-bold mt-1">
+                                                Tambahkan teman sekelas. Anda otomatis menjadi salah satu anggota.
+                                                @if($assignment->max_group_size)
+                                                    Maks. {{ $assignment->max_group_size }} orang termasuk Anda.
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label for="group_name" class="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] block">Nama Kelompok (Opsional)</label>
+                                        <input type="text" name="group_name" id="group_name" value="{{ old('group_name') }}" maxlength="120"
+                                            class="w-full bg-white border-outline-variant/30 text-on-surface text-sm rounded-xl p-3 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                            placeholder="Misal: Kelompok Avengers">
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase text-on-surface-variant tracking-[0.2em] block">Anggota Kelompok</label>
+                                        @if($classmates->isEmpty())
+                                            <div class="text-xs text-on-surface-variant bg-surface-container-low p-3 rounded-xl">
+                                                Tidak ada teman sekelas yang tersedia (semua sudah masuk kelompok atau tidak ada peserta lain).
+                                            </div>
+                                        @else
+                                            <select name="member_ids[]" multiple required size="{{ min(8, max(3, $classmates->count())) }}"
+                                                class="w-full bg-white border-outline-variant/30 text-on-surface text-sm rounded-xl p-3 focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                                                @foreach($classmates as $cm)
+                                                    <option value="{{ $cm->id }}" {{ in_array($cm->id, old('member_ids', [])) ? 'selected' : '' }}>
+                                                        {{ $cm->name }}@if($cm->nim) — {{ $cm->nim }}@endif
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <p class="text-[10px] text-on-surface-variant/70 font-bold">
+                                                Tahan Ctrl (Windows) / Cmd (Mac) untuk pilih lebih dari satu.
+                                            </p>
+                                        @endif
+                                        @error('member_ids')
+                                            <p class="text-error text-[11px] font-bold mt-1">{{ $message }}</p>
+                                        @enderror
+                                        @error('member_ids.*')
+                                            <p class="text-error text-[11px] font-bold mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+                            @endif
 
                             <!-- Form Field: Notes -->
                             <div class="space-y-3">

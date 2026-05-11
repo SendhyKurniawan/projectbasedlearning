@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use App\Models\Group;
+use App\Models\GroupMember;
 use App\Models\Submission;
 use App\Models\User;
+use App\Notifications\AcademicUpdateNotification;
 use App\Notifications\SubmissionNotification;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 
 class SubmissionController extends Controller
 {
@@ -17,26 +21,48 @@ class SubmissionController extends Controller
     {
         $assignment_id = $request->query('assignment_id');
         $assignment = Assignment::with('course')->findOrFail($assignment_id);
-        
-        // Check if student is enrolled in the course
+
         $mahasiswa = auth()->user();
         if (!$mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
-        
-        // Check if already submitted
+
         $existing = Submission::where('assignment_id', $assignment_id)
             ->where('mahasiswa_id', $mahasiswa->id)
             ->first();
-        
-        return view('mahasiswa.submissions.create', compact('assignment', 'existing'));
+
+        $existingGroup = null;
+        $classmates = collect();
+
+        if ($assignment->is_group) {
+            $existingGroup = Group::where('assignment_id', $assignment->id)
+                ->whereHas('members', fn($q) => $q->where('mahasiswa_id', $mahasiswa->id))
+                ->with(['members.mahasiswa', 'creator'])
+                ->first();
+
+            if (!$existingGroup) {
+                // Classmates: enrolled in same course, not the user, and not yet in any group for this assignment
+                $busyMahasiswaIds = GroupMember::whereHas('group', fn($q) => $q->where('assignment_id', $assignment->id))
+                    ->pluck('mahasiswa_id')
+                    ->toArray();
+
+                $classmates = User::where('role', 'mahasiswa')
+                    ->whereHas('enrollments', fn($q) => $q->where('courses.id', $assignment->course_id))
+                    ->where('id', '!=', $mahasiswa->id)
+                    ->whereNotIn('id', $busyMahasiswaIds)
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'nim']);
+            }
+        }
+
+        return view('mahasiswa.submissions.create', compact('assignment', 'existing', 'existingGroup', 'classmates'));
     }
 
     public function store(Request $request)
     {
         $assignment = Assignment::findOrFail($request->assignment_id);
-        
+
         $rules = [
             'assignment_id' => 'required|exists:assignments,id',
             'notes' => 'nullable|string',
@@ -45,29 +71,33 @@ class SubmissionController extends Controller
         if ($assignment->submission_format === 'url') {
             $rules['url_link'] = 'required|url|max:2048';
         } else {
-            $rules['file'] = 'required|file|max:10240'; // Max 10MB
+            $rules['file'] = 'required|file|max:10240';
+        }
+
+        if ($assignment->is_group) {
+            $rules['member_ids'] = 'required|array|min:1';
+            $rules['member_ids.*'] = 'integer|exists:users,id';
+            $rules['group_name'] = 'nullable|string|max:120';
         }
 
         $request->validate($rules);
-        
+
         $mahasiswa = auth()->user();
 
-        // Check if student is enrolled
         if (!$mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
-        
-        // Check if already submitted
+
         $existing = Submission::where('assignment_id', $assignment->id)
             ->where('mahasiswa_id', $mahasiswa->id)
             ->first();
-        
+
         if ($existing) {
             return redirect()->back()->with('error', 'Anda sudah mengumpulkan tugas ini.');
         }
 
-        // Handle file or url upload
+        // Resolve file/url once
         $file_path = null;
         $url_link = null;
 
@@ -80,17 +110,83 @@ class SubmissionController extends Controller
                 $file_path = $file->storeAs('submissions', $filename, 'public');
             }
         }
-        
-        // Create submission
-        Submission::create([
-            'assignment_id' => $assignment->id,
-            'mahasiswa_id' => $mahasiswa->id,
-            'file_path' => $file_path,
-            'url_link' => $url_link,
-            'notes' => $request->notes,
-            'submitted_at' => now(),
-        ]);
-        
+
+        if ($assignment->is_group) {
+            $memberIds = collect($request->member_ids)->map(fn($id) => (int) $id)->unique();
+
+            // Verify each chosen member is enrolled in the course
+            $invalidEnroll = User::whereIn('id', $memberIds)
+                ->whereDoesntHave('enrollments', fn($q) => $q->where('courses.id', $assignment->course_id))
+                ->exists();
+            if ($invalidEnroll) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Beberapa anggota yang dipilih tidak terdaftar pada course ini.');
+            }
+
+            // Verify none already in another group for this assignment
+            $alreadyMember = GroupMember::whereHas('group', fn($q) => $q->where('assignment_id', $assignment->id))
+                ->whereIn('mahasiswa_id', $memberIds->push($mahasiswa->id))
+                ->exists();
+            if ($alreadyMember) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Anda atau salah satu anggota sudah tergabung di kelompok lain untuk tugas ini.');
+            }
+
+            // Enforce max group size if set (incl. submitter)
+            if ($assignment->max_group_size && ($memberIds->count() + 1) > $assignment->max_group_size) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Jumlah anggota melebihi batas maksimal kelompok.');
+            }
+
+            DB::transaction(function () use ($assignment, $mahasiswa, $memberIds, $request, $file_path, $url_link) {
+                $groupName = $request->group_name ?: 'Kelompok ' . ($assignment->groups()->count() + 1);
+
+                $group = Group::create([
+                    'assignment_id' => $assignment->id,
+                    'group_name' => $groupName,
+                    'created_by_mahasiswa_id' => $mahasiswa->id,
+                ]);
+
+                $allMemberIds = $memberIds->reject(fn($id) => $id === $mahasiswa->id)->push($mahasiswa->id)->unique();
+
+                foreach ($allMemberIds as $mid) {
+                    GroupMember::create([
+                        'group_id' => $group->id,
+                        'mahasiswa_id' => $mid,
+                    ]);
+
+                    Submission::create([
+                        'assignment_id' => $assignment->id,
+                        'mahasiswa_id' => $mid,
+                        'group_id' => $group->id,
+                        'file_path' => $file_path,
+                        'url_link' => $url_link,
+                        'notes' => $request->notes,
+                        'submitted_at' => now(),
+                    ]);
+                }
+
+                // Notify other members
+                $others = User::whereIn('id', $allMemberIds->reject(fn($id) => $id === $mahasiswa->id))->get();
+                if ($others->isNotEmpty()) {
+                    Notification::send($others, new AcademicUpdateNotification(
+                        'Ditambahkan ke Kelompok',
+                        "{$mahasiswa->name} menambahkan Anda ke kelompok '{$groupName}' untuk tugas '{$assignment->title}'.",
+                        route('mahasiswa.courses.show', $assignment->course_id)
+                    ));
+                }
+            });
+        } else {
+            Submission::create([
+                'assignment_id' => $assignment->id,
+                'mahasiswa_id' => $mahasiswa->id,
+                'file_path' => $file_path,
+                'url_link' => $url_link,
+                'notes' => $request->notes,
+                'submitted_at' => now(),
+            ]);
+        }
+
         // Notify Dosen
         $dosen = User::find($assignment->course->dosen_id);
         if ($dosen) {
@@ -100,40 +196,50 @@ class SubmissionController extends Controller
                 route('dosen.assignments.submissions', $assignment)
             ));
         }
-        
+
         return redirect()->route('mahasiswa.courses.show', $assignment->course_id)
             ->with('success', 'Tugas berhasil dikumpulkan!');
     }
 
     public function edit(Submission $submission)
     {
-        // Check ownership
         if ($submission->mahasiswa_id !== auth()->id()) {
             abort(403);
         }
-        
-        // Check if already graded
+
         if ($submission->score !== null) {
             return redirect()->back()->with('error', 'Tugas yang sudah dinilai tidak dapat diubah.');
         }
-        
+
+        if ($submission->group_id) {
+            $submission->loadMissing('group');
+            if ($submission->group?->created_by_mahasiswa_id !== auth()->id()) {
+                return redirect()->back()->with('error', 'Hanya pembuat kelompok yang dapat mengedit pengumpulan kelompok.');
+            }
+        }
+
         $assignment = $submission->assignment()->with('course')->first();
-        
+
         return view('mahasiswa.submissions.edit', compact('submission', 'assignment'));
     }
 
     public function update(Request $request, Submission $submission)
     {
-        // Check ownership
         if ($submission->mahasiswa_id !== auth()->id()) {
             abort(403);
         }
-        
-        // Check if already graded
+
         if ($submission->score !== null) {
             return redirect()->back()->with('error', 'Tugas yang sudah dinilai tidak dapat diubah.');
         }
-        
+
+        if ($submission->group_id) {
+            $submission->loadMissing('group');
+            if ($submission->group?->created_by_mahasiswa_id !== auth()->id()) {
+                return redirect()->back()->with('error', 'Hanya pembuat kelompok yang dapat mengubah pengumpulan kelompok.');
+            }
+        }
+
         $rules = [
             'notes' => 'nullable|string',
         ];
@@ -143,56 +249,69 @@ class SubmissionController extends Controller
         } else {
             $rules['file'] = 'nullable|file|max:10240';
         }
-        
+
         $request->validate($rules);
-        
+
         $data = ['notes' => $request->notes];
-        
-        // Handle new file or url upload depending on format
+
         if ($submission->assignment->submission_format === 'url') {
             if ($request->filled('url_link')) {
                 $data['url_link'] = $request->url_link;
-                // Don't delete old file if switching formats here, though it relies on Assignment editing
             }
         } else {
             if ($request->hasFile('file')) {
-                // Delete old file if exists
                 if ($submission->file_path) {
                     Storage::disk('public')->delete($submission->file_path);
                 }
-                
+
                 $file = $request->file('file');
                 $filename = time() . '_' . auth()->id() . '_' . $file->getClientOriginalName();
                 $data['file_path'] = $file->storeAs('submissions', $filename, 'public');
             }
         }
-        
-        $submission->update($data);
-        
+
+        if ($submission->group_id) {
+            // Mirror file/url/notes to all group submissions
+            Submission::where('group_id', $submission->group_id)->update($data);
+        } else {
+            $submission->update($data);
+        }
+
         return redirect()->route('mahasiswa.courses.show', $submission->assignment->course_id)
             ->with('success', 'Tugas berhasil diperbarui!');
     }
 
     public function destroy(Submission $submission)
     {
-        // Check ownership
         if ($submission->mahasiswa_id !== auth()->id()) {
             abort(403);
         }
-        
-        // Check if already graded
+
         if ($submission->score !== null) {
             return redirect()->back()->with('error', 'Tugas yang sudah dinilai tidak dapat dihapus.');
         }
-        
-        // Delete file if exists
-        if ($submission->file_path) {
-            Storage::disk('public')->delete($submission->file_path);
-        }
-        
+
         $course_id = $submission->assignment->course_id;
-        $submission->delete();
-        
+
+        if ($submission->group_id) {
+            $group = $submission->group;
+            // Only group creator can dissolve the group submission
+            if ($group->created_by_mahasiswa_id !== auth()->id()) {
+                return redirect()->back()->with('error', 'Hanya pembuat kelompok yang dapat menghapus pengumpulan ini.');
+            }
+            if ($submission->file_path) {
+                Storage::disk('public')->delete($submission->file_path);
+            }
+            Submission::where('group_id', $group->id)->delete();
+            GroupMember::where('group_id', $group->id)->delete();
+            $group->delete();
+        } else {
+            if ($submission->file_path) {
+                Storage::disk('public')->delete($submission->file_path);
+            }
+            $submission->delete();
+        }
+
         return redirect()->route('mahasiswa.courses.show', $course_id)
             ->with('success', 'Tugas berhasil dihapus!');
     }

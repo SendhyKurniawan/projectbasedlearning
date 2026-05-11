@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Course;
+use App\Models\Group;
 use App\Models\Submission;
 use App\Models\User;
 use App\Notifications\AcademicUpdateNotification;
@@ -32,7 +33,9 @@ class AssignmentController extends Controller
         // Using Policy for authorization instead of manual check
         $this->authorize('create', $course);
 
-        return view('dosen.assignments.create', compact('course'));
+        $materials = $course->materials()->orderBy('order')->get(['id', 'title']);
+
+        return view('dosen.assignments.create', compact('course', 'materials'));
     }
 
     public function store(Request $request, Course $course)
@@ -48,14 +51,19 @@ class AssignmentController extends Controller
             'has_duration' => 'nullable|boolean',
             'submission_format' => 'nullable|in:pdf,url',
             'duration_minutes' => 'nullable|integer|min:1|required_if:has_duration,true',
+            'is_group' => 'nullable|boolean',
+            'max_group_size' => 'nullable|integer|min:2|max:20',
+            'grading_mode' => 'nullable|in:equal,individual',
         ]);
-        
+
         $count = Assignment::where('course_id', $course->id)
             ->where('type', $request->type)
             ->count();
         $nextNumber = $count + 1;
 
         $maxOrder = $course->assignments()->max('order') ?? 0;
+
+        $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
 
         $assignment = Assignment::create([
             'course_id' => $course->id,
@@ -69,6 +77,9 @@ class AssignmentController extends Controller
             'assignment_number' => $request->type !== 'quiz' ? $nextNumber : null,
             'duration_minutes' => $request->has_duration ? $request->duration_minutes : null,
             'order' => $maxOrder + 1,
+            'is_group' => $isGroup,
+            'max_group_size' => $isGroup ? $request->max_group_size : null,
+            'grading_mode' => $isGroup ? ($request->grading_mode ?: 'equal') : 'equal',
         ]);
         
         if ($request->type === 'quiz') {
@@ -97,11 +108,13 @@ class AssignmentController extends Controller
     {
         $assignment->loadMissing('course');
         $course = $assignment->course;
-        
+
         // Using Policy for authorization instead of manual check
         $this->authorize('view', $course);
 
-        return view('dosen.assignments.edit', compact('assignment', 'course'));
+        $materials = $course->materials()->orderBy('order')->get(['id', 'title']);
+
+        return view('dosen.assignments.edit', compact('assignment', 'course', 'materials'));
     }
 
     public function update(Request $request, Assignment $assignment)
@@ -120,13 +133,30 @@ class AssignmentController extends Controller
             'has_duration' => 'nullable|boolean',
             'submission_format' => 'nullable|in:pdf,url',
             'duration_minutes' => 'nullable|integer|min:1|required_if:has_duration,true',
+            'is_group' => 'nullable|boolean',
+            'max_group_size' => 'nullable|integer|min:2|max:20',
+            'grading_mode' => 'nullable|in:equal,individual',
         ]);
-        
+
         $data = $request->only([
             'title', 'description', 'deadline', 'max_score', 'type'
         ]);
         $data['duration_minutes'] = $request->has_duration ? $request->duration_minutes : null;
         $data['submission_format'] = $request->type === 'tugas' ? $request->submission_format : 'pdf';
+
+        $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
+        $hasSubmission = $assignment->submissions()->exists();
+
+        // Lock group toggle + grading_mode after first submission to keep data consistent
+        if ($hasSubmission) {
+            $data['is_group'] = $assignment->is_group;
+            $data['max_group_size'] = $assignment->max_group_size;
+            $data['grading_mode'] = $assignment->grading_mode;
+        } else {
+            $data['is_group'] = $isGroup;
+            $data['max_group_size'] = $isGroup ? $request->max_group_size : null;
+            $data['grading_mode'] = $isGroup ? ($request->grading_mode ?: 'equal') : 'equal';
+        }
 
         $assignment->update($data);
         
@@ -206,7 +236,7 @@ class AssignmentController extends Controller
         $this->authorize('view', $course);
 
         $submissions = $assignment->submissions()
-            ->with('mahasiswa')
+            ->with(['mahasiswa', 'group.members.mahasiswa', 'group.creator'])
             ->orderBy($assignment->type === 'quiz' ? 'finished_at' : 'submitted_at', 'desc')
             ->get();
 
@@ -214,7 +244,15 @@ class AssignmentController extends Controller
             return view('dosen.assignments.quiz_attempts', compact('assignment', 'course', 'submissions'));
         }
 
-        return view('dosen.assignments.submissions', compact('assignment', 'course', 'submissions'));
+        $groups = collect();
+        if ($assignment->is_group) {
+            $groups = $assignment->groups()
+                ->with(['members.mahasiswa', 'creator', 'submissions.mahasiswa'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
+        return view('dosen.assignments.submissions', compact('assignment', 'course', 'submissions', 'groups'));
     }
 
     public function showQuizAttempt(Assignment $assignment, Submission $submission)
@@ -242,12 +280,12 @@ class AssignmentController extends Controller
         $course = $assignment->course;
 
         $this->authorize('view', $course);
-        
+
         $request->validate([
             'score' => 'required|integer|min:0|max:' . $assignment->max_score,
             'feedback' => 'nullable|string',
         ]);
-        
+
         $submission->update([
             'score' => $request->score,
             'feedback' => $request->feedback,
@@ -262,9 +300,62 @@ class AssignmentController extends Controller
                 $course->id
             ));
         }
-        
+
         return redirect()->back()
             ->with('success', 'Nilai berhasil diberikan!');
+    }
+
+    public function gradeGroup(Request $request, Group $group)
+    {
+        $group->loadMissing(['assignment.course', 'submissions.mahasiswa']);
+        $assignment = $group->assignment;
+        $course = $assignment->course;
+
+        $this->authorize('view', $course);
+
+        $maxScore = $assignment->max_score;
+
+        if ($assignment->grading_mode === 'individual') {
+            $request->validate([
+                'scores' => 'required|array',
+                'scores.*' => 'nullable|integer|min:0|max:' . $maxScore,
+                'feedbacks' => 'nullable|array',
+                'feedbacks.*' => 'nullable|string',
+            ]);
+
+            foreach ($group->submissions as $submission) {
+                $score = $request->input("scores.{$submission->mahasiswa_id}");
+                $feedback = $request->input("feedbacks.{$submission->mahasiswa_id}");
+
+                $submission->update([
+                    'score' => $score !== null && $score !== '' ? (int) $score : null,
+                    'feedback' => $feedback,
+                    'status' => $score !== null && $score !== '' ? 'graded' : $submission->status,
+                ]);
+            }
+        } else {
+            $request->validate([
+                'score' => 'required|integer|min:0|max:' . $maxScore,
+                'feedback' => 'nullable|string',
+            ]);
+
+            Submission::where('group_id', $group->id)->update([
+                'score' => $request->score,
+                'feedback' => $request->feedback,
+                'status' => 'graded',
+            ]);
+        }
+
+        // Notify all members
+        $members = $group->submissions->pluck('mahasiswa')->filter()->unique('id');
+        if ($members->isNotEmpty()) {
+            Notification::send($members, new \App\Notifications\GradeNotification(
+                $assignment->title,
+                $course->id
+            ));
+        }
+
+        return redirect()->back()->with('success', 'Nilai kelompok berhasil disimpan!');
     }
 
     // --- Question Management (Absorbed from QuizController) ---

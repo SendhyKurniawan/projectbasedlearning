@@ -68,23 +68,23 @@ class ExerciseController extends Controller
             return redirect()->back()->with('error', 'Anda sudah mengumpulkan exercise ini.');
         }
         
-        // Validate code server-side
+        // Run keyword validation as a hint for the dosen; not used to score.
         $validationResult = $this->validateCode($assignment, $request->code_answer);
-        
-        // Create submission
+
         Submission::create([
             'assignment_id' => $assignment->id,
             'mahasiswa_id' => $mahasiswa->id,
             'code_answer' => $request->code_answer,
             'validation_result' => $validationResult,
-            'auto_graded' => true,
-            'score' => $validationResult['score'],
-            'feedback' => $validationResult['feedback'],
+            'auto_graded' => false,
+            'score' => null,
+            'feedback' => null,
+            'status' => 'submitted',
             'submitted_at' => now(),
         ]);
-        
+
         return redirect()->route('mahasiswa.courses.show', $assignment->course_id)
-            ->with('success', 'Code berhasil dikumpulkan! Skor: ' . $validationResult['score'] . '/' . $assignment->max_score);
+            ->with('success', 'Code berhasil dikumpulkan! Menunggu penilaian dosen.');
     }
 
     private function validateCode($assignment, $code)
