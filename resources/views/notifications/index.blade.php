@@ -2,102 +2,113 @@
     @vite('resources/css/pages/shared/notifications.css')
 @endpush
 <x-app-layout>
- <x-slot name="header">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- {{ __('Semua Notifikasi') }}
- </h2>
- </x-slot>
+    @php
+        $unreadCount = auth()->user()->unreadNotifications->count();
+    @endphp
 
- <div class="space-y-6">
- <div class="max-w-4xl mx-auto border-outline-variant/20">
- <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
- <div class="p-6 pb-2 border-b border-outline-variant/20 flex justify-between items-center">
- <h3 class="text-lg font-medium text-on-surface">Daftar Notifikasi</h3>
- @if(auth()->user()->unreadNotifications->count() > 0)
- <form action="{{ route('notifications.markAllRead') }}" method="POST">
- @csrf
- <button type="submit" class="px-4 py-2 bg-primary-container border border-primary/20 rounded-md font-medium text-xs text-on-primary uppercase hover:bg-primary-container/80 transition ease-in-out duration-150">
- Tandai Semua Telah Dibaca
- </button>
- </form>
- @endif
- </div>
- 
- <div class="flex flex-col">
- @forelse($notifications as $notification)
- <div class="p-6 border-b border-outline-variant/20 transition {{ $notification->unread() ? 'bg-primary-container/10' : '' }}">
- <div class="flex gap-4">
- <div class="flex-shrink-0 mt-1">
- @if(($notification->data['type'] ?? '') === 'academic_update')
- <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary">
- <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
- </div>
- @elseif(($notification->data['type'] ?? '') === 'submission')
- <div class="w-10 h-10 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary">
- <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
- </div>
- @elseif(($notification->data['type'] ?? '') === 'announcement')
- <div class="w-10 h-10 rounded-full bg-warning-light/50 flex items-center justify-center text-on-warning">
- <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
- </div>
- @else
- <div class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant">
- <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
- </div>
- @endif
- </div>
- 
- <div class="flex-1">
- <div class="flex justify-between items-start">
- <h4 class="text-base font-bold text-on-surface {{ $notification->unread() ? 'pl-0 border-transparent' : '' }}">
- @if($notification->unread())
- <span class="inline-block w-2.5 h-2.5 bg-primary rounded-full mr-1" title="Belum Dibaca"></span>
- @endif
- {{ $notification->data['title'] ?? 'Pembersitahuan Sistem' }}
- </h4>
- <span class="text-xs text-on-surface-variant whitespace-nowrap ml-4">{{ $notification->created_at->translatedFormat('d M Y H:i') }}</span>
- </div>
- 
- <p class="mt-2 text-sm text-on-surface-variant">
- {{ $notification->data['message'] ?? '' }}
- </p>
- 
- <div class="mt-4 flex gap-4">
- @if(isset($notification->data['url']))
- <a href="{{ route('notifications.readAndRedirect', $notification->id) }}" class="text-sm font-medium text-primary hover:text-primary-hover">
- Lihat Rincian &rarr;
- </a>
- @endif
- 
- @if($notification->unread() && !isset($notification->data['url']))
- <form action="{{ route('notifications.markRead', $notification->id) }}" method="POST" class="inline">
- @csrf
- <button type="submit" class="text-sm font-medium text-on-surface-variant hover:text-on-surface">
- Tandai Sudah Dibaca
- </button>
- </form>
- @endif
- </div>
- </div>
- </div>
- </div>
- @empty
- <div class="p-12 text-center">
- <svg class="mx-auto h-16 w-16 text-outline mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
- </svg>
- <h3 class="text-lg font-medium text-on-surface">Belum ada notifikasi</h3>
- <p class="mt-1 text-on-surface-variant">Pemberitahuan akademik dan pengumuman akan muncul di sini.</p>
- </div>
- @endforelse
- </div>
+    <div class="space-y-6">
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Notifikasi</h1>
+                <p class="mt-1 text-sm text-on-surface-variant">Pembaruan tugas, pengumuman, dan aktivitas yang relevan untuk Anda.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                @if($unreadCount > 0)
+                    <form action="{{ route('notifications.markAllRead') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm">
+                            <span class="material-symbols-outlined text-base">done_all</span> Tandai Semua Dibaca
+                        </button>
+                    </form>
+                @endif
+            </div>
+        </div>
 
- @if($notifications->hasPages())
- <div class="p-4 border-t border-outline-variant/20 ">
- {{ $notifications->links() }}
- </div>
- @endif
- </div>
- </div>
- </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {{-- LEFT: Filter sidebar --}}
+            <aside class="lg:col-span-3">
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-4">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant px-3 mb-2">Kategori</h3>
+                    <div class="space-y-0.5">
+                        @php
+                            $totalCount = auth()->user()->notifications->count();
+                        @endphp
+                        @foreach([
+                            ['Semua', $totalCount, true],
+                            ['Belum Dibaca', $unreadCount, false],
+                            ['Tugas', null, false],
+                            ['Pengumuman', null, false],
+                            ['Diskusi', null, false],
+                        ] as [$label, $count, $active])
+                            <div class="flex items-center justify-between px-3 py-2 rounded-lg {{ $active ? 'bg-primary-container text-on-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-low' }}">
+                                <span class="text-xs">{{ $label }}</span>
+                                @if($count !== null)
+                                    <span class="text-[10px] font-bold {{ $active ? '' : 'text-on-surface-variant' }}">{{ $count }}</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            </aside>
+
+            {{-- RIGHT: Notification list --}}
+            <main class="lg:col-span-9">
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden">
+                    <div class="divide-y divide-outline-variant/10">
+                        @forelse($notifications as $n)
+                            @php
+                                $type = $n->data['type'] ?? '';
+                                $iconMap = [
+                                    'academic_update' => ['menu_book', 'primary'],
+                                    'submission' => ['task_alt', 'secondary'],
+                                    'announcement' => ['campaign', 'tertiary'],
+                                ];
+                                [$icon, $accent] = $iconMap[$type] ?? ['notifications', 'on-surface-variant'];
+                            @endphp
+                            <div class="flex items-start gap-4 p-5 {{ $n->unread() ? 'bg-primary-container/10' : '' }} hover:bg-surface-bright transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-{{ $accent }}/10 text-{{ $accent }} flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-xl">{{ $icon }}</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <h4 class="text-sm font-bold text-on-surface flex items-center gap-2">
+                                            @if($n->unread())
+                                                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                                            @endif
+                                            {{ $n->data['title'] ?? 'Pemberitahuan Sistem' }}
+                                        </h4>
+                                        <span class="text-[10px] text-on-surface-variant whitespace-nowrap">{{ $n->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <p class="mt-1 text-xs text-on-surface-variant line-clamp-2">{{ $n->data['message'] ?? '' }}</p>
+                                    <div class="mt-2 flex items-center gap-3">
+                                        @if(isset($n->data['url']))
+                                            <a href="{{ route('notifications.readAndRedirect', $n->id) }}" class="text-xs font-bold text-primary hover:underline">Buka →</a>
+                                        @endif
+                                        @if($n->unread() && !isset($n->data['url']))
+                                            <form action="{{ route('notifications.markRead', $n->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="text-xs font-bold text-on-surface-variant hover:text-on-surface">Tandai Dibaca</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="p-12 text-center">
+                                <span class="material-symbols-outlined text-5xl text-outline mb-3">notifications_off</span>
+                                <h3 class="font-headline text-lg font-bold">Belum ada notifikasi</h3>
+                                <p class="text-xs text-on-surface-variant mt-1">Pemberitahuan akademik dan pengumuman akan muncul di sini.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                    @if($notifications->hasPages())
+                        <div class="p-4 border-t border-outline-variant/10">
+                            {{ $notifications->links() }}
+                        </div>
+                    @endif
+                </section>
+            </main>
+        </div>
+    </div>
 </x-app-layout>

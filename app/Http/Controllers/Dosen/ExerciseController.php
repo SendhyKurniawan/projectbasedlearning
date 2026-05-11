@@ -31,22 +31,22 @@ class ExerciseController extends Controller
             'description' => 'nullable|string',
             'deadline' => 'required|date|after:now',
             'max_score' => 'required|integer|min:1|max:100',
-            'exercise_language' => 'required|in:html,css,javascript,htmlmixed',
+            'exercise_language' => 'required|in:html,css,javascript,htmlmixed,java,php,csharp',
             'starter_code' => 'required|string',
             'solution_code' => 'nullable|string',
             'required_keywords' => 'nullable|string',
             'hints' => 'nullable|string',
         ]);
-        
+
         // Parse required keywords and hints from comma-separated strings
-        $keywords = $request->required_keywords 
+        $keywords = $request->required_keywords
             ? array_map('trim', explode(',', $request->required_keywords))
             : [];
-        
+
         $hints = $request->hints
             ? array_map('trim', explode("\n", $request->hints))
             : [];
-        
+
         Assignment::create([
             'course_id' => $course->id,
             'title' => $request->title,
@@ -54,7 +54,6 @@ class ExerciseController extends Controller
             'deadline' => $request->deadline,
             'max_score' => $request->max_score,
             'type' => 'exercise',
-            'auto_grade' => true,
             'exercise_config' => [
                 'language' => $request->exercise_language,
                 'starter_code' => $request->starter_code,
@@ -99,21 +98,21 @@ class ExerciseController extends Controller
             'description' => 'nullable|string',
             'deadline' => 'required|date',
             'max_score' => 'required|integer|min:1|max:100',
-            'exercise_language' => 'required|in:html,css,javascript,htmlmixed',
+            'exercise_language' => 'required|in:html,css,javascript,htmlmixed,java,php,csharp',
             'starter_code' => 'required|string',
             'solution_code' => 'nullable|string',
             'required_keywords' => 'nullable|string',
             'hints' => 'nullable|string',
         ]);
-        
-        $keywords = $request->required_keywords 
+
+        $keywords = $request->required_keywords
             ? array_map('trim', explode(',', $request->required_keywords))
             : [];
-        
+
         $hints = $request->hints
             ? array_map('trim', explode("\n", $request->hints))
             : [];
-        
+
         $assignment->update([
             'title' => $request->title,
             'description' => $request->description,

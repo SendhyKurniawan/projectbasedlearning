@@ -3,17 +3,22 @@
 @endpush
 <x-app-layout>
     <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </a>
-                <div>
-                    <h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Kuis: {{ $assignment->title }}</h2>
-                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Detail Percobaan Mahasiswa</p>
-                </div>
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+                    <a href="{{ route('dosen.dashboard') }}" class="hover:text-primary transition-colors">Overview</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="hover:text-primary transition-colors truncate max-w-[160px]">{{ $assignment->title }}</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <span class="text-primary">Detail Percobaan</span>
+                </nav>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Detail Percobaan</h1>
+                <p class="mt-1 text-sm text-on-surface-variant">{{ $assignment->title }} · Tinjau jawaban mahasiswa.</p>
             </div>
+            <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+                <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
+            </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">

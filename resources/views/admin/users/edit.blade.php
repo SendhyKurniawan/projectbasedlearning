@@ -1,11 +1,20 @@
 <x-app-layout>
  <div class="space-y-6">
- <!-- Page Header -->
- <div class="flex justify-between items-center">
- <h2 class="text-2xl font-extrabold text-on-surface tracking-tight font-headline">Edit User</h2>
- <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-container transition-colors">
- <span class="material-symbols-outlined text-lg">arrow_back</span>
- Back to Users
+ {{-- Section Header --}}
+ <div class="flex flex-wrap items-end justify-between gap-4">
+ <div>
+ <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+ <a href="{{ route('admin.dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <a href="{{ route('admin.users.index') }}" class="hover:text-primary transition-colors">User</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <span class="text-primary">Edit</span>
+ </nav>
+ <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Edit User</h1>
+ <p class="mt-1 text-sm text-on-surface-variant">{{ $user->name }} · {{ $user->email }}</p>
+ </div>
+ <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+ <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
  </a>
  </div>
 

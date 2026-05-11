@@ -2,28 +2,25 @@
     @vite('resources/css/pages/admin/academic-hierarchy.css')
 @endpush
 <x-app-layout>
- <x-slot name="header">
- <div class="flex items-center gap-2 text-sm sm:text-base flex-wrap">
- <a href="{{ route('admin.hierarchy.departments.index') }}" class="text-primary hover:text-primary-hover">
- Data Akademik
- </a>
- <span class="text-on-surface-variant">/</span>
- <a href="{{ route('admin.hierarchy.departments.show', $studyProgram->department_id) }}" class="text-primary hover:text-primary-hover">
- {{ $studyProgram->department->name }}
- </a>
- <span class="text-on-surface-variant">/</span>
- <a href="{{ route('admin.hierarchy.study-programs.show', $studyProgram) }}" class="text-primary hover:text-primary-hover">
- {{ $studyProgram->name }}
- </a>
- <span class="text-on-surface-variant">/</span>
- <h2 class="font-semibold text-on-surface leading-tight">
- {{ $semester->name }} ({{ $semester->academicYear->year_start }}/{{ $semester->academicYear->year_end }})
- </h2>
+ <div class="space-y-6">
+ {{-- Section Header --}}
+ <div class="flex flex-wrap items-end justify-between gap-4">
+ <div>
+ <nav class="flex flex-wrap items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+ <a href="{{ route('admin.hierarchy.departments.index') }}" class="hover:text-primary transition-colors">Struktur</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <a href="{{ route('admin.hierarchy.departments.show', $studyProgram->department_id) }}" class="hover:text-primary transition-colors">{{ $studyProgram->department->name }}</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <a href="{{ route('admin.hierarchy.study-programs.show', $studyProgram) }}" class="hover:text-primary transition-colors">{{ $studyProgram->name }}</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <span class="text-primary">{{ $semester->name }}</span>
+ </nav>
+ <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">{{ $semester->name }} <span class="text-on-surface-variant text-xl">· TA {{ $semester->academicYear->year_start }}/{{ $semester->academicYear->year_end }}</span></h1>
+ <p class="mt-1 text-sm text-on-surface-variant">Kelola kelas mahasiswa dan plot mata kuliah pada periode ini.</p>
  </div>
- </x-slot>
+ </div>
 
  <div class="space-y-6">
- <div class="max-w-7xl mx-auto space-y-6">
  
  {{-- Flash Messages --}}
  @if(session('success'))

@@ -129,6 +129,7 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::delete('/assignments/{assignment}', [Dosen\AssignmentController::class, 'destroy'])->name('assignments.destroy');
     Route::get('/assignments/{assignment}/submissions', [Dosen\AssignmentController::class, 'submissions'])->name('assignments.submissions');
     Route::post('/submissions/{submission}/grade', [Dosen\AssignmentController::class, 'grade'])->name('submissions.grade');
+    Route::post('/groups/{group}/grade', [Dosen\AssignmentController::class, 'gradeGroup'])->name('groups.grade');
     
     // Unified Question Management
     Route::get('/assignments/{assignment}/questions', [Dosen\AssignmentController::class, 'questions'])->name('assignments.questions.index');

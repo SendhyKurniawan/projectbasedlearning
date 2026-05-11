@@ -111,7 +111,11 @@ class QuizController extends Controller
 
         $activeQuestions = $assignment->questions;
 
-        DB::transaction(function () use ($request, $assignment, $submission, $activeQuestions) {
+        $hasNonAutogradable = $activeQuestions
+            ->whereIn('question_type', ['essay', 'code_snippet'])
+            ->isNotEmpty();
+
+        DB::transaction(function () use ($request, $submission, $activeQuestions, $hasNonAutogradable) {
             $answers = $request->input('answers', []);
             $calculatedScore = 0;
 
@@ -145,13 +149,17 @@ class QuizController extends Controller
 
             $submission->update([
                 'finished_at' => now(),
-                'score' => $calculatedScore, // Provisional score (MC only)
+                'score' => $calculatedScore, // MC-only; final iff no essay/code_snippet questions
                 'answers' => $answers,
-                'status' => 'submitted',
+                'status' => $hasNonAutogradable ? 'submitted' : 'graded',
             ]);
         });
 
+        $flash = $hasNonAutogradable
+            ? 'Kuis berhasil dikumpulkan! Skor sementara dari pilihan ganda; soal essay/kode menunggu penilaian dosen.'
+            : 'Kuis berhasil dikumpulkan! Skor final telah tersimpan.';
+
         return redirect()->route('mahasiswa.quizzes.result', $assignment)
-            ->with('success', 'Kuis berhasil dikumpulkan! Nilai (pilihan ganda) telah tersimpan.');
+            ->with('success', $flash);
     }
 }

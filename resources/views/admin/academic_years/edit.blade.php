@@ -1,16 +1,22 @@
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- {{ __('Edit Tahun Akademik') }}
- </h2>
- <a href="{{ route('admin.academic-years.index') }}" class="text-sm text-on-surface-variant hover:text-on-surface ">
- &larr; Kembali
+ <div class="space-y-6">
+ {{-- Section Header --}}
+ <div class="flex flex-wrap items-end justify-between gap-4">
+ <div>
+ <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+ <a href="{{ route('admin.dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <a href="{{ route('admin.academic-years.index') }}" class="hover:text-primary transition-colors">Tahun Akademik</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <span class="text-primary">Edit</span>
+ </nav>
+ <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Edit Tahun Akademik</h1>
+ <p class="mt-1 text-sm text-on-surface-variant">{{ $academicYear->year_start }}/{{ $academicYear->year_end }}</p>
+ </div>
+ <a href="{{ route('admin.academic-years.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+ <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
  </a>
  </div>
- </x-slot>
-
- <div class="space-y-6">
  <div class="">
  <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
  <div class="p-6 text-on-surface">

@@ -3,16 +3,16 @@
 @endpush
 <x-app-layout>
     <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Rekap Nilai Mahasiswa</h2>
-                <p class="text-sm font-medium text-on-surface-variant mt-1">Kelola dan pantau seluruh nilai mahasiswa dari berbagai mata kuliah</p>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Manajemen Nilai</h1>
+                <p class="mt-1 text-sm text-on-surface-variant max-w-xl">Kelola dan pantau seluruh nilai mahasiswa dari mata kuliah yang Anda ampu.</p>
             </div>
-            <div class="flex gap-4">
-                <div class="bg-surface border border-outline-variant/30 px-4 py-2 rounded-xl shadow-sm text-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-surface-container-lowest border border-outline-variant/20 px-4 py-2 rounded-xl text-center">
                     <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-0.5">Total Matkul</span>
-                    <span class="text-lg font-extrabold text-primary leading-none">{{ $courses->total() }}</span>
+                    <span class="font-headline text-lg font-extrabold text-primary leading-none">{{ $courses->total() }}</span>
                 </div>
             </div>
         </div>
