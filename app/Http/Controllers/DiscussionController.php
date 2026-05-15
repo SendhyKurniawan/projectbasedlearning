@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Discussion;
+use App\Models\User;
 use App\Models\Course;
 use Illuminate\Http\Request;
 
@@ -23,9 +24,40 @@ class DiscussionController extends Controller
             });
         }
 
+        if ($request->filled('topic')) {
+            $query->where('topic', $request->topic);
+        }
+
+        // Sort options
+        $sort = $request->get('sort', 'latest');
+        if ($sort === 'popular') {
+            $query->reorder()->orderByDesc('comments_count');
+        }
+
         $discussions = $query->paginate(10)->withQueryString();
 
-        return view('discussions.index', compact('discussions'));
+        // Get all unique topics with counts for the sidebar
+        $allTopics = Discussion::selectRaw('topic, COUNT(*) as count')
+            ->whereNotNull('topic')
+            ->where('topic', '!=', '')
+            ->groupBy('topic')
+            ->orderByDesc('count')
+            ->limit(12)
+            ->get();
+
+        // Total discussion count
+        $totalCount = Discussion::count();
+
+        // Top contributors (users with most discussions)
+        $topContributors = User::select('users.*')
+            ->selectRaw('COUNT(discussions.id) as discussions_count')
+            ->join('discussions', 'users.id', '=', 'discussions.user_id')
+            ->groupBy('users.id')
+            ->orderByDesc('discussions_count')
+            ->limit(5)
+            ->get();
+
+        return view('discussions.index', compact('discussions', 'allTopics', 'totalCount', 'topContributors'));
     }
 
     /**

@@ -16,7 +16,6 @@ class AssignmentController extends Controller
 {
     public function index(Course $course)
     {
-        // Using Policy for authorization instead of manual check
         $this->authorize('view', $course);
 
         $assignments = $course->assignments()
@@ -25,17 +24,19 @@ class AssignmentController extends Controller
             ->orderBy('deadline', 'desc')
             ->get();
 
-        return view('dosen.assignments.index', compact('course', 'assignments'));
+        $siblings = $course->siblings();
+
+        return view('dosen.assignments.index', compact('course', 'assignments', 'siblings'));
     }
 
     public function create(Course $course)
     {
-        // Using Policy for authorization instead of manual check
         $this->authorize('create', $course);
 
         $materials = $course->materials()->orderBy('order')->get(['id', 'title']);
+        $siblings = $course->siblings();
 
-        return view('dosen.assignments.create', compact('course', 'materials'));
+        return view('dosen.assignments.create', compact('course', 'materials', 'siblings'));
     }
 
     public function store(Request $request, Course $course)
@@ -54,54 +55,86 @@ class AssignmentController extends Controller
             'is_group' => 'nullable|boolean',
             'max_group_size' => 'nullable|integer|min:2|max:20',
             'grading_mode' => 'nullable|in:equal,individual',
+            'sibling_ids' => 'nullable|array',
+            'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
-        $count = Assignment::where('course_id', $course->id)
-            ->where('type', $request->type)
-            ->count();
-        $nextNumber = $count + 1;
-
-        $maxOrder = $course->assignments()->max('order') ?? 0;
+        $allowedSiblingIds = $course->siblings()->pluck('id');
+        $targetIds = collect($request->sibling_ids ?? [])
+            ->map(fn($id) => (int) $id)
+            ->intersect($allowedSiblingIds);
 
         $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
 
-        $assignment = Assignment::create([
-            'course_id' => $course->id,
+        $sharedData = [
             'title' => $request->title,
             'description' => $request->description,
             'deadline' => $request->deadline,
             'max_score' => $request->max_score,
             'type' => $request->type,
             'submission_format' => $request->type === 'tugas' ? $request->submission_format : 'pdf',
-            'quiz_number' => $request->type === 'quiz' ? $nextNumber : null,
-            'assignment_number' => $request->type !== 'quiz' ? $nextNumber : null,
             'duration_minutes' => $request->has_duration ? $request->duration_minutes : null,
-            'order' => $maxOrder + 1,
             'is_group' => $isGroup,
             'max_group_size' => $isGroup ? $request->max_group_size : null,
             'grading_mode' => $isGroup ? ($request->grading_mode ?: 'equal') : 'equal',
-        ]);
-        
+        ];
+
+        $createForCourse = function (Course $target) use ($sharedData) {
+            $count = Assignment::where('course_id', $target->id)->where('type', $sharedData['type'])->count();
+            $maxOrder = $target->assignments()->max('order') ?? 0;
+            return Assignment::create(array_merge($sharedData, [
+                'course_id' => $target->id,
+                'quiz_number' => $sharedData['type'] === 'quiz' ? $count + 1 : null,
+                'assignment_number' => $sharedData['type'] !== 'quiz' ? $count + 1 : null,
+                'order' => $maxOrder + 1,
+            ]));
+        };
+
+        $assignment = $createForCourse($course);
+
         if ($request->type === 'quiz') {
-            return redirect()->route('dosen.assignments.questions.index', $assignment)
-                ->with('success', 'Quiz berhasil dibuat! Silakan tambahkan pertanyaan.');
+            $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
+            foreach ($targetCourses as $sibling) {
+                $createForCourse($sibling);
+            }
+            $msg = 'Quiz berhasil dibuat! Silakan tambahkan pertanyaan.';
+            if ($targetIds->count()) {
+                $msg .= " Shell quiz dibuat di {$targetIds->count()} kelas lain — tambahkan pertanyaan secara terpisah.";
+            }
+            return redirect()->route('dosen.assignments.questions.index', $assignment)->with('success', $msg);
         }
-        
-        // Notify enrolled students
-        $students = User::whereHas('enrollments', function($q) use ($course) {
-            $q->where('course_id', $course->id);
-        })->get();
+
+        $typeLabel = ucfirst($request->type);
+        $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $course->id))->get();
         if ($students->isNotEmpty()) {
-            $typeLabel = ucfirst($request->type);
             Notification::send($students, new AcademicUpdateNotification(
                 "{$typeLabel} Baru Ditambahkan",
                 "{$typeLabel} baru '{$assignment->title}' telah ditambahkan pada mata kuliah {$course->nama_matkul}.",
-                route('mahasiswa.courses.show', $course) // Could link directly if there's a show route
+                route('mahasiswa.courses.show', $course)
             ));
         }
 
+        // Fan-out to selected sibling courses
+        $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
+        foreach ($targetCourses as $sibling) {
+            $sibAssignment = $createForCourse($sibling);
+            $sibStudents = User::whereHas('enrollments', fn($q) => $q->where('course_id', $sibling->id))->get();
+            if ($sibStudents->isNotEmpty()) {
+                Notification::send($sibStudents, new AcademicUpdateNotification(
+                    "{$typeLabel} Baru Ditambahkan",
+                    "{$typeLabel} baru '{$sibAssignment->title}' telah ditambahkan pada mata kuliah {$sibling->nama_matkul}.",
+                    route('mahasiswa.courses.show', $sibling)
+                ));
+            }
+        }
+
+        $msg = 'Berhasil ditambahkan!';
+        if ($targetIds->count()) {
+            $msg .= " Disalin ke {$targetIds->count()} kelas lain.";
+        }
+
         return redirect()->route('dosen.assignments.index', $course)
-            ->with('success', 'Berhasil ditambahkan!');
+            ->with('success', $msg);
     }
 
     public function edit(Assignment $assignment)
@@ -189,6 +222,52 @@ class AssignmentController extends Controller
 
         return redirect()->route('dosen.assignments.index', $course)
             ->with('success', 'Berhasil dihapus!');
+    }
+
+    public function copy(Request $request, Assignment $assignment)
+    {
+        $assignment->loadMissing('course');
+        $course = $assignment->course;
+        $this->authorize('update', $course);
+
+        $request->validate([
+            'sibling_ids' => 'required|array|min:1',
+            'sibling_ids.*' => 'integer|exists:courses,id',
+        ]);
+
+        $allowedSiblingIds = $course->siblings()->pluck('id');
+        $targetIds = collect($request->sibling_ids)
+            ->map(fn($id) => (int) $id)
+            ->intersect($allowedSiblingIds);
+
+        if ($targetIds->isEmpty()) {
+            return back()->with('error', 'Pilih kelas tujuan yang valid.');
+        }
+
+        $sharedData = $assignment->only([
+            'title', 'description', 'deadline', 'max_score', 'type',
+            'submission_format', 'duration_minutes', 'is_group',
+            'max_group_size', 'grading_mode', 'exercise_config',
+        ]);
+
+        $targetCourses = Course::whereIn('id', $targetIds)->get();
+        foreach ($targetCourses as $sibling) {
+            $count    = Assignment::where('course_id', $sibling->id)->where('type', $sharedData['type'])->count();
+            $maxOrder = $sibling->assignments()->max('order') ?? 0;
+            Assignment::create(array_merge($sharedData, [
+                'course_id'         => $sibling->id,
+                'quiz_number'       => $sharedData['type'] === 'quiz'  ? $count + 1 : null,
+                'assignment_number' => $sharedData['type'] !== 'quiz'  ? $count + 1 : null,
+                'order'             => $maxOrder + 1,
+            ]));
+        }
+
+        $msg = "'{$assignment->title}' disalin ke {$targetIds->count()} kelas lain.";
+        if ($assignment->type === 'quiz') {
+            $msg .= ' Tambahkan pertanyaan secara terpisah di kelas tujuan.';
+        }
+
+        return back()->with('success', $msg);
     }
 
     public function reorder(Request $request, Course $course)

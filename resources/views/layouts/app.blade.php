@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
  <head>
  <meta charset="utf-8">
@@ -29,7 +29,7 @@
  <!-- Scripts -->
  @vite(['resources/css/app.css', 'resources/css/design-system.css', 'resources/js/app.js'])
  @stack('styles')
- @livewireStyles
+ @stack('head')
  </head>
  <body class="font-body antialiased h-screen overflow-hidden bg-background text-on-surface">
  <div x-data="{ open: false }" class="flex h-full">
@@ -83,7 +83,7 @@
  </main>
  </div>
  </div>
- @livewireScripts
+ @stack('scripts')
 
  <script>
  function urlBase64ToUint8Array(base64String) {

@@ -50,36 +50,48 @@
                 <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden">
                     <header class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
                         <h2 class="font-headline text-lg font-bold">Kelas yang Diampu</h2>
+                        @if($courseGroups->count())
+                            <span class="text-xs text-on-surface-variant">{{ $courseGroups->count() }} matkul &middot; {{ $courses->count() }} kelas</span>
+                        @endif
                     </header>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="bg-surface-container-low/40 text-[10px] uppercase tracking-widest text-on-surface-variant">
-                                    <th class="text-left px-6 py-3 font-bold">Mata Kuliah</th>
-                                    <th class="text-left px-4 py-3 font-bold">Kode</th>
-                                    <th class="text-left px-4 py-3 font-bold">Mahasiswa</th>
-                                    <th class="text-left px-4 py-3 font-bold">Materi</th>
-                                    <th class="text-left px-4 py-3 font-bold">Tugas</th>
-                                    <th class="px-4 py-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-outline-variant/10">
-                                @forelse($courses as $c)
-                                    <tr class="hover:bg-surface-bright">
-                                        <td class="px-6 py-3 font-bold">{{ $c->nama_matkul }}</td>
-                                        <td class="px-4 py-3 text-on-surface-variant font-mono text-xs">{{ $c->kode_matkul }}</td>
-                                        <td class="px-4 py-3 text-on-surface-variant">{{ $c->students_count }}</td>
-                                        <td class="px-4 py-3 text-on-surface-variant">{{ $c->materials_count }}</td>
-                                        <td class="px-4 py-3 text-on-surface-variant">{{ $c->assignments_count }}</td>
-                                        <td class="px-4 py-3 text-right">
-                                            <a href="{{ route('dosen.materials.index', $c) }}" class="text-xs font-bold text-primary hover:underline">Buka</a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr><td colspan="6" class="px-6 py-8 text-center text-sm text-on-surface-variant">Belum ada kelas diampu.</td></tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="divide-y divide-outline-variant/10">
+                        @forelse($courseGroups as $group)
+                            <div class="px-6 py-4">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="material-symbols-outlined text-primary text-base leading-none">book</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-bold text-sm leading-tight">{{ $group['nama_matkul'] }}</p>
+                                        <p class="text-[10px] font-mono text-on-surface-variant">{{ $group['kode_matkul'] }}</p>
+                                    </div>
+                                    <div class="flex gap-3 text-[10px] text-on-surface-variant shrink-0">
+                                        <span>{{ $group['total_students'] }} mhs</span>
+                                        <span>{{ $group['total_materials'] }} materi</span>
+                                        <span>{{ $group['total_assignments'] }} tugas</span>
+                                    </div>
+                                </div>
+                                <div class="ml-6 space-y-1.5">
+                                    @foreach($group['courses'] as $c)
+                                        <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-container-low/50 hover:bg-surface-bright transition-colors text-sm">
+                                            <span class="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold shrink-0">
+                                                {{ $c->studentClass->name ?? 'Kelas' }}
+                                            </span>
+                                            <span class="flex gap-3 text-[11px] text-on-surface-variant">
+                                                <span>{{ $c->students_count }} mhs</span>
+                                                <span>{{ $c->materials_count }} materi</span>
+                                                <span>{{ $c->assignments_count }} tugas</span>
+                                            </span>
+                                            <div class="ml-auto flex gap-1 shrink-0">
+                                                <a href="{{ route('dosen.materials.index', $c) }}" class="text-[10px] font-bold px-2 py-1 rounded-md text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors">Materi</a>
+                                                <a href="{{ route('dosen.assignments.index', $c) }}" class="text-[10px] font-bold px-2 py-1 rounded-md text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors">Tugas</a>
+                                                <a href="{{ route('dosen.conferences.index', $c) }}" class="text-[10px] font-bold px-2 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors">Buka →</a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @empty
+                            <div class="px-6 py-8 text-center text-sm text-on-surface-variant">Belum ada kelas diampu.</div>
+                        @endforelse
                     </div>
                 </section>
 

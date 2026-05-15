@@ -71,6 +71,7 @@
  <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Nama</th>
  <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Dosen</th>
  <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Semester</th>
+ <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Kelas</th>
  <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-center">Mahasiswa</th>
  <th class="px-6 py-4 text-xs font-bold uppercase tracking-widest text-on-surface-variant text-right">Aksi</th>
  </tr>
@@ -96,6 +97,15 @@
  <span class="text-outline">-</span>
  @endif
  </td>
+ <td class="px-6 py-4 whitespace-nowrap">
+ @if($course->studentClass)
+ <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container">
+ {{ $course->studentClass->name }}
+ </span>
+ @else
+ <span class="text-outline">—</span>
+ @endif
+ </td>
  <td class="px-6 py-4 whitespace-nowrap text-center">
  <span class="badge badge-info">{{ $course->students_count }}</span>
  </td>
@@ -112,7 +122,7 @@
  </tr>
  @empty
  <tr>
- <td colspan="6" class="px-6 space-y-6 text-center">
+ <td colspan="7" class="px-6 space-y-6 text-center">
  <span class="material-symbols-outlined text-4xl text-outline mb-3 block">auto_stories</span>
  <p class="text-on-surface-variant font-medium text-sm">Tidak ada mata kuliah yang ditemukan.</p>
  </td>

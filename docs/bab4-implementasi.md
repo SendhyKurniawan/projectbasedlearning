@@ -83,7 +83,7 @@
 | `laravel/breeze` | (dev) | Scaffolding autentikasi |
 | `laravel/dusk` | (dev) | Browser testing E2E |
 | `laravel-notification-channels/webpush` | ^10.5 | Notifikasi push W3C berbasis VAPID |
-| `agence104/livekit-server-sdk` | ^1.3 | Generator JWT untuk LiveKit (legacy, lihat 4.1.6) |
+| `firebase/php-jwt` | ^6.x | Penanda-tangan JWT RS256 untuk Jitsi JaaS |
 | `pestphp/pest` | ^3.8 | Test runner (Pest atas PHPUnit) |
 | `pestphp/pest-plugin-laravel` | ^3.x | Helper Pest untuk Laravel |
 | `laravel/pint` | ^1.24 | PHP code formatter (PSR-12) |
@@ -986,11 +986,10 @@ Direktori utama di `resources/views/`:
 | Piston API | Eksekusi kode server-side (Java/PHP/C#) | Endpoint terdaftar; controller masih WIP | `PISTON_API_URL` |
 | WebPush (W3C) | Notifikasi push real-time | Aktif | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` |
 | Gmail SMTP | Email reset password | Aktif | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` |
-| LiveKit *(legacy)* | Konferensi (versi sebelumnya) | Tidak aktif — paket masih ada di `composer.json` | `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` |
 
 #### 4.1.6.2 Jitsi JaaS
 
-**Latar belakang**: Sistem konferensi virtual sebelumnya menggunakan **LiveKit** self-hosted, kemudian dimigrasikan ke **Jitsi JaaS** (Jitsi-as-a-Service) di domain `8x8.vc` (commit `b2ceb00` — "Migrate conferencing from LiveKit to Jitsi (JaaS)"). LiveKit SDK tetap di `composer.json` agar tidak memutus build, tetapi tidak dipakai di runtime.
+**Latar belakang**: Sistem konferensi virtual sebelumnya menggunakan **LiveKit** self-hosted, kemudian dimigrasikan ke **Jitsi JaaS** (Jitsi-as-a-Service) di domain `8x8.vc` (commit `b2ceb00` — "Migrate conferencing from LiveKit to Jitsi (JaaS)"). Seluruh kode, dependency, service Docker, dan env var LiveKit kini sudah dihapus dari repo.
 
 **Otentikasi**: JWT yang ditandatangani dengan algoritma **RS256** menggunakan kunci privat di `storage/app/private/jaas-private-key.pk`. Setiap request room dosen/mahasiswa men-generate token baru dengan claim:
 - `sub` = JaaS App ID
@@ -1732,14 +1731,6 @@ Daftar lengkap variabel `.env` yang dibaca aplikasi. Catatan: variabel yang **ti
 | Variabel | Keterangan |
 |---|---|
 | `PISTON_API_URL` | mis. `http://piston:2000/api/v2` |
-
-### B.8 LiveKit (Legacy — masih dibaca config tetapi tidak dipakai runtime)
-
-| Variabel | Keterangan |
-|---|---|
-| `LIVEKIT_URL` | default `ws://localhost:7880` |
-| `LIVEKIT_API_KEY` | |
-| `LIVEKIT_API_SECRET` | |
 
 ---
 

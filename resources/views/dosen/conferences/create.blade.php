@@ -52,6 +52,8 @@
                         @error('scheduled_at') <p class="text-error text-xs font-bold mt-1">{{ $message }}</p> @enderror
                     </div>
 
+                    @include('dosen.partials.sibling-kelas-picker')
+
                     <div class="pt-6 mt-6 border-t border-outline-variant/10 flex justify-end gap-3">
                         <a href="{{ route('dosen.conferences.index', $course) }}" class="px-6 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors">Batal</a>
                         <button type="submit" class="px-8 py-2.5 bg-primary text-on-primary rounded-xl text-sm font-bold hover:bg-primary/90 flex items-center gap-2 shadow-sm transition-all focus:ring-2 focus:ring-primary focus:ring-offset-2">

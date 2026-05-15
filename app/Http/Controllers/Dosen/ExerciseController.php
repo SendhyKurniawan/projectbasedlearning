@@ -11,21 +11,15 @@ class ExerciseController extends Controller
 {
     public function create(Course $course)
     {
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
-        return view('dosen.exercises.create', compact('course'));
+        $this->authorize('update', $course);
+        $siblings = $course->siblings();
+        return view('dosen.exercises.create', compact('course', 'siblings'));
     }
 
     public function store(Request $request, Course $course)
     {
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
-        
+        $this->authorize('update', $course);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -36,19 +30,23 @@ class ExerciseController extends Controller
             'solution_code' => 'nullable|string',
             'required_keywords' => 'nullable|string',
             'hints' => 'nullable|string',
+            'sibling_ids' => 'nullable|array',
+            'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
-        // Parse required keywords and hints from comma-separated strings
+        $allowedSiblingIds = $course->siblings()->pluck('id');
+        $targetIds = collect($request->sibling_ids ?? [])
+            ->map(fn($id) => (int) $id)
+            ->intersect($allowedSiblingIds);
+
         $keywords = $request->required_keywords
             ? array_map('trim', explode(',', $request->required_keywords))
             : [];
-
         $hints = $request->hints
             ? array_map('trim', explode("\n", $request->hints))
             : [];
 
-        Assignment::create([
-            'course_id' => $course->id,
+        $sharedData = [
             'title' => $request->title,
             'description' => $request->description,
             'deadline' => $request->deadline,
@@ -61,20 +59,28 @@ class ExerciseController extends Controller
                 'required_keywords' => $keywords,
                 'hints' => $hints,
             ],
-        ]);
-        
+        ];
+
+        Assignment::create(array_merge($sharedData, ['course_id' => $course->id]));
+
+        $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
+        foreach ($targetCourses as $sibling) {
+            Assignment::create(array_merge($sharedData, ['course_id' => $sibling->id]));
+        }
+
+        $msg = 'Code Exercise berhasil ditambahkan!';
+        if ($targetIds->count()) {
+            $msg .= " Disalin ke {$targetIds->count()} kelas lain.";
+        }
+
         return redirect()->route('dosen.assignments.index', $course)
-            ->with('success', 'Code Exercise berhasil ditambahkan!');
+            ->with('success', $msg);
     }
 
     public function edit(Assignment $assignment)
     {
         $course = $assignment->course;
-        
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $course);
         
         // Check if this is an exercise
         if ($assignment->type !== 'exercise') {
@@ -87,11 +93,7 @@ class ExerciseController extends Controller
     public function update(Request $request, Assignment $assignment)
     {
         $course = $assignment->course;
-        
-        // Check if dosen owns this course
-        if ($course->dosen_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $course);
         
         $request->validate([
             'title' => 'required|string|max:255',

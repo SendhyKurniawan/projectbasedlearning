@@ -86,4 +86,28 @@ class Course extends Model
     {
         return $this->hasMany(\App\Models\Conference::class);
     }
+
+    /**
+     * Other courses taught by the same dosen, same matkul code, same semester.
+     * Used to populate kelas-target selectors and copy actions.
+     */
+    public function siblings()
+    {
+        return static::where('dosen_id', $this->dosen_id)
+            ->where('kode_matkul', $this->kode_matkul)
+            ->where('semester_id', $this->semester_id)
+            ->where('id', '!=', $this->id)
+            ->with('studentClass')
+            ->orderBy('student_class_id')
+            ->get();
+    }
+
+    /**
+     * Stable key for grouping sibling courses in views (dashboard, sidebar).
+     * Group by nama_matkul so legacy courses with different codes still cluster.
+     */
+    public function getCourseGroupKeyAttribute(): string
+    {
+        return $this->dosen_id . '|' . $this->nama_matkul . '|' . ($this->semester_id ?? '');
+    }
 }

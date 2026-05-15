@@ -56,6 +56,11 @@
                                     
                                     <!-- Actions Menu -->
                                     <div class="flex items-center gap-2">
+                                        <x-copy-modal
+                                            :copy-route="route('dosen.materials.copy', $material)"
+                                            :siblings="$siblings"
+                                            :item-title="$material->title"
+                                        />
                                         <a href="{{ route('dosen.materials.edit', $material) }}" class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit Materi">
                                             <span class="material-symbols-outlined text-[20px]">edit_document</span>
                                         </a>

@@ -59,7 +59,7 @@ Halaman untuk mengelola proses belajar mengajar.
     - Memberikan nilai dan feedback pada tugas atau kuis.
 - **Kelas Virtual (Conference):**
     - Penjadwalan sesi live conference.
-    - **Ruang Meeting:** Virtual room berbasis LiveKit untuk tatap muka daring (SFU Architecture).
+    - **Ruang Meeting:** Virtual room berbasis Jitsi JaaS (embed via JitsiMeetExternalAPI) untuk tatap muka daring.
 
 ---
 
@@ -85,4 +85,4 @@ Halaman untuk aktivitas pembelajaran mahasiswa.
 
 - **Mode Gelap (Dark Mode):** Seluruh halaman mendukung optimasi visual untuk kenyamanan mata.
 - **Web Push Notifications:** Menerima pesan instan bahkan saat browser tidak membuka website.
-- **LiveKit Integration:** Engine video conference stabil untuk kapasitas kelas besar.
+- **Jitsi JaaS Integration:** Engine video conference (8x8.vc) untuk kapasitas kelas besar.
