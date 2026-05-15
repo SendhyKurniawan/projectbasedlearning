@@ -35,10 +35,11 @@ return [
         ],
     ],
 
-    'livekit' => [
-        'url' => env('LIVEKIT_URL', 'ws://localhost:7880'),
-        'api_key' => env('LIVEKIT_API_KEY'),
-        'api_secret' => env('LIVEKIT_API_SECRET'),
+    'jitsi' => [
+        'domain' => env('JITSI_DOMAIN', '8x8.vc'),
+        'app_id' => env('JITSI_APP_ID'),
+        'kid' => env('JITSI_KID'),
+        'private_key_path' => env('JITSI_PRIVATE_KEY_PATH', 'storage/app/private/jaas-private-key.pk'),
     ],
 
     'piston' => [

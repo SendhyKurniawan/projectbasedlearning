@@ -81,6 +81,11 @@
                             <div class="flex items-center gap-3 md:justify-end shrink-0 border-t md:border-t-0 border-outline-variant/10 pt-4 md:pt-0 mt-4 md:mt-0">
                                 @if($conference->status === 'scheduled')
                                     <div class="flex items-center gap-1 mr-3 border-r border-outline-variant/20 pr-4">
+                                        <x-copy-modal
+                                            :copy-route="route('dosen.conferences.copy', $conference)"
+                                            :siblings="$siblings"
+                                            :item-title="$conference->title"
+                                        />
                                         <a href="{{ route('dosen.conferences.edit', $conference) }}" class="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-lg transition-colors" title="Edit Sesi">
                                             <span class="material-symbols-outlined text-[20px]">edit</span>
                                         </a>

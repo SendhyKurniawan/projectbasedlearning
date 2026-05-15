@@ -159,6 +159,8 @@
                         </div>
                     </div>
 
+                    @include('dosen.partials.sibling-kelas-picker')
+
                     <!-- Submit Buttons -->
                     <div class="pt-6 border-t border-outline-variant/20 flex justify-end gap-3">
                         <a href="{{ route('dosen.assignments.index', $course) }}" class="px-6 py-3 border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl hover:bg-surface-container transition-colors text-center">Batal</a>

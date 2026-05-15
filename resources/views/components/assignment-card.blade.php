@@ -1,4 +1,4 @@
-@props(['assignment'])
+@props(['assignment', 'siblings' => collect()])
 
 <div class="group bg-surface-container-lowest p-6 rounded-2xl flex flex-col md:flex-row md:items-center gap-6 {{ $assignment->type === 'tugas' ? 'border-l-4 border-secondary' : 'border-l-4 border-tertiary' }} transition-all hover:bg-surface-container-lowest hover:shadow-xl hover:shadow-primary/5 cursor-grab drag-handle relative sortable-item ring-1 ring-outline-variant/20" data-id="{{ $assignment->id }}">
     
@@ -50,6 +50,15 @@
             <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-secondary-container hover:text-secondary rounded-xl transition-all" title="Kelola Pertanyaan">
                 <span class="material-symbols-outlined text-[20px]">help_center</span>
             </a>
+        @endif
+        @if($siblings->count() > 0)
+            <div class="flex-1 md:flex-none flex justify-center items-center bg-surface-container-high rounded-xl">
+                <x-copy-modal
+                    :copy-route="route('dosen.assignments.copy', $assignment)"
+                    :siblings="$siblings"
+                    :item-title="$assignment->title"
+                />
+            </div>
         @endif
         <a href="{{ $assignment->type === 'exercise' ? route('dosen.exercises.edit', $assignment) : route('dosen.assignments.edit', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-primary-container hover:text-primary rounded-xl transition-all" title="Edit">
             <span class="material-symbols-outlined text-[20px]">edit</span>

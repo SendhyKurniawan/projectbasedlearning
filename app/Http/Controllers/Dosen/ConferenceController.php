@@ -7,28 +7,41 @@ use App\Models\Conference;
 use App\Models\Course;
 use App\Models\User;
 use App\Notifications\AcademicUpdateNotification;
-use Agence104\LiveKit\AccessToken;
-use Agence104\LiveKit\AccessTokenOptions;
-use Agence104\LiveKit\VideoGrant;
+use App\Services\JaasTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 
 class ConferenceController extends Controller
 {
+    public function __construct(private JaasTokenService $jaas)
+    {
+    }
+
     public function index(Course $course)
     {
         $this->authorizeDosen($course);
-        $conferences = $course->conferences()->orderByDesc('scheduled_at')->paginate(10);
 
-        return view('dosen.conferences.index', compact('course', 'conferences'));
+        $activeConferences = $course->conferences()
+            ->whereIn('status', ['scheduled', 'live'])
+            ->orderBy('scheduled_at')
+            ->get();
+
+        $endedConferences = $course->conferences()
+            ->where('status', 'ended')
+            ->orderByDesc('scheduled_at')
+            ->paginate(10);
+
+        $siblings = $course->siblings();
+
+        return view('dosen.conferences.index', compact('course', 'activeConferences', 'endedConferences', 'siblings'));
     }
 
     public function create(Course $course)
     {
         $this->authorizeDosen($course);
-
-        return view('dosen.conferences.create', compact('course'));
+        $siblings = $course->siblings();
+        return view('dosen.conferences.create', compact('course', 'siblings'));
     }
 
     public function store(Request $request, Course $course)
@@ -39,19 +52,25 @@ class ConferenceController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'scheduled_at' => 'required|date|after:now',
+            'sibling_ids' => 'nullable|array',
+            'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
+        $allowedSiblingIds = $course->siblings()->pluck('id');
+        $targetIds = collect($request->sibling_ids ?? [])
+            ->map(fn($id) => (int) $id)
+            ->intersect($allowedSiblingIds);
+
         $conference = $course->conferences()->create([
-            ...$validated,
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'scheduled_at' => $validated['scheduled_at'],
             'dosen_id' => auth()->id(),
             'room_name' => 'room-' . $course->id . '-' . Str::uuid(),
             'status' => 'scheduled',
         ]);
 
-        // Notify enrolled students
-        $students = User::whereHas('enrollments', function($q) use ($course) {
-            $q->where('course_id', $course->id);
-        })->get();
+        $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $course->id))->get();
         if ($students->isNotEmpty()) {
             Notification::send($students, new AcademicUpdateNotification(
                 'Jadwal Kelas Virtual Baru',
@@ -60,9 +79,35 @@ class ConferenceController extends Controller
             ));
         }
 
+        // Fan-out to selected sibling courses
+        $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
+        foreach ($targetCourses as $sibling) {
+            $sibConf = $sibling->conferences()->create([
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'scheduled_at' => $validated['scheduled_at'],
+                'dosen_id' => auth()->id(),
+                'room_name' => 'room-' . $sibling->id . '-' . Str::uuid(),
+                'status' => 'scheduled',
+            ]);
+            $sibStudents = User::whereHas('enrollments', fn($q) => $q->where('course_id', $sibling->id))->get();
+            if ($sibStudents->isNotEmpty()) {
+                Notification::send($sibStudents, new AcademicUpdateNotification(
+                    'Jadwal Kelas Virtual Baru',
+                    "Kelas virtual '{$sibConf->title}' telah dijadwalkan pada mata kuliah {$sibling->nama_matkul}.",
+                    route('mahasiswa.conferences.index', $sibling)
+                ));
+            }
+        }
+
+        $msg = 'Jadwal konferensi berhasil dibuat.';
+        if ($targetIds->count()) {
+            $msg .= " Disalin ke {$targetIds->count()} kelas lain.";
+        }
+
         return redirect()
             ->route('dosen.conferences.index', $course)
-            ->with('success', 'Jadwal konferensi berhasil dibuat.');
+            ->with('success', $msg);
     }
 
     public function edit(Conference $conference)
@@ -114,6 +159,40 @@ class ConferenceController extends Controller
             ->with('success', 'Konferensi berhasil dihapus.');
     }
 
+    public function copy(Request $request, Conference $conference)
+    {
+        $course = $conference->course;
+        $this->authorizeDosen($course);
+
+        $request->validate([
+            'sibling_ids' => 'required|array|min:1',
+            'sibling_ids.*' => 'integer|exists:courses,id',
+        ]);
+
+        $allowedSiblingIds = $course->siblings()->pluck('id');
+        $targetIds = collect($request->sibling_ids)
+            ->map(fn($id) => (int) $id)
+            ->intersect($allowedSiblingIds);
+
+        if ($targetIds->isEmpty()) {
+            return back()->with('error', 'Pilih kelas tujuan yang valid.');
+        }
+
+        $targetCourses = Course::whereIn('id', $targetIds)->get();
+        foreach ($targetCourses as $sibling) {
+            $sibling->conferences()->create([
+                'title'        => $conference->title,
+                'description'  => $conference->description,
+                'scheduled_at' => $conference->scheduled_at,
+                'dosen_id'     => auth()->id(),
+                'room_name'    => 'room-' . $sibling->id . '-' . Str::uuid(),
+                'status'       => 'scheduled',
+            ]);
+        }
+
+        return back()->with('success', "Jadwal '{$conference->title}' disalin ke {$targetIds->count()} kelas lain.");
+    }
+
     public function start(Conference $conference)
     {
         $this->authorizeDosen($conference->course);
@@ -134,6 +213,10 @@ class ConferenceController extends Controller
             'ended_at' => now(),
         ]);
 
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json(['status' => 'ok']);
+        }
+
         return redirect()
             ->route('dosen.conferences.index', $conference->course)
             ->with('success', 'Sesi konferensi telah diakhiri.');
@@ -149,38 +232,16 @@ class ConferenceController extends Controller
                 ->with('error', 'Sesi konferensi sudah berakhir.');
         }
 
-        return view('dosen.conferences.room', compact('conference'));
-    }
-
-    public function token(Conference $conference)
-    {
-        $this->authorizeDosen($conference->course);
-
         $user = auth()->user();
-        $token = $this->generateToken($conference->room_name, $user->name . ' (Dosen)', true);
+        $jwt = $this->jaas->mint(
+            room: $conference->room_name,
+            userId: $user->id,
+            name: $user->name,
+            moderator: true,
+            email: $user->email,
+        );
 
-        return response()->json(['token' => $token]);
-    }
-
-    private function generateToken(string $roomName, string $participantName, bool $canPublish = true): string
-    {
-        $tokenOptions = (new AccessTokenOptions())
-            ->setIdentity($participantName)
-            ->setTtl(3600);
-
-        $videoGrant = (new VideoGrant())
-            ->setRoomJoin()
-            ->setRoomName($roomName)
-            ->setCanPublish($canPublish)
-            ->setCanSubscribe();
-
-        return (new AccessToken(
-            config('services.livekit.api_key'),
-            config('services.livekit.api_secret')
-        ))
-            ->init($tokenOptions)
-            ->setGrant($videoGrant)
-            ->toJwt();
+        return view('dosen.conferences.room', compact('conference', 'jwt'));
     }
 
     private function authorizeDosen(Course $course): void

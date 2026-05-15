@@ -13,22 +13,28 @@ class DashboardController extends Controller
     {
         $dosen = auth()->user();
 
-        // Load all needed counts in a single query per relationship
         $courses = $dosen->courses()
-            ->with('semester')
+            ->with('semester', 'studentClass')
             ->withCount(['materials', 'assignments', 'students'])
             ->get();
 
-        // Reuse the already-loaded collection instead of doing a second DB query
-        $total_students = $courses->sum('students_count');
-        $total_assignments = $courses->sum('assignments_count');
+        $courseGroups = $courses->groupBy('course_group_key')->map(function ($group) {
+            return [
+                'nama_matkul'       => $group->first()->nama_matkul,
+                'kode_matkul'       => $group->first()->kode_matkul,
+                'courses'           => $group,
+                'total_students'    => $group->sum('students_count'),
+                'total_materials'   => $group->sum('materials_count'),
+                'total_assignments' => $group->sum('assignments_count'),
+            ];
+        })->values();
 
         $stats = [
-            'total_courses' => $courses->count(),
-            'total_students' => $total_students,
-            'total_assignments' => $total_assignments,
+            'total_courses'     => $courses->count(),
+            'total_students'    => $courses->sum('students_count'),
+            'total_assignments' => $courses->sum('assignments_count'),
         ];
 
-        return view('dosen.dashboard', compact('courses', 'stats'));
+        return view('dosen.dashboard', compact('courses', 'courseGroups', 'stats'));
     }
 }

@@ -5,19 +5,21 @@ namespace App\Http\Controllers\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Models\Conference;
 use App\Models\Course;
-use Agence104\LiveKit\AccessToken;
-use Agence104\LiveKit\AccessTokenOptions;
-use Agence104\LiveKit\VideoGrant;
+use App\Services\JaasTokenService;
 use Illuminate\Support\Facades\DB;
 
 class ConferenceController extends Controller
 {
+    public function __construct(private JaasTokenService $jaas)
+    {
+    }
+
     public function index(Course $course)
     {
         $this->authorizeEnrolled($course);
 
         $conferences = $course->conferences()
-            ->whereIn('status', ['scheduled', 'live'])
+            ->orderByRaw("CASE status WHEN 'live' THEN 0 WHEN 'scheduled' THEN 1 WHEN 'ended' THEN 2 ELSE 3 END")
             ->orderBy('scheduled_at')
             ->get();
 
@@ -34,42 +36,16 @@ class ConferenceController extends Controller
                 ->with('error', 'Sesi konferensi ini belum dimulai atau sudah berakhir.');
         }
 
-        return view('mahasiswa.conferences.room', compact('conference'));
-    }
-
-    public function token(Conference $conference)
-    {
-        $this->authorizeEnrolled($conference->course);
-
-        if (!$conference->isLive()) {
-            abort(403, 'Sesi belum aktif.');
-        }
-
         $user = auth()->user();
-        $token = $this->generateToken($conference->room_name, $user->name);
+        $jwt = $this->jaas->mint(
+            room: $conference->room_name,
+            userId: $user->id,
+            name: $user->name,
+            moderator: false,
+            email: $user->email,
+        );
 
-        return response()->json(['token' => $token]);
-    }
-
-    private function generateToken(string $roomName, string $participantName): string
-    {
-        $tokenOptions = (new AccessTokenOptions())
-            ->setIdentity($participantName)
-            ->setTtl(3600);
-
-        $videoGrant = (new VideoGrant())
-            ->setRoomJoin()
-            ->setRoomName($roomName)
-            ->setCanPublish()
-            ->setCanSubscribe();
-
-        return (new AccessToken(
-            config('services.livekit.api_key'),
-            config('services.livekit.api_secret')
-        ))
-            ->init($tokenOptions)
-            ->setGrant($videoGrant)
-            ->toJwt();
+        return view('mahasiswa.conferences.room', compact('conference', 'jwt'));
     }
 
     private function authorizeEnrolled(Course $course): void
