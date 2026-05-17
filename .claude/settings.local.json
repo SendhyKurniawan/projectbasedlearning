@@ -11,7 +11,13 @@
       "Bash(xargs grep *)",
       "WebFetch(domain:api.anthropic.com)",
       "Bash(php artisan *)",
-      "Bash(docker exec pjbl-app *)"
+      "Bash(docker exec pjbl-app *)",
+      "mcp__plugin_playwright_playwright__browser_fill_form",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "mcp__plugin_playwright_playwright__browser_console_messages"
     ]
   }
 }

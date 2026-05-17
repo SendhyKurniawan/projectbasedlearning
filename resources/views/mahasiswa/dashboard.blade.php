@@ -48,6 +48,18 @@
             @endforeach
         </div>
 
+        {{-- Charts Row --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <section class="lg:col-span-2 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                <h2 class="font-headline text-lg font-bold mb-4">Aktivitas Submission Saya (30 hari)</h2>
+                <div class="relative h-56 w-full"><canvas id="mhsActivityChart"></canvas></div>
+            </section>
+            <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                <h2 class="font-headline text-lg font-bold mb-4">Distribusi Nilai</h2>
+                <div class="relative h-56 w-full"><canvas id="mhsScoreChart"></canvas></div>
+            </section>
+        </div>
+
         {{-- Main 2-Col --}}
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {{-- LEFT: Upcoming + Progress --}}
@@ -167,4 +179,66 @@
             </aside>
         </div>
     </div>
+
+    @push('scripts')
+    @vite('resources/js/charts.js')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const C = window.PJBLChart;
+    const { primary, secondary } = window.PJBLChartColors;
+
+    // ── 30-day personal activity line chart ─────────────────────────────
+    const actData = @json($activitySeries);
+    new C(document.getElementById('mhsActivityChart'), {
+        type: 'line',
+        data: {
+            labels: actData.labels,
+            datasets: [{
+                label: 'Submission',
+                data: actData.values,
+                borderColor: primary,
+                backgroundColor: primary + '22',
+                tension: 0.3,
+                borderWidth: 2,
+                pointRadius: 2,
+                fill: true,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+
+    // ── Score histogram bar chart ────────────────────────────────────
+    const scoreData = @json($scoreDistribution);
+    new C(document.getElementById('mhsScoreChart'), {
+        type: 'bar',
+        data: {
+            labels: scoreData.labels,
+            datasets: [{
+                label: 'Jumlah Submission',
+                data: scoreData.values,
+                backgroundColor: [
+                    secondary + 'cc',
+                    primary + 'cc',
+                    primary + 'aa',
+                    primary,
+                ],
+                borderRadius: 6,
+                borderWidth: 0,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+});
+</script>
+    @endpush
 </x-app-layout>

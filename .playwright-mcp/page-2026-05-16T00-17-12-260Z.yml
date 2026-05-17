@@ -1,0 +1,204 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - link "school PBL Workspace Project-Based Learning" [ref=e5] [cursor=pointer]:
+      - /url: http://localhost:8000/mahasiswa/dashboard
+      - generic [ref=e7]: school
+      - generic [ref=e8]:
+        - heading "PBL Workspace" [level=1] [ref=e9]
+        - paragraph [ref=e10]: Project-Based Learning
+    - navigation [ref=e11]:
+      - link "dashboard Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/dashboard
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Dashboard
+      - generic [ref=e15]: Learning
+      - link "grade Nilai Saya" [ref=e16] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/grades
+        - generic [ref=e17]: grade
+        - generic [ref=e18]: Nilai Saya
+      - link "auto_stories Mata Kuliah" [ref=e19] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/courses
+        - generic [ref=e20]: auto_stories
+        - generic [ref=e21]: Mata Kuliah
+      - link "videocam Kelas Virtual" [ref=e22] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/courses/1/conferences
+        - generic [ref=e23]: videocam
+        - generic [ref=e24]: Kelas Virtual
+      - generic [ref=e25]: Community
+      - link "forum Forum Diskusi" [ref=e26] [cursor=pointer]:
+        - /url: http://localhost:8000/discussions
+        - generic [ref=e27]: forum
+        - generic [ref=e28]: Forum Diskusi
+      - link "campaign Pengumuman" [ref=e29] [cursor=pointer]:
+        - /url: http://localhost:8000/announcements
+        - generic [ref=e30]: campaign
+        - generic [ref=e31]: Pengumuman
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]: MA
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: Mahasiswa Dusk
+          - paragraph [ref=e37]: Mahasiswa
+      - generic [ref=e38]:
+        - link "person Profile" [ref=e39] [cursor=pointer]:
+          - /url: http://localhost:8000/profile
+          - generic [ref=e40]: person
+          - generic [ref=e41]: Profile
+        - button "logout Logout" [ref=e43] [cursor=pointer]:
+          - generic [ref=e44]: logout
+          - generic [ref=e45]: Logout
+  - generic [ref=e46]:
+    - button "notifications" [ref=e49] [cursor=pointer]:
+      - generic [ref=e50]: notifications
+    - main [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - navigation [ref=e55]:
+              - link "Overview" [ref=e57] [cursor=pointer]:
+                - /url: http://localhost:8000/mahasiswa/dashboard
+              - generic [ref=e58]: chevron_right
+              - link "Courses" [ref=e60] [cursor=pointer]:
+                - /url: http://localhost:8000/mahasiswa/courses
+              - generic [ref=e61]: chevron_right
+              - generic [ref=e62]: IF101
+            - heading "Pemrograman Dasar" [level=1] [ref=e63]
+            - paragraph [ref=e64]: "Dosen Pengampu: Dosen Dusk"
+          - link "videocam Sesi Link Live Conference" [ref=e66] [cursor=pointer]:
+            - /url: http://localhost:8000/mahasiswa/courses/1/conferences
+            - generic [ref=e67]: videocam
+            - text: Sesi Link Live
+            - generic [ref=e68]: Conference
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - heading "Progres Belajar" [level=3] [ref=e74]
+                - paragraph [ref=e75]: Anda telah menyelesaikan 2 dari 8 komponen modul
+              - generic [ref=e76]: 25%
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - paragraph [ref=e82]: Materi
+                - paragraph [ref=e83]: 1 / 2
+              - generic [ref=e84]:
+                - paragraph [ref=e85]: Tugas
+                - paragraph [ref=e86]: 1 / 6
+              - generic [ref=e87]:
+                - paragraph [ref=e88]: Kuis
+                - paragraph [ref=e89]: "1"
+          - generic [ref=e90]:
+            - generic [ref=e91]:
+              - generic [ref=e92]: KOMPONEN AKTIF
+              - heading "Tugas Terkunci" [level=3] [ref=e93]
+              - paragraph [ref=e94]: Tugas ini terkunci sampai Anda membaca Modul 1.
+            - generic [ref=e95]:
+              - generic [ref=e96]:
+                - generic [ref=e97]: timer
+                - text: "Deadline: 06 May, 14:59"
+              - link "KERJAKAN TUGAS" [ref=e98] [cursor=pointer]:
+                - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=3
+          - generic [ref=e99]:
+            - generic [ref=e100]:
+              - heading "Modul & Materi" [level=3] [ref=e101]
+              - generic [ref=e102]: 2 Item
+            - generic [ref=e103]:
+              - generic [ref=e104] [cursor=pointer]:
+                - generic [ref=e105]:
+                  - generic [ref=e107]: task_alt
+                  - generic [ref=e108]:
+                    - paragraph [ref=e109]: Modul 1
+                    - paragraph [ref=e110]: Bagian 1 • PDF / Read
+                - link "preview" [ref=e111]:
+                  - /url: http://localhost:8000/mahasiswa/courses/1/materials/1
+                  - generic [ref=e112]: preview
+              - generic [ref=e113] [cursor=pointer]:
+                - generic [ref=e114]:
+                  - generic [ref=e116]: article
+                  - generic [ref=e117]:
+                    - paragraph [ref=e118]: Modul 2
+                    - paragraph [ref=e119]: Bagian 2 • PDF / Read
+                - link "arrow_forward" [ref=e120]:
+                  - /url: http://localhost:8000/mahasiswa/courses/1/materials/2
+                  - generic [ref=e121]: arrow_forward
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - heading "Evaluasi & Kuis" [level=3] [ref=e124]
+              - generic [ref=e127]: Active
+            - generic [ref=e128]:
+              - generic [ref=e130]:
+                - generic [ref=e132]: code
+                - generic [ref=e133]:
+                  - generic [ref=e134]:
+                    - heading "Exercise HTML" [level=4] [ref=e135]
+                    - generic [ref=e136]: Belum
+                  - paragraph [ref=e137]: Latihan Pemrograman • 03 May
+                  - link "KERJAKAN arrow_right_alt" [ref=e139] [cursor=pointer]:
+                    - /url: http://localhost:8000/mahasiswa/exercises/5/solve
+                    - text: KERJAKAN
+                    - generic [ref=e140]: arrow_right_alt
+              - generic [ref=e142]:
+                - generic [ref=e144]: quiz
+                - generic [ref=e145]:
+                  - generic [ref=e146]:
+                    - heading "Quiz Cepat" [level=4] [ref=e147]
+                    - generic [ref=e148]: Belum
+                  - paragraph [ref=e149]: 30 Menit • 2 Soal
+                  - link "MULAI KUIS arrow_right_alt" [ref=e151] [cursor=pointer]:
+                    - /url: http://localhost:8000/mahasiswa/assignments/4/quiz
+                    - text: MULAI KUIS
+                    - generic [ref=e152]: arrow_right_alt
+          - generic [ref=e153]:
+            - heading "Penugasan & Proyek" [level=3] [ref=e155]
+            - generic [ref=e157]:
+              - generic [ref=e158]:
+                - generic [ref=e159]: Belum Dikerjakan
+                - generic [ref=e160]:
+                  - generic [ref=e162]: assignment
+                  - generic [ref=e163]:
+                    - text: Penugasan Mandiri
+                    - heading "Tugas Terkunci" [level=4] [ref=e164]
+                - generic [ref=e165]:
+                  - generic [ref=e166]: calendar_clock
+                  - generic [ref=e167]: "Batas Akhir: 06 May, 14:59"
+                - link "KERJAKAN" [ref=e169] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=3
+              - generic [ref=e170]:
+                - generic [ref=e171]: Belum Dikerjakan
+                - generic [ref=e172]:
+                  - generic [ref=e174]: assignment
+                  - generic [ref=e175]:
+                    - text: Penugasan Mandiri
+                    - heading "Tugas PDF" [level=4] [ref=e176]
+                - generic [ref=e177]:
+                  - generic [ref=e178]: calendar_clock
+                  - generic [ref=e179]: "Batas Akhir: 03 May, 14:59"
+                - link "KERJAKAN" [ref=e181] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=1
+              - generic [ref=e182]:
+                - generic [ref=e183]: Sudah Dikerjakan
+                - generic [ref=e184]:
+                  - generic [ref=e186]: assignment
+                  - generic [ref=e187]:
+                    - text: Penugasan Mandiri
+                    - heading "Tugas URL" [level=4] [ref=e188]
+                - generic [ref=e189]:
+                  - generic [ref=e190]: calendar_clock
+                  - generic [ref=e191]: "Batas Akhir: 10 May, 14:59"
+                - generic [ref=e192]:
+                  - link "RE-SUBMIT" [ref=e193] [cursor=pointer]:
+                    - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=2
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: Skor
+                    - text: ...
+              - generic [ref=e196]:
+                - generic [ref=e197]: Belum Dikerjakan
+                - generic [ref=e198]:
+                  - generic [ref=e200]: assignment
+                  - generic [ref=e201]:
+                    - text: Penugasan Mandiri
+                    - heading "Tugas kelompok" [level=4] [ref=e202]
+                - generic [ref=e203]:
+                  - generic [ref=e204]: calendar_clock
+                  - generic [ref=e205]: "Batas Akhir: 07 May, 22:32"
+                - link "KERJAKAN" [ref=e207] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=8

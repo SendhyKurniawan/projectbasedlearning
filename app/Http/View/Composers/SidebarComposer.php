@@ -4,6 +4,7 @@ namespace App\Http\View\Composers;
 
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Models\Course;
 
@@ -22,10 +23,10 @@ class SidebarComposer
             $user = Auth::user();
 
             if ($user->role === 'dosen') {
-                $dosenCourses = Course::where('dosen_id', $user->id)
+                $dosenCourses = Cache::remember("sidebar:dosen:{$user->id}", 300, fn () => Course::where('dosen_id', $user->id)
                     ->with('studentClass')
                     ->orderBy('created_at', 'desc')
-                    ->get();
+                    ->get());
                 $dosenCourseGroups = $dosenCourses->groupBy('course_group_key');
             } elseif ($user->role === 'mahasiswa') {
                 // Single lightweight query instead of whereHas subquery on every page

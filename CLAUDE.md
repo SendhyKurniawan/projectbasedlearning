@@ -6,7 +6,8 @@ Laravel 12 project-based-learning (PBL) platform. Three roles — `admin`, `dose
 
 ```bash
 composer dev          # concurrent: php artisan serve + queue:listen + pail + vite — preferred dev entry
-composer setup        # first-time: install + .env + key + migrate + npm install + build
+composer setup        # first-time: install + .env + key + migrate + npm install + build + optimize
+composer optimize     # production: config:cache + route:cache + view:cache + event:cache (run after every deploy)
 composer test         # config:clear + php artisan test (Pest)
 npm run dev           # vite only
 npm run build         # production assets

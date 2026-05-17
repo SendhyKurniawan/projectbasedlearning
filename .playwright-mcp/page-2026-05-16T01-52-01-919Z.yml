@@ -1,0 +1,164 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - link "school PBL Workspace Project-Based Learning" [ref=e5] [cursor=pointer]:
+      - /url: http://localhost:8000/dosen/dashboard
+      - generic [ref=e7]: school
+      - generic [ref=e8]:
+        - heading "PBL Workspace" [level=1] [ref=e9]
+        - paragraph [ref=e10]: Project-Based Learning
+    - navigation [ref=e11]:
+      - link "dashboard Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: http://localhost:8000/dosen/dashboard
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Dashboard
+      - generic [ref=e15]: Manajemen
+      - link "grade Manajemen Nilai" [ref=e16] [cursor=pointer]:
+        - /url: http://localhost:8000/dosen/grades
+        - generic [ref=e17]: grade
+        - generic [ref=e18]: Manajemen Nilai
+      - generic [ref=e19]: Materi & Tugas
+      - button "book Pemrograman Dasar 2K expand_more" [ref=e22] [cursor=pointer]:
+        - generic [ref=e23]: book
+        - generic [ref=e24]: Pemrograman Dasar
+        - generic [ref=e25]: 2K
+        - generic [ref=e26]: expand_more
+      - generic [ref=e27]: Community
+      - link "forum Forum Diskusi" [ref=e28] [cursor=pointer]:
+        - /url: http://localhost:8000/discussions
+        - generic [ref=e29]: forum
+        - generic [ref=e30]: Forum Diskusi
+      - link "campaign Pengumuman" [ref=e31] [cursor=pointer]:
+        - /url: http://localhost:8000/announcements
+        - generic [ref=e32]: campaign
+        - generic [ref=e33]: Pengumuman
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]: DO
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: Dosen Dusk
+          - paragraph [ref=e39]: Dosen
+      - generic [ref=e40]:
+        - link "person Profile" [ref=e41] [cursor=pointer]:
+          - /url: http://localhost:8000/profile
+          - generic [ref=e42]: person
+          - generic [ref=e43]: Profile
+        - button "logout Logout" [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: logout
+          - generic [ref=e47]: Logout
+  - generic [ref=e48]:
+    - button "notifications 5" [ref=e51] [cursor=pointer]:
+      - generic [ref=e52]: notifications
+      - generic [ref=e53]: "5"
+    - main [ref=e54]:
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - heading "Selamat datang, Dosen Dusk 👩‍🏫" [level=1] [ref=e58]
+            - paragraph [ref=e59]: Kelas Anda hari ini dan tugas yang menunggu review.
+          - generic [ref=e60]:
+            - link "upload_file Upload Materi" [ref=e61] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/1/materials
+              - generic [ref=e62]: upload_file
+              - text: Upload Materi
+            - link "add Buat Tugas/Kuis" [ref=e63] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/1/assignments
+              - generic [ref=e64]: add
+              - text: Buat Tugas/Kuis
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - generic [ref=e70]: auto_stories
+            - paragraph [ref=e71]: Kelas Diampu
+            - paragraph [ref=e72]: "2"
+            - paragraph [ref=e73]: Semester ini
+          - generic [ref=e74]:
+            - generic [ref=e78]: groups
+            - paragraph [ref=e79]: Total Mahasiswa
+            - paragraph [ref=e80]: "10"
+            - paragraph [ref=e81]: Seluruh kelas
+          - generic [ref=e82]:
+            - generic [ref=e86]: assignment
+            - paragraph [ref=e87]: Total Tugas
+            - paragraph [ref=e88]: "8"
+            - paragraph [ref=e89]: Aktif & lampau
+          - generic [ref=e90]:
+            - generic [ref=e94]: rate_review
+            - paragraph [ref=e95]: Belum Dinilai
+            - paragraph [ref=e96]: "5"
+            - paragraph [ref=e97]: Antrian review
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - generic [ref=e100]:
+              - generic [ref=e101]:
+                - heading "Kelas yang Diampu" [level=2] [ref=e102]
+                - generic [ref=e103]: 1 matkul · 2 kelas
+              - generic [ref=e105]:
+                - generic [ref=e106]:
+                  - generic [ref=e107]: book
+                  - generic [ref=e108]:
+                    - paragraph [ref=e109]: Pemrograman Dasar
+                    - paragraph [ref=e110]: IF101
+                  - generic [ref=e111]:
+                    - generic [ref=e112]: 10 mhs
+                    - generic [ref=e113]: 3 materi
+                    - generic [ref=e114]: 8 tugas
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - generic [ref=e117]: TI-1A
+                    - generic [ref=e118]:
+                      - generic [ref=e119]: 4 mhs
+                      - generic [ref=e120]: 2 materi
+                      - generic [ref=e121]: 6 tugas
+                    - generic [ref=e122]:
+                      - link "Materi" [ref=e123] [cursor=pointer]:
+                        - /url: http://localhost:8000/dosen/courses/1/materials
+                      - link "Tugas" [ref=e124] [cursor=pointer]:
+                        - /url: http://localhost:8000/dosen/courses/1/assignments
+                      - link "Buka →" [ref=e125] [cursor=pointer]:
+                        - /url: http://localhost:8000/dosen/courses/1/conferences
+                  - generic [ref=e126]:
+                    - generic [ref=e127]: TI-1B
+                    - generic [ref=e128]:
+                      - generic [ref=e129]: 6 mhs
+                      - generic [ref=e130]: 1 materi
+                      - generic [ref=e131]: 2 tugas
+                    - generic [ref=e132]:
+                      - link "Materi" [ref=e133] [cursor=pointer]:
+                        - /url: http://localhost:8000/dosen/courses/3/materials
+                      - link "Tugas" [ref=e134] [cursor=pointer]:
+                        - /url: http://localhost:8000/dosen/courses/3/assignments
+                      - link "Buka →" [ref=e135] [cursor=pointer]:
+                        - /url: http://localhost:8000/dosen/courses/3/conferences
+            - heading "Aktivitas Submission Mingguan" [level=2] [ref=e137]
+          - complementary [ref=e139]:
+            - generic [ref=e140]:
+              - heading "Antrian Review" [level=2] [ref=e141]
+              - generic [ref=e142]:
+                - link "PE Pemrograman Dasar 6 tugas · 4 mhs Nilai →" [ref=e143] [cursor=pointer]:
+                  - /url: http://localhost:8000/dosen/courses/1/assignments
+                  - generic [ref=e144]: PE
+                  - generic [ref=e145]:
+                    - paragraph [ref=e146]: Pemrograman Dasar
+                    - paragraph [ref=e147]: 6 tugas · 4 mhs
+                  - generic [ref=e148]: Nilai →
+                - link "PE Pemrograman Dasar 2 tugas · 6 mhs Nilai →" [ref=e149] [cursor=pointer]:
+                  - /url: http://localhost:8000/dosen/courses/3/assignments
+                  - generic [ref=e150]: PE
+                  - generic [ref=e151]:
+                    - paragraph [ref=e152]: Pemrograman Dasar
+                    - paragraph [ref=e153]: 2 tugas · 6 mhs
+                  - generic [ref=e154]: Nilai →
+            - generic [ref=e155]:
+              - heading "Live Conference Hari Ini" [level=2] [ref=e156]
+              - generic [ref=e157]:
+                - generic [ref=e158]:
+                  - generic [ref=e159]:
+                    - paragraph [ref=e160]: Pemrograman Dasar
+                    - paragraph [ref=e161]: IF101
+                  - link "Buka" [ref=e162] [cursor=pointer]:
+                    - /url: http://localhost:8000/dosen/courses/1/conferences
+                - generic [ref=e163]:
+                  - generic [ref=e164]:
+                    - paragraph [ref=e165]: Pemrograman Dasar
+                    - paragraph [ref=e166]: IF101
+                  - link "Buka" [ref=e167] [cursor=pointer]:
+                    - /url: http://localhost:8000/dosen/courses/3/conferences

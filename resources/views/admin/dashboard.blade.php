@@ -47,18 +47,15 @@
                 <header class="flex items-center justify-between mb-4">
                     <h2 class="font-headline text-lg font-bold">Aktivitas Sistem (30 hari)</h2>
                     <div class="flex gap-1.5 text-[10px]">
-                        <span class="px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold">Login</span>
-                        <span class="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant font-bold">Submission</span>
+                        <span class="px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold">Submission</span>
                         <span class="px-2 py-0.5 rounded-md bg-surface-container text-on-surface-variant font-bold">Materi</span>
                     </div>
                 </header>
-                <div class="h-56 rounded-xl bg-surface-container-low/40 border border-dashed border-outline-variant/20 flex items-center justify-center text-xs text-on-surface-variant uppercase tracking-widest">
-                    Line chart — multi-series aktivitas harian
-                </div>
+                <div class="relative h-56 w-full"><canvas id="adminActivityChart"></canvas></div>
             </section>
             <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
                 <h2 class="font-headline text-lg font-bold mb-4">Distribusi per Role</h2>
-                <div class="h-40 rounded-xl bg-surface-container-low/40 border border-dashed border-outline-variant/20 flex items-center justify-center text-xs text-on-surface-variant uppercase tracking-widest mb-4">Donut chart</div>
+                <div class="relative h-40 w-full mb-4"><canvas id="adminRoleChart"></canvas></div>
                 <div class="space-y-2 text-xs">
                     @foreach([['Mahasiswa', $stats['total_mahasiswa'], 'bg-primary'],['Dosen', $stats['total_dosen'], 'bg-secondary'],['Admin', $stats['total_admin'], 'bg-tertiary']] as [$n,$v,$c])
                         <div class="flex items-center justify-between">
@@ -113,4 +110,71 @@
             </section>
         </div>
     </div>
+
+    @push('scripts')
+    @vite('resources/js/charts.js')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const C = window.PJBLChart;
+    const { primary, secondary, tertiary } = window.PJBLChartColors;
+
+    // ── Activity line chart (30 days) ──────────────────────────────────────
+    const actData = @json($activitySeries);
+    new C(document.getElementById('adminActivityChart'), {
+        type: 'line',
+        data: {
+            labels: actData.labels,
+            datasets: [
+                {
+                    label: 'Submission',
+                    data: actData.submissions,
+                    borderColor: primary,
+                    backgroundColor: primary + '22',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    fill: true,
+                },
+                {
+                    label: 'Materi',
+                    data: actData.materials,
+                    borderColor: secondary,
+                    backgroundColor: secondary + '22',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 2,
+                    fill: true,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+
+    // ── Role donut chart ───────────────────────────────────────────────────
+    const roleData = @json($roleDistribution);
+    new C(document.getElementById('adminRoleChart'), {
+        type: 'doughnut',
+        data: {
+            labels: roleData.labels,
+            datasets: [{
+                data: roleData.values,
+                backgroundColor: [primary, secondary, tertiary],
+                borderWidth: 0,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '72%',
+            plugins: { legend: { display: false } },
+        },
+    });
+});
+</script>
+    @endpush
 </x-app-layout>

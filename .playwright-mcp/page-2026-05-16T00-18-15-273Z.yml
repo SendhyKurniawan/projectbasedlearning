@@ -1,0 +1,140 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - link "school PBL Workspace Project-Based Learning" [ref=e5] [cursor=pointer]:
+      - /url: http://localhost:8000/mahasiswa/dashboard
+      - generic [ref=e7]: school
+      - generic [ref=e8]:
+        - heading "PBL Workspace" [level=1] [ref=e9]
+        - paragraph [ref=e10]: Project-Based Learning
+    - navigation [ref=e11]:
+      - link "dashboard Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/dashboard
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Dashboard
+      - generic [ref=e15]: Learning
+      - link "grade Nilai Saya" [ref=e16] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/grades
+        - generic [ref=e17]: grade
+        - generic [ref=e18]: Nilai Saya
+      - link "auto_stories Mata Kuliah" [ref=e19] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/courses
+        - generic [ref=e20]: auto_stories
+        - generic [ref=e21]: Mata Kuliah
+      - link "videocam Kelas Virtual" [ref=e22] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/courses/1/conferences
+        - generic [ref=e23]: videocam
+        - generic [ref=e24]: Kelas Virtual
+      - generic [ref=e25]: Community
+      - link "forum Forum Diskusi" [ref=e26] [cursor=pointer]:
+        - /url: http://localhost:8000/discussions
+        - generic [ref=e27]: forum
+        - generic [ref=e28]: Forum Diskusi
+      - link "campaign Pengumuman" [ref=e29] [cursor=pointer]:
+        - /url: http://localhost:8000/announcements
+        - generic [ref=e30]: campaign
+        - generic [ref=e31]: Pengumuman
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]: MA
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: Mahasiswa Dusk
+          - paragraph [ref=e37]: Mahasiswa
+      - generic [ref=e38]:
+        - link "person Profile" [ref=e39] [cursor=pointer]:
+          - /url: http://localhost:8000/profile
+          - generic [ref=e40]: person
+          - generic [ref=e41]: Profile
+        - button "logout Logout" [ref=e43] [cursor=pointer]:
+          - generic [ref=e44]: logout
+          - generic [ref=e45]: Logout
+  - generic [ref=e46]:
+    - button "notifications" [ref=e49] [cursor=pointer]:
+      - generic [ref=e50]: notifications
+    - main [ref=e51]:
+      - generic [ref=e52]:
+        - complementary [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - heading "Progres Belajar" [level=3] [ref=e57]
+                - generic [ref=e58]: 25%
+              - generic [ref=e61]:
+                - link "play_arrow Materi Modul 1" [ref=e62] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/courses/1/materials/1
+                  - generic [ref=e65]: play_arrow
+                  - generic [ref=e66]:
+                    - paragraph [ref=e67]: Materi
+                    - paragraph [ref=e68]: Modul 1
+                - link "assignment Tugas Tugas Terkunci" [ref=e69] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=3
+                  - generic [ref=e72]: assignment
+                  - generic [ref=e73]:
+                    - paragraph [ref=e74]: Tugas
+                    - paragraph [ref=e75]: Tugas Terkunci
+                - link "article Materi Modul 2" [ref=e76] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/courses/1/materials/2
+                  - generic [ref=e79]: article
+                  - generic [ref=e80]:
+                    - paragraph [ref=e81]: Materi
+                    - paragraph [ref=e82]: Modul 2
+                - link "assignment Tugas Tugas PDF" [ref=e83] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=1
+                  - generic [ref=e86]: assignment
+                  - generic [ref=e87]:
+                    - paragraph [ref=e88]: Tugas
+                    - paragraph [ref=e89]: Tugas PDF
+                - link "assignment Tugas Quiz Cepat" [ref=e90] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=4
+                  - generic [ref=e93]: assignment
+                  - generic [ref=e94]:
+                    - paragraph [ref=e95]: Tugas
+                    - paragraph [ref=e96]: Quiz Cepat
+                - link "assignment Koding Exercise HTML" [ref=e97] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/exercises/5/solve
+                  - generic [ref=e100]: assignment
+                  - generic [ref=e101]:
+                    - paragraph [ref=e102]: Koding
+                    - paragraph [ref=e103]: Exercise HTML
+                - link "check_circle Tugas Tugas URL" [ref=e104] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=2
+                  - generic [ref=e107]: check_circle
+                  - generic [ref=e108]:
+                    - paragraph [ref=e109]: Tugas
+                    - paragraph [ref=e110]: Tugas URL
+                - link "assignment Tugas Tugas kelompok" [ref=e111] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=8
+                  - generic [ref=e114]: assignment
+                  - generic [ref=e115]:
+                    - paragraph [ref=e116]: Tugas
+                    - paragraph [ref=e117]: Tugas kelompok
+            - generic [ref=e118]:
+              - generic [ref=e119]:
+                - heading "Butuh Bantuan?" [level=4] [ref=e120]
+                - paragraph [ref=e121]: Hubungi dosen atau asisten praktikum jika anda menemui kendala dalam memahami materi ini.
+                - link "DISCUSSION FORUM" [ref=e122] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/dashboard
+              - generic [ref=e123]: help_center
+        - main [ref=e124]:
+          - generic [ref=e125]:
+            - generic [ref=e126]:
+              - navigation [ref=e127]:
+                - link "IF101" [ref=e129] [cursor=pointer]:
+                  - /url: http://localhost:8000/mahasiswa/courses/1
+                - generic [ref=e130]: chevron_right
+                - generic [ref=e131]: "Materi #1"
+              - heading "Modul 1" [level=1] [ref=e132]
+            - button "bookmark SIMPAN" [ref=e134] [cursor=pointer]:
+              - generic [ref=e135]: bookmark
+              - text: SIMPAN
+          - generic [ref=e136]:
+            - generic [ref=e138]:
+              - heading "Modul 1" [level=1] [ref=e139]
+              - paragraph [ref=e140]: Pengantar pemrograman dasar.
+            - generic [ref=e142]:
+              - generic [ref=e144]: FINISHED?
+              - link "NEXT MODULE Tugas Terkunci arrow_forward" [ref=e146] [cursor=pointer]:
+                - /url: http://localhost:8000/mahasiswa/submissions/create?assignment_id=3
+                - generic [ref=e147]:
+                  - paragraph [ref=e148]: NEXT MODULE
+                  - paragraph [ref=e149]: Tugas Terkunci
+                - generic [ref=e151]: arrow_forward

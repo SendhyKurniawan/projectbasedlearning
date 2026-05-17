@@ -1,5 +1,5 @@
 <x-app-layout>
-    @vite(['resources/js/markdown-editor.js'])
+    @vite(['resources/js/markdown-renderer.js'])
     
     @php
         $totalItems = count($learningPath);
@@ -163,8 +163,9 @@
                                             frameborder="0"></iframe>
                                 @elseif(Str::endsWith(strtolower($material->file_path), ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp']))
                                     <div class="flex justify-center items-center p-4" :class="{'h-full': fullscreen}">
-                                        <img src="{{ Storage::url($material->file_path) }}" 
-                                             class="max-w-full h-auto rounded-xl shadow-lg border border-white/10" 
+                                        <img src="{{ Storage::url($material->file_path) }}"
+                                             loading="lazy"
+                                             class="max-w-full h-auto rounded-xl shadow-lg border border-white/10"
                                              alt="{{ $material->title }}">
                                     </div>
                                 @endif

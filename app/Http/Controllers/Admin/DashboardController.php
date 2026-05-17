@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Course;
-use Illuminate\Http\Request;
+use App\Models\MaterialView;
+use App\Models\Submission;
+use App\Models\User;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -27,6 +29,34 @@ class DashboardController extends Controller
         $recent_users = User::select('id', 'name', 'email', 'role', 'created_at')->latest()->take(5)->get();
         $recent_courses = Course::with('dosen:id,name')->select('id', 'kode_matkul', 'nama_matkul', 'dosen_id', 'created_at')->withCount('students')->latest()->take(5)->get();
 
-        return view('admin.dashboard', compact('stats', 'recent_users', 'recent_courses'));
+        // ── 30-day activity series ────────────────────────────────────────────
+        $start = now()->subDays(29)->startOfDay();
+        $labels = collect(range(0, 29))->map(fn ($i) => $start->copy()->addDays($i)->format('Y-m-d'));
+
+        $subs = Submission::where('created_at', '>=', $start)
+            ->selectRaw('DATE(created_at) as d, COUNT(*) as c')->groupBy('d')->pluck('c', 'd');
+        $views = MaterialView::where('viewed_at', '>=', $start)
+            ->selectRaw('DATE(viewed_at) as d, COUNT(*) as c')->groupBy('d')->pluck('c', 'd');
+
+        $activitySeries = [
+            'labels' => $labels->map(fn ($d) => Carbon::parse($d)->format('d M'))->all(),
+            'submissions' => $labels->map(fn ($d) => (int) ($subs[$d] ?? 0))->all(),
+            'materials' => $labels->map(fn ($d) => (int) ($views[$d] ?? 0))->all(),
+        ];
+
+        // ── Role distribution (donut) ─────────────────────────────────────────
+        $roleDistribution = [
+            'labels' => ['Mahasiswa', 'Dosen', 'Admin'],
+            'values' => [
+                (int) $userCounts->get('mahasiswa', 0),
+                (int) $userCounts->get('dosen', 0),
+                (int) $userCounts->get('admin', 0),
+            ],
+        ];
+
+        return view('admin.dashboard', compact(
+            'stats', 'recent_users', 'recent_courses',
+            'activitySeries', 'roleDistribution'
+        ));
     }
 }
