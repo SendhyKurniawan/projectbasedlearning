@@ -169,6 +169,7 @@
  <a href="{{ route('discussions.index') }}" class="{{ request()->routeIs('discussions.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('discussions.*')) style="font-variation-settings: 'FILL' 1;" @endif>forum</span>
  <span class="text-sm font-body">Forum Diskusi</span>
+ 
  </a>
  <a href="{{ route('announcements.index') }}" class="{{ request()->routeIs('announcements.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('announcements.*')) style="font-variation-settings: 'FILL' 1;" @endif>campaign</span>

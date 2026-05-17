@@ -59,7 +59,7 @@
 | Kategori | Perangkat Lunak | Versi |
 |---|---|---|
 | Sistem Operasi (dev) | Windows 11 Pro / Linux / macOS | — |
-| Web Server (dev) | PHP Built-in Server via `php artisan serve` | — |
+| Web Server (dev/prod) | PHP Built-in Server (dev) / Nginx dengan Brotli (`fholzer/nginx-brotli:v1.25.3`) | — |
 | Bahasa Pemrograman | PHP | ≥ 8.2 |
 | Framework Backend | Laravel | 12.x |
 | Bahasa Frontend | JavaScript (ES2022) | — |
@@ -103,6 +103,7 @@
 | `marked` | ^17.0.1 | Parser Markdown → HTML di sisi klien |
 | `highlight.js` | ^11.11.1 | Syntax highlighting pada konten yang ter-render |
 | `axios` | ^1.11.0 | HTTP client (CSRF-aware) |
+| `chart.js` | ^4.4.0 | Charting library untuk grafik analitik di dashboard (admin, dosen, mahasiswa) |
 | `@playwright/test` | ^1.59.1 | E2E testing (suite WIP, branch `feat/playwright-qa-suite`) |
 | `concurrently` | — | Menjalankan banyak proses dev secara paralel |
 | `fast-glob` | ^3.3.0 | Resolusi entry point CSS per halaman |
@@ -113,7 +114,8 @@ Ringkasan dari `composer.json` dan `package.json`:
 
 | Perintah | Tujuan |
 |---|---|
-| `composer setup` | Setup awal: install deps, salin `.env`, generate key, migrate, install npm, build aset |
+| `composer setup` | Setup awal: install deps, salin `.env`, generate key, migrate, install npm, build aset, kemudian `composer optimize` |
+| `composer optimize` | Cache config + routes + views + events — wajib dijalankan setelah setiap deploy produksi |
 | `composer dev` | Jalankan 4 proses paralel: `php artisan serve`, `queue:listen`, `pail`, `vite` |
 | `composer test` | `config:clear` + `php artisan test` (Pest) |
 | `vendor/bin/pint` | Format kode PHP sesuai PSR-12 |
@@ -127,9 +129,25 @@ Ringkasan dari `composer.json` dan `package.json`:
 `.env.example` repo masih varian Laravel default — banyak variabel integrasi **tidak tercantum** dan harus ditambahkan manual saat deploy. Daftar lengkap di [Lampiran B](#lampiran-b--variabel-lingkungan). Ringkasan:
 
 - **Wajib bawaan Laravel**: `APP_NAME`, `APP_KEY`, `APP_URL`, `DB_*`, `MAIL_*`, `SESSION_*`
-- **Konferensi (Jitsi JaaS)**: `JITSI_DOMAIN`, `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH` (*tidak ada di `.env.example`*)
-- **Push notification**: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (*tidak ada di `.env.example`*)
-- **Eksekusi kode**: `PISTON_API_URL` (*tidak ada di `.env.example`*)
+- **Konferensi (Jitsi JaaS)**: `JITSI_DOMAIN`, `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`
+- **Push notification**: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`
+- **Eksekusi kode**: `PISTON_API_URL`
+
+#### 4.1.1.6 Konfigurasi Infrastruktur (Docker / Nginx)
+
+`docker-compose.yml` mendefinisikan stack produksi:
+
+| Service | Image | Peran |
+|---|---|---|
+| `app` | PHP-FPM 8.2 | Proses PHP Laravel |
+| `web` | `fholzer/nginx-brotli:v1.25.3` | Reverse proxy + serving aset statis |
+| `db` | MariaDB | Database produksi |
+
+**Fitur nginx** (`docker/nginx/conf.d/app.conf`):
+- **HTTP/2** aktif (`listen 80 http2`)
+- **Brotli compression** (diutamakan dari gzip) — `brotli on`, level 5, `brotli_static on` untuk file pra-kompres
+- **Gzip fallback** untuk klien yang tidak mendukung Brotli
+- `server_tokens off` — sembunyikan versi nginx
 
 ---
 
@@ -193,6 +211,17 @@ graph TB
     SW -. push event .-> PUSH
     PUSH -. notify .-> SW
 ```
+
+#### 4.1.2.2.1 Optimasi Performa & Caching
+
+Beberapa lapisan menerapkan cache untuk mengurangi query berulang:
+
+| Lokasi | Strategi | TTL / Invalidasi |
+|---|---|---|
+| `SidebarComposer` | `Cache::remember("sidebar:dosen:{id}", 300, ...)` — daftar course dosen di sidebar | 5 menit; otomatis di-flush saat `Course` di-create/update/delete |
+| `Course::booted()` | `Cache::forget("sidebar:dosen:{dosen_id}")` di event `created`, `updated`, `deleted` | Per event |
+| `Discussion::booted()` | `Cache::forget('discussions:index:sidebar')` di event `created`, `updated`, `deleted` | Per event |
+| `Course::siblings()` | Hasil disimpan di properti instance (`$cachedSiblings`) — memoized selama satu request | Request lifecycle |
 
 #### 4.1.2.3 Pembagian Tanggung Jawab Lapisan
 
@@ -696,7 +725,7 @@ Akses: pengguna dengan `role = admin` (URL prefix `/admin`, middleware `auth` + 
 **Fitur:**
 
 - **Autentikasi**: halaman login khusus admin (`/admin/login`) — terpisah dari login bersama.
-- **Dashboard**: ringkasan statistik (jumlah user per role, jumlah course, dst.).
+- **Dashboard**: ringkasan statistik (jumlah user per role, jumlah course, dst.) beserta dua grafik Chart.js — (1) line chart aktivitas 30 hari terakhir (submissions + material views per hari), (2) donut chart distribusi peran pengguna.
 - **Manajemen Pengguna** (`UserController`):
   - CRUD pengguna (admin/dosen/mahasiswa)
   - Bulk delete (`POST /users/bulk-destroy`)
@@ -731,7 +760,7 @@ Akses: pengguna dengan `role = dosen` (URL prefix `/dosen`, middleware `auth` + 
 
 **Fitur:**
 
-- **Dashboard**: course yang diajar, jumlah mahasiswa, deadline tugas.
+- **Dashboard**: course yang diajar, jumlah mahasiswa, deadline tugas, ditambah bar chart Chart.js submission 7 hari terakhir per kelas, dan penghitung "pengumpulan menunggu review" (`submissions` dengan `score = null`).
 - **Materi** (`MaterialController`): CRUD materi per course + reorder drag-and-drop (`POST /courses/{course}/materials/reorder`). Editor Markdown menggunakan EasyMDE.
 - **Tugas / Quiz / Exercise** (`AssignmentController` — kontroler tunggal lintas tiga tipe):
   - CRUD assignment dengan kolom `type` (`tugas`/`quiz`/`exercise`) menentukan format
@@ -742,7 +771,10 @@ Akses: pengguna dengan `role = dosen` (URL prefix `/dosen`, middleware `auth` + 
   - Lihat detail percobaan quiz (`GET /assignments/{assignment}/submissions/{submission}`)
 - **Exercise (Coding)** (`ExerciseController` — terpisah dari `AssignmentController` karena form & validasi berbeda): create/store/edit/update assignment bertipe `exercise` dengan editor CodeMirror dan konfigurasi `exercise_config`.
 - **Konferensi Virtual** (`ConferenceController`): CRUD jadwal + start (`POST /conferences/{conference}/start`) + end (`POST /conferences/{conference}/end`) + room view (`GET /conferences/{conference}/room`).
-- **Nilai** (`GradeController`): rekap nilai mahasiswa di course-course yang diajar.
+- **Nilai** (`GradeController`):
+  - `index`: rekap nilai per course — filter bertingkat: tahun ajaran, semester, jurusan, program studi, kelas. Hasil dikelompokkan per `course_group_key` (sibling kelas). Filter options (department, study_program, student_class) kini disediakan ke view.
+  - `export` (`GET /grades/{course}/export`): unduh rekap nilai kelas sebagai CSV (kolom: NIM, nama, skor per assignment, rata-rata).
+  - `quickGrade` (`PATCH /grades/{assignment}/{mahasiswa}/quick-grade`): endpoint JSON untuk inline grade editing di tabel nilai — `updateOrCreate` submission, kembalikan `{ok, score, status}`.
 
 **Diagram alur — Pembuatan Tugas dan Pengumpulan oleh Mahasiswa:**
 
@@ -804,7 +836,7 @@ Akses: pengguna dengan `role = mahasiswa` (URL prefix `/mahasiswa`, middleware `
 
 **Fitur:**
 
-- **Dashboard**: course yang diikuti, deadline tugas mendatang, pengumuman terbaru.
+- **Dashboard**: course yang diikuti, deadline tugas mendatang, pengumuman terbaru, ditambah dua grafik Chart.js — (1) line chart aktivitas submission pribadi 30 hari terakhir, (2) histogram distribusi skor (bucket: 0–50, 51–70, 71–85, 86–100).
 - **Course** (`CourseController`):
   - Daftar course (`/mahasiswa/courses`)
   - Detail course (`GET /courses/{course}`)
@@ -931,11 +963,13 @@ Hanya satu komponen Livewire di seluruh aplikasi:
 
 #### 4.1.5.4 Editor Khusus
 
-| Editor | Library | Pemakaian |
-|---|---|---|
-| Markdown editor | EasyMDE | Pembuatan materi oleh dosen (`materials/create`, `materials/edit`) |
-| Code editor | CodeMirror 5 | Pembuatan exercise oleh dosen, dan pengerjaan exercise oleh mahasiswa |
-| Markdown render | `marked` + `highlight.js` | Render konten materi dan deskripsi tugas di sisi klien |
+| Editor / Modul | Library | File Entry | Pemakaian |
+|---|---|---|---|
+| Markdown editor | EasyMDE | `markdown-editor.js` | Pembuatan materi oleh dosen (`materials/create`, `materials/edit`) |
+| Code editor | CodeMirror 5 | `code-editor.js` | Pembuatan exercise oleh dosen, dan pengerjaan exercise oleh mahasiswa |
+| Markdown render | `marked` + `highlight.js` | `markdown-renderer.js` | Render konten materi dan deskripsi tugas di sisi klien |
+| Grafik analitik | Chart.js 4 | `charts.js` | Dashboard admin (aktivitas 30 hari, donut role), dosen (bar submission 7 hari), mahasiswa (aktivitas + histogram skor) |
+| Konferensi | Jitsi JaaS External API | `conference-jitsi.js` | Embed iframe Jitsi; SDK dimuat secara dinamis (non-blocking) |
 
 Mode CodeMirror yang aktif: HTML, CSS, JavaScript, Java, PHP, C#. Bahasa client-side (HTML/CSS/JS) dieksekusi di iframe sandbox; bahasa server-side (Java/PHP/C#) dikirim ke endpoint `/execute-code` yang mem-proxy ke Piston API.
 
@@ -1000,7 +1034,8 @@ Direktori utama di `resources/views/`:
 
 **Implementasi**:
 - Generator JWT: `app/Http/Controllers/{Dosen,Mahasiswa}/ConferenceController.php` (method `room()` atau helper privat)
-- View embed: `resources/views/{dosen,mahasiswa}/conferences/room.blade.php` — load `https://{JITSI_DOMAIN}/{JITSI_APP_ID}/external_api.js` dan inisialisasi `JitsiMeetExternalAPI`
+- View embed: `resources/views/{dosen,mahasiswa}/conferences/room.blade.php` — memanggil `resources/js/conference-jitsi.js`
+- SDK Jitsi (`external_api.js`) kini dimuat **secara dinamis dan non-blocking** (inject `<script>` ke `<head>` pada saat mount) — room shell di-render terlebih dahulu tanpa menunggu SDK
 
 **Diagram sekuens**: lihat 4.1.4.2.
 
@@ -1264,6 +1299,14 @@ Tabel skenario di bawah menggunakan format:
 | TC-EX-05 | Throttle `/execute-code` | Request ke-11 dalam 1 menit ditolak HTTP 429 | | |
 | TC-EX-06 | Mahasiswa submit exercise | `code_answer` dan `validation_result` tersimpan | | |
 
+#### 4.2.2.7b Modul Nilai — Export & Quick-Grade
+
+| ID | Skenario | Hasil yang Diharapkan | Hasil Aktual | Status |
+|---|---|---|---|---|
+| TC-NILAI-01 | Dosen export CSV satu kelas | File CSV terunduh; baris = mahasiswa enrolled; kolom = assignment + rata-rata | | |
+| TC-NILAI-02 | Quick-grade via PATCH | Respons JSON `{ok:true, score, status}`; `submissions` ter-update atau ter-create | | |
+| TC-NILAI-03 | Filter nilai per jurusan/prodi/kelas | Hanya course yang cocok dengan filter yang tampil | | |
+
 #### 4.2.2.8 Modul Konferensi Virtual
 
 | ID | Skenario | Hasil yang Diharapkan | Hasil Aktual | Status |
@@ -1379,7 +1422,8 @@ Tabel skenario di bawah menggunakan format:
 | Konferensi | 7 | | | |
 | Diskusi & Pengumuman | 6 | | | |
 | Notifikasi & Push | 6 | | | |
-| **TOTAL** | **73** | | | |
+| Nilai (Export & Quick-Grade) | 3 | | | |
+| **TOTAL** | **76** | | | |
 
 #### 4.2.4.2 Hasil Pengujian Otomatis
 
@@ -1486,6 +1530,8 @@ Setiap resource menyediakan `index`, `create`, `store`, `edit`, `update`, `destr
 |---|---|---|---|
 | GET | `/dosen/dashboard` | `Dosen\DashboardController@index` | `dosen.dashboard` |
 | GET | `/dosen/grades` | `Dosen\GradeController@index` | `dosen.grades.index` |
+| GET | `/dosen/grades/{course}/export` | `Dosen\GradeController@export` | `dosen.grades.export` |
+| PATCH | `/dosen/grades/{assignment}/{mahasiswa}/quick-grade` | `Dosen\GradeController@quickGrade` | `dosen.grades.quickGrade` |
 
 #### Bare-URL Fallbacks
 
@@ -1709,7 +1755,7 @@ Daftar lengkap variabel `.env` yang dibaca aplikasi. Catatan: variabel yang **ti
 | `MAIL_FROM_ADDRESS` | mis. `noreply@pjbl.test` |
 | `MAIL_FROM_NAME` | `${APP_NAME}` |
 
-### B.5 Konferensi (Jitsi JaaS)  *(*)*
+### B.5 Konferensi (Jitsi JaaS)
 
 | Variabel | Keterangan |
 |---|---|
@@ -1718,7 +1764,7 @@ Daftar lengkap variabel `.env` yang dibaca aplikasi. Catatan: variabel yang **ti
 | `JITSI_KID` | mis. `vpaas-magic-cookie-.../xxxxxx` |
 | `JITSI_PRIVATE_KEY_PATH` | path relatif, default `storage/app/private/jaas-private-key.pk`. File harus disediakan manual. |
 
-### B.6 Web Push (VAPID)  *(*)*
+### B.6 Web Push (VAPID)
 
 | Variabel | Keterangan |
 |---|---|
@@ -1726,7 +1772,7 @@ Daftar lengkap variabel `.env` yang dibaca aplikasi. Catatan: variabel yang **ti
 | `VAPID_PRIVATE_KEY` | Private key untuk sign push |
 | `VAPID_SUBJECT` | (opsional) `mailto:admin@pjbl.test` |
 
-### B.7 Eksekusi Kode (Piston)  *(*)*
+### B.7 Eksekusi Kode (Piston)
 
 | Variabel | Keterangan |
 |---|---|

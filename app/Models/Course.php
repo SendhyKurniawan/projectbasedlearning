@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * @property int $id
@@ -35,6 +36,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Course extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        $flush = fn (self $course) => Cache::forget("sidebar:dosen:{$course->dosen_id}");
+        static::created($flush);
+        static::updated($flush);
+        static::deleted($flush);
+    }
 
     protected $fillable = [
         'nama_matkul',
@@ -87,13 +96,16 @@ class Course extends Model
         return $this->hasMany(\App\Models\Conference::class);
     }
 
+    protected ?\Illuminate\Support\Collection $cachedSiblings = null;
+
     /**
      * Other courses taught by the same dosen, same matkul code, same semester.
      * Used to populate kelas-target selectors and copy actions.
+     * Result is memoized per instance so repeated calls within one request are free.
      */
-    public function siblings()
+    public function siblings(): \Illuminate\Support\Collection
     {
-        return static::where('dosen_id', $this->dosen_id)
+        return $this->cachedSiblings ??= static::where('dosen_id', $this->dosen_id)
             ->where('kode_matkul', $this->kode_matkul)
             ->where('semester_id', $this->semester_id)
             ->where('id', '!=', $this->id)

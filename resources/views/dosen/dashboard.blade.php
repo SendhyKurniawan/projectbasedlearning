@@ -27,7 +27,7 @@
                 ['Kelas Diampu', $stats['total_courses'], 'Semester ini', 'auto_stories', 'primary'],
                 ['Total Mahasiswa', $stats['total_students'], 'Seluruh kelas', 'groups', 'secondary'],
                 ['Total Tugas', $stats['total_assignments'], 'Aktif & lampau', 'assignment', 'tertiary'],
-                ['Belum Dinilai', '—', 'Antrian review', 'rate_review', 'primary'],
+                ['Belum Dinilai', $pendingReview, 'Antrian review', 'rate_review', 'primary'],
             ] as [$label, $value, $hint, $icon, $accent])
                 <div class="bg-surface-container-lowest p-5 rounded-2xl relative overflow-hidden border border-outline-variant/10">
                     <div class="absolute top-0 left-0 w-1 h-full bg-{{ $accent }}"></div>
@@ -97,9 +97,7 @@
 
                 <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
                     <h2 class="font-headline text-lg font-bold mb-4">Aktivitas Submission Mingguan</h2>
-                    <div class="h-44 rounded-xl bg-surface-container-low/40 border border-dashed border-outline-variant/20 flex items-center justify-center text-xs text-on-surface-variant uppercase tracking-widest">
-                        Grafik submission per hari
-                    </div>
+                <div class="relative h-44 w-full"><canvas id="dosenSubmissionChart"></canvas></div>
                 </section>
             </div>
 
@@ -142,4 +140,37 @@
             </aside>
         </div>
     </div>
+
+    @push('scripts')
+    @vite('resources/js/charts.js')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const C = window.PJBLChart;
+    const { primary } = window.PJBLChartColors;
+
+    // ── Weekly submission bar chart ────────────────────────────────────────
+    const subData = @json($submissionSeries);
+    new C(document.getElementById('dosenSubmissionChart'), {
+        type: 'bar',
+        data: {
+            labels: subData.labels,
+            datasets: [{
+                label: 'Submission',
+                data: subData.values,
+                backgroundColor: primary + 'cc',
+                borderColor: primary,
+                borderWidth: 1,
+                borderRadius: 6,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+});
+</script>
+    @endpush
 </x-app-layout>

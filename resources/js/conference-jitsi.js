@@ -1,5 +1,6 @@
 // Jitsi (JaaS) embed client.
 // Driven by window.JITSI_* globals injected by room blade views.
+// The SDK is loaded dynamically (non-blocking) so the room shell renders immediately.
 
 const REQUIRED = ['JITSI_DOMAIN', 'JITSI_APP_ID', 'JITSI_ROOM_NAME', 'JITSI_JWT', 'JITSI_RETURN_URL'];
 
@@ -20,16 +21,26 @@ function ensureGlobals() {
         fail(`Konfigurasi hilang: ${missing.join(', ')}`);
         return false;
     }
-    if (typeof window.JitsiMeetExternalAPI !== 'function') {
-        fail('Library JaaS gagal dimuat. Periksa koneksi internet atau JITSI_DOMAIN/JITSI_APP_ID.');
-        return false;
-    }
     return true;
 }
 
-function init() {
-    if (!ensureGlobals()) return;
+function loadSdk() {
+    return new Promise((resolve, reject) => {
+        if (typeof window.JitsiMeetExternalAPI === 'function') {
+            resolve();
+            return;
+        }
+        const src = `https://${window.JITSI_DOMAIN}/${window.JITSI_APP_ID}/external_api.js`;
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = true;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load Jitsi SDK from ${src}`));
+        document.head.appendChild(script);
+    });
+}
 
+function init() {
     const mount = document.getElementById('jitsi-mount');
     if (!mount) {
         fail('Element #jitsi-mount tidak ditemukan.');
@@ -108,8 +119,19 @@ function init() {
     window.__jitsiApi = api;
 }
 
+async function bootstrap() {
+    if (!ensureGlobals()) return;
+    try {
+        await loadSdk();
+        init();
+    } catch (err) {
+        fail('Library JaaS gagal dimuat. Periksa koneksi internet atau JITSI_DOMAIN/JITSI_APP_ID.');
+        console.error('[jitsi]', err);
+    }
+}
+
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', bootstrap);
 } else {
-    init();
+    bootstrap();
 }

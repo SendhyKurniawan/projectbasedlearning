@@ -119,6 +119,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
     Route::get('/dashboard', [Dosen\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/grades', [Dosen\GradeController::class, 'index'])->name('grades.index');
+    Route::get('/grades/{course}/export', [Dosen\GradeController::class, 'export'])->name('grades.export');
+    Route::patch('/grades/{assignment}/{mahasiswa}/quick-grade', [Dosen\GradeController::class, 'quickGrade'])->name('grades.quickGrade');
 
     // Bare-URL fallbacks: redirect to first course or show "contact admin" page
     $sectionFallback = function (string $routeName, string $section) {

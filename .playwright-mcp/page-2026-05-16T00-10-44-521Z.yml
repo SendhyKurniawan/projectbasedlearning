@@ -1,0 +1,184 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - link "school PBL Workspace Project-Based Learning" [ref=e5] [cursor=pointer]:
+      - /url: http://localhost:8000/dosen/dashboard
+      - generic [ref=e7]: school
+      - generic [ref=e8]:
+        - heading "PBL Workspace" [level=1] [ref=e9]
+        - paragraph [ref=e10]: Project-Based Learning
+    - navigation [ref=e11]:
+      - link "dashboard Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: http://localhost:8000/dosen/dashboard
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Dashboard
+      - generic [ref=e15]: Manajemen
+      - link "grade Manajemen Nilai" [ref=e16] [cursor=pointer]:
+        - /url: http://localhost:8000/dosen/grades
+        - generic [ref=e17]: grade
+        - generic [ref=e18]: Manajemen Nilai
+      - generic [ref=e19]: Materi & Tugas
+      - generic [ref=e21]:
+        - button "book Pemrograman Dasar 2K expand_more" [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: book
+          - generic [ref=e24]: Pemrograman Dasar
+          - generic [ref=e25]: 2K
+          - generic [ref=e26]: expand_more
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: TI-1B
+            - link "description Kelola Materi" [ref=e30] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/3/materials
+              - generic [ref=e31]: description
+              - generic [ref=e32]: Kelola Materi
+            - link "assignment Kelola Tugas" [ref=e33] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/3/assignments
+              - generic [ref=e34]: assignment
+              - generic [ref=e35]: Kelola Tugas
+            - link "videocam Kelas Virtual" [ref=e36] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/3/conferences
+              - generic [ref=e37]: videocam
+              - generic [ref=e38]: Kelas Virtual
+          - generic [ref=e39]:
+            - generic [ref=e40]: TI-1A
+            - link "description Kelola Materi" [ref=e41] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/1/materials
+              - generic [ref=e42]: description
+              - generic [ref=e43]: Kelola Materi
+            - link "assignment Kelola Tugas" [ref=e44] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/1/assignments
+              - generic [ref=e45]: assignment
+              - generic [ref=e46]: Kelola Tugas
+            - link "videocam Kelas Virtual" [ref=e47] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/1/conferences
+              - generic [ref=e48]: videocam
+              - generic [ref=e49]: Kelas Virtual
+      - generic [ref=e50]: Community
+      - link "forum Forum Diskusi" [ref=e51] [cursor=pointer]:
+        - /url: http://localhost:8000/discussions
+        - generic [ref=e52]: forum
+        - generic [ref=e53]: Forum Diskusi
+      - link "campaign Pengumuman" [ref=e54] [cursor=pointer]:
+        - /url: http://localhost:8000/announcements
+        - generic [ref=e55]: campaign
+        - generic [ref=e56]: Pengumuman
+    - generic [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]: DO
+        - generic [ref=e60]:
+          - paragraph [ref=e61]: Dosen Dusk
+          - paragraph [ref=e62]: Dosen
+      - generic [ref=e63]:
+        - link "person Profile" [ref=e64] [cursor=pointer]:
+          - /url: http://localhost:8000/profile
+          - generic [ref=e65]: person
+          - generic [ref=e66]: Profile
+        - button "logout Logout" [ref=e68] [cursor=pointer]:
+          - generic [ref=e69]: logout
+          - generic [ref=e70]: Logout
+  - generic [ref=e71]:
+    - button "notifications 4" [ref=e74] [cursor=pointer]:
+      - generic [ref=e75]: notifications
+      - generic [ref=e76]: "4"
+    - main [ref=e77]:
+      - generic [ref=e78]:
+        - generic [ref=e80]:
+          - navigation [ref=e81]:
+            - link "Overview" [ref=e83] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/dashboard
+            - generic [ref=e84]: chevron_right
+            - link "Materials" [ref=e86] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/1/materials
+            - generic [ref=e87]: chevron_right
+            - generic [ref=e88]: Baru
+          - heading "Tambah Materi Baru" [level=1] [ref=e89]
+          - paragraph [ref=e90]: Pemrograman Dasar (IF101)
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - generic [ref=e97]: title
+              - text: Judul Materi
+              - generic [ref=e98]: "*"
+            - textbox "title Judul Materi *" [ref=e99]:
+              - /placeholder: "Contoh: Pertemuan 1 - Pengenalan Web"
+          - generic [ref=e100]:
+            - generic [ref=e101]:
+              - generic [ref=e102]: subject
+              - text: Konten Materi (Markdown)
+            - application [ref=e104]:
+              - toolbar [ref=e105]:
+                - button "Bold" [ref=e106] [cursor=pointer]:
+                  - generic [ref=e107]: 
+                - button "Italic" [ref=e108] [cursor=pointer]:
+                  - generic [ref=e109]: 
+                - button "Heading" [ref=e110] [cursor=pointer]:
+                  - generic [ref=e111]: 
+                - generic [ref=e112]: "|"
+                - button "Code" [ref=e113] [cursor=pointer]:
+                  - generic [ref=e114]: 
+                - button "Quote" [ref=e115] [cursor=pointer]:
+                  - generic [ref=e116]: 
+                - button "Generic List" [ref=e117] [cursor=pointer]:
+                  - generic [ref=e118]: 
+                - button "Numbered List" [ref=e119] [cursor=pointer]:
+                  - generic [ref=e120]: 
+                - generic [ref=e121]: "|"
+                - button "Create Link" [ref=e122] [cursor=pointer]:
+                  - generic [ref=e123]: 
+                - button "Insert Image" [ref=e124] [cursor=pointer]:
+                  - generic [ref=e125]: 
+                - generic [ref=e126]: "|"
+                - button "Toggle Preview" [ref=e127] [cursor=pointer]:
+                  - generic [ref=e128]: 
+                - button "Toggle Side by Side" [ref=e129] [cursor=pointer]:
+                  - generic [ref=e130]: 
+                - button "Toggle Fullscreen" [ref=e131] [cursor=pointer]:
+                  - generic [ref=e132]: 
+                - generic [ref=e133]: "|"
+                - button "Markdown Guide" [ref=e134] [cursor=pointer]:
+                  - generic [ref=e135]: 
+              - generic [ref=e136]:
+                - textbox [ref=e137]
+                - generic [ref=e140]:
+                  - generic: "Tulis materi dengan Markdown... Contoh code block: ```html <h1>Hello World</h1> ``` Contoh bold: **text tebal** Contoh italic: *text miring*"
+              - generic [ref=e142]:
+                - generic [ref=e143]: "lines: 1"
+                - generic [ref=e144]: "words: 0"
+                - generic [ref=e145]: 1:1
+            - generic [ref=e146]:
+              - generic [ref=e147]: tips_and_updates
+              - generic [ref=e148]:
+                - strong [ref=e149]: "Tips Markdown Cepat:"
+                - generic [ref=e150]:
+                  - code [ref=e152]: "# Judul"
+                  - code [ref=e154]: "**tebal**"
+                  - code [ref=e156]: "[tautan](url)"
+                  - code [ref=e158]: "- Butir list"
+                  - code [ref=e160]: "`kode`"
+                  - code [ref=e162]: "![Gambar](url)"
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - generic [ref=e165]: attach_file
+              - text: Lampiran File
+              - generic [ref=e166]: (Opsional)
+            - generic [ref=e168] [cursor=pointer]:
+              - generic [ref=e169]:
+                - generic [ref=e171]: upload_file
+                - generic [ref=e172]:
+                  - generic [ref=e173]: Pilih file untuk diunggah...
+                  - generic [ref=e174]: PDF, DOCX, ZIP (Max 20MB)
+              - generic [ref=e175]: Browse
+          - generic [ref=e176]:
+            - generic [ref=e177]:
+              - generic [ref=e178]: library_add
+              - generic [ref=e179]: Salin ke Kelas Lain
+              - generic [ref=e180]: (opsional)
+            - paragraph [ref=e181]: Konten ini akan otomatis dibuat untuk kelas yang dipilih.
+            - generic [ref=e183] [cursor=pointer]:
+              - checkbox "TI-1B" [ref=e184]
+              - generic [ref=e185]: TI-1B
+          - generic [ref=e186]:
+            - link "Batal" [ref=e187] [cursor=pointer]:
+              - /url: http://localhost:8000/dosen/courses/1/materials
+            - button "save Simpan Materi" [ref=e188] [cursor=pointer]:
+              - generic [ref=e189]: save
+              - text: Simpan Materi

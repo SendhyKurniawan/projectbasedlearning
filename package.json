@@ -25,6 +25,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "chart.js": "^4.4.0",
         "codemirror": "^5.65.20",
         "easymde": "^2.20.0",
         "highlight.js": "^11.11.1",

@@ -13,8 +13,11 @@
     </script>
     <title>{{ $conference->title }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" onload="this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" onload="this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"></noscript>
     <style>
         html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         #room-wrapper { display: flex; flex-direction: column; height: 100vh; }
@@ -57,7 +60,6 @@
     window.JITSI_END_URL      = @json(route('dosen.conferences.end', $conference));
     window.JITSI_CSRF         = @json(csrf_token());
 </script>
-<script src="https://{{ config('services.jitsi.domain') }}/{{ config('services.jitsi.app_id') }}/external_api.js"></script>
 @vite('resources/js/conference-jitsi.js')
 
 </body>

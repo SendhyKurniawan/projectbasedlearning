@@ -12,204 +12,201 @@
             <div class="flex items-center gap-2">
                 <div class="bg-surface-container-lowest border border-outline-variant/20 px-4 py-2 rounded-xl text-center">
                     <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-0.5">Total Matkul</span>
-                    <span class="font-headline text-lg font-extrabold text-primary leading-none">{{ $courses->total() }}</span>
+                    <span class="font-headline text-lg font-extrabold text-primary leading-none">{{ $courseGroups->count() }}</span>
                 </div>
             </div>
         </div>
 
         <div class="bg-surface-container-lowest overflow-hidden shadow-sm border border-outline-variant/30 rounded-2xl relative">
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
-            
+
             <!-- Filter Section -->
             <div class="p-6 border-b border-outline-variant/20 bg-surface-container-lowest">
-                <form method="GET" action="{{ route('dosen.grades.index') }}" class="flex flex-col md:flex-row md:items-end gap-5">
-                    <div class="w-full md:w-64">
-                        <label for="search" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Pencarian Mahasiswa</label>
-                        <div class="relative focus-within:text-primary text-on-surface-variant">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="material-symbols-outlined text-[18px]">search</span>
+                <form method="GET" action="{{ route('dosen.grades.index') }}" class="space-y-4">
+                    {{-- Row 1: search + academic year + semester --}}
+                    <div class="flex flex-col md:flex-row md:items-end gap-4">
+                        <div class="w-full md:w-56">
+                            <label for="search" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Pencarian Mahasiswa</label>
+                            <div class="relative focus-within:text-primary text-on-surface-variant">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-[18px]">search</span>
+                                </div>
+                                <input type="text" name="search" id="search" value="{{ $search }}" placeholder="Ketik nama / NIM..."
+                                    class="block w-full rounded-xl border border-outline-variant/30 bg-surface pl-10 pr-3 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow placeholder:text-on-surface-variant/50">
                             </div>
-                            <input type="text" name="search" id="search" value="{{ request('search') }}" placeholder="Ketik nama / NIM..." 
-                                class="block w-full rounded-xl border border-outline-variant/30 bg-surface pl-10 pr-3 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow placeholder:text-on-surface-variant/50">
                         </div>
-                    </div>
-                    
-                    <div class="w-full md:flex-1">
-                        <label for="academic_year_id" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Tahun Akademik</label>
-                        <div class="relative focus-within:text-primary text-on-surface-variant">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+
+                        <div class="w-full md:flex-1">
+                            <label for="academic_year_id" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Tahun Akademik</label>
+                            <div class="relative focus-within:text-primary text-on-surface-variant">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                                </div>
+                                <select name="academic_year_id" id="academic_year_id"
+                                    class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    <option value="">Semua Tahun</option>
+                                    @foreach($availableYears as $year)
+                                        <option value="{{ $year->id }}" {{ $academicYearId == $year->id ? 'selected' : '' }}>
+                                            {{ $year->year_start }}/{{ $year->year_end }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <select name="academic_year_id" id="academic_year_id" 
-                                class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
-                                <option value="">Semua Tahun</option>
-                                @foreach($availableYears as $year)
-                                    <option value="{{ $year->id }}" {{ request('academic_year_id') == $year->id ? 'selected' : '' }}>
-                                        {{ $year->year_start }}/{{ $year->year_end }}
-                                    </option>
-                                @endforeach
-                            </select>
                         </div>
-                    </div>
-                    
-                    <div class="w-full md:flex-1">
-                        <label for="semester_id" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Semester</label>
-                        <div class="relative focus-within:text-primary text-on-surface-variant">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="material-symbols-outlined text-[18px]">view_timeline</span>
+
+                        <div class="w-full md:flex-1">
+                            <label for="semester_id" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Semester</label>
+                            <div class="relative focus-within:text-primary text-on-surface-variant">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-[18px]">view_timeline</span>
+                                </div>
+                                <select name="semester_id" id="semester_id"
+                                    class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    <option value="">Semua Semester</option>
+                                    @foreach($availableSemesters as $sem)
+                                        <option value="{{ $sem->id }}" {{ $semesterId == $sem->id ? 'selected' : '' }} data-year="{{ $sem->academic_year_id }}">
+                                            {{ $sem->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
-                            <select name="semester_id" id="semester_id" 
-                                class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
-                                <option value="">Semua Semester</option>
-                                @foreach($availableSemesters as $sem)
-                                    <option value="{{ $sem->id }}" {{ request('semester_id') == $sem->id ? 'selected' : '' }} data-year="{{ $sem->academic_year_id }}">
-                                        {{ $sem->name }}
-                                    </option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-3 mt-4 md:mt-0">
-                        <a href="{{ route('dosen.grades.index') }}" class="flex items-center justify-center gap-2 h-[42px] px-5 border border-outline-variant/30 bg-surface rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors shadow-sm w-full md:w-auto">
-                            <span class="material-symbols-outlined text-[18px]">restart_alt</span> Reset
-                        </a>
-                        <button type="submit" class="flex items-center justify-center gap-2 h-[42px] px-6 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md font-bold transition-all w-full md:w-auto hover:-translate-y-0.5 active:translate-y-0">
-                            <span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
-                        </button>
+                    {{-- Row 2: department → study program → kelas + action buttons --}}
+                    <div class="flex flex-col md:flex-row md:items-end gap-4">
+                        <div class="w-full md:flex-1">
+                            <label for="department_id" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Departemen</label>
+                            <div class="relative focus-within:text-primary text-on-surface-variant">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-[18px]">corporate_fare</span>
+                                </div>
+                                <select name="department_id" id="department_id"
+                                    class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    <option value="">Semua Departemen</option>
+                                    @foreach($availableDepartments as $dept)
+                                        <option value="{{ $dept->id }}" {{ $departmentId == $dept->id ? 'selected' : '' }}>
+                                            {{ $dept->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="w-full md:flex-1">
+                            <label for="study_program_id" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Program Studi</label>
+                            <div class="relative focus-within:text-primary text-on-surface-variant">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-[18px]">school</span>
+                                </div>
+                                <select name="study_program_id" id="study_program_id"
+                                    class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    <option value="">Semua Prodi</option>
+                                    @foreach($availablePrograms as $prog)
+                                        <option value="{{ $prog->id }}"
+                                                data-department="{{ $prog->department_id }}"
+                                                {{ $studyProgramId == $prog->id ? 'selected' : '' }}>
+                                            {{ $prog->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="w-full md:flex-1">
+                            <label for="student_class_id" class="block text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Kelas</label>
+                            <div class="relative focus-within:text-primary text-on-surface-variant">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="material-symbols-outlined text-[18px]">meeting_room</span>
+                                </div>
+                                <select name="student_class_id" id="student_class_id"
+                                    class="w-full bg-surface border border-outline-variant/30 rounded-xl pl-10 pr-10 py-2.5 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary appearance-none cursor-pointer shadow-sm">
+                                    <option value="">Semua Kelas</option>
+                                    @foreach($availableClasses as $kelas)
+                                        <option value="{{ $kelas->id }}"
+                                                data-program="{{ $kelas->study_program_id }}"
+                                                {{ $studentClassId == $kelas->id ? 'selected' : '' }}>
+                                            {{ $kelas->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 mt-4 md:mt-0 shrink-0">
+                            <a href="{{ route('dosen.grades.index') }}" class="flex items-center justify-center gap-2 h-[42px] px-5 border border-outline-variant/30 bg-surface rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors shadow-sm w-full md:w-auto">
+                                <span class="material-symbols-outlined text-[18px]">restart_alt</span> Reset
+                            </a>
+                            <button type="submit" class="flex items-center justify-center gap-2 h-[42px] px-6 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-md font-bold transition-all w-full md:w-auto hover:-translate-y-0.5 active:translate-y-0">
+                                <span class="material-symbols-outlined text-[18px]">filter_list</span> Filter
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
 
             <div class="p-6 md:p-8 bg-surface-container-lowest">
                 <div class="space-y-10">
-                    @forelse($courses as $course)
+                    @forelse($courseGroups as $group)
                         <div class="border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm bg-surface-container-lowest">
-                            <!-- Course Header -->
+                            <!-- Group Header -->
                             <div class="w-full flex justify-between items-center px-6 py-4 bg-surface-container-low/30 border-b border-outline-variant/20">
                                 <div class="flex items-center gap-4">
                                     <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shrink-0">
                                         <span class="material-symbols-outlined">library_books</span>
                                     </div>
                                     <div>
-                                        <h3 class="font-extrabold text-lg font-headline text-on-surface leading-tight">{{ $course->nama_matkul }}</h3>
+                                        <h3 class="font-extrabold text-lg font-headline text-on-surface leading-tight">{{ $group['nama_matkul'] }}</h3>
                                         <div class="flex items-center gap-2 mt-1">
-                                            <span class="text-xs font-bold font-mono text-on-surface-variant bg-surface-container px-2 py-0.5 rounded uppercase">{{ $course->kode_matkul }}</span>
-                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest bg-primary-container text-on-primary border border-primary/20">
-                                                {{ $course->semester->name ?? 'Semua Semester' }} ({{ $course->semester->academicYear->year_start ?? '' }}/{{ $course->semester->academicYear->year_end ?? '' }})
-                                            </span>
+                                            <span class="text-xs font-bold font-mono text-on-surface-variant bg-surface-container px-2 py-0.5 rounded uppercase">{{ $group['kode_matkul'] }}</span>
+                                            @if($group['semester'])
+                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest bg-primary-container text-on-primary border border-primary/20">
+                                                    {{ $group['semester']->name }} ({{ $group['semester']->academicYear?->year_start ?? '' }}/{{ $group['semester']->academicYear?->year_end ?? '' }})
+                                                </span>
+                                            @endif
+                                            @if($group['courses']->count() > 1)
+                                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest bg-secondary-container text-secondary border border-secondary/20">
+                                                    {{ $group['courses']->count() }} kelas
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
                                 <div class="hidden sm:flex gap-4">
                                     <div class="text-right">
                                         <p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest mb-0.5">Tugas</p>
-                                        <p class="text-base font-extrabold text-on-surface leading-none">{{ $course->assignments->count() }}</p>
+                                        <p class="text-base font-extrabold text-on-surface leading-none">{{ $group['total_assignments'] }}</p>
                                     </div>
                                     <div class="w-px h-8 bg-outline-variant/30"></div>
                                     <div class="text-right">
                                         <p class="text-[10px] uppercase font-bold text-on-surface-variant tracking-widest mb-0.5">Mhs</p>
-                                        <p class="text-base font-extrabold text-on-surface leading-none">{{ $course->students->count() }}</p>
+                                        <p class="text-base font-extrabold text-on-surface leading-none">{{ $group['total_students'] }}</p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="bg-surface-container-lowest">
-                                @if($course->students->count() > 0 && $course->assignments->count() > 0)
-                                    <div class="overflow-x-auto custom-scrollbar">
-                                        <table class="min-w-full divide-y divide-outline-variant/20">
-                                            <thead class="bg-surface">
-                                                <tr>
-                                                    <th scope="col" class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-widest sticky left-0 bg-surface z-10 w-48 shadow-[1px_0_0_0_rgba(0,0,0,0.05)] border-r border-outline-variant/10">Mahasiswa</th>
-                                                    <th scope="col" class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-widest whitespace-nowrap bg-surface">Masuk</th>
-                                                    @foreach($course->assignments as $assignment)
-                                                        <th scope="col" class="px-6 py-4 text-left text-[10px] font-bold text-on-surface-variant uppercase tracking-widest bg-surface relative group" title="{{ $assignment->title }}">
-                                                            <div class="flex items-center gap-1.5">
-                                                                <span class="material-symbols-outlined text-[14px]">assignment</span>
-                                                                <a href="{{ route('dosen.assignments.index', $course) }}" class="hover:text-primary transition-colors truncate max-w-[120px]">
-                                                                    {{ Str::limit($assignment->title, 15) }}
-                                                                </a>
-                                                            </div>
-                                                        </th>
-                                                    @endforeach
-                                                    <th scope="col" class="px-6 py-4 text-right text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/5 border-l border-outline-variant/10">Rata-rata</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-outline-variant/10 bg-surface-container-lowest">
-                                                @foreach($course->students as $student)
-                                                    <tr class="hover:bg-surface-container-low/50 transition-colors group">
-                                                        <td class="px-6 py-4 whitespace-nowrap sticky left-0 bg-surface-container-lowest group-hover:bg-surface-container-low/50 shadow-[1px_0_0_0_rgba(0,0,0,0.05)] border-r border-outline-variant/10 transition-colors z-10">
-                                                            <div class="flex items-center gap-3">
-                                                                <div class="w-8 h-8 rounded-full bg-secondary/10 text-secondary flex items-center justify-center font-bold text-xs uppercase shrink-0 border border-secondary/20">
-                                                                    {{ substr($student->name, 0, 2) }}
-                                                                </div>
-                                                                <div>
-                                                                    <div class="text-sm font-bold text-on-surface">{{ $student->name }}</div>
-                                                                    <div class="text-[10px] font-mono font-medium text-on-surface-variant">{{ $student->nim }}</div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-on-surface-variant">
-                                                            <span class="bg-surface border border-outline-variant/30 px-2.5 py-1 rounded-md text-xs">
-                                                                {{ $student->pivot->enrolled_at ? \Carbon\Carbon::parse($student->pivot->enrolled_at)->format('Y') : '-' }} 
-                                                                <span class="text-outline-variant/50 mx-1">|</span> 
-                                                                <span class="{{ $student->pivot->enrolled_at && \Carbon\Carbon::parse($student->pivot->enrolled_at)->month > 6 ? 'text-primary' : 'text-warning' }}">
-                                                                    {{ $student->pivot->enrolled_at && \Carbon\Carbon::parse($student->pivot->enrolled_at)->month > 6 ? 'Ganjil' : 'Genap' }}
-                                                                </span>
-                                                            </span>
-                                                        </td>
-                                                        @php $totalScore = 0; $count = 0; @endphp
-                                                        @foreach($course->assignments as $assignment)
-                                                            @php
-                                                                $submission = $student->submissions->where('assignment_id', $assignment->id)->first();
-                                                                $score = $submission ? $submission->score : null;
-                                                                if($score !== null) {
-                                                                    $totalScore += $score;
-                                                                    $count++;
-                                                                }
-                                                            @endphp
-                                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                                @if($score !== null)
-                                                                    <div class="inline-flex items-center justify-center min-w-[3rem] px-2.5 py-1 bg-secondary-container text-secondary border border-secondary/20 rounded-lg text-sm font-extrabold shadow-sm">
-                                                                        {{ $score }}
-                                                                    </div>
-                                                                @else
-                                                                    <span class="text-outline-variant/50 font-bold px-2">-</span>
-                                                                @endif
-                                                            </td>
-                                                        @endforeach
-                                                        <td class="px-6 py-4 whitespace-nowrap text-right bg-primary/5 border-l border-outline-variant/10">
-                                                            @if($count > 0)
-                                                                @php $avg = $totalScore / $count; @endphp
-                                                                <span class="inline-flex items-center justify-center min-w-[3.5rem] px-3 py-1.5 {{ $avg >= 80 ? 'bg-primary text-on-primary shadow-md' : ($avg >= 60 ? 'bg-warning-light text-warning border border-warning/30' : 'bg-error-container text-on-error-container border border-error/30') }} rounded-xl text-sm font-extrabold">
-                                                                    {{ number_format($avg, 1) }}
-                                                                </span>
-                                                            @else
-                                                                <span class="text-outline-variant/50 font-bold px-2">-</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @elseif($course->assignments->count() == 0)
-                                    <div class="px-6 py-12 flex flex-col items-center justify-center text-center">
-                                        <div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mb-4">
-                                            <span class="material-symbols-outlined text-[32px] text-on-surface-variant/50">assignment_late</span>
-                                        </div>
-                                        <p class="text-sm font-bold text-on-surface">Belum ada tugas</p>
-                                        <p class="text-xs text-on-surface-variant mt-1">Tidak ada tugas yang terdaftar untuk mata kuliah ini.</p>
-                                    </div>
-                                @else
-                                    <div class="px-6 py-12 flex flex-col items-center justify-center text-center">
-                                        <div class="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mb-4">
-                                            <span class="material-symbols-outlined text-[32px] text-on-surface-variant/50">search_off</span>
-                                        </div>
-                                        <p class="text-sm font-bold text-on-surface">Tidak ada hasil</p>
-                                        <p class="text-xs text-on-surface-variant mt-1">Tidak ada mahasiswa yang cocok dengan filter pencarian pada kelas ini.</p>
+                            {{-- Per-kelas tabs (Alpine) --}}
+                            <div x-data="{ activeKelas: {{ $group['courses']->first()->id }} }">
+                                @if($group['courses']->count() > 1)
+                                    <div class="flex gap-0 px-6 pt-3 border-b border-outline-variant/20 overflow-x-auto">
+                                        @foreach($group['courses'] as $kelasCourse)
+                                            <button @click="activeKelas = {{ $kelasCourse->id }}"
+                                                    :class="activeKelas === {{ $kelasCourse->id }}
+                                                        ? 'border-primary text-primary bg-primary/5'
+                                                        : 'border-transparent text-on-surface-variant hover:text-on-surface'"
+                                                    class="px-4 py-2.5 text-xs font-bold border-b-2 transition-colors whitespace-nowrap shrink-0 -mb-px">
+                                                {{ $kelasCourse->studentClass?->name ?? 'Tanpa Kelas' }}
+                                                <span class="ml-1 text-[10px] opacity-70">({{ $kelasCourse->students->count() }})</span>
+                                            </button>
+                                        @endforeach
                                     </div>
                                 @endif
+
+                                @foreach($group['courses'] as $kelasCourse)
+                                    <div x-show="activeKelas === {{ $kelasCourse->id }}" x-cloak>
+                                        @include('dosen.grades._kelas_table', ['course' => $kelasCourse])
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                     @empty
@@ -222,16 +219,10 @@
                         </div>
                     @endforelse
                 </div>
-
-                @if($courses->hasPages())
-                    <div class="mt-8">
-                        {{ $courses->links() }}
-                    </div>
-                @endif
             </div>
         </div>
     </div>
-    
+
     <!-- Scoped styles to hide default scroll bar on horizontal scrolling container if needed -->
     <style>
         .custom-scrollbar::-webkit-scrollbar {
@@ -252,38 +243,50 @@
 
     @push('scripts')
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const yearSelect = document.getElementById('academic_year_id');
+            document.addEventListener('DOMContentLoaded', function () {
+                const yearSelect    = document.getElementById('academic_year_id');
                 const semesterSelect = document.getElementById('semester_id');
-                
-                // Basic chaining for semester dropdown based on selected year
-                yearSelect.addEventListener('change', function() {
-                    const yearId = this.value;
-                    const options = semesterSelect.querySelectorAll('option');
-                    
-                    options.forEach(option => {
-                        if (option.value === '') {
-                            option.style.display = '';
-                            return;
-                        }
-                        
-                        if (!yearId || option.dataset.year === yearId) {
-                            option.style.display = '';
-                        } else {
-                            option.style.display = 'none';
-                        }
+                const deptSelect    = document.getElementById('department_id');
+                const progSelect    = document.getElementById('study_program_id');
+                const classSelect   = document.getElementById('student_class_id');
+
+                // ── Year → Semester chaining ──────────────────────────────────────
+                yearSelect.addEventListener('change', function () {
+                    const yearId  = this.value;
+                    semesterSelect.querySelectorAll('option').forEach(opt => {
+                        if (!opt.value) { opt.style.display = ''; return; }
+                        opt.style.display = (!yearId || opt.dataset.year === yearId) ? '' : 'none';
                     });
-                    
-                    // Reset semester if it's no longer visible
-                    if (semesterSelect.selectedOptions[0].style.display === 'none') {
+                    if (semesterSelect.selectedOptions[0]?.style.display === 'none') {
                         semesterSelect.value = '';
                     }
                 });
-                
-                // Trigger initially
-                if (yearSelect.value) {
-                    yearSelect.dispatchEvent(new Event('change'));
-                }
+
+                // ── Department → StudyProgram → StudentClass chaining ─────────────
+                deptSelect.addEventListener('change', function () {
+                    const deptId = this.value;
+                    // Filter prodi options
+                    progSelect.querySelectorAll('option').forEach(opt => {
+                        if (!opt.value) { opt.style.display = ''; return; }
+                        opt.style.display = (!deptId || opt.dataset.department === deptId) ? '' : 'none';
+                    });
+                    if (progSelect.selectedOptions[0]?.style.display === 'none') progSelect.value = '';
+                    // Cascade to kelas
+                    progSelect.dispatchEvent(new Event('change'));
+                });
+
+                progSelect.addEventListener('change', function () {
+                    const progId = this.value;
+                    classSelect.querySelectorAll('option').forEach(opt => {
+                        if (!opt.value) { opt.style.display = ''; return; }
+                        opt.style.display = (!progId || opt.dataset.program === progId) ? '' : 'none';
+                    });
+                    if (classSelect.selectedOptions[0]?.style.display === 'none') classSelect.value = '';
+                });
+
+                // Trigger initially in case page was re-rendered with active filters
+                if (yearSelect.value) yearSelect.dispatchEvent(new Event('change'));
+                if (deptSelect.value) deptSelect.dispatchEvent(new Event('change'));
             });
         </script>
     @endpush

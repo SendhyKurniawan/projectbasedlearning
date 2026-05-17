@@ -49,7 +49,7 @@
             </div>
         @elseif($isImage)
             <div class="mt-4 border border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
-                <img src="{{ $fileUrl }}" class="w-full object-contain max-h-[500px] bg-surface-container-low" alt="Preview gambar: {{ basename($filePath) }}">
+                <img src="{{ $fileUrl }}" loading="lazy" class="w-full object-contain max-h-[500px] bg-surface-container-low" alt="Preview gambar: {{ basename($filePath) }}">
             </div>
         @endif
     </div>

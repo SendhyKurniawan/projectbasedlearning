@@ -47,7 +47,7 @@
  <h4 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Lampiran</h4>
  @if($announcement->attachmentIsImage())
  <a href="{{ Storage::url($announcement->attachment_path) }}" target="_blank" rel="noopener" class="inline-block">
- <img src="{{ Storage::url($announcement->attachment_path) }}" alt="{{ $announcement->attachment_name }}" class="max-w-full max-h-[70vh] rounded-lg border border-outline-variant/30 shadow-sm" />
+ <img src="{{ Storage::url($announcement->attachment_path) }}" alt="{{ $announcement->attachment_name }}" loading="lazy" class="max-w-full max-h-[70vh] rounded-lg border border-outline-variant/30 shadow-sm" />
  </a>
  <p class="mt-2 text-xs text-on-surface-variant">{{ $announcement->attachment_name }}</p>
  @elseif($announcement->attachmentIsPdf())

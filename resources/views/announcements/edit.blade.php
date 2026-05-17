@@ -79,7 +79,7 @@
  <div class="mt-2 mb-2 p-3 rounded-md border border-outline-variant/30 bg-surface-container-low/30 flex items-center justify-between gap-3">
  <div class="flex items-center gap-3 min-w-0">
  @if($announcement->attachmentIsImage())
- <img src="{{ Storage::url($announcement->attachment_path) }}" alt="Lampiran saat ini" class="h-12 w-12 object-cover rounded" />
+ <img src="{{ Storage::url($announcement->attachment_path) }}" alt="Lampiran saat ini" loading="lazy" width="48" height="48" class="h-12 w-12 object-cover rounded" />
  @else
  <span class="inline-flex items-center justify-center h-12 w-12 rounded bg-primary/10 text-primary font-bold">PDF</span>
  @endif
