@@ -192,6 +192,7 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
 // Mahasiswa Routes
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::get('/dashboard', [Mahasiswa\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/jadwal', [Mahasiswa\ScheduleController::class, 'index'])->name('schedule.index');
     Route::get('/grades', [Mahasiswa\GradeController::class, 'index'])->name('grades.index');
     Route::get('/courses', [Mahasiswa\CourseController::class, 'index'])->name('courses.index');
     Route::get('/courses/{course}', [Mahasiswa\CourseController::class, 'show'])->name('courses.show');

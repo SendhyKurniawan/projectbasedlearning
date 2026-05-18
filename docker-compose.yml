@@ -18,7 +18,7 @@ services:
                 condition: service_started
 
     web:
-        image: fholzer/nginx-brotli:v1.25.3
+        image: nginx:alpine
         container_name: pjbl-web
         restart: unless-stopped
         ports:

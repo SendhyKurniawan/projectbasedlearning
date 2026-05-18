@@ -11,7 +11,7 @@
         {{-- Section Header --}}
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Halo, {{ Auth::user()->name }} 👋</h1>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Halo, {{ Auth::user()->name }}</h1>
                 <p class="mt-1 text-sm text-on-surface-variant max-w-xl">Berikut ringkasan progres belajar dan agenda kamu hari ini.</p>
             </div>
             <div class="flex items-center gap-2">
@@ -19,7 +19,7 @@
                     <span class="material-symbols-outlined text-base">add</span>
                     Gabung Kelas
                 </a>
-                <a href="#jadwal" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm hover:shadow transition-all">
+                <a href="{{ route('mahasiswa.schedule.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm hover:shadow transition-all">
                     <span class="material-symbols-outlined text-base">calendar_month</span>
                     Lihat Jadwal
                 </a>
@@ -78,26 +78,37 @@
                                     <th class="text-left px-4 py-3 font-bold">Mata Kuliah</th>
                                     <th class="text-left px-4 py-3 font-bold">Tipe</th>
                                     <th class="text-left px-4 py-3 font-bold">Deadline</th>
+                                    <th class="text-left px-4 py-3 font-bold">Status</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-outline-variant/10">
                                 @forelse($upcoming_assignments as $a)
                                     @php
-                                        $hours = now()->diffInHours($a->deadline, false);
+                                        $hours = $a->deadline ? now()->diffInHours($a->deadline, false) : 9999;
                                         $tagClass = $hours < 48 ? 'bg-error/10 text-error' : ($hours < 168 ? 'bg-tertiary/10 text-tertiary' : 'bg-surface-container text-on-surface-variant');
+                                        $submitted = $submittedAssignmentIds->contains($a->id);
                                     @endphp
                                     <tr class="hover:bg-surface-bright transition-colors">
                                         <td class="px-6 py-3 font-bold text-on-surface">{{ $a->title }}</td>
                                         <td class="px-4 py-3 text-on-surface-variant">{{ $a->course->nama_matkul ?? '—' }}</td>
                                         <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md bg-surface-container text-[10px] font-bold uppercase">{{ ucfirst($a->type ?? 'tugas') }}</span></td>
-                                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[10px] font-bold {{ $tagClass }}">{{ $a->deadline ? $a->deadline->diffForHumans() : '—' }}</span></td>
+                                        <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-md text-[10px] font-bold {{ $tagClass }}">{{ $a->deadline ? $a->deadline->diffForHumans() : 'Tanpa batas' }}</span></td>
+                                        <td class="px-4 py-3">
+                                            @if($submitted)
+                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-secondary/10 text-secondary">Sudah Submit</span>
+                                            @else
+                                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-surface-container text-on-surface-variant">Belum Submit</span>
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-3 text-right">
-                                            <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $a->id]) }}" class="text-xs font-bold text-primary hover:underline">Buka</a>
+                                            <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $a->id]) }}" class="text-xs font-bold text-primary hover:underline">
+                                                {{ $submitted ? 'Lihat' : 'Buka' }}
+                                            </a>
                                         </td>
                                     </tr>
                                 @empty
-                                    <tr><td colspan="5" class="px-6 py-8 text-center text-sm text-on-surface-variant">Tidak ada tugas mendatang.</td></tr>
+                                    <tr><td colspan="6" class="px-6 py-8 text-center text-sm text-on-surface-variant">Tidak ada tugas mendatang.</td></tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -131,22 +142,29 @@
 
             {{-- RIGHT: Schedule + Announcement + Activity --}}
             <aside class="lg:col-span-4 space-y-6">
-                <section id="jadwal" class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
-                    <h2 class="font-headline text-lg font-bold mb-4">Jadwal Hari Ini</h2>
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-headline text-lg font-bold">Jadwal Hari Ini</h2>
+                        <a href="{{ route('mahasiswa.schedule.index') }}" class="text-xs font-bold text-primary hover:underline">Semua →</a>
+                    </div>
                     <div class="space-y-1">
-                        @forelse($enrolled_courses->take(3) as $c)
+                        @forelse($todayConferences as $conf)
                             <div class="flex items-center gap-3 py-2.5 border-b border-dashed border-outline-variant/20 last:border-0">
-                                <span class="font-mono text-[11px] text-on-surface-variant w-12">{{ sprintf('%02d:00', 8 + ($loop->index * 2)) }}</span>
+                                <span class="font-mono text-[11px] text-on-surface-variant w-12">{{ $conf->scheduled_at->format('H:i') }}</span>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-bold truncate">{{ $c->nama_matkul }}</p>
-                                    <p class="text-[10px] text-on-surface-variant truncate">{{ $c->dosen->name ?? 'Dosen' }}</p>
+                                    <p class="text-xs font-bold truncate">{{ $conf->course->nama_matkul }}</p>
+                                    <p class="text-[10px] text-on-surface-variant truncate">{{ $conf->dosen->name }}</p>
                                 </div>
-                                @if($loop->first)
-                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-secondary/10 text-secondary">Live</span>
+                                @if($conf->isLive())
+                                    <span class="relative flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-secondary/10 text-secondary">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping absolute left-1.5"></span>
+                                        <span class="w-1.5 h-1.5 rounded-full bg-secondary ml-0.5 relative"></span>
+                                        Live
+                                    </span>
                                 @endif
                             </div>
                         @empty
-                            <p class="text-sm text-on-surface-variant">Tidak ada jadwal.</p>
+                            <p class="text-sm text-on-surface-variant">Tidak ada jadwal hari ini.</p>
                         @endforelse
                     </div>
                 </section>

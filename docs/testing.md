@@ -58,7 +58,7 @@ Dusk requires Chrome/Chromedriver. `laravel/dusk` is not in `composer.json` at t
 
 ## Playwright (WIP)
 
-Playwright is scaffolded on the `feat/playwright-qa-suite` branch. No specs are committed yet.
+Playwright is in progress on the `feat/playwright-qa-suite` branch — no test files or `playwright.config.*` are committed yet. `package.json` has the scripts ready; to activate the suite, add `playwright.config.ts` at the repo root and create test files.
 
 ```bash
 npm run test:pw         # headless
@@ -67,17 +67,7 @@ npm run test:pw:ui      # Playwright UI mode (interactive)
 npm run test:pw:report  # open last HTML report
 ```
 
-Config: `playwright.config.js` (and optionally `playwright.config.ts`) at repo root.
-
-Structure:
-
-```
-tests/playwright/
-├── assets/         # fixtures, test data files
-└── helpers/        # shared utilities (login helpers, etc.)
-```
-
-No spec files exist yet. When writing specs, use the helpers in `tests/playwright/helpers/` and seed accounts from the table below.
+When writing specs, use seed accounts from the table below.
 
 ---
 

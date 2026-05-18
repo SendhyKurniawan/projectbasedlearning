@@ -14,6 +14,7 @@ npm run build         # production assets
 npm run test:pw       # Playwright (also :headed, :ui, :report) — suite is WIP, see Testing
 npm run audit:contrast
 vendor/bin/pint       # PHP code style
+docker compose up -d  # alternative: app + nginx:8000 + MySQL + MailHog
 ```
 
 ## Architecture
@@ -23,6 +24,7 @@ vendor/bin/pint       # PHP code style
 - **Multi-kelas courses**: A dosen teaching the same `kode_matkul` to multiple student classes gets one `Course` row per kelas (same `dosen_id + kode_matkul + semester_id`, different `student_class_id`). These are called *siblings* — `Course::siblings()` returns a Collection of the other rows. The sidebar and dashboard group them visually by `course_group_key` (`dosen_id|nama_matkul|semester_id`). Admin unique validation is composite on `(kode_matkul, dosen_id, semester_id, student_class_id)`, not globally unique on `kode_matkul` alone.
 - **Frontend**: `<x-app-layout>` Blade, Alpine sprinkles, CodeMirror + EasyMDE for code/markdown editors. One real Livewire component lives under `app/Livewire/Discussion/` — the rest of the app is plain Blade. Don't reach for Livewire when a Blade form will do. Reusable components: `<x-copy-modal>` (Alpine modal for copying content to sibling kelas).
 - **Code execution**: client posts to a server-side proxy that calls Piston API. Throttled 10/min. Don't bypass it from the frontend.
+- **Mahasiswa schedule**: `Mahasiswa\ScheduleController::index` (GET `/mahasiswa/jadwal`, `mahasiswa.schedule.index`) shows upcoming conferences + assignments. Uses `$mahasiswa->enrollments()->pluck('courses.id')` via Eloquent relation — exception to the direct-pivot-query convention used elsewhere.
 
 ## Conventions
 
@@ -48,7 +50,7 @@ vendor/bin/pint       # PHP code style
 
 - **Pest** under `tests/Feature` and `tests/Unit`. `composer test` is the canonical entry.
 - **Laravel Dusk** under `tests/Browser` with `.env.dusk.local` (SQLite in-memory). `DuskSeeder` is idempotent — only seeds when `User::count() === 0`. Force a clean state with `php artisan migrate:fresh --seeder=DuskSeeder`.
-- **Playwright** is currently scaffolding only — `tests/playwright/{assets,helpers}` exist but no specs are committed. The `feat/playwright-qa-suite` branch is where this is being built. `package.json` has the `test:pw*` scripts; `playwright.config.*` lives at the repo root when the suite is active.
+- **Playwright** suite is in progress on `feat/playwright-qa-suite` — no test files or `playwright.config.*` committed yet. `package.json` has the `test:pw*` scripts ready; add `playwright.config.ts` at the repo root to activate.
 
 ## Working in this repo
 
