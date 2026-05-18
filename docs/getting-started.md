@@ -26,8 +26,8 @@ App: `http://localhost:8000` | Vite HMR: Vite proxies through artisan serve.
 ## Docker
 
 ```bash
-docker-compose up -d --build
-docker-compose exec app php artisan migrate --seed
+docker compose up -d --build
+docker compose exec app php artisan migrate --seed
 ```
 
 Then open `http://localhost:8000`. PHPMyAdmin at `http://localhost:8081`, Mailhog at `http://localhost:8025`.

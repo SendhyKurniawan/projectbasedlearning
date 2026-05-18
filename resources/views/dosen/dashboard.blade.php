@@ -6,7 +6,7 @@
         {{-- Section Header --}}
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Selamat datang, {{ Auth::user()->name }} 👩‍🏫</h1>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Selamat datang, {{ Auth::user()->name }}</h1>
                 <p class="mt-1 text-sm text-on-surface-variant max-w-xl">Kelas Anda hari ini dan tugas yang menunggu review.</p>
             </div>
             <div class="flex items-center gap-2">

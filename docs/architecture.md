@@ -76,7 +76,7 @@ No Pusher, no WebSockets, no Reverb. `BROADCAST_CONNECTION=log`. Push notificati
 |---|---|
 | Validation | Inline `$request->validate([...])` in controller — no FormRequest except `LoginRequest` and `ProfileUpdateRequest` |
 | Authorization | `$this->authorize('view', $model)` via Policies — no Gates |
-| Pivot queries | `DB::table('enrollments')` raw queries for performance; Eloquent relation on `Course::students()` exists but may not be used everywhere |
+| Pivot queries | `DB::table('enrollments')` raw queries for performance; Eloquent relation on `Course::students()` exists but may not be used everywhere. **Exception**: `Mahasiswa\ScheduleController` uses `$mahasiswa->enrollments()->pluck('courses.id')` via Eloquent |
 | Livewire | One real component: `Livewire\Discussion\Show`. Everything else is plain Blade + Alpine |
 | Boolean fields | Validate as `'nullable\|in:0,1,true,false'` because HTML forms send strings |
 | Fan-out security | Always intersect submitted `sibling_ids` with `$course->siblings()->pluck('id')` before acting |
@@ -92,3 +92,4 @@ No Pusher, no WebSockets, no Reverb. `BROADCAST_CONNECTION=log`. Push notificati
 - [conferences.md](features/conferences.md) — Jitsi JaaS JWT, room lifecycle
 - [notifications.md](features/notifications.md) — database + WebPush channels
 - [discussions.md](features/discussions.md) — Livewire component, comment model
+- [schedule.md](features/schedule.md) — mahasiswa upcoming conferences and assignment deadlines (`/mahasiswa/jadwal`)

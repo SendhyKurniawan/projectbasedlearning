@@ -13,8 +13,8 @@
 The `app` and `db` containers share `pjbl-network` bridge. `web` proxies to `app:9000` (FastCGI). Only `web`, `phpmyadmin`, and `mailhog` expose host ports.
 
 ```bash
-docker-compose up -d --build
-docker-compose exec app php artisan migrate --seed
+docker compose up -d --build
+docker compose exec app php artisan migrate --seed
 ```
 
 ---

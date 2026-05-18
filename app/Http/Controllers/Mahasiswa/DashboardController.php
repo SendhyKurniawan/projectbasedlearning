@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mahasiswa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
+use App\Models\Conference;
 use App\Models\Course;
 use App\Models\Submission;
 use Carbon\Carbon;
@@ -21,12 +22,32 @@ class DashboardController extends Controller
         // Use enrolled course IDs from already-loaded collection to avoid subquery
         $enrolledCourseIds = $enrolled_courses->pluck('id');
 
-        // Get upcoming assignments using direct IN clause (faster than nested whereHas)
+        // Get upcoming assignments — include null-deadline and recent-past (7d) so data isn't empty
         $upcoming_assignments = Assignment::whereIn('course_id', $enrolledCourseIds)
             ->with('course')
-            ->where('deadline', '>=', now())
-            ->orderBy('deadline')
+            ->where(function ($q) {
+                $q->whereNull('deadline')
+                    ->orWhere('deadline', '>=', now()->subDays(7));
+            })
+            ->orderByRaw('deadline IS NULL, deadline ASC')
             ->take(5)
+            ->get();
+
+        // Track which assignments this mahasiswa already submitted
+        $submittedAssignmentIds = $upcoming_assignments->isNotEmpty()
+            ? $mahasiswa->submissions()
+                ->whereIn('assignment_id', $upcoming_assignments->pluck('id'))
+                ->pluck('assignment_id')
+            : collect();
+
+        // Today's conferences from enrolled courses
+        $todayConferences = Conference::whereIn('course_id', $enrolledCourseIds)
+            ->where(function ($q) {
+                $q->where('status', 'live')
+                    ->orWhereDate('scheduled_at', today());
+            })
+            ->with(['course', 'dosen'])
+            ->orderBy('scheduled_at')
             ->get();
 
         $stats = [
@@ -74,7 +95,8 @@ class DashboardController extends Controller
         $scoreDistribution = ['labels' => array_keys($buckets), 'values' => array_values($buckets)];
 
         return view('mahasiswa.dashboard', compact(
-            'enrolled_courses', 'upcoming_assignments', 'stats', 'announcements',
+            'enrolled_courses', 'upcoming_assignments', 'submittedAssignmentIds',
+            'todayConferences', 'stats', 'announcements',
             'activitySeries', 'scoreDistribution'
         ));
     }
