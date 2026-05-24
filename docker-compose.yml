@@ -7,8 +7,16 @@ services:
         container_name: pjbl-app
         restart: unless-stopped
         working_dir: /var/www
+        # No env_file: on first boot .env doesn't exist yet — the entrypoint
+        # creates it from .env.example. Laravel reads .env directly, and the
+        # entrypoint's wait-for-db defaults to host=db port=3306.
         volumes:
             - ./:/var/www
+            # Keep the baked-in vendor/ and node_modules/ from being shadowed
+            # by an empty host folder on a fresh clone.
+            - app_vendor:/var/www/vendor
+            - app_node_modules:/var/www/node_modules
+            - app_build:/var/www/public/build
         networks:
             - pjbl-network
         depends_on:
@@ -25,6 +33,7 @@ services:
             - "8000:80"
         volumes:
             - ./:/var/www
+            - app_build:/var/www/public/build
             - ./docker/nginx/conf.d:/etc/nginx/conf.d
         networks:
             - pjbl-network
@@ -37,10 +46,9 @@ services:
         restart: unless-stopped
         environment:
             MYSQL_DATABASE: ${DB_DATABASE:-pjbl}
-            MYSQL_ROOT_PASSWORD: root
-            # Create a dedicated user (cannot be root)
-            MYSQL_USER: pjbl
-            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+            MYSQL_USER: ${DB_USERNAME:-pjbl}
+            MYSQL_PASSWORD: ${DB_PASSWORD:-password}
             SERVICE_TAGS: dev
             SERVICE_NAME: mysql
         volumes:
@@ -48,10 +56,10 @@ services:
         networks:
             - pjbl-network
         healthcheck:
-            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_ROOT_PASSWORD:-root}"]
             interval: 5s
             timeout: 5s
-            retries: 5
+            retries: 10
 
     phpmyadmin:
         image: phpmyadmin:latest
@@ -62,7 +70,7 @@ services:
         environment:
             PMA_HOST: db
             PMA_USER: root
-            PMA_PASSWORD: root
+            PMA_PASSWORD: ${DB_ROOT_PASSWORD:-root}
         networks:
             - pjbl-network
         depends_on:
@@ -79,7 +87,7 @@ services:
 
     livekit:
         image: livekit/livekit-server:latest
-        container_name: pjbllivekit
+        container_name: pjbl-livekit
         restart: unless-stopped
         command: --config /etc/livekit.yaml
         ports:
@@ -91,10 +99,30 @@ services:
         networks:
             - pjbl-network
 
+    piston:
+        image: ghcr.io/engineer-man/piston
+        container_name: pjbl-piston
+        restart: unless-stopped
+        privileged: true
+        tmpfs:
+            - /piston/jobs
+        volumes:
+            - piston_packages:/piston/packages
+        networks:
+            - pjbl-network
+
 networks:
     pjbl-network:
         driver: bridge
 
 volumes:
     dbdata:
+        driver: local
+    app_vendor:
+        driver: local
+    app_node_modules:
+        driver: local
+    app_build:
+        driver: local
+    piston_packages:
         driver: local

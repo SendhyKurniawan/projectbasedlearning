@@ -1,0 +1,60 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Dependencies (rebuilt inside the image)
+node_modules
+vendor
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+auth.json
+
+# Build artifacts
+public/build
+public/hot
+public/storage
+storage/*.key
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+bootstrap/cache/*.php
+
+# IDE / editor metadata
+.idea
+.vscode
+.fleet
+.nova
+.zed
+.phpstorm.meta.php
+.phpactor.json
+_ide_helper.php
+_ide_helper_models.php
+
+# Tests / reports
+.phpunit.cache
+.phpunit.result.cache
+playwright-report
+test-results
+.playwright-mcp
+tests/playwright/.auth
+dusk_test_results.log
+
+# Tooling caches
+.fallow
+.agent
+.claude
+.playwright-mcp
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Docker meta — don't recurse into ourselves
+docker-compose.override.yml
+Dockerfile.*
+*.log
