@@ -1,58 +1,94 @@
-# Stage 1: Build Assets
-FROM node:20 as build
+# syntax=docker/dockerfile:1.6
+
+# -----------------------------------------------------------------------------
+# Stage 1: build front-end assets with Vite
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS assets
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci --no-audit --no-fund
 
 COPY . .
 RUN npm run build
 
-# Stage 2: Production Environment
+# -----------------------------------------------------------------------------
+# Stage 2: download PHP dependencies with Composer (cache layer)
+# Only composer.json/lock are copied here so changes to app code don't
+# invalidate the dependency download cache.
+# -----------------------------------------------------------------------------
+FROM composer:2 AS vendor
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install \
+        --no-dev \
+        --no-interaction \
+        --no-progress \
+        --no-scripts \
+        --no-autoloader \
+        --prefer-dist
+
+# -----------------------------------------------------------------------------
+# Stage 3: runtime PHP-FPM image
+# -----------------------------------------------------------------------------
 FROM php:8.4-fpm
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
+# System packages needed for Laravel + extensions
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        curl \
+        unzip \
+        zip \
+        libpng-dev \
+        libjpeg-dev \
+        libfreetype6-dev \
+        libonig-dev \
+        libxml2-dev \
+        libzip-dev \
+        libicu-dev \
+        default-mysql-client \
+        netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# PHP extensions required by Laravel + project deps
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j"$(nproc)" \
+        pdo_mysql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd \
+        zip \
+        intl
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Composer binary (used at build time + at runtime by entrypoint as fallback)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Set working directory
 WORKDIR /var/www
 
-# Copy existing application directory contents
+# Pre-downloaded packages, then the rest of the app, then the built assets.
+COPY --from=vendor /app/vendor /var/www/vendor
 COPY . /var/www
+COPY --from=assets /app/public/build /var/www/public/build
 
-# Copy built assets from the build stage
-COPY --from=build /app/public/build /var/www/public/build
+# Now that the full app is in place, regenerate the optimized autoloader so
+# the classmap includes app/, database/factories/, and database/seeders/.
+# (package:discover runs from the entrypoint, after .env is in place.)
+RUN composer dump-autoload --optimize --no-dev
 
-# Create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u 1000 -d /home/dev dev
-RUN mkdir -p /home/dev/.composer && \
-    chown -R dev:dev /home/dev
+# Permissions for Laravel writable paths
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Set permissions
-RUN chown -R dev:www-data /var/www \
-    && chmod -R 775 /var/www/storage \
-    && chmod -R 775 /var/www/bootstrap/cache
+# Entrypoint bootstraps the app (key:generate, migrate, etc.) then starts php-fpm
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# Switch to user
-USER dev
-
-# Expose port 9000 and start php-fpm server
 EXPOSE 9000
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

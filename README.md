@@ -39,50 +39,108 @@ Sistem ini dibangun dengan teknologi modern untuk performa dan skalabilitas:
 
 ## Penggunaan Docker
 
-Proyek ini telah dikonfigurasi menggunakan Docker untuk kemudahan pengembangan.
+Proyek ini telah dikonfigurasi agar bisa dijalankan dengan satu perintah pada
+mesin manapun yang memiliki Docker.
 
 ### Prasyarat
 
-- Docker Desktop
-- Docker Compose
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) (Windows/macOS) atau Docker Engine + Docker Compose v2 (Linux)
 
-### Langkah Cepat
+### Langkah Cepat (One-Click)
 
-1. **Salin file environment**:
-    ```bash
-    cp .env.example .env
-    ```
-2. **Setup Konfigurasi Database** (dalam `.env`):
-    ```ini
-    DB_CONNECTION=mysql
-    DB_HOST=db
-    DB_PORT=3306
-    DB_DATABASE=pbl
-    DB_USERNAME=pbl
-    DB_PASSWORD=password
-    ```
-3. **Jalankan container**:
-    ```bash
-    docker-compose up -d --build
-    ```
-4. **Setup Aplikasi** (Pertama kali):
-    ```bash
-    docker-compose exec app composer install
-    docker-compose exec app php artisan key:generate
-    docker-compose exec app php artisan migrate --seed
-    docker-compose exec app npm install
-    docker-compose exec app npm run build
-    ```
-5. **Akses**: [http://localhost:8000](http://localhost:8000)
+```bash
+git clone <repository-url> pjbl
+cd pjbl
+docker compose up -d --build
+```
+
+Itu saja. Pada boot pertama, container `app` akan otomatis:
+
+- menyalin `.env.example` menjadi `.env`
+- menjalankan `php artisan key:generate`
+- menunggu MySQL siap, lalu `php artisan migrate --seed`
+- membuat storage symlink dan membersihkan cache
+
+Front-end (CSS/JS) sudah dibuild sebelumnya di dalam image, jadi tidak perlu
+menjalankan `npm install` secara manual.
+
+### Layanan & URL
+
+| Layanan        | URL                                              |
+| :------------- | :----------------------------------------------- |
+| Aplikasi       | [http://localhost:8000](http://localhost:8000)   |
+| MailHog (mail) | [http://localhost:8025](http://localhost:8025)   |
+| phpMyAdmin     | [http://localhost:8081](http://localhost:8081)   |
+| LiveKit (WS)   | `ws://localhost:7880`                            |
+| Piston (code)  | `http://localhost:2000` (internal `piston:2000`) |
+
+### Perintah Berguna
+
+```bash
+# Lihat log aplikasi
+docker compose logs -f app
+
+# Masuk ke container app
+docker compose exec app bash
+
+# Reset database (hapus data)
+docker compose down -v && docker compose up -d --build
+```
 
 ## Kredensial Default
 
 Setelah menjalankan seeder, gunakan akun berikut untuk pengujian:
 
-| Role      | Email            | Password   |
-| :-------- | :--------------- | :--------- |
-| **Admin** | `admin@pbl.test` | `password` |
-| **Dosen** | `dosen@pbl.test` | `password` |
+| Role          | Email                 | Password   |
+| :------------ | :-------------------- | :--------- |
+| **Admin**     | `admin@pjbl.test`     | `password` |
+| **Dosen**     | `dosen@pjbl.test`     | `password` |
+| **Mahasiswa** | `mahasiswa@pjbl.test` | `password` |
+
+## Pengujian (Playwright)
+
+Suite QA end-to-end ditulis dalam TypeScript menggunakan Playwright dan
+menjalankan skenario untuk semua peran (Admin, Dosen, Mahasiswa) terhadap
+container Docker yang sudah berjalan.
+
+### Prasyarat
+
+- Stack Docker aktif (`docker compose up -d`) — container `pjbl-app` harus ada
+- Node.js 18+ dan npm
+- Install dependensi & browser Chromium:
+    ```bash
+    npm install
+    npx playwright install chromium
+    ```
+
+> Sebelum setiap run, global setup akan mengeksekusi
+> `php artisan migrate:fresh --seed` di dalam container `pjbl-app`,
+> sehingga **seluruh data di database akan di-reset**.
+
+### Menjalankan Tes
+
+```bash
+# Jalankan seluruh suite (headless)
+npm run test:pw
+
+# Mode headed (lihat browser)
+npm run test:pw:headed
+
+# Mode UI interaktif
+npm run test:pw:ui
+
+# Buka laporan HTML hasil run terakhir
+npm run test:pw:report
+```
+
+Override base URL bila aplikasi berjalan di host/port lain:
+
+```bash
+PLAYWRIGHT_BASE_URL=http://127.0.0.1:8080 npm run test:pw
+```
+
+Artefak (trace, screenshot, video) untuk tes yang gagal tersimpan di
+`.playwright-mcp/test-results/`, dan laporan HTML di `playwright-report/`.
 
 ## Lisensi
 
