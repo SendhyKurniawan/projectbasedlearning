@@ -65,7 +65,7 @@
  <div class="form-group" x-data="{ show: false }">
  <label class="form-label" for="password">Password</label>
  <div class="relative">
- <input class="form-input pr-12" id="password" :type="show ? 'text' : 'password'" name="password" required autocomplete="new-password">
+ <input class="form-input pr-12" id="password" type="password" :type="show ? 'text' : 'password'" name="password" required autocomplete="new-password">
  <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
  <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
  </button>
@@ -76,7 +76,7 @@
  <div class="form-group" x-data="{ show: false }">
  <label class="form-label" for="password_confirmation">Confirm Password</label>
  <div class="relative">
- <input class="form-input pr-12" id="password_confirmation" :type="show ? 'text' : 'password'" name="password_confirmation" required>
+ <input class="form-input pr-12" id="password_confirmation" type="password" :type="show ? 'text' : 'password'" name="password_confirmation" required>
  <button type="button" @click="show = !show" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
  <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
  </button>
