@@ -63,6 +63,9 @@ class User extends Authenticatable
         'sso_id',
         'student_class_id',
         'is_active',
+        'otp_code',
+        'otp_expires_at',
+        'otp_verified_at',
     ];
 
     /**
@@ -85,6 +88,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'otp_expires_at' => 'datetime',
+            'otp_verified_at' => 'datetime',
         ];
     }
 
