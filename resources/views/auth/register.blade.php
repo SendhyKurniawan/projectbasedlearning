@@ -101,7 +101,7 @@
  <div class="relative" x-data="{ show: false }">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
  <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
- id="password" name="password" :type="show ? 'text' : 'password'" placeholder="Minimal 8 karakter" required autocomplete="new-password" />
+ id="password" name="password" type="password" :type="show ? 'text' : 'password'" placeholder="Minimal 8 karakter" required autocomplete="new-password" />
  <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
  <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
  </button>
@@ -115,7 +115,7 @@
  <div class="relative" x-data="{ show: false }">
  <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-xl">lock</span>
  <input class="w-full pl-12 pr-12 py-4 bg-surface-container-highest rounded-xl border-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-container-lowest transition-all outline-none text-on-surface placeholder:text-outline/60"
- id="password_confirmation" name="password_confirmation" :type="show ? 'text' : 'password'" placeholder="Ulangi password Anda" required autocomplete="new-password" />
+ id="password_confirmation" name="password_confirmation" type="password" :type="show ? 'text' : 'password'" placeholder="Ulangi password Anda" required autocomplete="new-password" />
  <button type="button" @click="show = !show" class="absolute right-4 top-1/2 -translate-y-1/2 text-outline hover:text-primary transition-colors focus:outline-none flex items-center justify-center">
  <span class="material-symbols-outlined text-xl" x-text="show ? 'visibility_off' : 'visibility'">visibility</span>
  </button>
