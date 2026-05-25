@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Notifications\OtpVerificationNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
             'student_class_id.exists'      => 'Kode Kelas tidak valid.',
         ]);
 
-        $isDosen = $request->role === 'dosen';
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $user = User::create([
             'name'      => $request->name,
@@ -57,21 +57,21 @@ class RegisteredUserController extends Controller
             'nim'       => $request->role === 'mahasiswa' ? $request->nim : null,
             'nip'       => $request->role === 'dosen'     ? $request->nip : null,
             'student_class_id' => $request->role === 'mahasiswa' ? $request->student_class_id : null,
-            // Dosen requires admin approval; set inactive until approved
-            'is_active' => !$isDosen,
+            // Inactive until OTP verified (and, for dosen, also admin approved)
+            'is_active'      => false,
+            'otp_code'       => $code,
+            'otp_expires_at' => now()->addMinutes(10),
         ]);
 
         event(new Registered($user));
 
-        if ($isDosen) {
-            // Do NOT auto-login; redirect to login with a pending-approval notice
-            return redirect()->route('login')
-                ->with('status', 'Akun dosen Anda berhasil dibuat dan sedang menunggu persetujuan admin. Anda akan dapat login setelah akun diaktifkan.');
-        }
+        $user->notify(new OtpVerificationNotification($code));
 
-        // Mahasiswa: login immediately
-        Auth::login($user);
+        // Stash the pending user id in session so the OTP screen knows who to verify
+        // without authenticating them.
+        $request->session()->put('otp_user_id', $user->id);
 
-        return redirect()->route('mahasiswa.dashboard');
+        return redirect()->route('verification.otp')
+            ->with('status', 'Kami telah mengirim kode verifikasi 6 digit ke ' . $user->email . '.');
     }
 }
