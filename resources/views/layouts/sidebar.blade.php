@@ -52,19 +52,15 @@
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.courses.*')) style="font-variation-settings: 'FILL' 1;" @endif>auto_stories</span>
  <span class="text-sm font-body">Courses</span>
  </a>
- <a href="{{ route('admin.academic-years.index') }}" class="{{ request()->routeIs('admin.academic-years.*') ? $activeClass : $inactiveClass }}">
- <span class="material-symbols-outlined" @if(request()->routeIs('admin.academic-years.*')) style="font-variation-settings: 'FILL' 1;" @endif>calendar_today</span>
- <span class="text-sm font-body">Tahun Akademik</span>
+ <a href="{{ route('admin.akademik.index') }}" class="{{ request()->routeIs('admin.akademik.*') ? $activeClass : $inactiveClass }}">
+ <span class="material-symbols-outlined" @if(request()->routeIs('admin.akademik.*')) style="font-variation-settings: 'FILL' 1;" @endif>account_tree</span>
+ <span class="text-sm font-body">Akademik</span>
  </a>
- <a href="{{ route('admin.semesters.index') }}" class="{{ request()->routeIs('admin.semesters.*') ? $activeClass : $inactiveClass }}">
- <span class="material-symbols-outlined" @if(request()->routeIs('admin.semesters.*')) style="font-variation-settings: 'FILL' 1;" @endif>date_range</span>
- <span class="text-sm font-body">Semester</span>
+ <a href="{{ route('admin.conferences.index') }}" class="{{ request()->routeIs('admin.conferences.*') ? $activeClass : $inactiveClass }}">
+ <span class="material-symbols-outlined" @if(request()->routeIs('admin.conferences.*')) style="font-variation-settings: 'FILL' 1;" @endif>videocam</span>
+ <span class="text-sm font-body">Kelas Virtual</span>
  </a>
- <a href="{{ route('admin.hierarchy.index') }}" class="{{ request()->routeIs('admin.hierarchy.*') ? $activeClass : $inactiveClass }}">
- <span class="material-symbols-outlined" @if(request()->routeIs('admin.hierarchy.*')) style="font-variation-settings: 'FILL' 1;" @endif>account_tree</span>
- <span class="text-sm font-body">Data Akademik</span>
- </a>
- 
+
  @elseif(auth()->user()->role === 'dosen')
  <a href="{{ route('dosen.dashboard') }}" class="{{ request()->routeIs('dosen.dashboard') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('dosen.dashboard')) style="font-variation-settings: 'FILL' 1;" @endif>dashboard</span>
@@ -80,20 +76,41 @@
  
  <div class="pt-6 pb-2 pl-4 pr-3 text-[10px] font-black text-outline uppercase tracking-widest">Materi & Tugas</div>
  
- @if(isset($dosenCourses) && $dosenCourses->count() > 0)
- <div class="space-y-3 pb-2">
- @foreach($dosenCourses as $course)
+ @if(isset($dosenCourseGroups) && $dosenCourseGroups->count() > 0)
  @php
  $reqCourseId = request()->route('course') instanceof \App\Models\Course ? request()->route('course')->id : request()->route('course');
- $isCourseActive = request()->routeIs('dosen.materials.*', 'dosen.assignments.*', 'dosen.conferences.*') && $reqCourseId == $course->id;
+ $inContentRoutes = request()->routeIs('dosen.materials.*', 'dosen.assignments.*', 'dosen.conferences.*');
  @endphp
- <div class="w-full">
- <div class="flex items-center gap-2 px-4 py-1.5 text-sm font-bold text-on-surface font-headline">
+ <div class="space-y-1 pb-2">
+ @foreach($dosenCourseGroups as $groupKey => $groupCourses)
+ @php
+ $groupActive = $inContentRoutes && $groupCourses->contains(fn($c) => $reqCourseId == $c->id);
+ $multiKelas = $groupCourses->count() > 1;
+ @endphp
+ <div x-data="{ open: {{ $groupActive ? 'true' : 'false' }} }">
+ <button @click="open = !open" class="w-full flex items-center gap-2 px-4 py-1.5 text-on-surface hover:text-primary hover:bg-surface-container transition-colors rounded-lg">
  <span class="material-symbols-outlined text-primary text-base">book</span>
- <span class="truncate pr-2">{{ Str::limit($course->nama_matkul, 24) }}</span>
+ <span class="flex-1 text-sm font-bold text-left truncate">{{ Str::limit($groupCourses->first()->nama_matkul, 22) }}</span>
+ @if($multiKelas)
+ <span class="text-[9px] font-bold text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded shrink-0">{{ $groupCourses->count() }}K</span>
+ @endif
+ <span class="material-symbols-outlined text-sm text-on-surface-variant transition-transform duration-200 shrink-0" :class="open ? 'rotate-180' : ''">expand_more</span>
+ </button>
+ <div x-show="open"
+ x-transition:enter="transition ease-out duration-150"
+ x-transition:enter-start="opacity-0"
+ x-transition:enter-end="opacity-100"
+ x-transition:leave="transition ease-in duration-100"
+ x-transition:leave-start="opacity-100"
+ x-transition:leave-end="opacity-0">
+ @foreach($groupCourses as $course)
+ @php $courseActive = $inContentRoutes && $reqCourseId == $course->id; @endphp
+ <div class="ml-4 mt-0.5 border-l-2 {{ $courseActive ? 'border-primary/60' : 'border-outline-variant/30' }} pl-3 mb-1.5">
+ @if($multiKelas)
+ <div class="py-0.5 mb-0.5">
+ <span class="px-2 py-0.5 text-[9px] font-bold rounded-md bg-primary/10 text-primary">{{ $course->studentClass->name ?? 'Kelas' }}</span>
  </div>
- 
- <div class="mt-1 ml-4 space-y-0.5 border-l-2 border-outline-variant/30 pl-3">
+ @endif
  <a href="{{ route('dosen.materials.index', $course) }}" class="{{ request()->routeIs('dosen.materials.*') && $reqCourseId == $course->id ? $activeClass : $inactiveClass }} !py-2 !text-xs">
  <span class="material-symbols-outlined text-base">description</span>
  <span>Kelola Materi</span>
@@ -106,6 +123,8 @@
  <span class="material-symbols-outlined text-base">videocam</span>
  <span>Kelas Virtual</span>
  </a>
+ </div>
+ @endforeach
  </div>
  </div>
  @endforeach
@@ -134,8 +153,7 @@
  <span class="text-sm font-body">Mata Kuliah</span>
  </a>
  @php
- $activeCourseParam = request()->route('course');
- $resolvedCourseForConference = $activeCourseParam instanceof \App\Models\Course ? $activeCourseParam : \App\Models\Course::whereHas('students', fn($q) => $q->where('mahasiswa_id', auth()->id()))->first();
+ $resolvedCourseForConference = $mahasiswaFirstCourse ?? null;
  @endphp
  @if($resolvedCourseForConference)
  <a href="{{ route('mahasiswa.conferences.index', $resolvedCourseForConference) }}" class="{{ request()->routeIs('mahasiswa.conferences.*') ? $activeClass : $inactiveClass }}">
@@ -151,6 +169,7 @@
  <a href="{{ route('discussions.index') }}" class="{{ request()->routeIs('discussions.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('discussions.*')) style="font-variation-settings: 'FILL' 1;" @endif>forum</span>
  <span class="text-sm font-body">Forum Diskusi</span>
+ 
  </a>
  <a href="{{ route('announcements.index') }}" class="{{ request()->routeIs('announcements.*') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('announcements.*')) style="font-variation-settings: 'FILL' 1;" @endif>campaign</span>

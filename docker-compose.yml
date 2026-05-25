@@ -85,20 +85,6 @@ services:
         networks:
             - pjbl-network
 
-    livekit:
-        image: livekit/livekit-server:latest
-        container_name: pjbl-livekit
-        restart: unless-stopped
-        command: --config /etc/livekit.yaml
-        ports:
-            - "7880:7880"
-            - "7881:7881"
-            - "7882:7882/udp"
-        volumes:
-            - ./docker/livekit/livekit.yaml:/etc/livekit.yaml
-        networks:
-            - pjbl-network
-
     piston:
         image: ghcr.io/engineer-man/piston
         container_name: pjbl-piston

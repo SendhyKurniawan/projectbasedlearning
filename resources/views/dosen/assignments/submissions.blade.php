@@ -4,33 +4,33 @@
 <x-app-layout>
     @vite(['resources/js/code-editor.js'])
     
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </a>
-                <div>
-                    <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight tracking-tight">
-                        Review Submissions
-                    </h2>
-                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">
-                        {{ $assignment->title }} <span class="mx-2">•</span> {{ $course->nama_matkul }}
-                    </p>
-                </div>
+    <div class="w-full space-y-6">
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+                    <a href="{{ route('dosen.dashboard') }}" class="hover:text-primary transition-colors">Overview</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <a href="{{ route('dosen.assignments.index', $course) }}" class="hover:text-primary transition-colors">Assignments</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <span class="text-primary truncate max-w-[180px]">{{ $assignment->title }}</span>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <span class="text-primary">Review</span>
+                </nav>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Review Submissions</h1>
+                <p class="mt-1 text-sm text-on-surface-variant">{{ $assignment->title }} · {{ $course->nama_matkul }}</p>
             </div>
-            
-            <div class="hidden md:flex gap-4">
-                <div class="bg-surface-container-lowest px-5 py-2.5 border border-outline-variant/30 rounded-xl shadow-sm text-center">
-                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest block mb-0.5">Sudah Dinilai</span>
-                    <span class="text-xl font-black font-headline text-primary">{{ $submissions->whereNotNull('score')->count() }}</span>
-                    <span class="text-sm font-bold text-on-surface-variant">/ {{ $submissions->count() }}</span>
+            <div class="flex items-center gap-2">
+                <div class="hidden md:flex bg-surface-container-lowest px-4 py-2 border border-outline-variant/30 rounded-xl shadow-sm items-center gap-3">
+                    <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Dinilai</span>
+                    <span class="text-lg font-black font-headline text-primary">{{ $submissions->whereNotNull('score')->count() }}<span class="text-on-surface-variant">/{{ $submissions->count() }}</span></span>
                 </div>
+                <a href="{{ route('dosen.assignments.index', $course) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+                    <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
+                </a>
             </div>
         </div>
-    </x-slot>
 
-    <div class="w-full">
         @if(session('success'))
             <div class="mb-6 bg-secondary-container border border-secondary/20 text-secondary px-5 py-4 rounded-xl font-bold shadow-sm flex items-center gap-3">
                 <span class="material-symbols-outlined text-secondary">check_circle</span>
@@ -38,7 +38,9 @@
             </div>
         @endif
 
-        @if($submissions->isEmpty())
+        @if($assignment->is_group)
+            @include('dosen.assignments._group_submissions', ['assignment' => $assignment, 'course' => $course, 'groups' => $groups])
+        @elseif($submissions->isEmpty())
             <div class="flex flex-col items-center justify-center py-20 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm">
                 <span class="material-symbols-outlined text-[80px] text-primary/20 mb-4">inventory_2</span>
                 <h3 class="text-xl font-bold font-headline text-on-surface">Belum Ada Pengumpulan</h3>
@@ -133,49 +135,8 @@
                                     </div>
                                 @endif
 
-                                <!-- File Attachment -->
-                                @if($submission->file_path)
-                                    <div>
-                                        <h4 class="text-sm font-bold font-headline text-on-surface mb-3 flex items-center gap-2">
-                                            <span class="material-symbols-outlined text-primary text-[20px]">attach_file</span>
-                                            Lampiran File
-                                        </h4>
-                                        <a href="{{ Storage::url($submission->file_path) }}" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 bg-white border border-outline-variant/30 rounded-xl hover:bg-surface-container-low hover:border-primary transition-all shadow-sm group">
-                                            <div class="w-10 h-10 rounded-lg bg-error-container text-error flex items-center justify-center">
-                                                <span class="material-symbols-outlined">picture_as_pdf</span>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Unduh / Lihat Dokumen</p>
-                                                <p class="text-xs text-on-surface-variant break-all truncate max-w-[200px] md:max-w-md">{{ basename($submission->file_path) }}</p>
-                                            </div>
-                                        </a>
-
-                                        @if(Str::endsWith(strtolower($submission->file_path), ['.jpg', '.jpeg', '.png', '.webp']))
-                                            <div class="mt-4 border border-outline-variant/20 rounded-2xl overflow-hidden shadow-sm">
-                                                 <img src="{{ Storage::url($submission->file_path) }}" class="w-full object-contain max-h-[500px] bg-surface-container-low">
-                                            </div>
-                                        @endif
-                                    </div>
-                                @endif
-
-                                <!-- URL Submission -->
-                                @if($submission->url_link)
-                                    <div>
-                                        <h4 class="text-sm font-bold font-headline text-on-surface mb-3 flex items-center gap-2">
-                                            <span class="material-symbols-outlined text-primary text-[20px]">link</span>
-                                            Tautan / Repositori
-                                        </h4>
-                                        <a href="{{ $submission->url_link }}" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 bg-white border border-outline-variant/30 rounded-xl hover:bg-surface-container-low hover:border-primary transition-all shadow-sm group w-full md:w-auto">
-                                            <div class="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0">
-                                                <span class="material-symbols-outlined">public</span>
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Buka Tautan Baru</p>
-                                                <p class="text-xs text-on-surface-variant truncate w-full group-hover:underline">{{ $submission->url_link }}</p>
-                                            </div>
-                                        </a>
-                                    </div>
-                                @endif
+                                <!-- File & URL Attachment Preview -->
+                                @include('dosen.assignments._submission_attachment', ['item' => $submission])
 
                                 <!-- Code Editor / Practical IT -->
                                 @if($submission->code_answer)
@@ -206,18 +167,33 @@
                                             </div>
                                         @endif
 
+                                        @php
+                                            $lang = $assignment->exercise_config['language'] ?? 'htmlmixed';
+                                            $isServerLang = in_array($lang, ['java', 'php', 'csharp']);
+                                            $code = $submission->code_answer;
+                                            if (!$isServerLang) {
+                                                if ($lang === 'javascript') {
+                                                    $srcdoc = '<!DOCTYPE html><html><body><script>' . $code . '<\/script></body></html>';
+                                                } elseif ($lang === 'css') {
+                                                    $srcdoc = '<!DOCTYPE html><html><head><style>' . $code . '</style></head><body><p style="font-family:sans-serif;padding:20px">CSS Preview</p></body></html>';
+                                                } else {
+                                                    $srcdoc = $code;
+                                                }
+                                            }
+                                        @endphp
                                         <div class="border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm flex flex-col md:flex-row h-auto min-h-[400px]">
                                             <!-- Code Viewer -->
-                                            <div class="flex-1 flex flex-col border-r border-outline-variant/30">
+                                            <div class="{{ $isServerLang ? 'w-full' : 'flex-1' }} flex flex-col {{ $isServerLang ? '' : 'border-r border-outline-variant/30' }}">
                                                 <div class="bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface-variant flex justify-between items-center border-b border-outline-variant/30">
                                                     <span class="uppercase tracking-widest">Koding</span>
-                                                    <span class="px-2 py-0.5 rounded bg-surface-container text-[10px]">{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}</span>
+                                                    <span class="px-2 py-0.5 rounded bg-surface-container text-[10px]">{{ $lang }}</span>
                                                 </div>
                                                 <div class="flex-1 w-full relative">
-                                                    <textarea class="code-viewer w-full h-full absolute inset-0" id="code-viewer-{{ $submission->id }}" data-language="{{ $assignment->exercise_config['language'] ?? 'htmlmixed' }}" readonly>{{ $submission->code_answer }}</textarea>
+                                                    <textarea class="code-viewer w-full h-full absolute inset-0" id="code-viewer-{{ $submission->id }}" data-language="{{ $lang }}" readonly>{{ $submission->code_answer }}</textarea>
                                                 </div>
                                             </div>
-                                            <!-- Output Preview -->
+                                            <!-- Output Preview (browser-runnable languages only) -->
+                                            @if(!$isServerLang)
                                             <div class="flex-1 flex flex-col bg-white h-[400px] md:h-auto">
                                                 <div class="bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface-variant flex justify-between items-center border-b border-outline-variant/30">
                                                     <span class="uppercase tracking-widest">Output Visual</span>
@@ -226,12 +202,13 @@
                                                     </button>
                                                 </div>
                                                 <div class="flex-1 relative w-full h-full">
-                                                    <iframe id="preview-iframe-{{ $submission->id }}" 
-                                                    srcdoc="{{ ($assignment->exercise_config['language'] ?? 'htmlmixed') == 'javascript' ? '<script>' . $submission->code_answer . '<\/script><div style=\'font-family:sans-serif;padding:20px;font-size:14px;color:#333;\'>Silakan periksa console browser untuk output JS.<br><br>Atau gunakan DOM API untuk mencetak sesuatu disini.</div>' : $submission->code_answer }}" 
-                                                    class="absolute inset-0 w-full h-full border-0 preview-iframe" 
-                                                    sandbox="allow-scripts allow-same-origin"></iframe>
+                                                    <iframe id="preview-iframe-{{ $submission->id }}"
+                                                    srcdoc="{{ $srcdoc }}"
+                                                    class="absolute inset-0 w-full h-full border-0 preview-iframe"
+                                                    sandbox="allow-scripts"></iframe>
                                                 </div>
                                             </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endif

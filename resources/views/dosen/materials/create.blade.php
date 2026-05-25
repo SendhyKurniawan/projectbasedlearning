@@ -105,6 +105,8 @@
                         @enderror
                     </div>
 
+                    @include('dosen.partials.sibling-kelas-picker')
+
                     <div class="pt-6 mt-6 border-t border-outline-variant/10 flex justify-end gap-3">
                         <a href="{{ route('dosen.materials.index', $course) }}" class="px-6 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors">
                             Batal

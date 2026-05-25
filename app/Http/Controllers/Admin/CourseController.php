@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
@@ -12,7 +13,7 @@ class CourseController extends Controller
      */
     public function index(Request $request)
     {
-        $query = \App\Models\Course::query()->with('dosen:id,name', 'semester:id,name,academic_year_id', 'semester.academicYear:id,year_start,year_end')->select('id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'sks', 'semester_id', 'student_class_id', 'created_at')->withCount('students');
+        $query = \App\Models\Course::query()->with('dosen:id,name', 'semester:id,name,academic_year_id', 'semester.academicYear:id,year_start,year_end', 'studentClass:id,name')->select('id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'sks', 'semester_id', 'student_class_id', 'created_at')->withCount('students');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -60,12 +61,19 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_matkul' => ['required', 'string', 'max:255'],
-            'kode_matkul' => ['required', 'string', 'max:50', 'unique:courses,kode_matkul'],
-            'description' => ['nullable', 'string'],
-            'dosen_id' => ['required', 'exists:users,id'],
+            'nama_matkul'      => ['required', 'string', 'max:255'],
+            'kode_matkul'      => [
+                'required', 'string', 'max:50',
+                Rule::unique('courses')->where(fn ($q) => $q
+                    ->where('dosen_id', $request->dosen_id)
+                    ->where('semester_id', $request->semester_id)
+                    ->where('student_class_id', $request->student_class_id ?: null)
+                ),
+            ],
+            'description'      => ['nullable', 'string'],
+            'dosen_id'         => ['required', 'exists:users,id'],
             'student_class_id' => ['nullable', 'exists:student_classes,id'],
-            'semester_id' => ['required', 'exists:semesters,id'],
+            'semester_id'      => ['required', 'exists:semesters,id'],
         ]);
 
         // Verify assigned user is actually a dosen
@@ -116,12 +124,19 @@ class CourseController extends Controller
         $course = \App\Models\Course::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_matkul' => ['required', 'string', 'max:255'],
-            'kode_matkul' => ['required', 'string', 'max:50', 'unique:courses,kode_matkul,'.$course->id],
-            'description' => ['nullable', 'string'],
-            'dosen_id' => ['required', 'exists:users,id'],
+            'nama_matkul'      => ['required', 'string', 'max:255'],
+            'kode_matkul'      => [
+                'required', 'string', 'max:50',
+                Rule::unique('courses')->where(fn ($q) => $q
+                    ->where('dosen_id', $request->dosen_id)
+                    ->where('semester_id', $request->semester_id)
+                    ->where('student_class_id', $request->student_class_id ?: null)
+                )->ignore($course->id),
+            ],
+            'description'      => ['nullable', 'string'],
+            'dosen_id'         => ['required', 'exists:users,id'],
             'student_class_id' => ['nullable', 'exists:student_classes,id'],
-            'semester_id' => ['required', 'exists:semesters,id'],
+            'semester_id'      => ['required', 'exists:semesters,id'],
         ]);
 
         $course->update($validated);

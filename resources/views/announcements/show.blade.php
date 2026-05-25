@@ -1,16 +1,20 @@
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- {{ $announcement->title }}
- </h2>
- <a href="{{ route('announcements.index') }}" class="text-sm text-on-surface-variant hover:text-on-surface ">
- &larr; Kembali
+ <div class="space-y-6">
+ {{-- Section Header --}}
+ <div class="flex flex-wrap items-end justify-between gap-4">
+ <div>
+ <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+ <a href="{{ route('announcements.index') }}" class="hover:text-primary transition-colors">Pengumuman</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <span class="text-primary truncate max-w-[200px]">{{ $announcement->title }}</span>
+ </nav>
+ <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">{{ $announcement->title }}</h1>
+ <p class="mt-1 text-sm text-on-surface-variant">Detail pengumuman.</p>
+ </div>
+ <a href="{{ route('announcements.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+ <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
  </a>
  </div>
- </x-slot>
-
- <div class="space-y-6">
  <div class="max-w-4xl mx-auto ">
  <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
  <div class="p-8">
@@ -43,7 +47,7 @@
  <h4 class="text-sm font-semibold text-on-surface-variant uppercase tracking-wide mb-3">Lampiran</h4>
  @if($announcement->attachmentIsImage())
  <a href="{{ Storage::url($announcement->attachment_path) }}" target="_blank" rel="noopener" class="inline-block">
- <img src="{{ Storage::url($announcement->attachment_path) }}" alt="{{ $announcement->attachment_name }}" class="max-w-full max-h-[70vh] rounded-lg border border-outline-variant/30 shadow-sm" />
+ <img src="{{ Storage::url($announcement->attachment_path) }}" alt="{{ $announcement->attachment_name }}" loading="lazy" class="max-w-full max-h-[70vh] rounded-lg border border-outline-variant/30 shadow-sm" />
  </a>
  <p class="mt-2 text-xs text-on-surface-variant">{{ $announcement->attachment_name }}</p>
  @elseif($announcement->attachmentIsPdf())

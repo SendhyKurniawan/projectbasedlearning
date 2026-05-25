@@ -2,48 +2,62 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class CodeExecutionController extends Controller
 {
-    public function execute(Request $request)
+    public function execute(Request $request): JsonResponse
     {
-        $request->validate([
-            'code'     => 'required|string',
-            'language' => 'required|string|in:' . implode(',', config('code_execution.server_side_languages')),
+        $map = config('code_execution.piston_language_map', []);
+
+        $validated = $request->validate([
+            'code' => 'required|string|max:50000',
+            'language' => 'required|string|in:' . implode(',', array_keys($map)),
         ]);
 
-        $pistonLang = match ($request->language) {
-            'java'   => ['language' => 'java',   'version' => '*'],
-            'php'    => ['language' => 'php',    'version' => '*'],
-            'csharp' => ['language' => 'csharp', 'version' => '*'],
-            default  => ['language' => $request->language, 'version' => '*'],
-        };
-
-        $pistonUrl = config('services.piston.url', 'https://emkc.org/api/v2/piston');
+        $pistonLanguage = $map[$validated['language']];
+        $base = rtrim((string) config('services.piston.url'), '/');
+        $timeout = (int) config('services.piston.timeout', 10);
 
         try {
-            $response = Http::timeout(15)->post("{$pistonUrl}/execute", [
-                'language' => $pistonLang['language'],
-                'version'  => $pistonLang['version'],
-                'files'    => [['content' => $request->code]],
+            $response = Http::timeout($timeout)->acceptJson()->post($base . '/execute', [
+                'language' => $pistonLanguage,
+                'version'  => '*',
+                'files'    => [['content' => $validated['code']]],
             ]);
-
-            if ($response->failed()) {
-                return response()->json(['error' => 'Execution service unavailable.'], 502);
-            }
-
-            $body = $response->json();
-            $run  = $body['run'] ?? [];
-
-            return response()->json([
-                'stdout'    => $run['stdout'] ?? '',
-                'stderr'    => $run['stderr'] ?? '',
-                'exit_code' => $run['code']   ?? -1,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Execution service error: ' . $e->getMessage()], 502);
+        } catch (ConnectionException | RequestException $e) {
+            Log::warning('Piston request failed', ['error' => $e->getMessage()]);
+            return $this->serviceUnavailable();
         }
+
+        if (!$response->successful()) {
+            Log::warning('Piston returned non-2xx', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+            return $this->serviceUnavailable();
+        }
+
+        $run = $response->json('run', []);
+
+        return response()->json([
+            'stdout'    => (string) ($run['stdout'] ?? ''),
+            'stderr'    => (string) ($run['stderr'] ?? ''),
+            'exit_code' => (int) ($run['code'] ?? -1),
+        ]);
+    }
+
+    private function serviceUnavailable(): JsonResponse
+    {
+        return response()->json([
+            'stdout'    => '',
+            'stderr'    => 'Execution service unavailable.',
+            'exit_code' => -1,
+        ], 502);
     }
 }

@@ -2,111 +2,111 @@
     @vite('resources/css/pages/shared/announcements.css')
 @endpush
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- {{ __('Pusat Pengumuman') }}
- </h2>
- @if(Auth::user()->role === 'admin' || Auth::user()->role === 'dosen')
- <a href="{{ route('announcements.create') }}" class="px-4 py-2 architectural-gradient text-on-primary text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 transition ease-in-out duration-150">
- + Buat Pengumuman
- </a>
- @endif
- </div>
- </x-slot>
+    <div class="space-y-6">
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Pengumuman</h1>
+                <p class="mt-1 text-sm text-on-surface-variant">Informasi penting dari admin pusat dan dosen.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <form method="GET" action="{{ route('announcements.index') }}" class="flex gap-2">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-base">search</span>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari pengumuman..." class="pl-9 pr-3 py-2.5 rounded-xl border border-outline-variant/20 bg-surface-container-lowest text-sm w-56 focus:outline-none focus:ring-2 focus:ring-primary/20">
+                    </div>
+                </form>
+                @if(in_array(Auth::user()->role, ['admin', 'dosen']))
+                    <a href="{{ route('announcements.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm">
+                        <span class="material-symbols-outlined text-base">add</span> Buat Pengumuman
+                    </a>
+                @endif
+            </div>
+        </div>
 
- <div class="space-y-6">
- <div class="max-w-7xl mx-auto ">
- <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
- <div class="p-6 text-on-surface">
+        @if(session('success'))
+            <div class="px-5 py-3 bg-secondary-container/30 border-l-4 border-secondary text-secondary rounded-xl text-sm font-bold">{{ session('success') }}</div>
+        @endif
 
- @if(session('success'))
- <div class="mb-4 bg-secondary-container border-l-4 border-secondary text-secondary p-4" role="alert">
- <p>{{ session('success') }}</p>
- </div>
- @endif
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {{-- LEFT: Announcement list --}}
+            <main class="lg:col-span-8 space-y-4">
+                @forelse ($announcements as $a)
+                    @php
+                        $isPinned = false;
+                        $accent = match($a->target_audience ?? '') {
+                            'all' => 'primary',
+                            'dosen' => 'secondary',
+                            'mahasiswa' => 'tertiary',
+                            default => 'on-surface-variant',
+                        };
+                    @endphp
+                    <article class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6 {{ $isPinned ? 'border-l-4 border-l-tertiary' : '' }}">
+                        <header class="flex items-center justify-between gap-3 mb-3">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-{{ $accent }}/10 text-{{ $accent }} text-[10px] font-bold uppercase tracking-widest">{{ ucfirst($a->target_audience) }}</span>
+                                @if($a->hasAttachment())
+                                    <span class="px-2 py-0.5 rounded-md bg-surface-container text-[10px] font-bold flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">attach_file</span>
+                                        {{ $a->attachmentIsImage() ? 'Gambar' : ($a->attachmentIsPdf() ? 'PDF' : 'Lampiran') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <span class="text-[11px] text-on-surface-variant">{{ $a->created_at->diffForHumans() }}</span>
+                        </header>
+                        <h2 class="font-headline text-xl font-bold mb-2">
+                            <a href="{{ route('announcements.show', $a) }}" class="hover:text-primary transition-colors">{{ $a->title }}</a>
+                        </h2>
+                        <p class="text-sm text-on-surface-variant line-clamp-2">{{ Str::limit(strip_tags($a->content), 180) }}</p>
+                        <footer class="flex items-center justify-between mt-4 pt-4 border-t border-outline-variant/10">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-primary-fixed text-primary flex items-center justify-center text-[10px] font-bold">
+                                    {{ strtoupper(substr($a->author->name, 0, 2)) }}
+                                </div>
+                                <span class="text-xs text-on-surface-variant">{{ $a->author->name }} · {{ ucfirst($a->author->role) }}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                @if(Auth::id() === $a->user_id || Auth::user()->role === 'admin')
+                                    <a href="{{ route('announcements.edit', $a) }}" class="text-xs font-bold text-tertiary">Edit</a>
+                                    <form action="{{ route('announcements.destroy', $a) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?');">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="text-xs font-bold text-error">Hapus</button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('announcements.show', $a) }}" class="text-xs font-bold text-primary hover:underline">Baca selengkapnya →</a>
+                            </div>
+                        </footer>
+                    </article>
+                @empty
+                    <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-12 text-center">
+                        <span class="material-symbols-outlined text-5xl text-outline mb-3">campaign</span>
+                        <h3 class="font-headline text-lg font-bold">Belum ada pengumuman</h3>
+                    </div>
+                @endforelse
 
- <form method="GET" action="{{ route('announcements.index') }}" class="mb-6 flex flex-col sm:flex-row gap-3">
-     <input
-         type="text"
-         name="search"
-         value="{{ request('search') }}"
-         placeholder="Cari judul atau isi pengumuman..."
-         class="flex-1 px-4 py-2 rounded-xl border border-outline/30 bg-surface-container text-on-surface placeholder-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 text-sm"
-     >
-     <select name="target" class="px-4 py-2 rounded-xl border border-outline/30 bg-surface-container text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
-         <option value="">Semua Target</option>
-         <option value="all" {{ request('target') === 'all' ? 'selected' : '' }}>Semua Pengguna</option>
-         <option value="mahasiswa" {{ request('target') === 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
-         <option value="dosen" {{ request('target') === 'dosen' ? 'selected' : '' }}>Dosen</option>
-         <option value="specific" {{ request('target') === 'specific' ? 'selected' : '' }}>Spesifik</option>
-     </select>
-     <button type="submit" class="px-5 py-2 architectural-gradient text-on-primary text-sm font-bold rounded-xl shadow shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition ease-in-out duration-150">
-         Cari
-     </button>
-     @if(request('search') || request('target'))
-     <a href="{{ route('announcements.index') }}" class="px-4 py-2 rounded-xl border border-outline/30 text-on-surface-variant text-sm font-medium hover:bg-surface-container transition ease-in-out duration-150 text-center">
-         Reset
-     </a>
-     @endif
- </form>
+                @if($announcements->hasPages())
+                    <div>{{ $announcements->links() }}</div>
+                @endif
+            </main>
 
- <div class="space-y-6">
- @forelse ($announcements as $announcement)
- <div class="bg-surface-container-low/50 p-6 rounded-lg border border-surface-container-low shadow-sm relative">
- <h3 class="text-xl font-bold mb-2">
- <a href="{{ route('announcements.show', $announcement) }}" class="text-primary hover:text-primary-hover">
- {{ $announcement->title }}
- </a>
- </h3>
- 
- <div class="mb-4 text-xs font-semibold uppercase tracking-wide">
- <span class="text-on-surface-variant">Oleh: {{ $announcement->author->name }} ({{ ucfirst($announcement->author->role) }})</span>
- <span class="mx-2 text-outline">|</span>
- <span class="text-on-surface-variant">{{ $announcement->created_at->format('d M Y, H:i') }}</span>
- <span class="mx-2 text-outline">|</span>
- <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-container text-on-primary">
- Target: {{ ucfirst($announcement->target_audience) }}
- </span>
- @if($announcement->hasAttachment())
- <span class="mx-2 text-outline">|</span>
- <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
- <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.414a4 4 0 10-5.656-5.656L5.172 10.93a6 6 0 108.485 8.485L20 13.07"/></svg>
- {{ $announcement->attachmentIsImage() ? 'Gambar' : ($announcement->attachmentIsPdf() ? 'PDF' : 'Lampiran') }}
- </span>
- @endif
- </div>
+            {{-- RIGHT: Filter sidebar --}}
+            <aside class="lg:col-span-4 space-y-6">
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-5">
+                    <h3 class="font-headline text-base font-bold mb-3">Filter Target</h3>
+                    <div class="space-y-1">
+                        @foreach([['', 'Semua'], ['all', 'Semua Pengguna'], ['mahasiswa', 'Mahasiswa'], ['dosen', 'Dosen'], ['specific', 'Spesifik']] as [$val, $label])
+                            <a href="{{ route('announcements.index', ['target' => $val]) }}" class="flex items-center justify-between px-3 py-2 rounded-lg {{ request('target') === $val ? 'bg-primary-container text-on-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-low' }}">
+                                <span class="text-xs">{{ $label }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
 
- <p class="text-on-surface-variant">
- {{ Str::limit(strip_tags($announcement->content), 200) }}
- </p>
-
- @if(Auth::id() === $announcement->user_id || Auth::user()->role === 'admin')
- <div class="absolute top-4 right-4 flex space-x-2">
- <a href="{{ route('announcements.edit', $announcement) }}" class="text-sm text-warning hover:text-warning/80">Edit</a>
- <form action="{{ route('announcements.destroy', $announcement) }}" method="POST" class="inline" onsubmit="return confirm('Yakin ingin menghapus pengumuman ini?');">
- @csrf
- @method('DELETE')
- <button type="submit" class="text-sm text-error hover:text-error/80">Hapus</button>
- </form>
- </div>
- @endif
- </div>
- @empty
- <div class="text-center space-y-6 text-on-surface-variant">
- <svg class="mx-auto h-12 w-12 text-outline" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
- <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
- </svg>
- <h3 class="mt-2 text-sm font-medium">Belum ada pengumuman</h3>
- </div>
- @endforelse
- </div>
-
- <div class="mt-6">
- {{ $announcements->links() }}
- </div>
- </div>
- </div>
- </div>
- </div>
+                <section class="bg-tertiary-fixed/40 rounded-2xl border border-tertiary/20 p-5">
+                    <h3 class="font-headline text-sm font-bold mb-2">📌 Tips</h3>
+                    <p class="text-xs text-on-surface-variant">Pengumuman dari Admin Pusat berlaku universitas. Pengumuman dari dosen biasanya terkait mata kuliah tertentu.</p>
+                </section>
+            </aside>
+        </div>
+    </div>
 </x-app-layout>

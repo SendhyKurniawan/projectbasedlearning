@@ -1,0 +1,143 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - link "school PBL Workspace Project-Based Learning" [ref=e5] [cursor=pointer]:
+      - /url: http://localhost:8000/mahasiswa/dashboard
+      - generic [ref=e7]: school
+      - generic [ref=e8]:
+        - heading "PBL Workspace" [level=1] [ref=e9]
+        - paragraph [ref=e10]: Project-Based Learning
+    - navigation [ref=e11]:
+      - link "dashboard Dashboard" [ref=e12] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/dashboard
+        - generic [ref=e13]: dashboard
+        - generic [ref=e14]: Dashboard
+      - generic [ref=e15]: Learning
+      - link "grade Nilai Saya" [ref=e16] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/grades
+        - generic [ref=e17]: grade
+        - generic [ref=e18]: Nilai Saya
+      - link "auto_stories Mata Kuliah" [ref=e19] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/courses
+        - generic [ref=e20]: auto_stories
+        - generic [ref=e21]: Mata Kuliah
+      - link "videocam Kelas Virtual" [ref=e22] [cursor=pointer]:
+        - /url: http://localhost:8000/mahasiswa/courses/1/conferences
+        - generic [ref=e23]: videocam
+        - generic [ref=e24]: Kelas Virtual
+      - generic [ref=e25]: Community
+      - link "forum Forum Diskusi" [ref=e26] [cursor=pointer]:
+        - /url: http://localhost:8000/discussions
+        - generic [ref=e27]: forum
+        - generic [ref=e28]: Forum Diskusi
+      - link "campaign Pengumuman" [ref=e29] [cursor=pointer]:
+        - /url: http://localhost:8000/announcements
+        - generic [ref=e30]: campaign
+        - generic [ref=e31]: Pengumuman
+    - generic [ref=e32]:
+      - generic [ref=e33]:
+        - generic [ref=e34]: MA
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: Mahasiswa Dusk
+          - paragraph [ref=e37]: Mahasiswa
+      - generic [ref=e38]:
+        - link "person Profile" [ref=e39] [cursor=pointer]:
+          - /url: http://localhost:8000/profile
+          - generic [ref=e40]: person
+          - generic [ref=e41]: Profile
+        - button "logout Logout" [ref=e43] [cursor=pointer]:
+          - generic [ref=e44]: logout
+          - generic [ref=e45]: Logout
+  - generic [ref=e46]:
+    - button "notifications" [ref=e49] [cursor=pointer]:
+      - generic [ref=e50]: notifications
+    - main [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - heading "Halo, Mahasiswa Dusk 👋" [level=1] [ref=e55]
+            - paragraph [ref=e56]: Berikut ringkasan progres belajar dan agenda kamu hari ini.
+          - generic [ref=e57]:
+            - link "add Gabung Kelas" [ref=e58] [cursor=pointer]:
+              - /url: http://localhost:8000/mahasiswa/courses
+              - generic [ref=e59]: add
+              - text: Gabung Kelas
+            - link "calendar_month Lihat Jadwal" [ref=e60] [cursor=pointer]:
+              - /url: "#jadwal"
+              - generic [ref=e61]: calendar_month
+              - text: Lihat Jadwal
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e67]: auto_stories
+            - paragraph [ref=e68]: Kelas Aktif
+            - paragraph [ref=e69]: "2"
+            - paragraph [ref=e70]: Semester ini
+          - generic [ref=e71]:
+            - generic [ref=e75]: assignment
+            - paragraph [ref=e76]: Tugas Pending
+            - paragraph [ref=e77]: "7"
+            - paragraph [ref=e78]: 0 due minggu ini
+          - generic [ref=e79]:
+            - generic [ref=e83]: check_circle
+            - paragraph [ref=e84]: Tugas Selesai
+            - paragraph [ref=e85]: "1"
+            - paragraph [ref=e86]: Total submit
+          - generic [ref=e87]:
+            - generic [ref=e91]: fact_check
+            - paragraph [ref=e92]: Total Tugas
+            - paragraph [ref=e93]: "8"
+            - paragraph [ref=e94]: Semua MK
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - generic [ref=e98]:
+                - heading "Tugas Mendatang" [level=2] [ref=e99]
+                - link "Lihat semua →" [ref=e100] [cursor=pointer]:
+                  - /url: "#"
+              - table [ref=e102]:
+                - rowgroup [ref=e103]:
+                  - row "Tugas Mata Kuliah Tipe Deadline" [ref=e104]:
+                    - columnheader "Tugas" [ref=e105]
+                    - columnheader "Mata Kuliah" [ref=e106]
+                    - columnheader "Tipe" [ref=e107]
+                    - columnheader "Deadline" [ref=e108]
+                    - columnheader [ref=e109]
+                - rowgroup [ref=e110]:
+                  - row "Tidak ada tugas mendatang." [ref=e111]:
+                    - cell "Tidak ada tugas mendatang." [ref=e112]
+            - generic [ref=e113]:
+              - heading "Progres Mata Kuliah" [level=2] [ref=e114]
+              - generic [ref=e115]:
+                - generic [ref=e117]:
+                  - generic [ref=e118]: Pemrograman Dasar
+                  - generic [ref=e119]: 75%
+                - generic [ref=e123]:
+                  - generic [ref=e124]: Pemrograman Dasar
+                  - generic [ref=e125]: 67%
+          - complementary [ref=e128]:
+            - generic [ref=e129]:
+              - heading "Jadwal Hari Ini" [level=2] [ref=e130]
+              - generic [ref=e131]:
+                - generic [ref=e132]:
+                  - generic [ref=e133]: 08:00
+                  - generic [ref=e134]:
+                    - paragraph [ref=e135]: Pemrograman Dasar
+                    - paragraph [ref=e136]: Dosen Dusk
+                  - generic [ref=e137]: Live
+                - generic [ref=e138]:
+                  - generic [ref=e139]: 10:00
+                  - generic [ref=e140]:
+                    - paragraph [ref=e141]: Pemrograman Dasar
+                    - paragraph [ref=e142]: Dosen Dusk
+            - generic [ref=e143]:
+              - heading "campaign Pengumuman Terbaru" [level=2] [ref=e144]:
+                - generic [ref=e145]: campaign
+                - text: Pengumuman Terbaru
+              - paragraph [ref=e147]: Belum ada pengumuman.
+              - link "Lihat semua →" [ref=e148] [cursor=pointer]:
+                - /url: http://localhost:8000/announcements
+            - generic [ref=e149]:
+              - heading "Aktivitas Forum" [level=2] [ref=e150]
+              - link "Buka Forum Diskusi arrow_forward" [ref=e151] [cursor=pointer]:
+                - /url: http://localhost:8000/discussions
+                - text: Buka Forum Diskusi
+                - generic [ref=e152]: arrow_forward

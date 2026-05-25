@@ -26,7 +26,7 @@ _ide_helper.php
 _ide_helper_models.php
 .phpstorm.meta.php
 /.agent/rules
-/playwright-report
-/.playwright-mcp/test-results
-/tests/playwright/.auth
-/test-results
+.agent/
+.claude/
+.gemini/
+.fallow/

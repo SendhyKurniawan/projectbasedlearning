@@ -1,16 +1,20 @@
 <x-app-layout>
- <x-slot name="header">
- <div class="flex justify-between items-center">
- <h2 class="font-extrabold text-2xl font-headline text-on-surface leading-tight">
- {{ __('Edit Pengumuman') }}
- </h2>
- <a href="{{ route('announcements.index') }}" class="text-sm text-on-surface-variant hover:text-on-surface ">
- &larr; Kembali
+ <div class="space-y-6">
+ {{-- Section Header --}}
+ <div class="flex flex-wrap items-end justify-between gap-4">
+ <div>
+ <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+ <a href="{{ route('announcements.index') }}" class="hover:text-primary transition-colors">Pengumuman</a>
+ <span class="material-symbols-outlined text-xs">chevron_right</span>
+ <span class="text-primary truncate max-w-[160px]">Edit {{ $announcement->title }}</span>
+ </nav>
+ <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Edit Pengumuman</h1>
+ <p class="mt-1 text-sm text-on-surface-variant">{{ $announcement->title }}</p>
+ </div>
+ <a href="{{ route('announcements.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+ <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
  </a>
  </div>
- </x-slot>
-
- <div class="space-y-6">
  <div class="max-w-4xl mx-auto ">
  <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
  <div class="p-6 text-on-surface">
@@ -75,7 +79,7 @@
  <div class="mt-2 mb-2 p-3 rounded-md border border-outline-variant/30 bg-surface-container-low/30 flex items-center justify-between gap-3">
  <div class="flex items-center gap-3 min-w-0">
  @if($announcement->attachmentIsImage())
- <img src="{{ Storage::url($announcement->attachment_path) }}" alt="Lampiran saat ini" class="h-12 w-12 object-cover rounded" />
+ <img src="{{ Storage::url($announcement->attachment_path) }}" alt="Lampiran saat ini" loading="lazy" width="48" height="48" class="h-12 w-12 object-cover rounded" />
  @else
  <span class="inline-flex items-center justify-center h-12 w-12 rounded bg-primary/10 text-primary font-bold">PDF</span>
  @endif

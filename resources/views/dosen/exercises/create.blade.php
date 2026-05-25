@@ -5,17 +5,22 @@
     @vite(['resources/js/code-editor.js'])
     
     <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </a>
-                <div>
-                    <h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Buat Latihan Kode</h2>
-                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">{{ $course->nama_matkul }}</p>
-                </div>
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+                    <a href="{{ route('dosen.dashboard') }}" class="hover:text-primary transition-colors">Overview</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <a href="{{ route('dosen.assignments.index', $course) }}" class="hover:text-primary transition-colors">Assignments</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <span class="text-primary">Latihan Kode Baru</span>
+                </nav>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Buat Latihan Kode</h1>
+                <p class="mt-1 text-sm text-on-surface-variant">{{ $course->nama_matkul }} ({{ $course->kode_matkul }})</p>
             </div>
+            <a href="{{ route('dosen.assignments.index', $course) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+                <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
+            </a>
         </div>
 
         <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm p-6 lg:p-10 relative overflow-hidden">
@@ -29,7 +34,7 @@
                     <div class="space-y-6 bg-surface-container-low/30 p-6 rounded-2xl border border-outline-variant/20">
                         <!-- Title -->
                         <div>
-                            <label for="title" class="block text-xs font-bold font-headline uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
+                            <label for="title" class="text-xs font-bold font-headline uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[18px]">title</span> Judul Latihan <span class="text-error">*</span>
                             </label>
                             <input type="text" name="title" id="title" value="{{ old('title') }}" required
@@ -68,6 +73,9 @@
                                     <option value="html" {{ old('exercise_language') === 'html' ? 'selected' : '' }}>HTML Only</option>
                                     <option value="css" {{ old('exercise_language') === 'css' ? 'selected' : '' }}>CSS</option>
                                     <option value="javascript" {{ old('exercise_language') === 'javascript' ? 'selected' : '' }}>JavaScript</option>
+                                    <option value="java" {{ old('exercise_language') === 'java' ? 'selected' : '' }}>Java</option>
+                                    <option value="php" {{ old('exercise_language') === 'php' ? 'selected' : '' }}>PHP</option>
+                                    <option value="csharp" {{ old('exercise_language') === 'csharp' ? 'selected' : '' }}>C#</option>
                                 </select>
                             </div>
                         </div>
@@ -101,16 +109,10 @@
                                 </label>
                                 <span class="text-[10px] text-on-surface-variant font-medium">Bisa diedit oleh mahasiswa</span>
                             </div>
-                            <textarea id="starter-code-editor" name="starter_code" required>{{ old('starter_code', '<!DOCTYPE html>
-<html>
-<head>
-    <title>My First Website</title>
-</head>
-<body>
-    <!-- TODO: Lengkapi kode di sini -->
-    
-</body>
-</html>') }}</textarea>
+                            <textarea id="starter-code-editor" name="starter_code">{{ old('starter_code', '') }}</textarea>
+                            @error('starter_code')
+                                <p class="text-error text-xs font-bold px-4 py-2 flex items-center gap-1 bg-error-container/30 border-t border-outline-variant/20"><span class="material-symbols-outlined text-[14px]">error</span> {{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Solution Code -->
@@ -122,6 +124,9 @@
                                 <span class="text-[10px] text-on-surface-variant font-medium">Hanya untuk referensi Dosen</span>
                             </div>
                             <textarea id="solution-code-editor" name="solution_code">{{ old('solution_code') }}</textarea>
+                            @error('solution_code')
+                                <p class="text-error text-xs font-bold px-4 py-2 flex items-center gap-1 bg-error-container/30 border-t border-outline-variant/20"><span class="material-symbols-outlined text-[14px]">error</span> {{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -154,6 +159,8 @@
                         </div>
                     </div>
 
+                    @include('dosen.partials.sibling-kelas-picker')
+
                     <!-- Submit Buttons -->
                     <div class="pt-6 border-t border-outline-variant/20 flex justify-end gap-3">
                         <a href="{{ route('dosen.assignments.index', $course) }}" class="px-6 py-3 border border-outline-variant/30 text-on-surface-variant font-bold rounded-xl hover:bg-surface-container transition-colors text-center">Batal</a>
@@ -173,17 +180,28 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 14px;
             padding: 10px 0;
-            background: #fff;
+            background: var(--surface, #fff);
+            color: var(--on-surface, #1a1c25);
         }
         .CodeMirror-gutters {
-            background-color: #f8fafc;
-            border-right: 1px solid rgba(0,0,0,0.05);
+            background-color: var(--surface-container-low, #f8fafc);
+            border-right: 1px solid var(--outline-variant, rgba(0,0,0,0.05));
         }
     </style>
 
     <script>
+        const starterDefaults = {
+            htmlmixed: `<!DOCTYPE html>\n<html>\n<head>\n    <title>My First Website</title>\n</head>\n<body>\n    <!-- TODO: Lengkapi kode di sini -->\n\n</body>\n</html>`,
+            html: `<!DOCTYPE html>\n<html>\n<head>\n    <title>Document</title>\n</head>\n<body>\n\n</body>\n</html>`,
+            css: `body {\n    /* TODO */\n}`,
+            javascript: `// TODO: tulis kode JavaScript di sini\nconsole.log("Hello, World!");`,
+            java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}`,
+            php: `\x3C?php\n\necho "Hello, World!";\n`,
+            csharp: `using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, World!");\n    }\n}`,
+        };
+        const defaultsSet = new Set(Object.values(starterDefaults).map(s => s.trim()));
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize CodeMirror editors (relying on existing code-editor.js logic)
             if (typeof initCodeEditor === 'function') {
                 const starterEditor = initCodeEditor('starter-code-editor', {
                     mode: 'htmlmixed',
@@ -195,11 +213,26 @@
                     lineNumbers: true,
                 });
 
-                // Update mode when language changes
+                const initialLang = document.getElementById('exercise_language').value;
+                if (starterEditor.getValue().trim() === '' && starterDefaults[initialLang]) {
+                    starterEditor.setValue(starterDefaults[initialLang]);
+                }
+
                 document.getElementById('exercise_language').addEventListener('change', function() {
-                    const mode = this.value;
+                    const lang = this.value;
+                    const mode = cmModeMap[lang] || lang;
                     starterEditor.setOption('mode', mode);
                     solutionEditor.setOption('mode', mode);
+
+                    const current = starterEditor.getValue().trim();
+                    if (starterDefaults[lang] && (current === '' || defaultsSet.has(current))) {
+                        starterEditor.setValue(starterDefaults[lang]);
+                    }
+                });
+
+                document.getElementById('exercise-form').addEventListener('submit', function() {
+                    starterEditor.save();
+                    solutionEditor.save();
                 });
             } else {
                 console.warn("initCodeEditor function not found. Please ensure code-editor.js is loaded.");

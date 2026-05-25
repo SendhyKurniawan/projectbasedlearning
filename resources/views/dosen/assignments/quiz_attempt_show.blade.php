@@ -3,17 +3,22 @@
 @endpush
 <x-app-layout>
     <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.quizzes.attempts.index', $quiz) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </a>
-                <div>
-                    <h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Kuis: {{ $quiz->title }}</h2>
-                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">Detail Percobaan Mahasiswa</p>
-                </div>
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+                    <a href="{{ route('dosen.dashboard') }}" class="hover:text-primary transition-colors">Overview</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="hover:text-primary transition-colors truncate max-w-[160px]">{{ $assignment->title }}</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <span class="text-primary">Detail Percobaan</span>
+                </nav>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Detail Percobaan</h1>
+                <p class="mt-1 text-sm text-on-surface-variant">{{ $assignment->title }} · Tinjau jawaban mahasiswa.</p>
             </div>
+            <a href="{{ route('dosen.assignments.submissions', $assignment) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+                <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
+            </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -23,11 +28,11 @@
                 <div class="bg-surface-container-lowest border border-outline-variant/30 p-6 rounded-2xl shadow-sm relative overflow-hidden">
                     <div class="flex items-center gap-4 mb-6 relative z-10">
                         <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary flex items-center justify-center font-bold font-headline text-2xl uppercase shadow-inner">
-                            {{ substr($attempt->mahasiswa->name ?? 'U', 0, 1) }}
+                            {{ substr($submission->mahasiswa->name ?? 'U', 0, 1) }}
                         </div>
                         <div>
-                            <h3 class="font-bold font-headline text-lg text-on-surface">{{ $attempt->mahasiswa->name }}</h3>
-                            <p class="text-xs text-on-surface-variant">{{ $attempt->mahasiswa->email }}</p>
+                            <h3 class="font-bold font-headline text-lg text-on-surface">{{ $submission->mahasiswa->name }}</h3>
+                            <p class="text-xs text-on-surface-variant">{{ $submission->mahasiswa->email }}</p>
                         </div>
                     </div>
                     
@@ -38,7 +43,7 @@
                             </div>
                             <div>
                                 <p class="text-[10px] font-bold tracking-widest uppercase text-on-surface-variant">Diselesaikan</p>
-                                <p class="text-sm font-semibold text-on-surface">{{ $attempt->finished_at ? $attempt->finished_at->format('d M Y, H:i') : 'Belum Selesai' }}</p>
+                                <p class="text-sm font-semibold text-on-surface">{{ $submission->finished_at ? $submission->finished_at->format('d M Y, H:i') : 'Belum Selesai' }}</p>
                             </div>
                         </div>
                     </div>
@@ -50,8 +55,8 @@
                 <div class="bg-primary-container p-8 rounded-2xl shadow-sm relative overflow-hidden text-center">
                     <p class="text-xs font-bold text-on-primary-container/80 uppercase tracking-widest mb-2">Total Skor Sistem</p>
                     <div class="flex justify-center items-baseline gap-2">
-                        <span class="text-6xl font-black font-headline text-on-primary-container">{{ $attempt->total_score ?? 0 }}</span>
-                        <span class="text-xl font-bold text-on-primary-container/60">/ {{ $quiz->questions->sum('score_weight') }}</span>
+                        <span class="text-6xl font-black font-headline text-on-primary-container">{{ $submission->total_score ?? 0 }}</span>
+                        <span class="text-xl font-bold text-on-primary-container/60">/ {{ $assignment->questions->sum('score_weight') }}</span>
                     </div>
                     <p class="text-[10px] text-on-primary-container/70 mt-4 max-w-[200px] mx-auto leading-relaxed font-bold">Skor saat ini dihitung berdasarkan jawaban pilihan ganda secara otomatis.</p>
                     <span class="material-symbols-outlined absolute -left-4 top-1/2 -translate-y-1/2 text-[100px] text-white/[0.05] pointer-events-none drop-shadow-md">social_leaderboard</span>
@@ -66,15 +71,15 @@
                 </h3>
                 
                 <div class="space-y-8">
-                    @foreach($quiz->questions as $index => $question)
+                    @foreach($assignment->questions as $index => $question)
                         @php
-                            $userAnswer = $attempt->answers[$question->id] ?? null;
+                            $userAnswer = $submission->answers[$question->id] ?? null;
                             $isCorrect = false;
                             $correctOption = null;
                             
                             if ($question->question_type === 'pilihan_ganda') {
                                 $correctOption = $question->options->where('is_correct', true)->first();
-                                $isCorrect = $userAnswer == $correctOption->id;
+                                $isCorrect = $correctOption && $userAnswer == $correctOption->id;
                             }
                         @endphp
 

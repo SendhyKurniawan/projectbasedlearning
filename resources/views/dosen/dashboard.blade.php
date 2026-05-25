@@ -3,116 +3,174 @@
 @endpush
 <x-app-layout>
     <div class="space-y-8">
-        <!-- Page Header & Action -->
-        <div class="flex justify-between items-end">
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold font-headline tracking-tight text-on-surface">Lecturer Overview</h1>
-                <p class="text-on-surface-variant mt-1">Overview of your courses and academic activity.</p>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Selamat datang, {{ Auth::user()->name }}</h1>
+                <p class="mt-1 text-sm text-on-surface-variant max-w-xl">Kelas Anda hari ini dan tugas yang menunggu review.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                @if($courses->first())
+                    <a href="{{ route('dosen.materials.index', $courses->first()) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-lowest border border-outline-variant/20 text-sm font-bold hover:bg-surface-container-low">
+                        <span class="material-symbols-outlined text-base">upload_file</span> Upload Materi
+                    </a>
+                    <a href="{{ route('dosen.assignments.index', $courses->first()) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm">
+                        <span class="material-symbols-outlined text-base">add</span> Buat Tugas/Kuis
+                    </a>
+                @endif
             </div>
         </div>
 
-        <!-- Course Management Bento Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <!-- Primary Stats -->
-            <div class="md:col-span-1 bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group shadow-sm border border-outline-variant/10">
-                <div class="absolute top-0 left-0 h-full w-1 bg-primary"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-primary" data-icon="auto_stories">auto_stories</span>
+        {{-- 4-Stat Row --}}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            @foreach([
+                ['Kelas Diampu', $stats['total_courses'], 'Semester ini', 'auto_stories', 'primary'],
+                ['Total Mahasiswa', $stats['total_students'], 'Seluruh kelas', 'groups', 'secondary'],
+                ['Total Tugas', $stats['total_assignments'], 'Aktif & lampau', 'assignment', 'tertiary'],
+                ['Belum Dinilai', $pendingReview, 'Antrian review', 'rate_review', 'primary'],
+            ] as [$label, $value, $hint, $icon, $accent])
+                <div class="bg-surface-container-lowest p-5 rounded-2xl relative overflow-hidden border border-outline-variant/10">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-{{ $accent }}"></div>
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-{{ $accent }}/10 text-{{ $accent }} flex items-center justify-center">
+                            <span class="material-symbols-outlined text-xl">{{ $icon }}</span>
+                        </div>
                     </div>
+                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">{{ $label }}</p>
+                    <p class="font-headline text-3xl font-extrabold mt-1 leading-none">{{ $value }}</p>
+                    <p class="text-[11px] text-on-surface-variant mt-2">{{ $hint }}</p>
                 </div>
-                <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">My Courses</p>
-                <p class="text-4xl font-extrabold font-headline text-on-surface mt-1">{{ $stats['total_courses'] }}</p>
-                <p class="text-xs text-on-surface-variant mt-4">Assigned this semester</p>
-            </div>
-
-            <div class="md:col-span-1 bg-surface-container-lowest p-6 rounded-xl relative overflow-hidden group shadow-sm border border-outline-variant/10">
-                <div class="absolute top-0 left-0 h-full w-1 bg-secondary"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-secondary" data-icon="groups">groups</span>
-                    </div>
-                </div>
-                <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total Students</p>
-                <p class="text-4xl font-extrabold font-headline text-on-surface mt-1">{{ $stats['total_students'] }}</p>
-                <p class="text-xs text-on-surface-variant mt-4">Across all active courses</p>
-            </div>
-
-            <!-- Gradient Card -->
-            <div class="md:col-span-2 bg-gradient-to-br from-on-surface to-primary text-on-primary p-6 rounded-xl relative overflow-hidden shadow-xl">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-center mb-6">
-                        <span class="bg-tertiary px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Ongoing</span>
-                        <span class="material-symbols-outlined text-white/60" data-icon="assignment">assignment</span>
-                    </div>
-                    <h3 class="text-2xl font-bold font-headline">Assignments</h3>
-                    <div class="flex items-baseline gap-2 mt-1">
-                        <span class="text-4xl font-extrabold">{{ $stats['total_assignments'] }}</span>
-                        <span class="text-white/70 text-sm">Active Tasks</span>
-                    </div>
-                    <div class="mt-8 flex gap-3">
-                        <a href="{{ route('dosen.grades.index') }}" class="bg-surface-container-lowest text-on-surface px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-secondary-container transition-colors inline-block">Grade Management</a>
-                    </div>
-                </div>
-                <!-- Decorative background icon -->
-                <span class="material-symbols-outlined absolute -bottom-8 -right-8 text-[180px] text-white/5 pointer-events-none" data-icon="rate_review">rate_review</span>
-            </div>
+            @endforeach
         </div>
 
-        <!-- My Courses Section -->
-        <div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm border border-outline-variant/10">
-            <div class="px-8 py-6 flex justify-between items-center bg-surface-container-low/30 border-b border-outline-variant/10">
-                <h2 class="text-xl font-bold font-headline text-on-surface">Active Courses Details</h2>
-            </div>
-            
-            <div class="p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    @forelse($courses as $course)
-                    <div class="bg-surface-container-low p-6 rounded-2xl relative overflow-hidden transition-all hover:bg-surface-container hover:shadow-md border-l-4 border-primary">
-                        <div class="flex items-start justify-between mb-2">
-                            <div>
-                                <span class="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest">{{ $course->kode_matkul }}</span>
-                                <h3 class="text-lg font-bold font-headline text-on-surface mt-2">{{ $course->nama_matkul }}</h3>
+        {{-- Main 2-col --}}
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {{-- LEFT --}}
+            <div class="lg:col-span-8 space-y-6">
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden">
+                    <header class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/10">
+                        <h2 class="font-headline text-lg font-bold">Kelas yang Diampu</h2>
+                        @if($courseGroups->count())
+                            <span class="text-xs text-on-surface-variant">{{ $courseGroups->count() }} matkul &middot; {{ $courses->count() }} kelas</span>
+                        @endif
+                    </header>
+                    <div class="divide-y divide-outline-variant/10">
+                        @forelse($courseGroups as $group)
+                            <div class="px-6 py-4">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="material-symbols-outlined text-primary text-base leading-none">book</span>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-bold text-sm leading-tight">{{ $group['nama_matkul'] }}</p>
+                                        <p class="text-[10px] font-mono text-on-surface-variant">{{ $group['kode_matkul'] }}</p>
+                                    </div>
+                                    <div class="flex gap-3 text-[10px] text-on-surface-variant shrink-0">
+                                        <span>{{ $group['total_students'] }} mhs</span>
+                                        <span>{{ $group['total_materials'] }} materi</span>
+                                        <span>{{ $group['total_assignments'] }} tugas</span>
+                                    </div>
+                                </div>
+                                <div class="ml-6 space-y-1.5">
+                                    @foreach($group['courses'] as $c)
+                                        <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-container-low/50 hover:bg-surface-bright transition-colors text-sm">
+                                            <span class="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold shrink-0">
+                                                {{ $c->studentClass->name ?? 'Kelas' }}
+                                            </span>
+                                            <span class="flex gap-3 text-[11px] text-on-surface-variant">
+                                                <span>{{ $c->students_count }} mhs</span>
+                                                <span>{{ $c->materials_count }} materi</span>
+                                                <span>{{ $c->assignments_count }} tugas</span>
+                                            </span>
+                                            <div class="ml-auto flex gap-1 shrink-0">
+                                                <a href="{{ route('dosen.materials.index', $c) }}" class="text-[10px] font-bold px-2 py-1 rounded-md text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors">Materi</a>
+                                                <a href="{{ route('dosen.assignments.index', $c) }}" class="text-[10px] font-bold px-2 py-1 rounded-md text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-colors">Tugas</a>
+                                                <a href="{{ route('dosen.conferences.index', $c) }}" class="text-[10px] font-bold px-2 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors">Buka →</a>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-3 gap-2 my-6">
-                            <div class="bg-surface-container-lowest/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
-                                <p class="text-[10px] font-bold text-on-surface-variant uppercase">Students</p>
-                                <p class="font-bold text-on-surface">{{ $course->students_count }}</p>
-                            </div>
-                            <div class="bg-surface-container-lowest/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
-                                <p class="text-[10px] font-bold text-on-surface-variant uppercase">Materials</p>
-                                <p class="font-bold text-on-surface">{{ $course->materials_count }}</p>
-                            </div>
-                            <div class="bg-surface-container-lowest/50 p-2 text-center rounded-lg border border-outline-variant/10 shadow-sm">
-                                <p class="text-[10px] font-bold text-on-surface-variant uppercase">Tasks</p>
-                                <p class="font-bold text-on-surface">{{ $course->assignments_count }}</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex gap-2">
-                            <a href="{{ route('dosen.materials.index', $course) }}" class="flex-1 py-2 bg-surface-container-lowest hover:bg-primary-fixed/20 text-primary dark:text-primary-fixed-dim text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px]">menu_book</span> Materials
-                            </a>
-                            <a href="{{ route('dosen.assignments.index', $course) }}" class="flex-1 py-2 bg-surface-container-lowest hover:bg-secondary-fixed/20 text-secondary dark:text-secondary-fixed-dim text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px]">assignment</span> Assignments
-                            </a>
-                            <a href="{{ route('dosen.conferences.index', $course) }}" class="flex-1 py-2 bg-surface-container-lowest hover:bg-tertiary-fixed/20 text-tertiary dark:text-tertiary-fixed-dim text-xs font-bold rounded-xl text-center transition-colors border border-outline-variant/20 shadow-sm flex items-center justify-center gap-1.5">
-                                <span class="material-symbols-outlined text-[16px]">videocam</span> Live Lab
-                            </a>
-                        </div>
+                        @empty
+                            <div class="px-6 py-8 text-center text-sm text-on-surface-variant">Belum ada kelas diampu.</div>
+                        @endforelse
                     </div>
-                    @empty
-                    <div class="col-span-full py-12 text-center">
-                        <div class="w-16 h-16 bg-surface-container mx-auto rounded-full flex items-center justify-center mb-4">
-                            <span class="material-symbols-outlined text-outline-variant text-3xl">inbox</span>
-                        </div>
-                        <p class="text-on-surface-variant font-medium">You don't have any classes assigned right now.</p>
-                    </div>
-                    @endforelse
-                </div>
+                </section>
+
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                    <h2 class="font-headline text-lg font-bold mb-4">Aktivitas Submission Mingguan</h2>
+                <div class="relative h-44 w-full"><canvas id="dosenSubmissionChart"></canvas></div>
+                </section>
             </div>
+
+            {{-- RIGHT --}}
+            <aside class="lg:col-span-4 space-y-6">
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                    <h2 class="font-headline text-lg font-bold mb-4">Antrian Review</h2>
+                    <div class="space-y-1">
+                        @forelse($courses->take(5) as $c)
+                            <a href="{{ route('dosen.assignments.index', $c) }}" class="flex items-center gap-3 py-2.5 border-b border-dashed border-outline-variant/20 last:border-0 hover:bg-surface-bright -mx-2 px-2 rounded">
+                                <div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center text-xs font-bold">
+                                    {{ strtoupper(substr($c->nama_matkul, 0, 2)) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-bold truncate">{{ $c->nama_matkul }}</p>
+                                    <p class="text-[10px] text-on-surface-variant truncate">{{ $c->assignments_count }} tugas · {{ $c->students_count }} mhs</p>
+                                </div>
+                                <span class="text-[10px] font-bold text-primary">Nilai →</span>
+                            </a>
+                        @empty
+                            <p class="text-sm text-on-surface-variant">Tidak ada antrian.</p>
+                        @endforelse
+                    </div>
+                </section>
+
+                <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
+                    <h2 class="font-headline text-lg font-bold mb-4">Live Conference Hari Ini</h2>
+                    <div class="space-y-3">
+                        @foreach($courses->take(2) as $c)
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-bold">{{ $c->nama_matkul }}</p>
+                                    <p class="text-[10px] text-on-surface-variant">{{ $c->kode_matkul }}</p>
+                                </div>
+                                <a href="{{ route('dosen.conferences.index', $c) }}" class="text-[10px] font-bold px-2 py-1 rounded-md bg-secondary/10 text-secondary">Buka</a>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            </aside>
         </div>
     </div>
+
+    @push('scripts')
+    @vite('resources/js/charts.js')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const C = window.PJBLChart;
+    const { primary } = window.PJBLChartColors;
+
+    // ── Weekly submission bar chart ────────────────────────────────────────
+    const subData = @json($submissionSeries);
+    new C(document.getElementById('dosenSubmissionChart'), {
+        type: 'bar',
+        data: {
+            labels: subData.labels,
+            datasets: [{
+                label: 'Submission',
+                data: subData.values,
+                backgroundColor: primary + 'cc',
+                borderColor: primary,
+                borderWidth: 1,
+                borderRadius: 6,
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+    });
+});
+</script>
+    @endpush
 </x-app-layout>

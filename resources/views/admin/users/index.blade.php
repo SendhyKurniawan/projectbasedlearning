@@ -3,10 +3,11 @@
 @endpush
 <x-app-layout>
  <div class="space-y-6">
- <!-- Page Header -->
- <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+ <!-- Section Header -->
+ <div class="flex flex-wrap items-end justify-between gap-4">
+ <div>
  <div class="flex items-center gap-3">
- <h2 class="text-2xl font-extrabold text-on-surface tracking-tight font-headline">Manajemen User</h2>
+ <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Manajemen User</h1>
  @if($pendingDosen > 0)
  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-warning-light text-on-warning border border-warning/20">
  <span class="w-2 h-2 rounded-full bg-warning animate-pulse"></span>
@@ -14,10 +15,14 @@
  </span>
  @endif
  </div>
- <a href="{{ route('admin.users.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 architectural-gradient text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98] transition-all">
- <span class="material-symbols-outlined text-lg">person_add</span>
+ <p class="mt-1 text-sm text-on-surface-variant max-w-xl">Kelola akun mahasiswa, dosen, dan staff. Aktivasi, reset password, dan import bulk.</p>
+ </div>
+ <div class="flex items-center gap-2">
+ <a href="{{ route('admin.users.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold shadow-sm">
+ <span class="material-symbols-outlined text-base">person_add</span>
  Tambah User
  </a>
+ </div>
  </div>
 
  {{-- Flash Messages --}}

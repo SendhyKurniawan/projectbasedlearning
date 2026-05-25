@@ -1,68 +1,300 @@
+/* ============================================================
+   Mahasiswa · Exercise Solve Page
+   Scoped styles for the three-zone code-exercise UI.
+   Plain CSS (compiled as a standalone Vite entry).
+   ============================================================ */
 
-    .code-exercise-layout {
-        @apply flex gap-4 h-full min-h-screen items-start;
-    }
+/* ---------- Root shell ---------- */
+.solve-root {
+    height: calc(100vh - 80px);
+    height: calc(100dvh - 80px);
+    margin-top: -1.5rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
 
-    .code-exercise-problem {
-        @apply w-80 flex-shrink-0 bg-surface-container-lowest rounded-2xl shadow-ambient overflow-y-auto sticky top-0 max-h-screen;
-    }
+/* ---------- Editor chrome (dark by default, theme-swappable) ---------- */
+.solve-editor {
+    --editor-surface:        #1e2029;
+    --editor-surface-raised: #191b23;
+    --editor-surface-tab:    #282a36;
+    --editor-divider:        rgba(255, 255, 255, 0.08);
+    --editor-text:           #e6e6ef;
+    --editor-text-muted:     rgba(255, 255, 255, 0.6);
+    --editor-accent:         #8be9fd;
 
-    .code-exercise-problem-header {
-        @apply p-5 border-b border-outline-variant/30;
-    }
+    background: var(--editor-surface);
+    color: var(--editor-text);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
 
-    .code-exercise-problem-title {
-        @apply font-headline font-bold text-on-surface;
-    }
+.solve-editor[data-editor-theme="one-light"] {
+    --editor-surface:        var(--surface-primary, #ffffff);
+    --editor-surface-raised: var(--surface-container-low, #f3f3fe);
+    --editor-surface-tab:    var(--surface-container, #ededf9);
+    --editor-divider:        rgba(25, 27, 35, 0.1);
+    --editor-text:           var(--text-primary, #191b23);
+    --editor-text-muted:     var(--text-muted, #737686);
+    --editor-accent:         var(--color-primary, #004ac6);
+}
 
-    .code-exercise-problem-body {
-        @apply p-5 text-sm text-on-surface leading-relaxed;
-    }
+/* ---------- CodeMirror overrides ---------- */
+.solve-editor .CodeMirror {
+    height: 100% !important;
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    background: transparent !important;
+    color: var(--editor-text);
+}
+.solve-editor .CodeMirror-gutters {
+    background: transparent !important;
+    border-right: 1px solid var(--editor-divider) !important;
+}
+.solve-editor .CodeMirror-linenumber {
+    color: rgba(128, 128, 128, 0.5) !important;
+    padding: 0 10px !important;
+}
+.solve-editor[data-editor-theme="one-light"] .CodeMirror-selected {
+    background: rgba(0, 74, 198, 0.15) !important;
+}
 
-    .code-exercise-editor {
-        @apply flex-1 bg-surface-container-lowest rounded-2xl shadow-ambient overflow-hidden;
-    }
+/* ---------- Scrollbars ---------- */
+.solve-scroll::-webkit-scrollbar        { width: 10px; height: 10px; }
+.solve-scroll::-webkit-scrollbar-track  { background: transparent; }
+.solve-scroll::-webkit-scrollbar-thumb  { background: rgba(128, 128, 128, 0.25); border-radius: 10px; border: 2px solid transparent; background-clip: padding-box; }
+.solve-scroll::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.45); background-clip: padding-box; }
 
-    .code-exercise-editor-toolbar {
-        @apply flex items-center gap-2 px-4 py-3 border-b border-outline-variant/30;
-    }
+/* ---------- Drag-resize handle between editor and output (desktop only) ---------- */
+.solve-resizer {
+    height: 8px;
+    cursor: row-resize;
+    background: transparent;
+    position: relative;
+    flex-shrink: 0;
+    touch-action: none;
+    user-select: none;
+    z-index: 2;
+}
+.solve-resizer::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--editor-divider);
+    transition: background 150ms, width 150ms;
+}
+.solve-resizer:hover::before,
+.solve-resizer[data-dragging="true"]::before {
+    background: var(--editor-accent);
+    width: 72px;
+}
 
-    .code-exercise-lang-select {
-        @apply text-sm bg-surface-container rounded-lg px-3 py-1.5 text-on-surface border border-outline-variant;
-    }
+/* ---------- Log row formatting ---------- */
+.solve-log {
+    display: grid;
+    grid-template-columns: 68px 18px 1fr;
+    column-gap: 10px;
+    align-items: start;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    padding: 2px 0;
+}
+.solve-log-time { color: rgba(128, 128, 128, 0.7); font-variant-numeric: tabular-nums; }
+.solve-log-icon { text-align: center; font-weight: 700; }
+.solve-log-msg  { white-space: pre-wrap; word-break: break-word; }
 
-    .code-exercise-codemirror {
-        @apply h-96 font-mono text-sm;
-    }
+.solve-log--info  { color: #a1a1aa; }
+.solve-log--run   { color: #fcd34d; }
+.solve-log--ok    { color: #86efac; }
+.solve-log--error { color: #fca5a5; }
 
-    .code-exercise-output {
-        @apply border-t border-outline-variant/30 p-4;
-    }
+.solve-editor[data-editor-theme="one-light"] .solve-log--info  { color: #52525b; }
+.solve-editor[data-editor-theme="one-light"] .solve-log--run   { color: #a16207; }
+.solve-editor[data-editor-theme="one-light"] .solve-log--ok    { color: #15803d; }
+.solve-editor[data-editor-theme="one-light"] .solve-log--error { color: #b91c1c; }
 
-    .code-exercise-output-title {
-        @apply text-xs font-semibold text-on-surface-variant uppercase tracking-wide mb-2;
-    }
+/* ---------- Status dot ---------- */
+.solve-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(128, 128, 128, 0.6);
+    transition: background 200ms;
+    flex-shrink: 0;
+}
+.solve-status-dot[data-state="running"] { background: #fbbf24; animation: solve-pulse 1.1s ease-in-out infinite; }
+.solve-status-dot[data-state="ok"]      { background: #34d399; }
+.solve-status-dot[data-state="error"]   { background: #f87171; }
+@keyframes solve-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.45; transform: scale(0.8); }
+}
 
-    .code-exercise-output-console {
-        @apply font-mono text-xs bg-surface-container-high rounded-xl p-4 min-h-24 text-on-surface whitespace-pre-wrap;
-    }
+/* ---------- Segmented mobile tab switcher ---------- */
+.solve-segbar {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 4px;
+    padding: 4px;
+    background: var(--surface-container, #ededf9);
+    border: 1px solid var(--border-default, rgba(195, 198, 215, 0.3));
+    border-radius: 0.75rem;
+}
+.solve-seg {
+    min-height: 42px;
+    padding: 8px 10px;
+    border-radius: 0.5rem;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-secondary, #434655);
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 160ms, color 160ms;
+}
+.solve-seg[aria-selected="true"] {
+    background: var(--color-primary, #004ac6);
+    color: var(--text-on-primary, #fff);
+    box-shadow: 0 2px 8px rgba(0, 74, 198, 0.25);
+}
 
-    .code-exercise-testcase-result {
-        @apply flex items-center gap-2 py-2 text-sm;
-    }
+/* ---------- Keyboard shortcut hint kbd ---------- */
+.solve-kbd {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 6px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--editor-text-muted);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--editor-divider);
+    border-radius: 4px;
+}
+.solve-editor[data-editor-theme="one-light"] .solve-kbd {
+    color: var(--text-muted, #737686);
+    background: rgba(25, 27, 35, 0.04);
+}
 
-    .code-exercise-testcase-result--pass {
-        @apply text-secondary;
-    }
+/* ---------- Editor icon button (for toolbar controls) ---------- */
+.solve-iconbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    color: var(--editor-text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background 140ms, color 140ms, border-color 140ms;
+}
+.solve-iconbtn:hover {
+    background: rgba(128, 128, 128, 0.12);
+    color: var(--editor-text);
+    border-color: var(--editor-divider);
+}
+.solve-iconbtn[aria-pressed="true"] {
+    background: rgba(128, 128, 128, 0.18);
+    color: var(--editor-text);
+}
+.solve-iconbtn:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    .code-exercise-testcase-result--fail {
-        @apply text-error;
-    }
+/* ---------- Modal & overlay ---------- */
+.solve-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+.solve-modal {
+    background: var(--surface-primary, #fff);
+    color: var(--text-primary, #191b23);
+    border: 1px solid var(--border-default, rgba(195, 198, 215, 0.3));
+    border-radius: 1.25rem;
+    box-shadow: var(--shadow-xl, 0 16px 48px rgba(25, 27, 35, 0.18));
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+html.dark .solve-modal {
+    background: #191b23;
+    color: #e6e6ef;
+    border-color: rgba(255, 255, 255, 0.1);
+}
 
-    .code-exercise-run-btn {
-        @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary text-on-secondary font-medium hover:bg-secondary/90 transition-colors;
-    }
+.solve-modal-code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    background: var(--surface-container, #ededf9);
+    border: 1px solid var(--border-default, rgba(195, 198, 215, 0.3));
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    max-height: 220px;
+    overflow: auto;
+    white-space: pre;
+    color: var(--text-primary, #191b23);
+}
+html.dark .solve-modal-code {
+    background: #0f1117;
+    color: #e6e6ef;
+    border-color: rgba(255, 255, 255, 0.08);
+}
 
-    .code-exercise-submit-btn {
-        @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-on-primary font-medium hover:bg-primary-hover transition-colors;
-    }
+/* ---------- Tablet drawer ---------- */
+.solve-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: stretch;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+}
+.solve-drawer-panel {
+    width: min(480px, 92vw);
+    max-width: 92vw;
+    background: var(--surface-container-low, #f3f3fe);
+    color: var(--text-primary, #191b23);
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+}
+html.dark .solve-drawer-panel {
+    background: #191b23;
+    color: #e6e6ef;
+}
+
+/* ---------- Problem panel content typography normalization ---------- */
+.solve-problem h2          { font-size: clamp(1.5rem, 2.5vw, 2rem); line-height: 1.15; font-weight: 800; letter-spacing: -0.01em; }
+.solve-problem .solve-meta { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.solve-problem .solve-body { font-size: 0.9375rem; line-height: 1.7; }
+
+/* Improve prose readability in the problem description */
+.solve-problem .prose p { margin-top: 0.5em; margin-bottom: 0.5em; }
+
+/* ---------- Utility: app-layout reset for this page ---------- */
+.solve-fullbleed {
+    /* cancel the usual inner page padding so the editor fills edge-to-edge */
+    margin-left: calc(-1 * var(--spacing-md, 1rem));
+    margin-right: calc(-1 * var(--spacing-md, 1rem));
+}

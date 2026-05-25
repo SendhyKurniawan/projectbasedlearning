@@ -5,17 +5,22 @@
     @vite(['resources/js/code-editor.js'])
 
     <div class="space-y-6">
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <a href="{{ route('dosen.assignments.index', $course) }}" class="p-2.5 w-10 h-10 flex items-center justify-center bg-surface-container-lowest border border-outline-variant/30 rounded-xl hover:bg-surface-container-low transition-colors shadow-sm text-on-surface">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                </a>
-                <div>
-                    <h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Edit Latihan Kode</h2>
-                    <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1">{{ $course->nama_matkul }}</p>
-                </div>
+        {{-- Section Header --}}
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
+                    <a href="{{ route('dosen.dashboard') }}" class="hover:text-primary transition-colors">Overview</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <a href="{{ route('dosen.assignments.index', $course) }}" class="hover:text-primary transition-colors">Assignments</a>
+                    <span class="material-symbols-outlined text-xs">chevron_right</span>
+                    <span class="text-primary truncate max-w-[160px]">Edit {{ $assignment->title }}</span>
+                </nav>
+                <h1 class="font-headline text-3xl font-extrabold tracking-tight text-on-surface">Edit Latihan Kode</h1>
+                <p class="mt-1 text-sm text-on-surface-variant">{{ $course->nama_matkul }} · {{ $assignment->title }}</p>
             </div>
+            <a href="{{ route('dosen.assignments.index', $course) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-outline-variant/30 text-on-surface text-sm font-bold hover:bg-surface-container-low transition">
+                <span class="material-symbols-outlined text-base">arrow_back</span> Kembali
+            </a>
         </div>
 
         <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm p-6 lg:p-10 relative overflow-hidden">
@@ -30,7 +35,7 @@
                     <div class="space-y-6 bg-surface-container-low/30 p-6 rounded-2xl border border-outline-variant/20">
                         <!-- Title -->
                         <div>
-                            <label for="title" class="block text-xs font-bold font-headline uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
+                            <label for="title" class="text-xs font-bold font-headline uppercase tracking-widest text-primary mb-2 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-[18px]">title</span> Judul Latihan <span class="text-error">*</span>
                             </label>
                             <input type="text" name="title" id="title" value="{{ old('title', $assignment->title) }}" required
@@ -70,6 +75,9 @@
                                     <option value="html" {{ $lang === 'html' ? 'selected' : '' }}>HTML Only</option>
                                     <option value="css" {{ $lang === 'css' ? 'selected' : '' }}>CSS</option>
                                     <option value="javascript" {{ $lang === 'javascript' ? 'selected' : '' }}>JavaScript</option>
+                                    <option value="java" {{ $lang === 'java' ? 'selected' : '' }}>Java</option>
+                                    <option value="php" {{ $lang === 'php' ? 'selected' : '' }}>PHP</option>
+                                    <option value="csharp" {{ $lang === 'csharp' ? 'selected' : '' }}>C#</option>
                                 </select>
                             </div>
                         </div>
@@ -105,7 +113,10 @@
                                 </label>
                                 <span class="text-[10px] text-on-surface-variant font-medium">Bisa diedit oleh mahasiswa</span>
                             </div>
-                            <textarea id="starter-code-editor" name="starter_code" required>{{ old('starter_code', $assignment->exercise_config['starter_code'] ?? '') }}</textarea>
+                            <textarea id="starter-code-editor" name="starter_code">{{ old('starter_code', $assignment->exercise_config['starter_code'] ?? '') }}</textarea>
+                            @error('starter_code')
+                                <p class="text-error text-xs font-bold px-4 py-2 flex items-center gap-1 bg-error-container/30 border-t border-outline-variant/20"><span class="material-symbols-outlined text-[14px]">error</span> {{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Solution Code -->
@@ -117,6 +128,9 @@
                                 <span class="text-[10px] text-on-surface-variant font-medium">Hanya untuk referensi Dosen</span>
                             </div>
                             <textarea id="solution-code-editor" name="solution_code">{{ old('solution_code', $assignment->exercise_config['solution_code'] ?? '') }}</textarea>
+                            @error('solution_code')
+                                <p class="text-error text-xs font-bold px-4 py-2 flex items-center gap-1 bg-error-container/30 border-t border-outline-variant/20"><span class="material-symbols-outlined text-[14px]">error</span> {{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
@@ -168,11 +182,12 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 14px;
             padding: 10px 0;
-            background: #fff;
+            background: var(--surface, #fff);
+            color: var(--on-surface, #1a1c25);
         }
         .CodeMirror-gutters {
-            background-color: #f8fafc;
-            border-right: 1px solid rgba(0,0,0,0.05);
+            background-color: var(--surface-container-low, #f8fafc);
+            border-right: 1px solid var(--outline-variant, rgba(0,0,0,0.05));
         }
     </style>
 
@@ -180,21 +195,27 @@
         document.addEventListener('DOMContentLoaded', function() {
             if (typeof initCodeEditor === 'function') {
                 const currentLang = document.getElementById('exercise_language').value;
+                const currentMode = cmModeMap[currentLang] || currentLang;
 
                 const starterEditor = initCodeEditor('starter-code-editor', {
-                    mode: currentLang,
+                    mode: currentMode,
                     lineNumbers: true,
                 });
 
                 const solutionEditor = initCodeEditor('solution-code-editor', {
-                    mode: currentLang,
+                    mode: currentMode,
                     lineNumbers: true,
                 });
 
                 document.getElementById('exercise_language').addEventListener('change', function() {
-                    const mode = this.value;
+                    const mode = cmModeMap[this.value] || this.value;
                     starterEditor.setOption('mode', mode);
                     solutionEditor.setOption('mode', mode);
+                });
+
+                document.getElementById('exercise-form').addEventListener('submit', function() {
+                    starterEditor.save();
+                    solutionEditor.save();
                 });
             } else {
                 console.warn("initCodeEditor function not found. Please ensure code-editor.js is loaded.");

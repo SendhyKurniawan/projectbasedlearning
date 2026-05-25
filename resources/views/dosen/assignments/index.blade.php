@@ -102,7 +102,7 @@
                 
                 <div id="sortable-tugas" class="space-y-4 min-h-[150px] relative">
                     @forelse($assignments->where('type', 'tugas') as $assignment)
-                        <x-assignment-card :assignment="$assignment" />
+                        <x-assignment-card :assignment="$assignment" :siblings="$siblings" />
                     @empty
                         <div class="flex flex-col items-center justify-center p-12 bg-surface-container-lowest/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
                             <span class="material-symbols-outlined text-6xl mb-4 opacity-30 text-primary">folder_open</span>
@@ -136,7 +136,7 @@
                 
                 <div id="sortable-quiz" class="space-y-4 min-h-[150px] relative">
                     @forelse($assignments->whereIn('type', ['quiz', 'exercise']) as $assignment)
-                        <x-assignment-card :assignment="$assignment" />
+                        <x-assignment-card :assignment="$assignment" :siblings="$siblings" />
                     @empty
                         <div class="flex flex-col items-center justify-center p-12 bg-surface-container-lowest/40 rounded-2xl border-2 border-dashed border-outline-variant/40 text-on-surface-variant text-center absolute inset-0">
                             <span class="material-symbols-outlined text-6xl mb-4 opacity-30 text-warning">quiz</span>
@@ -181,7 +181,14 @@
  })
  .catch(error => {
  console.error('Error:', error);
- alert('Gagal menyimpan urutan tugas.');
+ let toast = document.createElement('div');
+ toast.className = 'fixed bottom-4 right-4 bg-error-container text-on-error-container px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300 font-bold text-sm flex items-center gap-2';
+ toast.innerHTML = '<span class="material-symbols-outlined text-[18px]">error</span> Gagal menyimpan urutan tugas.';
+ document.body.appendChild(toast);
+ setTimeout(() => {
+ toast.classList.add('opacity-0');
+ setTimeout(() => toast.remove(), 300);
+ }, 3000);
  });
  }
 

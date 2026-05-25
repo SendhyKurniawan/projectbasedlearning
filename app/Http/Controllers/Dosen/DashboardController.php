@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
-use App\Models\Course;
 use App\Models\Assignment;
-use Illuminate\Http\Request;
+use App\Models\Submission;
 
 class DashboardController extends Controller
 {
@@ -13,22 +12,53 @@ class DashboardController extends Controller
     {
         $dosen = auth()->user();
 
-        // Load all needed counts in a single query per relationship
         $courses = $dosen->courses()
-            ->with('semester')
+            ->with('semester', 'studentClass')
             ->withCount(['materials', 'assignments', 'students'])
             ->get();
 
-        // Reuse the already-loaded collection instead of doing a second DB query
-        $total_students = $courses->sum('students_count');
-        $total_assignments = $courses->sum('assignments_count');
+        $courseGroups = $courses->groupBy('course_group_key')->map(function ($group) {
+            return [
+                'nama_matkul' => $group->first()->nama_matkul,
+                'kode_matkul' => $group->first()->kode_matkul,
+                'courses' => $group,
+                'total_students' => $group->sum('students_count'),
+                'total_materials' => $group->sum('materials_count'),
+                'total_assignments' => $group->sum('assignments_count'),
+            ];
+        })->values();
 
         $stats = [
             'total_courses' => $courses->count(),
-            'total_students' => $total_students,
-            'total_assignments' => $total_assignments,
+            'total_students' => $courses->sum('students_count'),
+            'total_assignments' => $courses->sum('assignments_count'),
         ];
 
-        return view('dosen.dashboard', compact('courses', 'stats'));
+        // ── 7-day submission series ───────────────────────────────────────────
+        $courseIds = $courses->pluck('id');
+        $assignmentIds = Assignment::whereIn('course_id', $courseIds)->pluck('id');
+
+        $start = now()->subDays(6)->startOfDay();
+        $labels = collect(range(0, 6))->map(fn ($i) => $start->copy()->addDays($i));
+        $counts = Submission::whereIn('assignment_id', $assignmentIds)
+            ->where('created_at', '>=', $start)
+            ->selectRaw('DATE(created_at) as d, COUNT(*) as c')
+            ->groupBy('d')
+            ->pluck('c', 'd');
+
+        $submissionSeries = [
+            'labels' => $labels->map(fn ($d) => $d->isoFormat('ddd'))->all(),
+            'values' => $labels->map(fn ($d) => (int) ($counts[$d->format('Y-m-d')] ?? 0))->all(),
+        ];
+
+        // ── Pending review count ──────────────────────────────────────────────
+        $pendingReview = Submission::whereIn('assignment_id', $assignmentIds)
+            ->whereNull('score')
+            ->count();
+
+        return view('dosen.dashboard', compact(
+            'courses', 'courseGroups', 'stats',
+            'submissionSeries', 'pendingReview'
+        ));
     }
 }
