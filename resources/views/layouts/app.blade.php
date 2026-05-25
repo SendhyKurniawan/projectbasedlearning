@@ -6,14 +6,8 @@
  <meta name="csrf-token" content="{{ csrf_token() }}">
  <script>
   (function(){
-   var t=localStorage.getItem('theme')||'system';
-   var prefersDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
-   if(t==='dark'||(t==='system'&&prefersDark))document.documentElement.classList.add('dark');
-   window.setTheme=function(mode){
-    localStorage.setItem('theme',mode);
-    var dark=mode==='dark'||(mode==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
-    document.documentElement.classList.toggle('dark',dark);
-   };
+   document.documentElement.classList.remove('dark');
+   window.setTheme=function(){};
   })();
  </script>
 
