@@ -4,12 +4,14 @@ namespace App\Livewire\Discussion;
 
 use App\Models\Discussion;
 use App\Models\DiscussionComment;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 
 class Show extends Component
 {
-    public $discussion;
-    public $newComment;
+    public Discussion $discussion;
+    public Collection $comments;
+    public string $newComment = '';
 
     protected $rules = [
         'newComment' => 'required|string|max:1000',
@@ -18,6 +20,7 @@ class Show extends Component
     public function mount(Discussion $discussion)
     {
         $this->discussion = $discussion;
+        $this->loadComments();
     }
 
     public function addComment()
@@ -31,8 +34,12 @@ class Show extends Component
         ]);
 
         $this->newComment = '';
-        
-        return redirect()->route('discussions.show', $this->discussion);
+        $this->loadComments();
+    }
+
+    protected function loadComments(): void
+    {
+        $this->comments = $this->discussion->comments()->with('user')->oldest()->get();
     }
 
     public function render()
