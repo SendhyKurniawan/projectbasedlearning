@@ -26,6 +26,7 @@
 
  <!-- Scripts -->
  @vite(['resources/css/app.css', 'resources/css/design-system.css', 'resources/js/app.js'])
+ @livewireStyles
  @stack('styles')
  @stack('head')
  </head>
@@ -81,6 +82,7 @@
  </main>
  </div>
  </div>
+ @livewireScripts
  @stack('scripts')
 
  <script>

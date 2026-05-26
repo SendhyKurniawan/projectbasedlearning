@@ -1,12 +1,6 @@
 @push('styles')
     @vite('resources/css/pages/shared/discussions.css')
 @endpush
-@push('head')
-    @livewireStyles
-@endpush
-@push('scripts')
-    @livewireScripts
-@endpush
 <x-app-layout>
     <div class="space-y-6">
         {{-- Breadcrumb --}}
