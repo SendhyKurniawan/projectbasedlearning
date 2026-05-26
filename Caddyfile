@@ -1,0 +1,4 @@
+pbl.kurniawansendhy.site {
+    encode gzip
+    reverse_proxy web:80
+}

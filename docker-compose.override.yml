@@ -1,0 +1,25 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: pjbl-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - pjbl-network
+    depends_on:
+      - web
+
+volumes:
+  caddy_data:
+    external: true
+    name: pjbl_caddy_data
+  caddy_config:
+    external: true
+    name: pjbl_caddy_config
