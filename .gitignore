@@ -31,3 +31,5 @@ _ide_helper_models.php
 .claude/
 .gemini/
 .fallow/
+.playwright-mcp/
+*.pk
