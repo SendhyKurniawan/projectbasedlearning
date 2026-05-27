@@ -1,8 +1,6 @@
 @php
     $domain = config('services.jitsi.domain');
     $meetUrl = 'https://' . $domain . '/' . $conference->room_name . '?jwt=' . $jwt;
-    $intentUrl = 'intent://' . $domain . '/' . $conference->room_name . '?jwt=' . $jwt
-        . '#Intent;scheme=https;package=org.jitsi.meet;end';
 @endphp
 
 <x-app-layout>
@@ -39,11 +37,6 @@
                     <span class="material-symbols-outlined text-[18px] opacity-70">open_in_new</span>
                 </a>
 
-                <a href="{{ $intentUrl }}"
-                   class="w-full inline-flex items-center justify-center gap-3 px-6 py-3 bg-surface-container border border-outline-variant text-on-surface rounded-2xl font-bold text-sm hover:bg-surface-container-high transition-all md:hidden">
-                    <span class="material-symbols-outlined">smartphone</span>
-                    Buka di Jitsi Meet App
-                </a>
             </div>
 
             <div x-show="opened" x-transition x-cloak class="mt-6 p-4 bg-tertiary-container/40 border border-tertiary/20 rounded-2xl text-sm text-on-surface">
