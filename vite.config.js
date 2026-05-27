@@ -13,7 +13,6 @@ export default defineConfig({
                 'resources/js/code-editor.js',
                 'resources/js/markdown-editor.js',
                 'resources/js/markdown-renderer.js',
-                'resources/js/conference-jitsi.js',
                 'resources/js/charts.js'
             ],
             refresh: true,
