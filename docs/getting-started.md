@@ -90,14 +90,13 @@ All vars live in `.env.example`. Required ones that are **empty by default** mus
 | `MAIL_PORT` | `2525` | Mailhog: `1025`, SMTP: `587` |
 | `MAIL_FROM_ADDRESS` | `hello@example.com` | Change before prod |
 
-### Jitsi JaaS (required for conference rooms)
+### Jitsi (self-hosted, required for conference rooms)
 
 | Variable | Default | Notes |
 |---|---|---|
-| `JITSI_DOMAIN` | `8x8.vc` | Don't change unless using self-hosted |
-| `JITSI_APP_ID` | _(empty)_ | From JaaS dashboard |
-| `JITSI_KID` | _(empty)_ | Key ID from JaaS dashboard |
-| `JITSI_PRIVATE_KEY_PATH` | `storage/app/private/jaas-private-key.pk` | RS256 private key file path |
+| `JITSI_DOMAIN` | `meet.polimedia.pblworkspace.com` | Public hostname of the self-hosted Jitsi |
+| `JITSI_JWT_APP_ID` | _(empty)_ | Must match Jitsi server's `JWT_APP_ID` |
+| `JITSI_JWT_APP_SECRET` | _(empty)_ | Must match Jitsi server's `JWT_APP_SECRET` (HS256) |
 
 See [deployment.md](deployment.md) for provisioning steps.
 

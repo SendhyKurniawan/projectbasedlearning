@@ -1,8 +1,6 @@
-// Jitsi (JaaS) embed client.
-// Driven by window.JITSI_* globals injected by room blade views.
-// The SDK is loaded dynamically (non-blocking) so the room shell renders immediately.
+// Jitsi (self-hosted) embed client. Driven by window.JITSI_* globals from the room blade views.
 
-const REQUIRED = ['JITSI_DOMAIN', 'JITSI_APP_ID', 'JITSI_ROOM_NAME', 'JITSI_JWT', 'JITSI_RETURN_URL'];
+const REQUIRED = ['JITSI_DOMAIN', 'JITSI_ROOM_NAME', 'JITSI_JWT', 'JITSI_RETURN_URL'];
 
 function fail(message) {
     const mount = document.getElementById('jitsi-mount');
@@ -30,7 +28,7 @@ function loadSdk() {
             resolve();
             return;
         }
-        const src = `https://${window.JITSI_DOMAIN}/${window.JITSI_APP_ID}/external_api.js`;
+        const src = `https://${window.JITSI_DOMAIN}/external_api.js`;
         const script = document.createElement('script');
         script.src = src;
         script.async = true;
@@ -48,10 +46,10 @@ function init() {
     }
 
     const isModerator = Boolean(window.JITSI_IS_MODERATOR);
-    const tenantRoom = `${window.JITSI_APP_ID}/${window.JITSI_ROOM_NAME}`;
+    const roomName = window.JITSI_ROOM_NAME;
 
     const api = new window.JitsiMeetExternalAPI(window.JITSI_DOMAIN, {
-        roomName: tenantRoom,
+        roomName,
         parentNode: mount,
         jwt: window.JITSI_JWT,
         userInfo: {
@@ -82,16 +80,15 @@ function init() {
     api.addListener('readyToClose', goBack);
     api.addListener('videoConferenceLeft', goBack);
 
-    // Mahasiswa "Keluar" button.
     const leaveBtn = document.querySelector('[data-leave-conference]');
     if (leaveBtn) {
         leaveBtn.addEventListener('click', () => {
-            try { api.executeCommand('hangup'); } catch (_) { /* noop */ }
+            try { api.executeCommand('hangup'); } catch (_) {}
             setTimeout(goBack, 600);
         });
     }
 
-    // Dosen / Admin "Akhiri Sesi" button. POSTs to JITSI_END_URL, then hangs up.
+    // Dosen / Admin "Akhiri Sesi": POSTs to JITSI_END_URL, then hangs up for all participants.
     const endBtn = document.querySelector('[data-end-conference]');
     if (endBtn && window.JITSI_END_URL) {
         endBtn.addEventListener('click', async () => {
@@ -110,8 +107,8 @@ function init() {
             } catch (e) {
                 console.error('[jitsi] end request failed', e);
             }
-            try { api.executeCommand('endConference'); } catch (_) { /* noop */ }
-            try { api.executeCommand('hangup'); } catch (_) { /* noop */ }
+            try { api.executeCommand('endConference'); } catch (_) {}
+            try { api.executeCommand('hangup'); } catch (_) {}
             setTimeout(goBack, 800);
         });
     }
@@ -125,7 +122,7 @@ async function bootstrap() {
         await loadSdk();
         init();
     } catch (err) {
-        fail('Library JaaS gagal dimuat. Periksa koneksi internet atau JITSI_DOMAIN/JITSI_APP_ID.');
+        fail('Library Jitsi gagal dimuat. Periksa koneksi internet atau JITSI_DOMAIN.');
         console.error('[jitsi]', err);
     }
 }

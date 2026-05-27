@@ -17,22 +17,21 @@
 
 ---
 
-## Jitsi JaaS JWT Minting
+## Jitsi JWT Minting (self-hosted)
 
-`App\Services\JaasTokenService::mint(User $user, Conference $conference, bool $isModerator)` generates an RS256-signed JWT.
+`App\Services\JitsiTokenService::mint(string $room, int $userId, string $name, bool $moderator, ?string $email)` generates an **HS256**-signed JWT against the self-hosted Jitsi at `JITSI_DOMAIN`.
 
-**Required env vars** (all four must be set):
+**Required env vars** (all three must be set):
 
 | Var | Example |
 |---|---|
-| `JITSI_DOMAIN` | `8x8.vc` |
-| `JITSI_APP_ID` | `vpaas-magic-cookie-abc123` |
-| `JITSI_KID` | `vpaas-magic-cookie-abc123/key-id` |
-| `JITSI_PRIVATE_KEY_PATH` | `storage/app/private/jaas-private-key.pk` |
+| `JITSI_DOMAIN` | `meet.polimedia.pblworkspace.com` |
+| `JITSI_JWT_APP_ID` | `pjbl` |
+| `JITSI_JWT_APP_SECRET` | (32-byte hex from `openssl rand -hex 32`) |
 
-If any var is missing or the key file is unreadable, `mint()` throws `RuntimeException`. Conference room views will 500. Provision these in staging before prod — see [deployment.md](../deployment.md).
+`JITSI_JWT_APP_ID` and `JITSI_JWT_APP_SECRET` must match the Jitsi server's `JWT_APP_ID` and `JWT_APP_SECRET`. If any var is missing, `mint()` throws `RuntimeException` and conference room views 500. Provision these in staging before prod — see [deployment.md](../deployment.md).
 
-Token claims: `iss = chat`, `aud = jitsi`, `sub = JITSI_APP_ID`, `room = room_name`, `exp = now + 2h`, moderator flag in the `context.user` payload.
+Token claims: `iss = aud = JITSI_JWT_APP_ID`, `sub = JITSI_DOMAIN`, `room = room_name`, `exp = now + 2h`, moderator flag in the `context.user` payload.
 
 ---
 
@@ -53,15 +52,15 @@ scheduled ──[dosen: start]──► ongoing ──[dosen: end]──► ende
 `conference-jitsi.js` embeds the Jitsi Meet External API:
 
 ```javascript
-// JWT is passed from controller to view as $jwt, then to JS
+// JWT is passed from controller to view as $jwt, then to JS via window.JITSI_*
 const api = new JitsiMeetExternalAPI(domain, {
-    roomName: `${appId}/${roomName}`,
+    roomName: roomName,
     jwt: jwtToken,
-    parentNode: document.getElementById('jitsi-container'),
+    parentNode: document.getElementById('jitsi-mount'),
 });
 ```
 
-The JWT is injected via a `<meta>` tag or `@json` in the Blade view — not hardcoded. The `conference-jitsi.js` bundle is only loaded on room views.
+For self-hosted Jitsi the room name is plain (no `${appId}/` tenant prefix). The JWT is injected via `@json` in the Blade view — not hardcoded. The `conference-jitsi.js` bundle is only loaded on room views, and the External API script is fetched from `https://${JITSI_DOMAIN}/external_api.js`.
 
 ---
 

@@ -30,7 +30,9 @@ services:
         container_name: pjbl-web
         restart: unless-stopped
         ports:
-            - "8000:80"
+            # Bind to localhost only — Caddy on the host VM reverse-proxies to this.
+            # Outside traffic must go through Caddy (HTTPS) on 443.
+            - "127.0.0.1:8000:80"
         volumes:
             - ./:/var/www
             - app_build:/var/www/public/build

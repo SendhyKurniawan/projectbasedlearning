@@ -7,14 +7,14 @@ use App\Models\Conference;
 use App\Models\Course;
 use App\Models\User;
 use App\Notifications\AcademicUpdateNotification;
-use App\Services\JaasTokenService;
+use App\Services\JitsiTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 
 class ConferenceController extends Controller
 {
-    public function __construct(private JaasTokenService $jaas)
+    public function __construct(private JitsiTokenService $jitsi)
     {
     }
 
@@ -79,7 +79,6 @@ class ConferenceController extends Controller
             ));
         }
 
-        // Fan-out to selected sibling courses
         $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
         foreach ($targetCourses as $sibling) {
             $sibConf = $sibling->conferences()->create([
@@ -130,7 +129,6 @@ class ConferenceController extends Controller
 
         $conference->update($validated);
 
-        // Notify enrolled students
         $students = User::whereHas('enrollments', function($q) use ($conference) {
             $q->where('course_id', $conference->course_id);
         })->get();
@@ -233,7 +231,7 @@ class ConferenceController extends Controller
         }
 
         $user = auth()->user();
-        $jwt = $this->jaas->mint(
+        $jwt = $this->jitsi->mint(
             room: $conference->room_name,
             userId: $user->id,
             name: $user->name,

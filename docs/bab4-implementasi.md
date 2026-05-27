@@ -129,7 +129,7 @@ Ringkasan dari `composer.json` dan `package.json`:
 `.env.example` repo masih varian Laravel default — banyak variabel integrasi **tidak tercantum** dan harus ditambahkan manual saat deploy. Daftar lengkap di [Lampiran B](#lampiran-b--variabel-lingkungan). Ringkasan:
 
 - **Wajib bawaan Laravel**: `APP_NAME`, `APP_KEY`, `APP_URL`, `DB_*`, `MAIL_*`, `SESSION_*`
-- **Konferensi (Jitsi JaaS)**: `JITSI_DOMAIN`, `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`
+- **Konferensi (Jitsi self-hosted)**: `JITSI_DOMAIN`, `JITSI_JWT_APP_ID`, `JITSI_JWT_APP_SECRET`
 - **Push notification**: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`
 - **Eksekusi kode**: `PISTON_API_URL`
 
@@ -1016,26 +1016,28 @@ Direktori utama di `resources/views/`:
 
 | Integrasi | Tujuan | Status | Env Vars |
 |---|---|---|---|
-| Jitsi JaaS (8x8.vc) | Konferensi virtual real-time | Aktif | `JITSI_DOMAIN`, `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH` |
+| Jitsi (self-hosted, GCP VM) | Konferensi virtual real-time | Aktif | `JITSI_DOMAIN`, `JITSI_JWT_APP_ID`, `JITSI_JWT_APP_SECRET` |
 | Piston API | Eksekusi kode server-side (Java/PHP/C#) | Endpoint terdaftar; controller masih WIP | `PISTON_API_URL` |
 | WebPush (W3C) | Notifikasi push real-time | Aktif | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` |
 | Gmail SMTP | Email reset password | Aktif | `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` |
 
-#### 4.1.6.2 Jitsi JaaS
+#### 4.1.6.2 Jitsi (self-hosted)
 
-**Latar belakang**: Sistem konferensi virtual sebelumnya menggunakan **LiveKit** self-hosted, kemudian dimigrasikan ke **Jitsi JaaS** (Jitsi-as-a-Service) di domain `8x8.vc` (commit `b2ceb00` — "Migrate conferencing from LiveKit to Jitsi (JaaS)"). Seluruh kode, dependency, service Docker, dan env var LiveKit kini sudah dihapus dari repo.
+**Latar belakang**: Sistem konferensi virtual mengalami dua kali migrasi. Awalnya menggunakan **LiveKit** self-hosted, lalu sempat di-host melalui **Jitsi JaaS** (`8x8.vc`) untuk mempercepat iterasi awal, dan akhirnya dimigrasikan ke **Jitsi self-hosted** di GCP VM (`meet.polimedia.pblworkspace.com`) untuk menghapus ketergantungan pada penyedia pihak ketiga, mengontrol biaya, dan memastikan data residency. Seluruh kode dan env var LiveKit / JaaS telah dihapus dari repo.
 
-**Otentikasi**: JWT yang ditandatangani dengan algoritma **RS256** menggunakan kunci privat di `storage/app/private/jaas-private-key.pk`. Setiap request room dosen/mahasiswa men-generate token baru dengan claim:
-- `sub` = JaaS App ID
+**Arsitektur deployment**: Stack `docker-jitsi-meet` (Prosody + Jicofo + JVB + Jitsi Meet web) berjalan di VM yang sama dengan aplikasi Laravel. Caddy di host VM bertindak sebagai reverse proxy yang menerminasi TLS untuk dua subdomain (`polimedia.pblworkspace.com` → app, `meet.polimedia.pblworkspace.com` → Jitsi). Container web Jitsi dijalankan dengan `DISABLE_HTTPS=1` agar TLS hanya dikelola Caddy di satu tempat. Media JVB membutuhkan port UDP 10000 terbuka di GCP firewall.
+
+**Otentikasi**: JWT yang ditandatangani dengan algoritma **HS256** menggunakan shared secret (`JITSI_JWT_APP_SECRET`) yang identik antara aplikasi Laravel dan konfigurasi Jitsi server. Setiap request room admin/dosen/mahasiswa men-generate token baru dengan claim:
+- `iss` = `aud` = `JITSI_JWT_APP_ID`
+- `sub` = `JITSI_DOMAIN` (mis. `meet.polimedia.pblworkspace.com`)
 - `room` = `room_name` dari tabel `conferences`
-- `context.user.name` = display name pengguna
-- `context.user.moderator` = `true` untuk dosen, `false` untuk mahasiswa
-- `iat` / `exp` (umur ~1 jam)
+- `context.user.name` / `email` / `moderator` — moderator `true` untuk dosen & admin, `false` untuk mahasiswa
+- `iat` / `nbf` / `exp` (umur 2 jam)
 
 **Implementasi**:
-- Generator JWT: `app/Http/Controllers/{Dosen,Mahasiswa}/ConferenceController.php` (method `room()` atau helper privat)
-- View embed: `resources/views/{dosen,mahasiswa}/conferences/room.blade.php` — memanggil `resources/js/conference-jitsi.js`
-- SDK Jitsi (`external_api.js`) kini dimuat **secara dinamis dan non-blocking** (inject `<script>` ke `<head>` pada saat mount) — room shell di-render terlebih dahulu tanpa menunggu SDK
+- Generator JWT: `app/Services/JitsiTokenService::mint()` — dipanggil oleh tiga controller (`Admin\ConferenceController`, `Dosen\ConferenceController`, `Mahasiswa\ConferenceController`) di method `room()`
+- View embed: `resources/views/{admin,dosen,mahasiswa}/conferences/room.blade.php` — set `window.JITSI_*` globals lalu memanggil `resources/js/conference-jitsi.js`
+- SDK Jitsi (`external_api.js`) dimuat dari `https://${JITSI_DOMAIN}/external_api.js` secara dinamis dan non-blocking — room shell di-render terlebih dahulu tanpa menunggu SDK. Karena instance bersifat single-tenant self-hosted, nama room tidak diawali prefix tenant (berbeda dengan JaaS yang membutuhkan `${APP_ID}/${roomName}`).
 
 **Diagram sekuens**: lihat 4.1.4.2.
 
@@ -1755,14 +1757,13 @@ Daftar lengkap variabel `.env` yang dibaca aplikasi. Catatan: variabel yang **ti
 | `MAIL_FROM_ADDRESS` | mis. `noreply@pjbl.test` |
 | `MAIL_FROM_NAME` | `${APP_NAME}` |
 
-### B.5 Konferensi (Jitsi JaaS)
+### B.5 Konferensi (Jitsi self-hosted)
 
 | Variabel | Keterangan |
 |---|---|
-| `JITSI_DOMAIN` | mis. `8x8.vc` |
-| `JITSI_APP_ID` | mis. `vpaas-magic-cookie-...` |
-| `JITSI_KID` | mis. `vpaas-magic-cookie-.../xxxxxx` |
-| `JITSI_PRIVATE_KEY_PATH` | path relatif, default `storage/app/private/jaas-private-key.pk`. File harus disediakan manual. |
+| `JITSI_DOMAIN` | hostname publik Jitsi self-hosted, mis. `meet.polimedia.pblworkspace.com` |
+| `JITSI_JWT_APP_ID` | identifier aplikasi JWT, mis. `pjbl`. Harus sama dengan `JWT_APP_ID` di Jitsi server. |
+| `JITSI_JWT_APP_SECRET` | shared secret HS256 (mis. 32-byte hex dari `openssl rand -hex 32`). Harus sama dengan `JWT_APP_SECRET` di Jitsi server. Jangan commit. |
 
 ### B.6 Web Push (VAPID)
 

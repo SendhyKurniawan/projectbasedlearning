@@ -49,7 +49,6 @@
 
 <script>
     window.JITSI_DOMAIN       = @json(config('services.jitsi.domain'));
-    window.JITSI_APP_ID       = @json(config('services.jitsi.app_id'));
     window.JITSI_ROOM_NAME    = @json($conference->room_name);
     window.JITSI_JWT          = @json($jwt);
     window.JITSI_DISPLAY_NAME = @json(auth()->user()->name . ' (Admin)');

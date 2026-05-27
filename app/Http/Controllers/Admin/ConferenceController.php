@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Conference;
-use App\Services\JaasTokenService;
+use App\Services\JitsiTokenService;
 
 class ConferenceController extends Controller
 {
-    public function __construct(private JaasTokenService $jaas)
+    public function __construct(private JitsiTokenService $jitsi)
     {
     }
 
@@ -37,7 +37,7 @@ class ConferenceController extends Controller
         }
 
         $user = auth()->user();
-        $jwt = $this->jaas->mint(
+        $jwt = $this->jitsi->mint(
             room: $conference->room_name,
             userId: $user->id,
             name: $user->name . ' (Admin)',

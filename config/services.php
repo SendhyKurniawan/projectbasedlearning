@@ -36,10 +36,9 @@ return [
     ],
 
     'jitsi' => [
-        'domain' => env('JITSI_DOMAIN', '8x8.vc'),
-        'app_id' => env('JITSI_APP_ID'),
-        'kid' => env('JITSI_KID'),
-        'private_key_path' => env('JITSI_PRIVATE_KEY_PATH', 'storage/app/private/jaas-private-key.pk'),
+        'domain' => env('JITSI_DOMAIN', 'meet.polimedia.pblworkspace.com'),
+        'jwt_app_id' => env('JITSI_JWT_APP_ID'),
+        'jwt_app_secret' => env('JITSI_JWT_APP_SECRET'),
     ],
 
     'piston' => [

@@ -59,19 +59,17 @@ chmod -R 775 storage bootstrap/cache
 
 ---
 
-## Provisioning: Jitsi JaaS
+## Provisioning: Jitsi (self-hosted)
 
-Conference rooms require a valid JaaS account at [8x8.vc](https://jaas.8x8.vc).
+Conference rooms run on a self-hosted Jitsi instance at `meet.polimedia.pblworkspace.com` (same GCP VM as the app, behind Caddy reverse proxy). See the ops handoff in `docs/ops/jitsi-self-host.md` for the full VM setup procedure.
 
-1. Create a JaaS app in the dashboard
-2. Copy the `APP_ID` (e.g. `vpaas-magic-cookie-abc123`) → `JITSI_APP_ID`
-3. Generate an API key in the dashboard → copy the `KID` → `JITSI_KID`
-4. Download the RS256 private key file
-5. Place the private key at the path in `JITSI_PRIVATE_KEY_PATH` (default: `storage/app/private/jaas-private-key.pk`)
+After Jitsi is up and you have the values from the Jitsi `.env`:
 
-The `storage/app/private/` directory must exist and be unreadable by the web server. The key file is never committed to git.
+1. Set `JITSI_DOMAIN` to the public hostname (e.g. `meet.polimedia.pblworkspace.com`).
+2. Set `JITSI_JWT_APP_ID` to the same value as the Jitsi server's `JWT_APP_ID` (e.g. `pjbl`).
+3. Set `JITSI_JWT_APP_SECRET` to the same value as the Jitsi server's `JWT_APP_SECRET` (32-byte hex string). Never commit this to git.
 
-`JaasTokenService::mint()` throws a `RuntimeException` if any of the four vars are missing or the key file can't be read. Conference room views will 500 — surface this error in staging before prod.
+`JitsiTokenService::mint()` throws a `RuntimeException` if `JITSI_JWT_APP_ID` or `JITSI_JWT_APP_SECRET` is missing. Conference room views will 500 — surface this error in staging before prod.
 
 ---
 
