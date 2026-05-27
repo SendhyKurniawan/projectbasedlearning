@@ -45,7 +45,6 @@ function init() {
         return;
     }
 
-    const isModerator = Boolean(window.JITSI_IS_MODERATOR);
     const roomName = window.JITSI_ROOM_NAME;
 
     const api = new window.JitsiMeetExternalAPI(window.JITSI_DOMAIN, {
@@ -60,8 +59,6 @@ function init() {
             disableDeepLinking: true,
             enableWelcomePage: false,
             enableClosePage: false,
-            startWithAudioMuted: !isModerator,
-            startWithVideoMuted: !isModerator,
         },
         interfaceConfigOverwrite: {
             MOBILE_APP_PROMO: false,
