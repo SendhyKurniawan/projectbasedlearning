@@ -1,6 +1,5 @@
 @php
     $domain = config('services.jitsi.domain');
-    $meetUrl = 'https://' . $domain . '/' . $conference->room_name . '?jwt=' . $jwt;
 @endphp
 
 <x-app-layout>

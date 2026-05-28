@@ -238,8 +238,9 @@ class ConferenceController extends Controller
             moderator: true,
             email: $user->email,
         );
+        $meetUrl = $this->jitsi->roomUrl($conference->room_name, $jwt, $conference->title);
 
-        return view('dosen.conferences.room', compact('conference', 'jwt'));
+        return view('dosen.conferences.room', compact('conference', 'meetUrl'));
     }
 
     private function authorizeDosen(Course $course): void
