@@ -42,6 +42,12 @@ Route::middleware('auth')->group(function () {
     // Discussions & Announcements
     Route::resource('discussions', App\Http\Controllers\DiscussionController::class);
     Route::resource('announcements', App\Http\Controllers\AnnouncementController::class);
+
+    // Jitsi SSO: target for config.tokenAuthUrl. A tokenless Jitsi visitor is
+    // sent here (?room=…); auth gates it through PBL login, then we mint a
+    // per-user JWT and redirect back into the room.
+    Route::get('/conferences/jitsi-auth', [App\Http\Controllers\ConferenceJoinController::class, 'jitsiAuth'])
+        ->name('conferences.jitsi-auth');
 });
 
 // Admin Auth Routes

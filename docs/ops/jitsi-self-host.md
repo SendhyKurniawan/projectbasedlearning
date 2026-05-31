@@ -302,6 +302,48 @@ docker compose restart web    # reloads custom-interface_config.js
 
 ---
 
+## Step 7 — SSO (Jitsi login uses PBL)
+
+Without this, a tokenless visitor (e.g. someone who opens Jitsi's in-room **Share**
+link) hits Jitsi's dead-end "Authentication required" wall. This step points Jitsi's
+`tokenAuthUrl` at PBL, so that visitor is redirected to PBL, logs in with their normal
+account, and is bounced back into the room with a freshly minted JWT.
+
+The PBL side ships in the app repo: route `conferences.jitsi-auth`
+(`App\Http\Controllers\ConferenceJoinController@jitsiAuth`, behind `auth`). It looks up
+the conference by `room_name`, verifies access (admin / owning-dosen / enrolled-mahasiswa,
+same rules as the in-app rooms), mints a per-user JWT, and redirects back to
+`https://meet.…/{room}?jwt=…`. Make sure the app repo is pulled (Step 3) so the route exists.
+
+Jitsi side — install the config override:
+```bash
+APP_REPO=/path/to/app/repo   # e.g. ~/pjbl
+cp "$APP_REPO/docker/jitsi/web/custom-config.js" ~/.jitsi-meet-cfg/web/custom-config.js
+cd ~/jitsi-meet
+docker compose restart web    # reloads config.js (custom-config.js auto-appended)
+```
+
+Confirm it's served:
+```bash
+curl -s https://meet.polimedia.pblworkspace.com/config.js | grep -i tokenAuthUrl
+```
+Should show `config.tokenAuthUrl = 'https://polimedia.pblworkspace.com/conferences/jitsi-auth?room={room}';`
+
+**Verify the round-trip**:
+1. In a logged-in conference, click Jitsi's **Share** button → copy the link
+   (`https://meet.…/{room}`).
+2. Open it in a fresh incognito window → you land on the **PBL login page**.
+3. Log in as a user enrolled in / teaching that course → you're redirected back and join
+   the room (moderator if dosen/admin, participant if mahasiswa).
+4. Try as a user *not* in that course → 403 from PBL (no token minted). Try the link for
+   an **ended** conference → 410.
+
+> No loop: the return URL carries a valid `jwt`, so Jitsi joins instead of re-redirecting.
+> If you ever see a redirect loop, it means the minted token is invalid (wrong
+> `JITSI_JWT_APP_SECRET`) — fix the secret, `php artisan config:clear`.
+
+---
+
 ## Rollback
 
 The migration is now merged to `main` — the JaaS code path (`JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`, the RS256 JWT signing, the embedded iframe) has been removed from the codebase. A rollback to JaaS is no longer a single `git revert`; you'd need to:
