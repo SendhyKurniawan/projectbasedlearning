@@ -49,13 +49,19 @@ class JitsiTokenService
 
         $overrides = [
             'config.subject' => json_encode($subject),
+            // Product name — drives the in-call header, document <title> and mobile deep-link copy.
             'interfaceConfig.APP_NAME' => json_encode($appName),
             'interfaceConfig.NATIVE_APP_NAME' => json_encode($appName),
             'interfaceConfig.PROVIDER_NAME' => json_encode($appName),
-            'interfaceConfig.SHOW_JITSI_WATERMARK' => 'false',
+            // Show our logo as the top-left watermark (true = render the element; src = our logo).
+            'interfaceConfig.SHOW_JITSI_WATERMARK' => 'true',
             'interfaceConfig.JITSI_WATERMARK_LINK' => json_encode($appUrl),
             'interfaceConfig.DEFAULT_LOGO_URL' => json_encode($logoUrl),
             'interfaceConfig.DEFAULT_WELCOME_PAGE_LOGO_URL' => json_encode($logoUrl),
+            // Suppress Jitsi's own brand chrome so only our name/logo shows.
+            'interfaceConfig.SHOW_BRAND_WATERMARK' => 'false',
+            'interfaceConfig.SHOW_WATERMARK_FOR_GUESTS' => 'false',
+            'interfaceConfig.SHOW_POWERED_BY' => 'false',
         ];
 
         $hash = http_build_query($overrides, '', '&', PHP_QUERY_RFC3986);

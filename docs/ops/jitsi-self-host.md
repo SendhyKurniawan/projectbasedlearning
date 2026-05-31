@@ -256,12 +256,70 @@ Once verification passes:
 
 ---
 
+## Step 6 — Branding (PBL Workspace name, logo, favicon)
+
+The app already sends in-call name/logo via the room URL hash
+(`JitsiTokenService::roomUrl()`). This step makes the branding authoritative on the
+Jitsi server and covers what the URL hash can't reach: the **browser-tab favicon**, the
+document **title**, and the **welcome page**. Config is version-controlled in the app
+repo under `docker/jitsi/web/` (see its `README.md`) — copy it onto the VM.
+
+```bash
+# From the app repo on the VM (already pulled in Step 3):
+APP_REPO=/path/to/app/repo
+
+# 1. interface_config override — auto-appended by the web container.
+cp "$APP_REPO/docker/jitsi/web/custom-interface_config.js" \
+   ~/.jitsi-meet-cfg/web/custom-interface_config.js
+
+# 2. Logo + favicon assets, staged where the bind-mounts (below) expect them.
+cp "$APP_REPO/docker/jitsi/web/pbl-logo.svg" ~/.jitsi-meet-cfg/web/pbl-logo.svg
+cp "$APP_REPO/docker/jitsi/web/favicon.svg" ~/.jitsi-meet-cfg/web/favicon.svg
+```
+
+Bind-mount the assets into the web container. Edit `~/jitsi-meet/docker-compose.yml`,
+under the `web:` service `volumes:` list, add:
+```yaml
+      - ${CONFIG}/web/pbl-logo.svg:/usr/share/jitsi-meet/images/pbl-logo.svg:ro
+      - ${CONFIG}/web/favicon.svg:/usr/share/jitsi-meet/images/favicon.svg:ro
+```
+(`${CONFIG}` is already defined in the Jitsi `.env` as `~/.jitsi-meet-cfg`.)
+
+Apply and restart just the web container:
+```bash
+cd ~/jitsi-meet
+docker compose up -d web      # picks up the new volume mounts
+docker compose restart web    # reloads custom-interface_config.js
+```
+
+**Verify**:
+1. Open `https://meet.polimedia.pblworkspace.com` in a browser → tab title reads
+   **PBL Workspace**, tab favicon is the blue graduation-cap icon, welcome page shows our logo.
+2. Start a conference from the app and join → the top-left watermark is our logo, the
+   in-call header reads **PBL Workspace**, and there's no Jitsi "powered by" branding.
+3. Hard-refresh (Ctrl+Shift+R) if you still see the old favicon — browsers cache it aggressively.
+   The served HTML links `images/favicon.svg?v=1`, so the bind-mount over `favicon.svg` is what takes effect.
+
+---
+
 ## Rollback
 
-If Step 4 fails badly and you need JaaS back quickly:
+The migration is now merged to `main` — the JaaS code path (`JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`, the RS256 JWT signing, the embedded iframe) has been removed from the codebase. A rollback to JaaS is no longer a single `git revert`; you'd need to:
 
-1. Revert the Laravel feature branch (`git revert <merge-sha>`) — no destructive ops.
-2. Restore the old env keys in the VM's app `.env`: `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`.
-3. `docker compose exec app php artisan config:clear`. JaaS comes back instantly — the RSA key file is still at `storage/app/private/jaas-private-key.pk` (assuming Step 5 cleanup wasn't run yet).
-4. The self-hosted Jitsi stack can keep running idle, or `docker compose down` in `~/jitsi-meet` to free ports.
-5. Caddy + the new domain setup stays in place even on Jitsi rollback — the app continues to serve over HTTPS at `polimedia.pblworkspace.com`, which is an improvement worth keeping.
+1. Identify the merge SHA(s) for the self-hosted migration (`099a07e refactor(conferences): migrate from Jitsi JaaS to self-hosted (HS256 JWT)`, `db5378a refactor(conferences): drop iframe, use standalone Jitsi tab launcher`) plus the favicon/clean-up commits after.
+2. Revert those commits in order (non-destructive `git revert`, never `git reset --hard`).
+3. Restore the RSA key file at `storage/app/private/jaas-private-key.pk` if Step 5 cleanup was run.
+4. Restore the old env keys in the VM's app `.env`: `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`.
+5. `docker compose exec app php artisan config:clear && php artisan config:cache`.
+
+If the Jitsi stack on the VM goes down without a code-level cause (cert renewal failure, docker crash, etc.), bring it back without touching the app:
+
+```bash
+cd ~/jitsi-meet
+docker compose down
+docker compose up -d
+docker compose ps      # confirm "Up"/"healthy"
+sudo systemctl restart caddy   # if certs went stale
+```
+
+Caddy + the new domain setup stay in place regardless — the app continues to serve over HTTPS at `polimedia.pblworkspace.com`, which is the load-bearing piece even if Jitsi is temporarily down.
