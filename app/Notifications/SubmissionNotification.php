@@ -14,9 +14,6 @@ class SubmissionNotification extends Notification implements ShouldQueue
     private $assignmentTitle;
     private $actionUrl;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct($studentName, $assignmentTitle, $actionUrl)
     {
         $this->studentName = $studentName;
@@ -24,21 +21,11 @@ class SubmissionNotification extends Notification implements ShouldQueue
         $this->actionUrl = $actionUrl;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['database'];
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [

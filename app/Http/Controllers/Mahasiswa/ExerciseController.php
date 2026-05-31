@@ -13,13 +13,11 @@ class ExerciseController extends Controller
     public function solve(Assignment $assignment)
     {
         $mahasiswa = auth()->user();
-        
-        // Check if exercise type
+
         if ($assignment->type !== 'exercise') {
             abort(404);
         }
-        
-        // Check if student is enrolled (direct pivot query)
+
         $isEnrolled = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
             ->where('course_id', $assignment->course_id)
@@ -28,14 +26,13 @@ class ExerciseController extends Controller
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
-        
-        // Check if already submitted
+
         $existing = Submission::where('assignment_id', $assignment->id)
             ->where('mahasiswa_id', $mahasiswa->id)
             ->first();
-        
+
         $assignment->load('course');
-        
+
         return view('mahasiswa.exercises.solve', compact('assignment', 'existing'));
     }
 
@@ -45,11 +42,10 @@ class ExerciseController extends Controller
             'assignment_id' => 'required|exists:assignments,id',
             'code_answer' => 'required|string',
         ]);
-        
+
         $mahasiswa = auth()->user();
         $assignment = Assignment::findOrFail($request->assignment_id);
-        
-        // Check if enrolled (direct pivot query)
+
         $isEnrolled = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
             ->where('course_id', $assignment->course_id)
@@ -58,17 +54,16 @@ class ExerciseController extends Controller
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
-        
-        // Check if already submitted
+
         $existing = Submission::where('assignment_id', $assignment->id)
             ->where('mahasiswa_id', $mahasiswa->id)
             ->first();
-        
+
         if ($existing) {
             return redirect()->back()->with('error', 'Anda sudah mengumpulkan exercise ini.');
         }
-        
-        // Run keyword validation as a hint for the dosen; not used to score.
+
+        // Keyword validation runs as a hint for the dosen, not for scoring.
         $validationResult = $this->validateCode($assignment, $request->code_answer);
 
         Submission::create([
@@ -94,35 +89,32 @@ class ExerciseController extends Controller
         $score = 0;
         $passed = true;
         $feedback = [];
-        
-        // Check required keywords
+
         if (isset($config['required_keywords']) && !empty($config['required_keywords'])) {
             $totalKeywords = count($config['required_keywords']);
             $foundKeywords = 0;
-            
+
             foreach ($config['required_keywords'] as $keyword) {
                 if (stripos($code, $keyword) !== false) {
                     $foundKeywords++;
                 } else {
                     $passed = false;
-                    $feedback[] = "❌ Missing required element: {$keyword}";
+                    $feedback[] = "Missing required element: {$keyword}";
                 }
             }
-            
-            // Calculate score based on found keywords
+
             $score = floor(($foundKeywords / $totalKeywords) * $maxScore);
-            
+
             if ($foundKeywords === $totalKeywords) {
-                $feedback[] = "✅ All required elements found!";
+                $feedback[] = "All required elements found.";
             } else {
-                $feedback[] = "⚠️ Found {$foundKeywords}/{$totalKeywords} required elements.";
+                $feedback[] = "Found {$foundKeywords}/{$totalKeywords} required elements.";
             }
         } else {
-            // If no validation rules, give full score
             $score = $maxScore;
-            $feedback[] = "✅ Code submitted successfully!";
+            $feedback[] = "Code submitted successfully.";
         }
-        
+
         return [
             'passed' => $score === $maxScore,
             'score' => $score,

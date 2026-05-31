@@ -11,9 +11,6 @@ use Illuminate\Validation\Rules\Password;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $query = User::with('studentClass:id,name,study_program_id', 'studentClass.studyProgram:id,name,department_id,level')->select('id', 'name', 'email', 'nim', 'nip', 'role', 'is_active', 'student_class_id', 'created_at');
@@ -38,24 +35,17 @@ class UserController extends Controller
 
         $users = $query->latest()->paginate(15)->withQueryString();
 
-        // Count pending dosen accounts for badge notification
         $pendingDosen = User::where('role', 'dosen')->where('is_active', false)->count();
 
         return view('admin.users.index', compact('users', 'pendingDosen'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $classes = StudentClass::with('studyProgram')->get();
         return view('admin.users.create', compact('classes'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -77,9 +67,6 @@ class UserController extends Controller
             ->with('success', 'User berhasil dibuat.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
@@ -87,9 +74,6 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user', 'classes'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail($id);
@@ -119,9 +103,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil diperbarui.');
     }
 
-    /**
-     * Toggle active/inactive status of a user (for approving dosen accounts).
-     */
+    // Toggle active/inactive (also approves pending dosen accounts).
     public function toggleActive(string $id)
     {
         $user = User::findOrFail($id);
@@ -139,9 +121,6 @@ class UserController extends Controller
         return back()->with('success', $msg);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
@@ -156,9 +135,6 @@ class UserController extends Controller
             ->with('success', 'User berhasil dihapus.');
     }
 
-    /**
-     * Remove multiple resources from storage.
-     */
     public function bulkDestroy(Request $request)
     {
         $request->validate([
@@ -168,7 +144,6 @@ class UserController extends Controller
 
         $userIds = $request->user_ids;
 
-        // Prevent admin from deleting themselves
         if (in_array(auth()->id(), $userIds)) {
             $userIds = array_diff($userIds, [auth()->id()]);
         }

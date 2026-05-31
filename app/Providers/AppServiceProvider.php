@@ -20,15 +20,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Prevent lazy loading (N+1 queries) in non-production environments.
-        // This will throw an exception if a relationship is lazy-loaded,
-        // forcing eager loading to be used. Remove this in production.
+        // Surface N+1 queries during local/CI runs.
         Model::preventLazyLoading(!app()->isProduction());
 
         \Illuminate\Support\Facades\View::composer(
             'layouts.sidebar',
             \App\Http\View\Composers\SidebarComposer::class
         );
-        Model::preventLazyLoading(!app()->isProduction());
     }
 }

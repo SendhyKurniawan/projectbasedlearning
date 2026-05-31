@@ -106,11 +106,12 @@
                     {{-- Sort Tabs --}}
                     <div class="flex items-center gap-1 px-4 py-3 border-b border-outline-variant/10 bg-surface-container-low/30">
                         @foreach([
-                            ['latest', '🕐 Terbaru', 'schedule'],
-                            ['popular', '🔥 Populer', 'whatshot'],
+                            ['latest', 'Terbaru', 'schedule'],
+                            ['popular', 'Populer', 'whatshot'],
                         ] as [$sortKey, $sortLabel, $sortIcon])
                             <a href="{{ route('discussions.index', array_filter(['sort' => $sortKey, 'topic' => request('topic'), 'search' => request('search')])) }}"
-                               class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 {{ $currentSort === $sortKey ? 'bg-primary/10 text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
+                               class="inline-flex items-center gap-1 px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 {{ $currentSort === $sortKey ? 'bg-primary/10 text-primary shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
+                                <span class="material-symbols-outlined text-sm">{{ $sortIcon }}</span>
                                 {{ $sortLabel }}
                             </a>
                         @endforeach
@@ -221,7 +222,7 @@
                                 @if($loop->iteration <= 3)
                                     <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0
                                         {{ $loop->iteration === 1 ? 'bg-warning/20 text-warning' : ($loop->iteration === 2 ? 'bg-on-surface-variant/10 text-on-surface-variant' : 'bg-tertiary/10 text-tertiary') }}">
-                                        {{ $loop->iteration === 1 ? '🥇' : ($loop->iteration === 2 ? '🥈' : '🥉') }}
+                                        {{ $loop->iteration }}
                                     </div>
                                 @else
                                     <div class="w-7 h-7 rounded-full bg-surface-container flex items-center justify-center text-[10px] font-bold text-on-surface-variant shrink-0">

@@ -19,10 +19,9 @@ class DashboardController extends Controller
             ->withCount(['materials', 'assignments'])
             ->get();
 
-        // Use enrolled course IDs from already-loaded collection to avoid subquery
         $enrolledCourseIds = $enrolled_courses->pluck('id');
 
-        // Get upcoming assignments — include null-deadline and recent-past (7d) so data isn't empty
+        // Include null-deadline and recent-past (7d) so the panel isn't empty.
         $upcoming_assignments = Assignment::whereIn('course_id', $enrolledCourseIds)
             ->with('course')
             ->where(function ($q) {
@@ -33,14 +32,12 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Track which assignments this mahasiswa already submitted
         $submittedAssignmentIds = $upcoming_assignments->isNotEmpty()
             ? $mahasiswa->submissions()
                 ->whereIn('assignment_id', $upcoming_assignments->pluck('id'))
                 ->pluck('assignment_id')
             : collect();
 
-        // Today's conferences from enrolled courses
         $todayConferences = Conference::whereIn('course_id', $enrolledCourseIds)
             ->where(function ($q) {
                 $q->where('status', 'live')
@@ -56,7 +53,6 @@ class DashboardController extends Controller
             'submitted_assignments' => $mahasiswa->submissions()->count(),
         ];
 
-        // Get announcements
         $announcements = \App\Models\Announcement::with('author')
             ->whereIn('target_audience', ['all', 'mahasiswa'])
             ->orWhere(function ($query) use ($mahasiswa) {
@@ -69,7 +65,7 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
-        // ── 30-day personal submission activity ───────────────────────────────
+        // 30-day submission activity series
         $start = now()->subDays(29)->startOfDay();
         $labels = collect(range(0, 29))->map(fn ($i) => $start->copy()->addDays($i)->format('Y-m-d'));
         $mine = Submission::where('mahasiswa_id', $mahasiswa->id)
@@ -83,7 +79,7 @@ class DashboardController extends Controller
             'values' => $labels->map(fn ($d) => (int) ($mine[$d] ?? 0))->all(),
         ];
 
-        // ── Score histogram ───────────────────────────────────────────────────
+        // Score histogram
         $buckets = ['0–50' => 0, '51–70' => 0, '71–85' => 0, '86–100' => 0];
         Submission::where('mahasiswa_id', $mahasiswa->id)
             ->whereNotNull('score')

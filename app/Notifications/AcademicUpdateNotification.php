@@ -17,9 +17,6 @@ class AcademicUpdateNotification extends Notification implements ShouldQueue
     private $message;
     private $actionUrl;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct($title, $message, $actionUrl)
     {
         $this->title = $title;
@@ -27,11 +24,6 @@ class AcademicUpdateNotification extends Notification implements ShouldQueue
         $this->actionUrl = $actionUrl;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['database', WebPushChannel::class];
@@ -48,11 +40,6 @@ class AcademicUpdateNotification extends Notification implements ShouldQueue
             ->options(['TTL' => 1000]);
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [

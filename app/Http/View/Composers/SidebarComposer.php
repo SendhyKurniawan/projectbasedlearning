@@ -10,9 +10,6 @@ use App\Models\Course;
 
 class SidebarComposer
 {
-    /**
-     * Bind data to the view.
-     */
     public function compose(View $view): void
     {
         $dosenCourses = collect();
@@ -29,7 +26,6 @@ class SidebarComposer
                     ->get());
                 $dosenCourseGroups = $dosenCourses->groupBy('course_group_key');
             } elseif ($user->role === 'mahasiswa') {
-                // Single lightweight query instead of whereHas subquery on every page
                 $mahasiswaFirstCourse = DB::table('enrollments')
                     ->where('mahasiswa_id', $user->id)
                     ->value('course_id');

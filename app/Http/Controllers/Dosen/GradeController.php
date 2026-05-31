@@ -53,7 +53,6 @@ class GradeController extends Controller
 
         $courses = $coursesQuery->orderBy('created_at', 'desc')->get();
 
-        // Eager load students (with optional search) and their submissions
         $courses->load(['students' => function ($query) use ($search) {
             if ($search) {
                 $query->where('name', 'like', "%{$search}%")
@@ -64,7 +63,6 @@ class GradeController extends Controller
             }]);
         }]);
 
-        // Group sibling courses by course_group_key (same pattern as DashboardController)
         $courseGroups = $courses->groupBy('course_group_key')->map(fn ($g) => [
             'nama_matkul'       => $g->first()->nama_matkul,
             'kode_matkul'       => $g->first()->kode_matkul,
@@ -74,7 +72,6 @@ class GradeController extends Controller
             'total_assignments' => $g->sum(fn ($c) => $c->assignments->count()),
         ])->values();
 
-        // Filter dropdown options
         $availableYears        = AcademicYear::orderBy('year_start', 'desc')->get();
         $availableSemesters    = Semester::with('academicYear')->orderBy('start_date', 'desc')->get();
         $availableDepartments  = Department::orderBy('name')->get();
@@ -97,9 +94,7 @@ class GradeController extends Controller
         ));
     }
 
-    /**
-     * Export per-kelas grade recap as CSV.
-     */
+    // Export per-kelas grade recap as CSV.
     public function export(Course $course)
     {
         $this->authorize('view', $course);
@@ -115,7 +110,6 @@ class GradeController extends Controller
         return response()->streamDownload(function () use ($course) {
             $out = fopen('php://output', 'w');
 
-            // Header row
             fputcsv($out, array_merge(
                 ['NIM', 'Nama'],
                 $course->assignments->pluck('title')->all(),
@@ -144,9 +138,7 @@ class GradeController extends Controller
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
-    /**
-     * PATCH endpoint for inline single-cell grade editing.
-     */
+    // Inline single-cell grade edit (PATCH).
     public function quickGrade(Request $request, Assignment $assignment, User $mahasiswa)
     {
         $this->authorize('update', $assignment);
@@ -169,7 +161,7 @@ class GradeController extends Controller
             ]
         );
 
-        // Set submitted_at only if it was previously null (don't overwrite an existing timestamp)
+        // Only set submitted_at on first grade so we don't overwrite an existing timestamp.
         if (! $submission->submitted_at) {
             $submission->update(['submitted_at' => now()]);
         }

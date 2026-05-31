@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -54,20 +51,15 @@ class AnnouncementController extends Controller
         return view('announcements.index', compact('announcements'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $user = Auth::user();
-        
-        // Allowed targets based on role
+
         if ($user->role === 'admin') {
             $targets = ['all' => 'Semua Pengguna', 'dosen' => 'Seluruh Dosen', 'mahasiswa' => 'Seluruh Mahasiswa', 'specific' => 'Pengguna Spesifik'];
             $users = User::where('id', '!=', $user->id)->select('id', 'name', 'role')->get();
         } else if ($user->role === 'dosen') {
             $targets = ['mahasiswa' => 'Seluruh Mahasiswa', 'specific' => 'Mahasiswa Spesifik'];
-            // Dosen only targets mahasiswa for simplicity, or could scope it to their classes
             $users = User::where('role', 'mahasiswa')->select('id', 'name', 'role')->get();
         } else {
             abort(403, 'Akses ditolak.');
@@ -76,9 +68,6 @@ class AnnouncementController extends Controller
         return view('announcements.create', compact('targets', 'users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -95,7 +84,6 @@ class AnnouncementController extends Controller
             $rules['specific_users.*'] = 'exists:users,id';
         }
 
-        // Dosen restrictions validation
         if ($user->role === 'dosen') {
              if (!in_array($request->target_audience, ['mahasiswa', 'specific'])) {
                  abort(403, 'Akses audiens ditolak.');
@@ -125,7 +113,6 @@ class AnnouncementController extends Controller
             $announcement->targetedUsers()->sync($validated['specific_users']);
         }
 
-        // Notification Logic
         $notifiableUsers = collect();
         if ($validated['target_audience'] === 'all') {
             $notifiableUsers = User::where('id', '!=', $user->id)->get();
@@ -144,14 +131,10 @@ class AnnouncementController extends Controller
         return redirect()->route('announcements.index')->with('success', 'Pengumuman berhasil dibuat.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Announcement $announcement)
     {
         $user = Auth::user();
 
-        // Check if user is allowed to view
         $isAllowed = false;
         
         if ($user->role === 'admin' || $announcement->user_id === $user->id) {
@@ -175,9 +158,6 @@ class AnnouncementController extends Controller
         return view('announcements.show', compact('announcement'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Announcement $announcement)
     {
          if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {
@@ -198,9 +178,6 @@ class AnnouncementController extends Controller
         return view('announcements.edit', compact('announcement', 'targets', 'users', 'selectedUsers'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Announcement $announcement)
     {
         if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {
@@ -257,16 +234,12 @@ class AnnouncementController extends Controller
         if ($validated['target_audience'] === 'specific') {
             $announcement->targetedUsers()->sync($validated['specific_users']);
         } else {
-            // Detach if switched to a broadcast type
             $announcement->targetedUsers()->detach();
         }
 
         return redirect()->route('announcements.index')->with('success', 'Pengumuman berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Announcement $announcement)
     {
          if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {

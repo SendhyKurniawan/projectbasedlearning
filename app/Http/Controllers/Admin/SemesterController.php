@@ -9,27 +9,18 @@ use Illuminate\Http\Request;
 
 class SemesterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $semesters = Semester::with('academicYear')->latest()->get();
         return view('admin.semesters.index', compact('semesters'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $academicYears = AcademicYear::all();
         return view('admin.semesters.create', compact('academicYears'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -51,26 +42,17 @@ class SemesterController extends Controller
         return redirect()->route('admin.semesters.index')->with('success', 'Semester berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Semester $semester)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Semester $semester)
     {
         $academicYears = AcademicYear::all();
         return view('admin.semesters.edit', compact('semester', 'academicYears'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Semester $semester)
     {
         $validated = $request->validate([
@@ -92,9 +74,6 @@ class SemesterController extends Controller
         return redirect()->route('admin.semesters.index')->with('success', 'Semester berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Semester $semester)
     {
         $semester->delete();

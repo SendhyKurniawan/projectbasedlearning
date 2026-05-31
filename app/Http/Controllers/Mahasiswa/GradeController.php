@@ -25,19 +25,16 @@ class GradeController extends Controller
             $query->where('mahasiswa_id', $mahasiswaId)->select('id', 'assignment_id', 'mahasiswa_id', 'score', 'status');
         }]);
 
-        // Filter by semester
         if ($semesterId) {
             $coursesQuery->where('semester_id', $semesterId);
         }
 
-        // Filter by academic year
         if ($academicYearId) {
             $coursesQuery->whereHas('semester', function ($q) use ($academicYearId) {
                 $q->where('academic_year_id', $academicYearId);
             });
         }
 
-        // Search by course name or code
         if ($search) {
             $coursesQuery->where(function ($q) use ($search) {
                 $q->where('nama_matkul', 'like', "%{$search}%")
@@ -47,7 +44,6 @@ class GradeController extends Controller
 
         $courses = $coursesQuery->orderBy('created_at', 'desc')->get();
 
-        // Fetch filter options (only semesters/years relevant to enrolled courses)
         $availableSemesters = Semester::with('academicYear:id,year_start,year_end')
             ->orderBy('start_date', 'desc')->get();
         $availableYears = AcademicYear::orderBy('year_start', 'desc')->get();

@@ -42,7 +42,7 @@
                                     @foreach($users->where('role', $roleKey) as $u)
                                         @php $sub = $u->pushSubscriptions->count() > 0; @endphp
                                         <option value="{{ $u->id }}">
-                                            {{ $u->name }} ({{ $u->email }}) {{ $sub ? '✓ subscribed' : '— no sub' }}
+                                            {{ $u->name }} ({{ $u->email }}) {{ $sub ? '[subscribed]' : '[no sub]' }}
                                         </option>
                                     @endforeach
                                 </optgroup>
@@ -93,7 +93,7 @@
                 <section class="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 p-6">
                     <h2 class="font-headline text-lg font-bold mb-3">Log Pengiriman</h2>
                     <div class="rounded-xl bg-on-surface text-secondary-container p-4 font-mono text-[11px] space-y-1">
-                        <div class="text-secondary">[VAPID] ✓ Public key configured</div>
+                        <div class="text-secondary">[VAPID] Public key configured</div>
                         <div class="text-on-surface-variant">[INFO] {{ $subscribedCount }} subscription(s) active</div>
                         <div class="text-on-surface-variant">[INFO] Listening for test push events…</div>
                         <div class="text-tertiary">[NOTE] Submit form ke kiri untuk mengirim test push.</div>
@@ -101,7 +101,7 @@
                 </section>
 
                 <section class="bg-tertiary-fixed/40 rounded-2xl border border-tertiary/20 p-5">
-                    <h3 class="font-headline text-sm font-bold mb-2">⚠ Catatan</h3>
+                    <h3 class="font-headline text-sm font-bold mb-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-base">warning</span> Catatan</h3>
                     <p class="text-xs text-on-surface-variant">Halaman dev tools — hanya untuk Super Admin. Pastikan browser klien sudah granted permission &amp; service worker terdaftar.</p>
                 </section>
             </div>

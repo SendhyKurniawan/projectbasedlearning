@@ -15,13 +15,9 @@ use Illuminate\Validation\Rule;
 
 class AkademikController extends Controller
 {
-    // ─────────────────────────────────────────────────────────────
-    //  INDEX (main page)
-    // ─────────────────────────────────────────────────────────────
-
+    // Index (main page)
     public function index(Request $request)
     {
-        // ── Pilih Academic Year ──
         $academicYears = AcademicYear::withCount('semesters')->orderByDesc('year_start')->get();
 
         $selectedAyId  = $request->query('ay');
@@ -29,7 +25,6 @@ class AkademikController extends Controller
             ? $academicYears->firstWhere('id', $selectedAyId)
             : $academicYears->firstWhere('is_active', true) ?? $academicYears->first();
 
-        // ── Pilih Semester ──
         $semesters = $selectedAy
             ? Semester::where('academic_year_id', $selectedAy->id)->orderByDesc('is_active')->orderBy('name')->get()
             : collect();
@@ -39,7 +34,6 @@ class AkademikController extends Controller
             ? $semesters->firstWhere('id', $selectedSemId)
             : $semesters->firstWhere('is_active', true) ?? $semesters->first();
 
-        // ── Pilih Jurusan ──
         $departments = Department::withCount('studyPrograms')->orderBy('name')->get();
 
         $selectedDepId = $request->query('dep');
@@ -47,7 +41,6 @@ class AkademikController extends Controller
             ? $departments->firstWhere('id', $selectedDepId)
             : $departments->first();
 
-        // ── Pilih Prodi ──
         $studyPrograms = $selectedDep
             ? StudyProgram::where('department_id', $selectedDep->id)->withCount('studentClasses')->orderBy('name')->get()
             : collect();
@@ -57,7 +50,6 @@ class AkademikController extends Controller
             ? $studyPrograms->firstWhere('id', $selectedProgId)
             : $studyPrograms->first();
 
-        // ── Kelas + Mahasiswa + MK (Prodi × Semester terpilih) ──
         $classes = collect();
         $semesterCourses = collect();
         $classCourses = collect();
@@ -77,14 +69,12 @@ class AkademikController extends Controller
                 ->orderBy('nama_matkul')
                 ->get();
 
-            // MK Khusus Kelas (semua kelas di prodi × semester ini)
             $classIds = $classes->pluck('id');
             $classCourses = Course::whereIn('student_class_id', $classIds)
                 ->with(['dosen:id,name', 'studentClass:id,name'])
                 ->orderBy('nama_matkul')
                 ->get();
 
-            // Mahasiswa yang belum punya kelas di prodi + semester ini (atau sudah punya kelas tapi bisa dipindah)
             $availableStudents = User::where('role', 'mahasiswa')
                 ->select('id', 'name', 'nim', 'student_class_id')
                 ->orderBy('name')
@@ -101,10 +91,7 @@ class AkademikController extends Controller
         ));
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  ACADEMIC YEAR
-    // ─────────────────────────────────────────────────────────────
-
+    // Academic year
     public function storeAcademicYear(Request $request)
     {
         $validated = $request->validate([
@@ -166,10 +153,7 @@ class AkademikController extends Controller
         return back()->with('success', "Tahun Akademik {$academicYear->year_start}/{$academicYear->year_end} diset sebagai aktif.");
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  SEMESTER
-    // ─────────────────────────────────────────────────────────────
-
+    // Semester
     public function storeSemester(Request $request)
     {
         $validated = $request->validate([
@@ -244,10 +228,7 @@ class AkademikController extends Controller
         return back()->with('success', "Semester {$semester->name} diset sebagai aktif.");
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  DEPARTMENT (Jurusan)
-    // ─────────────────────────────────────────────────────────────
-
+    // Department (Jurusan)
     public function storeDepartment(Request $request)
     {
         $validated = $request->validate([
@@ -285,10 +266,7 @@ class AkademikController extends Controller
             ->with('success', 'Jurusan berhasil dihapus.');
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  STUDY PROGRAM (Prodi)
-    // ─────────────────────────────────────────────────────────────
-
+    // Study program (Prodi)
     public function storeStudyProgram(Request $request)
     {
         $validated = $request->validate([
@@ -330,10 +308,7 @@ class AkademikController extends Controller
             ->with('success', 'Program Studi berhasil dihapus.');
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  STUDENT CLASS (Kelas)
-    // ─────────────────────────────────────────────────────────────
-
+    // Student class (Kelas)
     public function storeClass(Request $request)
     {
         $validated = $request->validate([
@@ -390,7 +365,6 @@ class AkademikController extends Controller
             'student_ids.*' => 'exists:users,id',
         ]);
 
-        // Verify all are mahasiswa
         $users = User::whereIn('id', $request->student_ids)
             ->where('role', 'mahasiswa')
             ->get();
@@ -416,10 +390,7 @@ class AkademikController extends Controller
         return back()->with('success', "{$user->name} berhasil dikeluarkan dari kelas.");
     }
 
-    // ─────────────────────────────────────────────────────────────
-    //  COURSE (Mata Kuliah)
-    // ─────────────────────────────────────────────────────────────
-
+    // Course (Mata Kuliah)
     public function storeCourse(Request $request)
     {
         $validated = $request->validate([
@@ -438,7 +409,7 @@ class AkademikController extends Controller
         $dosenId         = $validated['dosen_id'];
         $kodeMatkul      = $validated['kode_matkul'];
 
-        // Bug-fix #1: Composite uniqueness check (not global unique on kode_matkul)
+        // Uniqueness is composite (kode + dosen + semester + kelas), not just kode_matkul.
         $exists = Course::where('kode_matkul', $kodeMatkul)
             ->where('dosen_id', $dosenId)
             ->where('semester_id', $semesterId)
@@ -472,7 +443,6 @@ class AkademikController extends Controller
 
     public function destroyCourse(Course $course)
     {
-        // Bug-fix #7: Cek apakah course punya relasi data penting sebelum hapus
         if ($course->materials()->exists() || $course->assignments()->exists() || $course->students()->exists()) {
             $details = [];
             if ($course->materials()->exists())   $details[] = 'materi';

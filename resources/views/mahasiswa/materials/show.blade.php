@@ -272,11 +272,9 @@
                 const base64Markdown = contentElement.getAttribute('data-markdown');
                 if (base64Markdown) {
                     const markdown = atob(base64Markdown);
-                    // Assuming renderMarkdown is available globally from markdown-editor.js
                     if (typeof renderMarkdown === 'function') {
                         contentElement.innerHTML = renderMarkdown(markdown);
                     } else {
-                        // Fallback if not loaded
                         contentElement.innerText = markdown;
                     }
                 }

@@ -13,9 +13,6 @@ use Illuminate\View\View;
 
 class OtpVerificationController extends Controller
 {
-    /**
-     * Display the OTP verification view for a pending signup.
-     */
     public function create(Request $request): View|RedirectResponse
     {
         $user = $this->pendingUser($request);
@@ -26,10 +23,7 @@ class OtpVerificationController extends Controller
         return view('auth.verify-otp', ['email' => $user->email]);
     }
 
-    /**
-     * Verify the submitted OTP. On success, activate / log in or
-     * redirect to login depending on role.
-     */
+    // Verify the OTP, then activate (mahasiswa) or hand off to admin approval (dosen).
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -79,9 +73,6 @@ class OtpVerificationController extends Controller
         return redirect()->route('mahasiswa.dashboard');
     }
 
-    /**
-     * Re-send a fresh OTP code to the pending user.
-     */
     public function resend(Request $request): RedirectResponse
     {
         $user = $this->pendingUser($request);
@@ -101,9 +92,6 @@ class OtpVerificationController extends Controller
         return back()->with('status', 'Kode verifikasi baru telah dikirim ke ' . $user->email . '.');
     }
 
-    /**
-     * Resolve the user awaiting OTP verification from the session.
-     */
     protected function pendingUser(Request $request): ?User
     {
         $id = $request->session()->get('otp_user_id');

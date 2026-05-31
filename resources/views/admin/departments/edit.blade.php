@@ -4,7 +4,7 @@
  <div class="flex flex-wrap items-end justify-between gap-4">
  <div>
  <nav class="flex items-center gap-2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2">
- <a href="{{ route('admin.hierarchy.departments.index') }}" class="hover:text-primary transition-colors">Struktur</a>
+ <a href="{{ route('admin.akademik.index') }}" class="hover:text-primary transition-colors">Struktur</a>
  <span class="material-symbols-outlined text-xs">chevron_right</span>
  <span class="text-primary">Edit Jurusan</span>
  </nav>

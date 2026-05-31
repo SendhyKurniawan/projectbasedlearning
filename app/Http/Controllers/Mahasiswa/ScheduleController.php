@@ -14,7 +14,6 @@ class ScheduleController extends Controller
 
         $enrolledCourseIds = $mahasiswa->enrollments()->pluck('courses.id');
 
-        // Conferences: live + scheduled in next 30 days
         $conferences = Conference::whereIn('course_id', $enrolledCourseIds)
             ->where(function ($q) {
                 $q->where('status', 'live')
@@ -24,7 +23,6 @@ class ScheduleController extends Controller
             ->orderBy('scheduled_at')
             ->get();
 
-        // Upcoming assignments with null-deadline tolerance
         $assignments = Assignment::whereIn('course_id', $enrolledCourseIds)
             ->with('course')
             ->where(function ($q) {
@@ -40,22 +38,20 @@ class ScheduleController extends Controller
                 ->pluck('assignment_id')
             : collect();
 
-        // Group conferences by date string for easy day-by-day rendering
         $conferencesByDate = $conferences->groupBy(
             fn ($c) => $c->scheduled_at->format('Y-m-d')
         );
 
-        // Group assignments by deadline date (null-deadline goes to 'no-deadline' bucket)
+        // Null deadlines bucket under 'no-deadline'.
         $assignmentsByDate = $assignments->groupBy(
             fn ($a) => $a->deadline ? $a->deadline->format('Y-m-d') : 'no-deadline'
         );
 
-        // Build ordered day list: next 14 days + any beyond that with events
+        // Render the next 14 days plus any later days that still have events.
         $days = collect();
         for ($i = 0; $i < 14; $i++) {
             $days->push(now()->startOfDay()->addDays($i)->format('Y-m-d'));
         }
-        // Add extra days that have conferences/assignments beyond 14 days
         $extraDays = $conferencesByDate->keys()
             ->merge($assignmentsByDate->keys()->filter(fn ($d) => $d !== 'no-deadline'))
             ->filter(fn ($d) => ! $days->contains($d))

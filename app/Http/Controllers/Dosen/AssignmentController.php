@@ -142,7 +142,6 @@ class AssignmentController extends Controller
         $assignment->loadMissing('course');
         $course = $assignment->course;
 
-        // Using Policy for authorization instead of manual check
         $this->authorize('view', $course);
 
         $materials = $course->materials()->orderBy('order')->get(['id', 'title']);
@@ -180,7 +179,7 @@ class AssignmentController extends Controller
         $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
         $hasSubmission = $assignment->submissions()->exists();
 
-        // Lock group toggle + grading_mode after first submission to keep data consistent
+        // Lock group settings once submissions exist to keep data consistent.
         if ($hasSubmission) {
             $data['is_group'] = $assignment->is_group;
             $data['max_group_size'] = $assignment->max_group_size;
@@ -192,8 +191,7 @@ class AssignmentController extends Controller
         }
 
         $assignment->update($data);
-        
-        // Notify enrolled students
+
         $students = User::whereHas('enrollments', function($q) use ($course) {
             $q->where('course_id', $course->id);
         })->get();
@@ -212,7 +210,6 @@ class AssignmentController extends Controller
 
     public function destroy(Assignment $assignment)
     {
-        // Using Policy for authorization instead of manual check
         $this->authorize('delete', $assignment);
 
         $assignment->loadMissing('course');
@@ -278,8 +275,7 @@ class AssignmentController extends Controller
             'ordered_ids' => 'required|array',
             'ordered_ids.*' => 'exists:assignments,id',
         ]);
-        
-        // Ambil urutan yang ada saat ini untuk id yang diberikan dan urutkan
+
         $assignments = Assignment::whereIn('id', $request->ordered_ids)
                                  ->where('course_id', $course->id)
                                  ->orderBy('order')
@@ -311,7 +307,6 @@ class AssignmentController extends Controller
         $assignment->loadMissing('course');
         $course = $assignment->course;
 
-        // Authorization check: Use Policy instead of manual check
         $this->authorize('view', $course);
 
         $submissions = $assignment->submissions()
@@ -336,7 +331,6 @@ class AssignmentController extends Controller
 
     public function showQuizAttempt(Assignment $assignment, Submission $submission)
     {
-        // Eager-load course to avoid lazy-loading in the authorization check
         $assignment->loadMissing('course');
         if ($assignment->course->dosen_id !== auth()->id()) {
             abort(403);
@@ -353,7 +347,6 @@ class AssignmentController extends Controller
 
     public function grade(Request $request, Submission $submission)
     {
-        // Eager-load to avoid chained lazy-loading ($submission->assignment->course)
         $submission->loadMissing(['assignment.course']);
         $assignment = $submission->assignment;
         $course = $assignment->course;
@@ -371,7 +364,6 @@ class AssignmentController extends Controller
             'status' => 'graded'
         ]);
 
-        // Notify student
         $student = $submission->mahasiswa;
         if ($student) {
             Notification::send($student, new \App\Notifications\GradeNotification(
@@ -425,7 +417,6 @@ class AssignmentController extends Controller
             ]);
         }
 
-        // Notify all members
         $members = $group->submissions->pluck('mahasiswa')->filter()->unique('id');
         if ($members->isNotEmpty()) {
             Notification::send($members, new \App\Notifications\GradeNotification(
@@ -437,11 +428,10 @@ class AssignmentController extends Controller
         return redirect()->back()->with('success', 'Nilai kelompok berhasil disimpan!');
     }
 
-    // --- Question Management (Absorbed from QuizController) ---
+    // Question management
 
     public function questions(Assignment $assignment)
     {
-        // Authorization check: Use Policy instead of manual check
         $this->authorize('view', $assignment->course);
 
         $assignment->loadMissing('course');
@@ -451,7 +441,6 @@ class AssignmentController extends Controller
 
     public function createQuestion(Assignment $assignment)
     {
-        // Authorization check: Use Policy instead of manual check
         $this->authorize('view', $assignment->course);
 
         return view('dosen.assignments.questions.create', compact('assignment'));
@@ -495,11 +484,9 @@ class AssignmentController extends Controller
 
     public function editQuestion(\App\Models\QuizQuestion $question)
     {
-        // Load necessary relationships to check authorization
         $question->loadMissing(['assignment.course', 'options']);
         $course = $question->assignment->course;
 
-        // Authorization check: Use Policy instead of manual check
         $this->authorize('view', $course);
 
         $assignment = $question->assignment;

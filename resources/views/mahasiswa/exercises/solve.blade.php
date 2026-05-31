@@ -577,7 +577,7 @@
                         waited += 50;
                     }
                     if (typeof window.initCodeEditor !== 'function') {
-                        this.addLog('error', '✕', 'Failed to load editor. Please refresh the page.');
+                        this.addLog('error', 'X', 'Failed to load editor. Please refresh the page.');
                         return;
                     }
                     const themeName = this.editorTheme === 'one-light' ? 'mdn-like' : 'dracula';
@@ -602,7 +602,7 @@
                         const payload = event.data;
                         if (!payload || payload.__pblConsole !== true) return;
                         const type = payload.level === 'error' ? 'error' : 'ok';
-                        this.addLog(type, type === 'error' ? '✕' : '›', payload.message);
+                        this.addLog(type, type === 'error' ? 'X' : '>', payload.message);
                     });
                 },
 
@@ -649,11 +649,11 @@
                     try {
                         if (typeof window.runCode === 'function') {
                             window.runCode(editor, 'preview-iframe', language);
-                            this.addLog('run', '▶', 'Build successful · preview updated');
+                            this.addLog('run', '>', 'Build successful · preview updated');
                             this.statusState = 'ok';
                         }
                     } catch (e) {
-                        this.addLog('error', '✕', 'Client-side error: ' + (e && e.message ? e.message : e));
+                        this.addLog('error', 'X', 'Client-side error: ' + (e && e.message ? e.message : e));
                         this.statusState = 'error';
                     } finally {
                         this.running = false;
@@ -662,7 +662,7 @@
 
                 async runServer() {
                     const editor = window.__codeEditor;
-                    this.addLog('run', '▶', `Running ${language}…`);
+                    this.addLog('run', '>', `Running ${language}…`);
 
                     try {
                         const res = await fetch('{{ route('execute.code') }}', {
@@ -675,16 +675,16 @@
                         });
 
                         if (!res.ok) {
-                            this.addLog('error', '✕', `Execution service returned HTTP ${res.status}`);
+                            this.addLog('error', 'X', `Execution service returned HTTP ${res.status}`);
                             this.statusState = 'error';
                             return;
                         }
 
                         const data = await res.json();
-                        if (data.stdout) this.addLog('ok', '›', data.stdout.trimEnd());
-                        if (data.stderr) this.addLog('error', '✕', data.stderr.trimEnd());
-                        if (!data.stdout && !data.stderr) this.addLog('info', 'ⓘ', '(no output)');
-                        this.addLog('info', '⏎', `Exited with code ${data.exit_code}`);
+                        if (data.stdout) this.addLog('ok', '>', data.stdout.trimEnd());
+                        if (data.stderr) this.addLog('error', 'X', data.stderr.trimEnd());
+                        if (!data.stdout && !data.stderr) this.addLog('info', 'i', '(no output)');
+                        this.addLog('info', '<', `Exited with code ${data.exit_code}`);
                         this.statusState = data.stderr || data.exit_code !== 0 ? 'error' : 'ok';
                     } catch (e) {
                         this.addLog('error', '!', 'Network error. Check your connection.');

@@ -13,7 +13,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Single query to get user counts grouped by role (instead of 4 separate COUNT queries)
         $userCounts = User::selectRaw('role, count(*) as total')
             ->groupBy('role')
             ->pluck('total', 'role');
@@ -29,7 +28,7 @@ class DashboardController extends Controller
         $recent_users = User::select('id', 'name', 'email', 'role', 'created_at')->latest()->take(5)->get();
         $recent_courses = Course::with('dosen:id,name')->select('id', 'kode_matkul', 'nama_matkul', 'dosen_id', 'created_at')->withCount('students')->latest()->take(5)->get();
 
-        // ── 30-day activity series ────────────────────────────────────────────
+        // 30-day activity series
         $start = now()->subDays(29)->startOfDay();
         $labels = collect(range(0, 29))->map(fn ($i) => $start->copy()->addDays($i)->format('Y-m-d'));
 
@@ -44,7 +43,7 @@ class DashboardController extends Controller
             'materials' => $labels->map(fn ($d) => (int) ($views[$d] ?? 0))->all(),
         ];
 
-        // ── Role distribution (donut) ─────────────────────────────────────────
+        // Role distribution (donut)
         $roleDistribution = [
             'labels' => ['Mahasiswa', 'Dosen', 'Admin'],
             'values' => [

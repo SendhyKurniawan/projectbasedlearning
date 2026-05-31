@@ -49,7 +49,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Redirect to role-specific dashboard
         $dashboard = match($user->role) {
             'admin'     => route('admin.dashboard'),
             'dosen'     => route('dosen.dashboard'),

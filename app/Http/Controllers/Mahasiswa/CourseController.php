@@ -19,7 +19,6 @@ class CourseController extends Controller
         $query = Course::with('dosen')
             ->withCount(['materials', 'assignments', 'students']);
 
-        // Search filter
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -31,7 +30,6 @@ class CourseController extends Controller
             });
         }
 
-        // Sort filter
         $sort = $request->input('sort', 'terbaru');
         $available_courses = match ($sort) {
             'terlama' => $query->oldest()->get(),
@@ -40,7 +38,6 @@ class CourseController extends Controller
             default   => $query->latest()->get(),
         };
 
-        // Get enrolled course IDs using a simple pivot query (no eager load needed here)
         $enrolled_ids = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
             ->pluck('course_id')
@@ -53,7 +50,6 @@ class CourseController extends Controller
     {
         $mahasiswa = auth()->user();
 
-        // Check enrollment using pivot table directly (faster than Eloquent relation query)
         $is_enrolled = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
             ->where('course_id', $course->id)
@@ -64,7 +60,6 @@ class CourseController extends Controller
                 ->with('error', 'Anda belum terdaftar di course ini.');
         }
 
-        // Load course with all required relationships in a single eager load
         $course->load([
             'dosen',
             'materials' => fn($q) => $q->orderBy('order'),
@@ -73,7 +68,6 @@ class CourseController extends Controller
 
         $materialIds = $course->materials->pluck('id');
 
-        // Get material views and submissions in parallel (both with indexed queries)
         $viewedMaterialIds = MaterialView::where('student_id', $mahasiswa->id)
             ->whereIn('material_id', $materialIds)
             ->pluck('material_id')
@@ -85,7 +79,6 @@ class CourseController extends Controller
             ->get()
             ->keyBy('assignment_id');
 
-        // Filter assignment types from in-memory collection (no extra DB query)
         $allAssignments = $course->assignments;
         $quizzes = $allAssignments->where('type', 'quiz');
 
@@ -98,7 +91,6 @@ class CourseController extends Controller
     {
         $path = [];
 
-        // Build a lookup map for assignments by required_material_id (no looping search inside loop)
         $assignmentsByMaterial = $course->assignments->whereNotNull('required_material_id')
             ->keyBy('required_material_id');
 
@@ -125,7 +117,6 @@ class CourseController extends Controller
             }
         }
 
-        // Add assignments without prerequisites (filtered from in-memory collection)
         $assignmentsWithoutPrereq = $course->assignments->whereNull('required_material_id');
         foreach ($assignmentsWithoutPrereq as $assignment) {
             $path[] = [
@@ -164,7 +155,6 @@ class CourseController extends Controller
     {
         $mahasiswa = auth()->user();
 
-        // Check enrollment using pivot table directly
         $is_enrolled = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
             ->where('course_id', $course->id)
@@ -177,7 +167,6 @@ class CourseController extends Controller
 
         $material = $course->materials()->findOrFail($materialId);
 
-        // Track material view (upsert is atomic and efficient)
         MaterialView::updateOrCreate(
             [
                 'material_id' => $material->id,
@@ -188,7 +177,6 @@ class CourseController extends Controller
             ]
         );
 
-        // Load course relationships for sidebar in a single eager load
         $course->load([
             'dosen',
             'materials' => fn($q) => $q->orderBy('order'),

@@ -14,20 +14,12 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    /**
-     * Display the registration view.
-     */
     public function create(): View
     {
         $studentClasses = \App\Models\StudentClass::all();
         return view('auth.register', compact('studentClasses'));
     }
 
-    /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -67,8 +59,7 @@ class RegisteredUserController extends Controller
 
         $user->notify(new OtpVerificationNotification($code));
 
-        // Stash the pending user id in session so the OTP screen knows who to verify
-        // without authenticating them.
+        // OTP screen reads this without authenticating the user.
         $request->session()->put('otp_user_id', $user->id);
 
         return redirect()->route('verification.otp')

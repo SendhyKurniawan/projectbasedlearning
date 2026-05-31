@@ -1,7 +1,4 @@
 <?php
-/**
- * [NEW] GradeNotification.php
- */
 
 namespace App\Notifications;
 
@@ -18,20 +15,12 @@ class GradeNotification extends Notification implements ShouldQueue
     private $assignmentTitle;
     private $courseId;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct($assignmentTitle, $courseId)
     {
         $this->assignmentTitle = $assignmentTitle;
         $this->courseId = $courseId;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['database', WebPushChannel::class];
@@ -49,11 +38,6 @@ class GradeNotification extends Notification implements ShouldQueue
             ->options(['TTL' => 1000]);
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [

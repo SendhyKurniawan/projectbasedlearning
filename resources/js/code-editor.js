@@ -1,4 +1,3 @@
-// CodeMirror Code Editor Setup
 import CodeMirror from 'codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/dracula.css';
@@ -18,7 +17,6 @@ window.cmModeMap = {
     java: 'text/x-java', php: 'application/x-httpd-php', csharp: 'text/x-csharp',
 };
 
-// Initialize code editor
 window.initCodeEditor = function(elementId, options = {}) {
     const element = document.getElementById(elementId);
     if (!element) {
@@ -53,8 +51,8 @@ window.initCodeEditor = function(elementId, options = {}) {
     return editor;
 };
 
-// Shim injected into preview iframes to forward console output + runtime errors
-// back to the parent window via postMessage. Parent listens for { __pblConsole: true }.
+// Shim injected into preview iframes that forwards console/runtime errors to the
+// parent window via postMessage. Parent listens for { __pblConsole: true }.
 const CONSOLE_FORWARD_SHIM = `<script>
 (function() {
     function send(level, args) {
@@ -80,7 +78,6 @@ const CONSOLE_FORWARD_SHIM = `<script>
 })();
 <\/script>`;
 
-// Run code in preview iframe
 window.runCode = function(editor, previewId, language) {
     const code = editor.getValue();
     const preview = document.getElementById(previewId);
@@ -102,7 +99,7 @@ window.runCode = function(editor, previewId, language) {
     } else if (lang === 'css') {
         html = `<!DOCTYPE html><html><head><style>${code}</style></head><body>${CONSOLE_FORWARD_SHIM}<p>CSS Preview — add HTML in your code to see elements.</p></body></html>`;
     } else {
-        // htmlmixed / html — inject shim right after <body> if present, else prepend
+        // htmlmixed/html: inject shim after <body> if present, else prepend.
         if (/<body[^>]*>/i.test(code)) {
             html = code.replace(/<body([^>]*)>/i, '<body$1>' + CONSOLE_FORWARD_SHIM);
         } else {
@@ -116,15 +113,13 @@ window.runCode = function(editor, previewId, language) {
     previewDoc.close();
 };
 
-// Submit code to form
 window.submitCode = function(editor, targetInputId) {
     const code = editor.getValue();
     const input = document.getElementById(targetInputId);
-    
+
     if (input) {
         input.value = code;
     }
 };
 
-// Export CodeMirror for global access
 window.CodeMirror = CodeMirror;

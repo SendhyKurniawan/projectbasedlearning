@@ -81,12 +81,11 @@ class ExerciseController extends Controller
     {
         $course = $assignment->course;
         $this->authorize('update', $course);
-        
-        // Check if this is an exercise
+
         if ($assignment->type !== 'exercise') {
             abort(404);
         }
-        
+
         return view('dosen.exercises.edit', compact('assignment', 'course'));
     }
 

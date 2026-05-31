@@ -1,11 +1,10 @@
-// Markdown Editor Setup for Materials
+// EasyMDE markdown editor + marked/hljs renderer.
 import EasyMDE from "easymde";
 import "easymde/dist/easymde.min.css";
 import { marked } from "marked";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 
-// Initialize Markdown Editor for Dosen
 window.initMarkdownEditor = function (elementId, options = {}) {
     const element = document.getElementById(elementId);
     if (!element) {
@@ -54,11 +53,9 @@ window.initMarkdownEditor = function (elementId, options = {}) {
     return editor;
 };
 
-// Render Markdown for viewing (Mahasiswa & Preview)
 window.renderMarkdown = function (markdownText) {
     if (!markdownText) return "";
 
-    // Configure marked with highlight.js
     marked.setOptions({
         highlight: function (code, lang) {
             if (lang && hljs.getLanguage(lang)) {
@@ -79,7 +76,6 @@ window.renderMarkdown = function (markdownText) {
     return marked.parse(markdownText);
 };
 
-// Auto-render all markdown content on page
 window.autoRenderMarkdown = function () {
     document.querySelectorAll("[data-markdown]").forEach(function (element) {
         const markdown = element.getAttribute("data-markdown");
@@ -89,6 +85,5 @@ window.autoRenderMarkdown = function () {
     });
 };
 
-// Export for global use
 window.marked = marked;
 window.hljs = hljs;

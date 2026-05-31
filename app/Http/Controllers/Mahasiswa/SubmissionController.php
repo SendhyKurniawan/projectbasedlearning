@@ -42,7 +42,7 @@ class SubmissionController extends Controller
                 ->first();
 
             if (!$existingGroup) {
-                // Classmates: enrolled in same course, not the user, and not yet in any group for this assignment
+                // Pickable classmates exclude the user and anyone already in a group for this assignment.
                 $busyMahasiswaIds = GroupMember::whereHas('group', fn($q) => $q->where('assignment_id', $assignment->id))
                     ->pluck('mahasiswa_id')
                     ->toArray();
@@ -97,7 +97,6 @@ class SubmissionController extends Controller
             return redirect()->back()->with('error', 'Anda sudah mengumpulkan tugas ini.');
         }
 
-        // Resolve file/url once
         $file_path = null;
         $url_link = null;
 
@@ -114,7 +113,6 @@ class SubmissionController extends Controller
         if ($assignment->is_group) {
             $memberIds = collect($request->member_ids)->map(fn($id) => (int) $id)->unique();
 
-            // Verify each chosen member is enrolled in the course
             $invalidEnroll = User::whereIn('id', $memberIds)
                 ->whereDoesntHave('enrollments', fn($q) => $q->where('courses.id', $assignment->course_id))
                 ->exists();
@@ -123,7 +121,6 @@ class SubmissionController extends Controller
                     ->with('error', 'Beberapa anggota yang dipilih tidak terdaftar pada course ini.');
             }
 
-            // Verify none already in another group for this assignment
             $alreadyMember = GroupMember::whereHas('group', fn($q) => $q->where('assignment_id', $assignment->id))
                 ->whereIn('mahasiswa_id', $memberIds->push($mahasiswa->id))
                 ->exists();
@@ -132,7 +129,7 @@ class SubmissionController extends Controller
                     ->with('error', 'Anda atau salah satu anggota sudah tergabung di kelompok lain untuk tugas ini.');
             }
 
-            // Enforce max group size if set (incl. submitter)
+            // max_group_size includes the submitter.
             if ($assignment->max_group_size && ($memberIds->count() + 1) > $assignment->max_group_size) {
                 return redirect()->back()->withInput()
                     ->with('error', 'Jumlah anggota melebihi batas maksimal kelompok.');
@@ -166,7 +163,6 @@ class SubmissionController extends Controller
                     ]);
                 }
 
-                // Notify other members
                 $others = User::whereIn('id', $allMemberIds->reject(fn($id) => $id === $mahasiswa->id))->get();
                 if ($others->isNotEmpty()) {
                     Notification::send($others, new AcademicUpdateNotification(
@@ -187,7 +183,6 @@ class SubmissionController extends Controller
             ]);
         }
 
-        // Notify Dosen
         $dosen = User::find($assignment->course->dosen_id);
         if ($dosen) {
             Notification::send($dosen, new SubmissionNotification(
@@ -271,7 +266,7 @@ class SubmissionController extends Controller
         }
 
         if ($submission->group_id) {
-            // Mirror file/url/notes to all group submissions
+            // Mirror file/url/notes to every member's submission row.
             Submission::where('group_id', $submission->group_id)->update($data);
         } else {
             $submission->update($data);
@@ -295,7 +290,6 @@ class SubmissionController extends Controller
 
         if ($submission->group_id) {
             $group = $submission->group;
-            // Only group creator can dissolve the group submission
             if ($group->created_by_mahasiswa_id !== auth()->id()) {
                 return redirect()->back()->with('error', 'Hanya pembuat kelompok yang dapat menghapus pengumpulan ini.');
             }

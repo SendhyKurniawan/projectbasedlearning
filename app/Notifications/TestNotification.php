@@ -17,28 +17,17 @@ class TestNotification extends Notification
     private $title;
     private $message;
 
-    /**
-     * Create a new notification instance.
-     */
     public function __construct($title = 'Test Push Notification', $message = 'Ini adalah pesan percobaan untuk push notification.')
     {
         $this->title = $title;
         $this->message = $message;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @return array<int, string>
-     */
     public function via(object $notifiable): array
     {
         return ['database', WebPushChannel::class];
     }
 
-    /**
-     * Get the WebPush representation of the notification.
-     */
     public function toWebPush($notifiable, $notification)
     {
         return (new WebPushMessage)
@@ -48,11 +37,6 @@ class TestNotification extends Notification
             ->options(['TTL' => 1000]);
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(object $notifiable): array
     {
         return [

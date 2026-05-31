@@ -11,8 +11,6 @@ class PushDebugController extends Controller
 {
     public function index()
     {
-        // Get all users for debugging, but we'll mark those who are subscribed in the view
-        // Eager load pushSubscriptions to avoid LazyLoadingViolationException
         $users = User::with('pushSubscriptions')->get();
 
         return view('admin.debug.push', compact('users'));

@@ -8,9 +8,6 @@ use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $query = \App\Models\Course::query()->with('dosen:id,name', 'semester:id,name,academic_year_id', 'semester.academicYear:id,year_start,year_end', 'studentClass:id,name')->select('id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'sks', 'semester_id', 'student_class_id', 'created_at')->withCount('students');
@@ -44,9 +41,6 @@ class CourseController extends Controller
         return view('admin.courses.index', compact('courses', 'availableSemesters', 'availableDosens'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $dosens = \App\Models\User::where('role', 'dosen')->select('id', 'name')->get();
@@ -55,9 +49,6 @@ class CourseController extends Controller
         return view('admin.courses.create', compact('dosens', 'classes', 'semesters'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -76,7 +67,6 @@ class CourseController extends Controller
             'semester_id'      => ['required', 'exists:semesters,id'],
         ]);
 
-        // Verify assigned user is actually a dosen
         $dosen = \App\Models\User::find($request->dosen_id);
         if ($dosen->role !== 'dosen') {
             return back()->withErrors(['dosen_id' => 'Selected user is not a lecturer.']);
@@ -88,25 +78,18 @@ class CourseController extends Controller
             ->with('success', 'Course created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         $course = \App\Models\Course::with('students')->findOrFail($id);
         $dosens = \App\Models\User::where('role', 'dosen')->get();
         $classes = \App\Models\StudentClass::with('studyProgram')->get();
         $semesters = \App\Models\Semester::with('academicYear')->get();
-        
-        // Get students not yet enrolled in this course for the dropdown
+
         $enrolledStudentIds = $course->students->pluck('id')->toArray();
         $availableStudents = \App\Models\User::where('role', 'mahasiswa')
             ->whereNotIn('id', $enrolledStudentIds)
@@ -116,9 +99,6 @@ class CourseController extends Controller
         return view('admin.courses.edit', compact('course', 'dosens', 'availableStudents', 'classes', 'semesters'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $course = \App\Models\Course::findOrFail($id);
@@ -145,9 +125,6 @@ class CourseController extends Controller
             ->with('success', 'Course updated successfully.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $course = \App\Models\Course::findOrFail($id);
@@ -157,9 +134,6 @@ class CourseController extends Controller
             ->with('success', 'Course deleted successfully.');
     }
 
-    /**
-     * Enroll a student to the course.
-     */
     public function enroll(Request $request, string $courseId)
     {
         $course = \App\Models\Course::findOrFail($courseId);
@@ -173,9 +147,6 @@ class CourseController extends Controller
         return back()->with('success', 'Student enrolled successfully.');
     }
 
-    /**
-     * Unenroll a student from the course.
-     */
     public function unenroll(string $courseId, string $studentId)
     {
         $course = \App\Models\Course::findOrFail($courseId);

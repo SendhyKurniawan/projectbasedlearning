@@ -11,9 +11,6 @@ class ResetPasswordNotification extends ResetPassword implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * Build the mail representation of the notification.
-     */
     public function toMail(mixed $notifiable): MailMessage
     {
         $resetUrl = $this->resetUrl($notifiable);

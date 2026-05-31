@@ -13,7 +13,6 @@ class QuizController extends Controller
 {
     public function show(Assignment $assignment)
     {
-        // Check if student is enrolled in the course (direct pivot query, faster)
         $mahasiswa = auth()->user();
         $isEnrolled = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
@@ -55,7 +54,6 @@ class QuizController extends Controller
 
     public function start(Assignment $assignment)
     {
-        // Check if student is enrolled (direct pivot query, faster)
         $mahasiswa = auth()->user();
         $isEnrolled = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
@@ -119,7 +117,6 @@ class QuizController extends Controller
             $answers = $request->input('answers', []);
             $calculatedScore = 0;
 
-            // Gather only numeric answers corresponding to multiple choice questions
             $mcQuestionIds = $activeQuestions->where('question_type', 'pilihan_ganda')->pluck('id')->toArray();
             $submittedOptionIds = [];
             foreach ($mcQuestionIds as $qId) {
@@ -128,7 +125,6 @@ class QuizController extends Controller
                 }
             }
 
-            // Pre-fetch all submitted correct options in a single query
             $correctOptions = collect();
             if (!empty($submittedOptionIds)) {
                 $correctOptions = QuizOption::whereIn('id', $submittedOptionIds)
@@ -147,9 +143,10 @@ class QuizController extends Controller
                 }
             }
 
+            // Score covers MC only; treat as final only when no essay/code_snippet questions remain.
             $submission->update([
                 'finished_at' => now(),
-                'score' => $calculatedScore, // MC-only; final iff no essay/code_snippet questions
+                'score' => $calculatedScore,
                 'answers' => $answers,
                 'status' => $hasNonAutogradable ? 'submitted' : 'graded',
             ]);

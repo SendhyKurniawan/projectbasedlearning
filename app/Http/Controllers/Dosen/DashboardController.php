@@ -34,7 +34,7 @@ class DashboardController extends Controller
             'total_assignments' => $courses->sum('assignments_count'),
         ];
 
-        // ── 7-day submission series ───────────────────────────────────────────
+        // 7-day submission series
         $courseIds = $courses->pluck('id');
         $assignmentIds = Assignment::whereIn('course_id', $courseIds)->pluck('id');
 
@@ -51,7 +51,7 @@ class DashboardController extends Controller
             'values' => $labels->map(fn ($d) => (int) ($counts[$d->format('Y-m-d')] ?? 0))->all(),
         ];
 
-        // ── Pending review count ──────────────────────────────────────────────
+        // Pending review count
         $pendingReview = Submission::whereIn('assignment_id', $assignmentIds)
             ->whereNull('score')
             ->count();

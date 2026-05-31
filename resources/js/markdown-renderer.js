@@ -1,5 +1,4 @@
-// Lightweight markdown renderer for read-only views (no EasyMDE editor).
-// Used on mahasiswa/materials/show and anywhere markdown is displayed, not edited.
+// Read-only markdown renderer (no EasyMDE). Used on mahasiswa/materials/show.
 import { marked } from "marked";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";

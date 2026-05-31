@@ -37,7 +37,7 @@ class MaterialController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'file' => 'nullable|file|max:20480', // Max 20MB
+            'file' => 'nullable|file|max:20480',
             'sibling_ids' => 'nullable|array',
             'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
@@ -55,7 +55,6 @@ class MaterialController extends Controller
             $baseData['file_path'] = $file->storeAs('materials', $filename, 'public');
         }
 
-        // Create primary material
         $maxOrder = $course->materials()->max('order') ?? 0;
         $material = Material::create(array_merge($baseData, [
             'course_id' => $course->id,
@@ -71,11 +70,10 @@ class MaterialController extends Controller
             ));
         }
 
-        // Fan-out to selected sibling courses
         $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
         foreach ($targetCourses as $sibling) {
             $sibData = $baseData;
-            // Copy file so sibling deletion doesn't orphan the primary
+            // Copy file so sibling deletion doesn't orphan the primary.
             if (isset($baseData['file_path'])) {
                 $ext = pathinfo($baseData['file_path'], PATHINFO_EXTENSION);
                 $stem = pathinfo($baseData['file_path'], PATHINFO_FILENAME);
@@ -127,22 +125,19 @@ class MaterialController extends Controller
         ]);
         
         $data = $request->only(['title', 'content']);
-        
-        // Handle new file upload
+
         if ($request->hasFile('file')) {
-            // Delete old file if exists
             if ($material->file_path) {
                 Storage::disk('public')->delete($material->file_path);
             }
-            
+
             $file = $request->file('file');
             $filename = time() . '_' . $file->getClientOriginalName();
             $data['file_path'] = $file->storeAs('materials', $filename, 'public');
         }
-        
+
         $material->update($data);
-        
-        // Notify enrolled students
+
         $students = User::whereHas('enrollments', function($q) use ($course) {
             $q->where('course_id', $course->id);
         })->get();
@@ -163,12 +158,11 @@ class MaterialController extends Controller
     {
         $course = $material->course;
         $this->authorize('update', $course);
-        
-        // Delete file if exists
+
         if ($material->file_path) {
             Storage::disk('public')->delete($material->file_path);
         }
-        
+
         $material->delete();
         
         return redirect()->route('dosen.materials.index', $course)

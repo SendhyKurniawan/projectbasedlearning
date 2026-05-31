@@ -27,7 +27,7 @@
                         <div class="flex justify-between"><span class="text-on-surface-variant">Bergabung</span><b>{{ Auth::user()->created_at->format('M Y') }}</b></div>
                         <div class="flex justify-between"><span class="text-on-surface-variant">Verifikasi Email</span>
                             @if(Auth::user()->email_verified_at)
-                                <span class="text-secondary font-bold">✓ Aktif</span>
+                                <span class="text-secondary font-bold inline-flex items-center gap-1"><span class="material-symbols-outlined text-sm">check_circle</span> Aktif</span>
                             @else
                                 <span class="text-tertiary font-bold">Belum</span>
                             @endif

@@ -103,7 +103,7 @@
                 </section>
 
                 <section class="bg-tertiary-fixed/40 rounded-2xl border border-tertiary/20 p-5">
-                    <h3 class="font-headline text-sm font-bold mb-2">📌 Tips</h3>
+                    <h3 class="font-headline text-sm font-bold mb-2 flex items-center gap-1.5"><span class="material-symbols-outlined text-base">push_pin</span> Tips</h3>
                     <p class="text-xs text-on-surface-variant">Pengumuman dari Admin Pusat berlaku universitas. Pengumuman dari dosen biasanya terkait mata kuliah tertentu.</p>
                 </section>
             </aside>

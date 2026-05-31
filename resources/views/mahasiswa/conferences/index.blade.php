@@ -34,7 +34,7 @@
             $endedConferences = $conferences->where('status', 'ended');
         @endphp
 
-        <!-- 🔴 LIVE SESSIONS -->
+        <!-- Live sessions -->
         @if($liveConferences->count() > 0)
         <div class="space-y-6">
             <h3 class="text-xs font-black uppercase text-primary tracking-[0.3em] px-1 flex items-center gap-3">
@@ -85,7 +85,7 @@
         </div>
         @endif
 
-        <!-- 📅 SCHEDULED SESSIONS -->
+        <!-- Scheduled sessions -->
         @if($scheduledConferences->count() > 0)
         <div class="space-y-6">
             <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] px-1 flex items-center gap-3 opacity-60">
@@ -116,7 +116,7 @@
         </div>
         @endif
 
-        <!-- 🏁 ENDED SESSIONS -->
+        <!-- Ended sessions -->
         @if($endedConferences->count() > 0)
         <div class="space-y-6 opacity-60 grayscale-[0.5]">
             <h3 class="text-xs font-black uppercase text-on-surface-variant tracking-[0.3em] px-1 flex items-center gap-3 opacity-40">
