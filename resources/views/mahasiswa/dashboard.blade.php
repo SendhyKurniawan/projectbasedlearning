@@ -121,8 +121,7 @@
                     <div class="space-y-4">
                         @forelse($enrolled_courses as $c)
                             @php
-                                $total = max(1, ($c->materials_count ?? 0) + ($c->assignments_count ?? 0));
-                                $pct = min(100, round((($c->assignments_count ?? 0) / $total) * 100));
+                                $pct = $courseProgress[$c->id] ?? 0;
                             @endphp
                             <div>
                                 <div class="flex items-center justify-between text-xs mb-1.5">
