@@ -16,15 +16,13 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            AcademicYearSeeder::class,
-            SemesterSeeder::class,
-            DepartmentSeeder::class,
-            StudyProgramSeeder::class,
-            StudentClassSeeder::class,
-            UserSeeder::class,
-            CourseSeeder::class,
-            DummyDataSeeder::class,
-            AssignmentSeeder::class,
+            // Real Politeknik Negeri Media Kreatif (PoliMedia) Jakarta testing ground,
+            // over a 4-year calendar (8 semesters). Regenerate structure with:
+            //   python scripts/pddikti/fetch_polimedia.py
+            \Database\Seeders\Polimedia\CalendarSeeder::class,
+            \Database\Seeders\Polimedia\StructureSeeder::class,
+            \Database\Seeders\Polimedia\UsersSeeder::class,
+            \Database\Seeders\Polimedia\CourseContentSeeder::class,
         ]);
     }
 }

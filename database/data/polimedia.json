@@ -1,0 +1,141 @@
+{
+  "pt": {
+    "id": "gLyR6XUM-ux1tcyFOqEqQjCGUCAYf5DgrLxOcrG2aYlVbz1CmRMhvceg4hAqeiEbft5DAg==",
+    "nama": "POLITEKNIK NEGERI MEDIA KREATIF",
+    "kode": "",
+    "akreditasi": null,
+    "tahun": 20251
+  },
+  "departments": [
+    {
+      "name": "Desain",
+      "code": "DSN"
+    },
+    {
+      "name": "Program Studi Lainnya",
+      "code": "LAIN"
+    },
+    {
+      "name": "Teknik Grafika dan Penerbitan",
+      "code": "TGP"
+    },
+    {
+      "name": "Penyiaran dan Komunikasi",
+      "code": "PK"
+    }
+  ],
+  "study_programs": [
+    {
+      "department_code": "DSN",
+      "name": "Animasi",
+      "code": "90345",
+      "level": "D4",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "DSN",
+      "name": "Desain Grafis",
+      "code": "90442",
+      "level": "D3",
+      "akreditasi": "B"
+    },
+    {
+      "department_code": "DSN",
+      "name": "Desain Mode",
+      "code": "90331",
+      "level": "D4",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "DSN",
+      "name": "Fotografi",
+      "code": "91471",
+      "level": "D3",
+      "akreditasi": "B"
+    },
+    {
+      "department_code": "LAIN",
+      "name": "Pemasaran, Inovasi, dan Teknologi",
+      "code": "61704",
+      "level": "S2",
+      "akreditasi": "Terakreditasi Pertama"
+    },
+    {
+      "department_code": "LAIN",
+      "name": "Pemeliharaan Mesin",
+      "code": "21408",
+      "level": "D3",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "TGP",
+      "name": "Penerbitan",
+      "code": "70402",
+      "level": "D3",
+      "akreditasi": "Baik Sekali"
+    },
+    {
+      "department_code": "LAIN",
+      "name": "Pengelolaan Perhotelan",
+      "code": "93309",
+      "level": "D4",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "PK",
+      "name": "Penyiaran",
+      "code": "70405",
+      "level": "D3",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "PK",
+      "name": "Periklanan",
+      "code": "70404",
+      "level": "D3",
+      "akreditasi": "Baik Sekali"
+    },
+    {
+      "department_code": "PK",
+      "name": "Produksi Film dan Televisi",
+      "code": "91361",
+      "level": "D4",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "LAIN",
+      "name": "Seni Kuliner",
+      "code": "94406",
+      "level": "D3",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "TGP",
+      "name": "Teknik Grafika",
+      "code": "90444",
+      "level": "D3",
+      "akreditasi": "B"
+    },
+    {
+      "department_code": "DSN",
+      "name": "Teknologi Permainan",
+      "code": "91345",
+      "level": "D4",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "DSN",
+      "name": "Teknologi Rekayasa Multimedia",
+      "code": "90343",
+      "level": "D4",
+      "akreditasi": "Baik"
+    },
+    {
+      "department_code": "TGP",
+      "name": "Teknologi Rekayasa Pengemasan",
+      "code": "90341",
+      "level": "D4",
+      "akreditasi": "Baik"
+    }
+  ]
+}
