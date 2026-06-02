@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
 use App\Models\User;
 use App\Notifications\OtpVerificationNotification;
 use Illuminate\Auth\Events\Registered;
@@ -16,7 +17,14 @@ class RegisteredUserController extends Controller
 {
     public function create(): View
     {
-        $studentClasses = \App\Models\StudentClass::all();
+        // Only offer classes in the active term — new students join the current
+        // semester (and get auto-enrolled into its courses on signup).
+        $studentClasses = \App\Models\StudentClass::whereHas('semester', fn ($q) => $q->where('is_active', true))
+            ->with('studyProgram:id,name')
+            ->orderBy('study_program_id')
+            ->orderBy('name')
+            ->get();
+
         return view('auth.register', compact('studentClasses'));
     }
 
@@ -54,6 +62,27 @@ class RegisteredUserController extends Controller
             'otp_code'       => $code,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
+
+        // Auto-enroll the new mahasiswa into their kelas's mata kuliah (plus any
+        // semester-wide courses for that term) so their dashboard isn't empty on
+        // first login. A course's student_class_id is the kelas it's tied to in
+        // admin Akademik ("Mata Kuliah Khusus Kelas").
+        if ($user->role === 'mahasiswa' && $user->student_class_id) {
+            $semesterId = optional($user->studentClass)->semester_id;
+
+            $courseIds = Course::where(function ($q) use ($user, $semesterId) {
+                $q->where('student_class_id', $user->student_class_id);
+                if ($semesterId) {
+                    $q->orWhere(fn ($w) => $w->whereNull('student_class_id')->where('semester_id', $semesterId));
+                }
+            })->pluck('id');
+
+            if ($courseIds->isNotEmpty()) {
+                $user->enrollments()->syncWithoutDetaching(
+                    $courseIds->mapWithKeys(fn ($id) => [$id => ['enrolled_at' => now()]])->all()
+                );
+            }
+        }
 
         event(new Registered($user));
 

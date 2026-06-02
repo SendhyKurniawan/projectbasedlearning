@@ -16,8 +16,34 @@ class CourseController extends Controller
     {
         $mahasiswa = auth()->user();
 
+        // Courses already enrolled in — always visible regardless of class scope.
+        $enrolled_ids = DB::table('enrollments')
+            ->where('mahasiswa_id', $mahasiswa->id)
+            ->pluck('course_id')
+            ->toArray();
+
+        // Scope the catalog to the student's own kelas + semester-wide courses for
+        // that term (plus anything already enrolled). A course's student_class_id is
+        // the kelas it's tied to in admin Akademik ("Mata Kuliah Khusus Kelas").
+        $classId = $mahasiswa->student_class_id;
+        $semesterId = optional($mahasiswa->studentClass)->semester_id;
+
         $query = Course::with('dosen')
-            ->withCount(['materials', 'assignments', 'students']);
+            ->withCount(['materials', 'assignments', 'students'])
+            ->where(function ($scope) use ($classId, $semesterId, $enrolled_ids) {
+                if ($classId) {
+                    $scope->where('student_class_id', $classId);
+                }
+                $scope->orWhere(function ($wide) use ($semesterId) {
+                    $wide->whereNull('student_class_id');
+                    if ($semesterId) {
+                        $wide->where('semester_id', $semesterId);
+                    }
+                });
+                if (!empty($enrolled_ids)) {
+                    $scope->orWhereIn('id', $enrolled_ids);
+                }
+            });
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -37,11 +63,6 @@ class CourseController extends Controller
             'nama_za' => $query->orderBy('nama_matkul', 'desc')->get(),
             default   => $query->latest()->get(),
         };
-
-        $enrolled_ids = DB::table('enrollments')
-            ->where('mahasiswa_id', $mahasiswa->id)
-            ->pluck('course_id')
-            ->toArray();
 
         return view('mahasiswa.courses.index', compact('available_courses', 'enrolled_ids', 'sort'));
     }

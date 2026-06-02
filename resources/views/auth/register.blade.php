@@ -75,7 +75,7 @@
  @isset($studentClasses)
  @foreach($studentClasses as $klass)
  <option value="{{ $klass->id }}" {{ old('student_class_id') == $klass->id ? 'selected' : '' }}>
- {{ $klass->name }}
+ {{ optional($klass->studyProgram)->name ? $klass->studyProgram->name . ' — ' : '' }}{{ $klass->name }}
  </option>
  @endforeach
  @endisset
