@@ -61,58 +61,20 @@ class CourseContentSeeder extends Seeder
         $courseCount = 0;
 
         foreach ($semesters as $semester) {
-            $yearStart = (int) $semester->academicYear->year_start;
-            $term = $semester->name;
-            $level = PolimediaData::level($yearStart, $term);
-            $roman = PolimediaData::roman($level);
             $isActiveTerm = (bool) $semester->is_active;
 
             foreach ($programs as $program) {
-                $deptCode = $program->department->code ?? 'LAIN';
-                $bases = self::COURSE_BASES[$deptCode] ?? self::COURSE_BASES['LAIN'];
-
-                $dosen = User::where('email', PolimediaData::dosenEmail($program->code))->first();
-                if (! $dosen) {
-                    continue;
-                }
-
                 $classes = StudentClass::where('study_program_id', $program->id)
                     ->where('semester_id', $semester->id)
                     ->orderBy('name')->get();
 
-                foreach ($bases as $i => $base) {
-                    $nama = "{$base} {$roman}";
-                    $kode = sprintf('%s%d%d', $deptCode, $level, $i + 1);
+                foreach ($classes as $idx => $class) {
+                    // Only the active-term demo kelas (DG-A) gets sample submissions.
+                    $withSamples = $isActiveTerm
+                        && PolimediaData::isDemoProdi($program->code)
+                        && $idx === PolimediaData::DEMO_KELAS_INDEX;
 
-                    foreach ($classes as $idx => $class) {
-                        $course = Course::create([
-                            'nama_matkul' => $nama,
-                            'kode_matkul' => $kode,
-                            'sks' => 3,
-                            'description' => "Mata kuliah {$nama} untuk program studi {$program->name}.",
-                            'dosen_id' => $dosen->id,
-                            'semester_id' => $semester->id,
-                            'student_class_id' => $class->id,
-                        ]);
-                        $courseCount++;
-
-                        $studentIds = User::where('student_class_id', $class->id)
-                            ->where('role', 'mahasiswa')->pluck('id');
-                        if ($studentIds->isNotEmpty()) {
-                            $course->students()->attach(
-                                $studentIds->mapWithKeys(fn ($id) => [$id => ['enrolled_at' => now()]])->all()
-                            );
-                        }
-
-                        $this->addMaterials($course);
-                        $this->addAssignments($course);
-                        $this->addConference($course);
-
-                        if ($isActiveTerm && PolimediaData::isDemoProdi($program->code)
-                            && $idx === PolimediaData::DEMO_KELAS_INDEX) {
-                            $this->addSampleSubmissions($course, $studentIds);
-                        }
-                    }
+                    $courseCount += $this->seedClassCourses($program, $semester, $class, $withSamples);
                 }
             }
         }
@@ -120,13 +82,70 @@ class CourseContentSeeder extends Seeder
         return $courseCount;
     }
 
+    /**
+     * Create the prodi's mata kuliah for a single kelas — one sibling Course row
+     * per base, each with full content (materials, assignments, conference) and
+     * the kelas's students enrolled. Returns the number of courses created.
+     *
+     * Shared by the full seeder and KelasDCourseSeeder so the recipe lives once.
+     */
+    protected function seedClassCourses(StudyProgram $program, Semester $semester, StudentClass $class, bool $withSamples): int
+    {
+        $yearStart = (int) $semester->academicYear->year_start;
+        $level = PolimediaData::level($yearStart, $semester->name);
+        $roman = PolimediaData::roman($level);
+        $deptCode = $program->department->code ?? 'LAIN';
+        $bases = self::COURSE_BASES[$deptCode] ?? self::COURSE_BASES['LAIN'];
+
+        $dosen = User::where('email', PolimediaData::dosenEmail($program->code))->first();
+        if (! $dosen) {
+            return 0;
+        }
+
+        $studentIds = User::where('student_class_id', $class->id)
+            ->where('role', 'mahasiswa')->pluck('id');
+
+        $created = 0;
+        foreach ($bases as $i => $base) {
+            $nama = "{$base} {$roman}";
+            $kode = sprintf('%s%d%d', $deptCode, $level, $i + 1);
+
+            $course = Course::create([
+                'nama_matkul' => $nama,
+                'kode_matkul' => $kode,
+                'sks' => 3,
+                'description' => "Mata kuliah {$nama} untuk program studi {$program->name}.",
+                'dosen_id' => $dosen->id,
+                'semester_id' => $semester->id,
+                'student_class_id' => $class->id,
+            ]);
+            $created++;
+
+            if ($studentIds->isNotEmpty()) {
+                $course->students()->attach(
+                    $studentIds->mapWithKeys(fn ($id) => [$id => ['enrolled_at' => now()]])->all()
+                );
+            }
+
+            $this->addMaterials($course);
+            $this->addAssignments($course);
+            $this->addConference($course);
+
+            if ($withSamples) {
+                $this->addSampleSubmissions($course, $studentIds);
+            }
+        }
+
+        return $created;
+    }
+
     private function addMaterials(Course $course): void
     {
         Material::create([
             'course_id' => $course->id,
-            'title' => 'Pengantar ' . $course->nama_matkul,
+            'title' => 'Pengantar '.$course->nama_matkul,
             'content' => "Selamat datang di mata kuliah {$course->nama_matkul}. "
-                . 'Materi ini menjelaskan ruang lingkup, capaian pembelajaran, dan rencana perkuliahan.',
+                .'Materi ini menjelaskan ruang lingkup, capaian pembelajaran, dan rencana perkuliahan.',
             'order' => 1,
         ]);
 
@@ -134,7 +153,7 @@ class CourseContentSeeder extends Seeder
             'course_id' => $course->id,
             'title' => 'Modul 1: Konsep Dasar',
             'content' => 'Modul pertama membahas konsep dasar dan istilah penting pada '
-                . $course->nama_matkul . '. Bacalah sebelum mengerjakan tugas pertama.',
+                .$course->nama_matkul.'. Bacalah sebelum mengerjakan tugas pertama.',
             'order' => 2,
         ]);
     }
@@ -147,7 +166,7 @@ class CourseContentSeeder extends Seeder
     {
         Assignment::create([
             'course_id' => $course->id,
-            'title' => 'Tugas 1: Resume Materi ' . $course->nama_matkul,
+            'title' => 'Tugas 1: Resume Materi '.$course->nama_matkul,
             'description' => 'Silakan buat rangkuman dari pertemuan pertama hingga ketiga dalam format PDF (Maksimal 10MB).',
             'type' => 'tugas',
             'submission_format' => 'pdf',
@@ -159,7 +178,7 @@ class CourseContentSeeder extends Seeder
 
         Assignment::create([
             'course_id' => $course->id,
-            'title' => 'Project Akhir: Implementasi ' . $course->nama_matkul,
+            'title' => 'Project Akhir: Implementasi '.$course->nama_matkul,
             'description' => 'Kerjakan project akhir secara berkelompok. Kumpulkan Link Repository Github atau Google Drive berisi karya dan laporan.',
             'type' => 'tugas',
             'submission_format' => 'url',
@@ -173,7 +192,7 @@ class CourseContentSeeder extends Seeder
 
         $quizPG = Assignment::create([
             'course_id' => $course->id,
-            'title' => 'Kuis Tengah Semester: ' . $course->nama_matkul,
+            'title' => 'Kuis Tengah Semester: '.$course->nama_matkul,
             'description' => 'Kuis pilihan ganda evaluasi tengah semester. Durasi 60 menit.',
             'type' => 'quiz',
             'quiz_number' => 1,
@@ -235,7 +254,7 @@ class CourseContentSeeder extends Seeder
         ]);
         QuizQuestion::create([
             'assignment_id' => $quizEssay->id,
-            'question_text' => 'Jelaskan penerapan teori ' . $course->nama_matkul . ' di dunia industri.',
+            'question_text' => 'Jelaskan penerapan teori '.$course->nama_matkul.' di dunia industri.',
             'question_type' => 'essay',
             'score_weight' => 100,
         ]);
@@ -246,9 +265,9 @@ class CourseContentSeeder extends Seeder
         Conference::create([
             'course_id' => $course->id,
             'dosen_id' => $course->dosen_id,
-            'title' => 'Kuliah Daring: ' . $course->nama_matkul,
+            'title' => 'Kuliah Daring: '.$course->nama_matkul,
             'description' => 'Sesi tatap muka daring membahas materi mingguan. Mahasiswa wajib hadir.',
-            'room_name' => 'polimedia-' . Str::lower(Str::random(12)),
+            'room_name' => 'polimedia-'.Str::lower(Str::random(12)),
             'scheduled_at' => now()->addDays(2)->setTime(9, 0),
             'status' => 'scheduled',
         ]);
