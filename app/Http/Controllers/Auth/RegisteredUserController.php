@@ -13,12 +13,15 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
+// Controller registrasi mandiri (mahasiswa/dosen). Akun dibuat nonaktif + dikirimi OTP;
+// mahasiswa juga otomatis di-enroll ke matkul kelasnya.
 class RegisteredUserController extends Controller
 {
+    // Tampilkan form registrasi. Hanya tawarkan kelas di semester yang sedang aktif.
     public function create(): View
     {
-        // Only offer classes in the active term — new students join the current
-        // semester (and get auto-enrolled into its courses on signup).
+        // Hanya tampilkan kelas pada semester aktif — mahasiswa baru bergabung ke
+        // semester berjalan (dan otomatis di-enroll ke matkulnya saat mendaftar).
         $studentClasses = \App\Models\StudentClass::whereHas('semester', fn ($q) => $q->where('is_active', true))
             ->with('studyProgram:id,name')
             ->orderBy('study_program_id')
@@ -28,6 +31,8 @@ class RegisteredUserController extends Controller
         return view('auth.register', compact('studentClasses'));
     }
 
+    // Proses registrasi: validasi sesuai peran, buat akun nonaktif + OTP, auto-enroll
+    // mahasiswa, lalu arahkan ke halaman verifikasi OTP.
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
@@ -47,6 +52,7 @@ class RegisteredUserController extends Controller
             'student_class_id.exists'      => 'Kode Kelas tidak valid.',
         ]);
 
+        // Buat kode OTP 6 digit.
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $user = User::create([
@@ -57,16 +63,16 @@ class RegisteredUserController extends Controller
             'nim'       => $request->role === 'mahasiswa' ? $request->nim : null,
             'nip'       => $request->role === 'dosen'     ? $request->nip : null,
             'student_class_id' => $request->role === 'mahasiswa' ? $request->student_class_id : null,
-            // Inactive until OTP verified (and, for dosen, also admin approved)
+            // Nonaktif sampai OTP diverifikasi (dan untuk dosen, juga disetujui admin).
             'is_active'      => false,
             'otp_code'       => $code,
             'otp_expires_at' => now()->addMinutes(10),
         ]);
 
-        // Auto-enroll the new mahasiswa into their kelas's mata kuliah (plus any
-        // semester-wide courses for that term) so their dashboard isn't empty on
-        // first login. A course's student_class_id is the kelas it's tied to in
-        // admin Akademik ("Mata Kuliah Khusus Kelas").
+        // Auto-enroll mahasiswa baru ke matkul kelasnya (plus matkul umum semester
+        // tersebut) agar dashboard tidak kosong saat login pertama. student_class_id
+        // pada course adalah kelas tempat matkul itu diikat di admin Akademik
+        // ("Mata Kuliah Khusus Kelas").
         if ($user->role === 'mahasiswa' && $user->student_class_id) {
             $semesterId = optional($user->studentClass)->semester_id;
 
@@ -88,7 +94,7 @@ class RegisteredUserController extends Controller
 
         $user->notify(new OtpVerificationNotification($code));
 
-        // OTP screen reads this without authenticating the user.
+        // Halaman OTP membaca id ini tanpa mengautentikasi user.
         $request->session()->put('otp_user_id', $user->id);
 
         return redirect()->route('verification.otp')

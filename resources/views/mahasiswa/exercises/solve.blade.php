@@ -1,3 +1,4 @@
+{{-- Halaman pengerjaan exercise/latihan koding (mahasiswa). --}}
 @php
     $language = data_get($assignment->exercise_config, 'language', 'htmlmixed');
     $isServerSide = in_array($language, config('code_execution.server_side_languages'));

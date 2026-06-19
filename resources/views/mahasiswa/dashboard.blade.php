@@ -1,3 +1,4 @@
+{{-- Halaman dashboard mahasiswa: matkul, progres, tugas terdekat, konferensi, & pengumuman. --}}
 @push('styles')
     @vite('resources/css/pages/mahasiswa/dashboard.css')
 @endpush

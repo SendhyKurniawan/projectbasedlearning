@@ -4,11 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Migrasi gabungan fitur quiz & kelompok: buat tabel groups, group_members, quiz_questions,
+// quiz_options, lalu tambahkan kolom group_id ke tabel submissions.
 return new class extends Migration
 {
     public function up(): void
     {
-        // 1. Groups Table
+        // 1. Tabel kelompok (groups)
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('assignment_id')->constrained('assignments')->onDelete('cascade');
@@ -16,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 2. Group Members Table
+        // 2. Tabel anggota kelompok (group_members)
         Schema::create('group_members', function (Blueprint $table) {
             $table->id();
             $table->foreignId('group_id')->constrained('groups')->onDelete('cascade');
@@ -24,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 3. Quiz Questions Table
+        // 3. Tabel soal quiz (quiz_questions)
         Schema::create('quiz_questions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('assignment_id')->constrained('assignments')->onDelete('cascade');
@@ -35,7 +37,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 4. Quiz Options Table
+        // 4. Tabel opsi jawaban (quiz_options) untuk soal pilihan ganda
         Schema::create('quiz_options', function (Blueprint $table) {
             $table->id();
             $table->foreignId('question_id')->constrained('quiz_questions')->onDelete('cascade');
@@ -44,7 +46,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 5. Update Submissions for Groups
+        // 5. Tambahkan kolom group_id ke submissions (untuk pengumpulan kelompok)
         Schema::table('submissions', function (Blueprint $table) {
             $table->foreignId('group_id')->nullable()->constrained('groups')->onDelete('set null')->after('assignment_id');
         });

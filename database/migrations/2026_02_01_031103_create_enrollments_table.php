@@ -4,10 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Buat tabel pivot enrollments (relasi banyak-ke-banyak mahasiswa ↔ course),
+// menyimpan nilai akhir & waktu pendaftaran. Flow mahasiswa sering query tabel ini langsung.
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
@@ -19,13 +21,13 @@ return new class extends Migration
             $table->timestamp('enrolled_at')->useCurrent();
             $table->timestamps();
             
-            // Prevent duplicate enrollments
+            // Cegah pendaftaran ganda (composite unique mahasiswa + course)
             $table->unique(['course_id', 'mahasiswa_id']);
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Batalkan migrasi.
      */
     public function down(): void
     {

@@ -1,18 +1,19 @@
+{{-- Topbar: tombol hamburger (mobile), lonceng notifikasi, dan dropdown profil/logout user. --}}
 <header class="bg-surface-container-lowest/80 backdrop-blur-md shadow-sm h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8 z-10 sticky top-0 border-b border-surface-container-low/50">
- <!-- Mobile Hamburger -->
+ <!-- Tombol hamburger (buka sidebar di mobile) -->
  <button @click="open = !open" class="lg:hidden p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low focus:outline-none transition-colors">
  <span class="material-symbols-outlined text-2xl">menu</span>
  </button>
 
- <!-- Page Title Placeholder -->
+ <!-- Ruang kosong untuk judul halaman -->
  <div class="flex-1 px-4"></div>
 
- <!-- Right Actions -->
+ <!-- Aksi di sisi kanan -->
  <div class="flex items-center gap-3">
- {{-- Notification Bell --}}
+ {{-- Lonceng notifikasi --}}
  @include('layouts.notifications')
 
- <!-- User Dropdown -->
+ <!-- Dropdown user (profil & logout) -->
  <x-dropdown align="right" width="48">
  <x-slot name="trigger">
  <button class="flex items-center gap-2 text-sm font-bold text-on-surface-variant hover:text-on-surface focus:outline-none transition-colors p-2 rounded-xl hover:bg-surface-container-low">

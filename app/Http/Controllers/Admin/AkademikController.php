@@ -13,9 +13,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+// Controller halaman akademik terpadu (/admin/akademik).
+// Menangani seluruh CRUD hierarki akademik dalam satu halaman:
+// tahun ajaran → semester → jurusan → prodi → kelas → mata kuliah, plus assign mahasiswa.
 class AkademikController extends Controller
 {
-    // Index (main page)
+    // Halaman utama: pilih tahun ajaran/semester/jurusan/prodi lewat query string,
+    // lalu tampilkan kelas, mata kuliah (per-semester & per-kelas), dosen, dan kandidat mahasiswa.
     public function index(Request $request)
     {
         $academicYears = AcademicYear::withCount('semesters')->orderByDesc('year_start')->get();
@@ -91,7 +95,8 @@ class AkademikController extends Controller
         ));
     }
 
-    // Academic year
+    // ===== Tahun Ajaran =====
+    // Simpan tahun ajaran baru; bila ditandai aktif, nonaktifkan tahun ajaran lain dulu.
     public function storeAcademicYear(Request $request)
     {
         $validated = $request->validate([
@@ -112,6 +117,7 @@ class AkademikController extends Controller
             ->with('success', "Tahun Akademik {$ay->year_start}/{$ay->year_end} berhasil ditambahkan.");
     }
 
+    // Perbarui tahun ajaran; jaga agar hanya satu tahun ajaran yang aktif.
     public function updateAcademicYear(Request $request, AcademicYear $academicYear)
     {
         $validated = $request->validate([
@@ -133,6 +139,7 @@ class AkademikController extends Controller
         return back()->with('success', 'Tahun Akademik berhasil diperbarui.');
     }
 
+    // Hapus tahun ajaran, tetapi tolak jika masih punya semester.
     public function destroyAcademicYear(AcademicYear $academicYear)
     {
         if ($academicYear->semesters()->exists()) {
@@ -145,6 +152,7 @@ class AkademikController extends Controller
             ->with('success', 'Tahun Akademik berhasil dihapus.');
     }
 
+    // Jadikan satu tahun ajaran sebagai aktif (nonaktifkan yang lain).
     public function activateAcademicYear(AcademicYear $academicYear)
     {
         AcademicYear::where('is_active', true)->update(['is_active' => false]);
@@ -153,7 +161,8 @@ class AkademikController extends Controller
         return back()->with('success', "Tahun Akademik {$academicYear->year_start}/{$academicYear->year_end} diset sebagai aktif.");
     }
 
-    // Semester
+    // ===== Semester =====
+    // Simpan semester baru (Ganjil/Genap) di bawah sebuah tahun ajaran.
     public function storeSemester(Request $request)
     {
         $validated = $request->validate([
@@ -178,6 +187,7 @@ class AkademikController extends Controller
             ->with('success', "Semester {$sem->name} berhasil ditambahkan.");
     }
 
+    // Perbarui semester; jaga agar hanya satu semester yang aktif.
     public function updateSemester(Request $request, Semester $semester)
     {
         $validated = $request->validate([
@@ -203,6 +213,7 @@ class AkademikController extends Controller
         return back()->with('success', 'Semester berhasil diperbarui.');
     }
 
+    // Hapus semester, tolak jika masih ada mata kuliah atau kelas yang terkait.
     public function destroySemester(Semester $semester)
     {
         if ($semester->courses()->exists()) {
@@ -220,6 +231,7 @@ class AkademikController extends Controller
             ->with('success', 'Semester berhasil dihapus.');
     }
 
+    // Jadikan satu semester sebagai aktif (nonaktifkan yang lain).
     public function activateSemester(Semester $semester)
     {
         Semester::where('is_active', true)->update(['is_active' => false]);
@@ -228,7 +240,8 @@ class AkademikController extends Controller
         return back()->with('success', "Semester {$semester->name} diset sebagai aktif.");
     }
 
-    // Department (Jurusan)
+    // ===== Jurusan (Department) =====
+    // Simpan jurusan baru (kode harus unik).
     public function storeDepartment(Request $request)
     {
         $validated = $request->validate([
@@ -242,6 +255,7 @@ class AkademikController extends Controller
             ->with('success', "Jurusan {$dep->name} berhasil ditambahkan.");
     }
 
+    // Perbarui data jurusan.
     public function updateDepartment(Request $request, Department $department)
     {
         $validated = $request->validate([
@@ -254,6 +268,7 @@ class AkademikController extends Controller
         return back()->with('success', 'Jurusan berhasil diperbarui.');
     }
 
+    // Hapus jurusan, tolak jika masih punya program studi.
     public function destroyDepartment(Department $department)
     {
         if ($department->studyPrograms()->exists()) {
@@ -266,7 +281,8 @@ class AkademikController extends Controller
             ->with('success', 'Jurusan berhasil dihapus.');
     }
 
-    // Study program (Prodi)
+    // ===== Program Studi (Prodi) =====
+    // Simpan prodi baru di bawah sebuah jurusan (kode unik, level D3/D4/S1/S2/S3).
     public function storeStudyProgram(Request $request)
     {
         $validated = $request->validate([
@@ -282,6 +298,7 @@ class AkademikController extends Controller
             ->with('success', "Program Studi {$prog->name} berhasil ditambahkan.");
     }
 
+    // Perbarui data program studi.
     public function updateStudyProgram(Request $request, StudyProgram $studyProgram)
     {
         $validated = $request->validate([
@@ -296,6 +313,7 @@ class AkademikController extends Controller
         return back()->with('success', 'Program Studi berhasil diperbarui.');
     }
 
+    // Hapus prodi, tolak jika masih punya kelas.
     public function destroyStudyProgram(StudyProgram $studyProgram)
     {
         if ($studyProgram->studentClasses()->exists()) {
@@ -308,7 +326,8 @@ class AkademikController extends Controller
             ->with('success', 'Program Studi berhasil dihapus.');
     }
 
-    // Student class (Kelas)
+    // ===== Kelas (Student Class) =====
+    // Simpan kelas baru pada kombinasi prodi + semester, lalu arahkan kembali ke konteksnya.
     public function storeClass(Request $request)
     {
         $validated = $request->validate([
@@ -330,6 +349,7 @@ class AkademikController extends Controller
         ])->with('success', "Kelas {$kelas->name} berhasil ditambahkan.");
     }
 
+    // Perbarui data kelas.
     public function updateClass(Request $request, StudentClass $studentClass)
     {
         $validated = $request->validate([
@@ -343,6 +363,7 @@ class AkademikController extends Controller
         return back()->with('success', 'Kelas berhasil diperbarui.');
     }
 
+    // Hapus kelas, tolak jika masih punya mahasiswa atau mata kuliah khusus kelas.
     public function destroyClass(StudentClass $studentClass)
     {
         if ($studentClass->students()->exists()) {
@@ -358,6 +379,7 @@ class AkademikController extends Controller
         return back()->with('success', 'Kelas berhasil dihapus.');
     }
 
+    // Assign sejumlah mahasiswa ke sebuah kelas (set kolom student_class_id mereka).
     public function assignStudents(Request $request, StudentClass $studentClass)
     {
         $request->validate([
@@ -379,6 +401,7 @@ class AkademikController extends Controller
         return back()->with('success', "{$users->count()} mahasiswa berhasil di-assign ke kelas {$studentClass->name}.");
     }
 
+    // Keluarkan seorang mahasiswa dari kelas (kosongkan student_class_id-nya).
     public function unassignStudent(StudentClass $studentClass, User $user)
     {
         if ($user->student_class_id !== $studentClass->id) {
@@ -390,7 +413,9 @@ class AkademikController extends Controller
         return back()->with('success', "{$user->name} berhasil dikeluarkan dari kelas.");
     }
 
-    // Course (Mata Kuliah)
+    // ===== Mata Kuliah (Course) =====
+    // Simpan mata kuliah baru. scope=semester → matkul umum semester (tanpa kelas);
+    // scope=class → matkul khusus satu kelas (mengisi student_class_id).
     public function storeCourse(Request $request)
     {
         $validated = $request->validate([
@@ -409,7 +434,7 @@ class AkademikController extends Controller
         $dosenId         = $validated['dosen_id'];
         $kodeMatkul      = $validated['kode_matkul'];
 
-        // Uniqueness is composite (kode + dosen + semester + kelas), not just kode_matkul.
+        // Keunikan bersifat komposit (kode + dosen + semester + kelas), bukan hanya kode_matkul.
         $exists = Course::where('kode_matkul', $kodeMatkul)
             ->where('dosen_id', $dosenId)
             ->where('semester_id', $semesterId)
@@ -441,6 +466,7 @@ class AkademikController extends Controller
         return back()->with('success', "{$label} berhasil ditambahkan.");
     }
 
+    // Hapus mata kuliah, tolak jika masih punya materi, tugas, atau enrollment mahasiswa.
     public function destroyCourse(Course $course)
     {
         if ($course->materials()->exists() || $course->assignments()->exists() || $course->students()->exists()) {

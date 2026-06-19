@@ -1,61 +1,74 @@
-# PBL Workspace — Documentation Index
+# PBL Workspace — Indeks Dokumentasi
 
-Server-rendered Laravel 12 LMS for Project-Based Learning. Three roles (`admin`, `dosen`, `mahasiswa`) over an academic hierarchy (department → study program → kelas → courses). Blade + Tailwind + Alpine; one Livewire component (`Discussion\Show`). Self-hosted Jitsi for conferences (HS256 JWT, new-tab launcher). Notifications go to `database` + `webpush` channels.
+LMS Laravel 12 (server-rendered) untuk Project-Based Learning. Tiga role (`admin`, `dosen`, `mahasiswa`) di atas hierarki akademik (jurusan → program studi → kelas → mata kuliah). Blade + Tailwind + Alpine; satu komponen Livewire (`Discussion\Show`). Konferensi memakai Jitsi self-hosted (JWT HS256, peluncur tab baru). Notifikasi dikirim ke channel `database` + `webpush`.
 
-Start with **getting-started.md** if you're setting up locally. Start with **architecture.md** if you're new to the codebase.
-
----
-
-## Top-level
-
-| Doc | What it covers |
-|---|---|
-| [getting-started.md](getting-started.md) | Prerequisites, native + Docker setup, env var reference, seeded accounts, daily commands, first-time troubleshooting |
-| [architecture.md](architecture.md) | The three-role system, academic hierarchy, siblings + `course_group_key`, copy fan-out, request flow, Piston code execution, conventions |
-| [auth-roles.md](auth-roles.md) | `role` enum, route middleware, `CheckRole` + `CheckAssignmentUnlocked`, policies, admin login, registration + OTP + admin approval flow |
-| [database.md](database.md) | Schema reference per table, composite keys, conventions (`DB::table('enrollments')` raw queries), gotchas |
-| [frontend.md](frontend.md) | Vite entry points, layouts, Alpine patterns, Blade components, editors (CodeMirror/EasyMDE), Chart.js, design system, push subscription bootstrap |
-| [testing.md](testing.md) | Pest (Feature + Unit), Dusk scaffolding, Playwright WIP, seeded accounts |
-| [deployment.md](deployment.md) | Production topology (Caddy + Docker), services, production checklist, env vars, Jitsi/VAPID provisioning, queue worker, mail, file storage, rollback, logging |
-| [contributing.md](contributing.md) | Branch model, code conventions, copy-fan-out security, adding assignment types, Livewire constraints, PR template |
-
-## Feature docs
-
-| Doc | What it covers |
-|---|---|
-| [features/courses.md](features/courses.md) | Course model, siblings, `course_group_key`, enrollment, sidebar cache, mahasiswa learning path, copy fan-out, bare-URL fallbacks |
-| [features/materials.md](features/materials.md) | Material model, dosen authoring routes, EasyMDE/CodeMirror, reorder, file handling and fan-out, mahasiswa view + `MaterialView` recording |
-| [features/assignments.md](features/assignments.md) | Three types (`tugas / quiz / exercise`), dosen authoring routes, quiz question types, exercise `exercise_config`, material prerequisite, copy fan-out, notifications |
-| [features/submissions.md](features/submissions.md) | Lifecycle, tugas submission (individual + group), quiz submit semantics, exercise submit + `validation_result`, group grading, mahasiswa grade view |
-| [features/conferences.md](features/conferences.md) | `Conference` model, self-hosted Jitsi via HS256 JWT, `JitsiTokenService::mint`, room lifecycle, per-role behaviour, room view (new-tab launcher), copy fan-out |
-| [features/notifications.md](features/notifications.md) | `database` + `webpush` channels, notification catalog, dispatch sites, queue behaviour, payload shapes, WebPush subscription flow, admin debug |
-| [features/discussions.md](features/discussions.md) | Models (`Discussion.content`, `DiscussionComment.content`), routes, sidebar cache, the lone Livewire component, Livewire 4 quirks |
-| [features/announcements.md](features/announcements.md) | Shared resource (auth-only group), target_audience enum (`all/dosen/mahasiswa/specific`), attachments, per-role visibility gate, `AnnouncementNotification` dispatch |
-| [features/admin-akademik.md](features/admin-akademik.md) | Unified `/admin/akademik` page, `AkademikController` sub-actions for years/semesters/departments/study programs/kelas/courses, kelas assign/unassign, legacy resource routes, admin users CRUD |
-| [features/grades.md](features/grades.md) | Three grade views — admin filter list, dosen grade book + CSV export + quick-grade, mahasiswa per-course score view |
-| [features/code-execution.md](features/code-execution.md) | `POST /execute-code` proxy, language allowlist + Piston mapping, bundled docker container, request/response shape, throttle + error handling, client-side iframe runtimes |
-| [features/profile.md](features/profile.md) | Self-service `/profile` CRUD, `ProfileUpdateRequest` (one of two FormRequests), password + delete-account flows, deletion cascade caveats |
-| [features/schedule.md](features/schedule.md) | `/mahasiswa/jadwal` — day-by-day timeline, what's shown, urgency colouring, convention exception (Eloquent relation, not raw query) |
-
-## Operations
-
-| Doc | What it covers |
-|---|---|
-| [ops/jitsi-self-host.md](ops/jitsi-self-host.md) | Full runbook for provisioning self-hosted Jitsi on the GCP VM — DNS, firewall, Caddy, `docker-jitsi-meet`, JWT secret, verification, rollback |
-
-## Source / specialised
-
-| Doc | What it covers |
-|---|---|
-| [bab4-implementasi.md](bab4-implementasi.md) | Thesis-style fact inventory (Indonesian) — implementation chapter source material for academic writeups. Not part of the daily dev docs. |
+Mulai dari **getting-started.md** bila Anda menyiapkan lingkungan lokal. Mulai dari **architecture.md** bila Anda baru mengenal basis kode ini.
 
 ---
 
-## Pointers within the repo (not under docs/)
+## Tingkat atas
 
-- [CLAUDE.md](../CLAUDE.md) — concise project guide used as agent memory; mirrors the high-level architecture and gotchas in this doc set
-- [PAGES_GUIDE.md](../PAGES_GUIDE.md) — page-by-page reference for the per-role UI screens
-- `routes/web.php` + `routes/auth.php` — single source of truth for URL → controller mapping
-- `app/Notifications/` — notification class catalogue
-- `database/migrations/` — schema timeline
-- `config/code_execution.php`, `config/services.php` — Piston languages, Jitsi env keys
+| Dokumen | Cakupan |
+|---|---|
+| [getting-started.md](getting-started.md) | Prasyarat, setup native + Docker, referensi variabel env, akun hasil seed, perintah harian, troubleshooting awal |
+| [architecture.md](architecture.md) | Sistem tiga role, hierarki akademik, siblings + `course_group_key`, copy fan-out, alur request, eksekusi kode Piston, konvensi |
+| [auth-roles.md](auth-roles.md) | Enum `role`, middleware route, `CheckRole` + `CheckAssignmentUnlocked`, policy, login admin, alur registrasi + OTP + persetujuan admin |
+| [database.md](database.md) | Referensi skema per tabel, composite key, konvensi (query mentah `DB::table('enrollments')`), gotcha |
+| [frontend.md](frontend.md) | Entry point Vite, layout, pola Alpine, komponen Blade, editor (CodeMirror/EasyMDE), Chart.js, design system, bootstrap push subscription |
+| [testing.md](testing.md) | Pest (Feature + Unit), scaffolding Dusk, Playwright (WIP), akun hasil seed |
+| [deployment.md](deployment.md) | Topologi produksi (Caddy + Docker), service, checklist produksi, variabel env, provisioning Jitsi/VAPID, queue worker, mail, penyimpanan berkas, rollback, logging |
+| [contributing.md](contributing.md) | Model branch, konvensi kode, keamanan copy fan-out, menambah tipe assignment, batasan Livewire, template PR |
+
+## Dokumen fitur
+
+| Dokumen | Cakupan |
+|---|---|
+| [features/courses.md](features/courses.md) | Model Course, siblings, `course_group_key`, enrollment, cache sidebar, learning path mahasiswa, copy fan-out, fallback URL polos |
+| [features/materials.md](features/materials.md) | Model Material, route penulisan oleh dosen, EasyMDE/CodeMirror, reorder, penanganan berkas & fan-out, tampilan mahasiswa + pencatatan `MaterialView` |
+| [features/assignments.md](features/assignments.md) | Tiga tipe (`tugas / quiz / exercise`), route penulisan dosen, tipe soal kuis, `exercise_config`, prasyarat materi, copy fan-out, notifikasi |
+| [features/submissions.md](features/submissions.md) | Daur hidup, pengumpulan tugas (individu + kelompok), semantik submit kuis, submit exercise + `validation_result`, penilaian kelompok, tampilan nilai mahasiswa |
+| [features/conferences.md](features/conferences.md) | Model `Conference`, Jitsi self-hosted via JWT HS256, `JitsiTokenService::mint`, daur hidup ruang, perilaku per role, view ruang (peluncur tab baru), copy fan-out |
+| [features/notifications.md](features/notifications.md) | Channel `database` + `webpush`, katalog notifikasi, lokasi dispatch, perilaku queue, bentuk payload, alur subscription WebPush, debug admin |
+| [features/discussions.md](features/discussions.md) | Model (`Discussion.content`, `DiscussionComment.content`), route, cache sidebar, satu-satunya komponen Livewire, kuirk Livewire 4 |
+| [features/announcements.md](features/announcements.md) | Resource bersama (grup auth-only), enum target_audience (`all/dosen/mahasiswa/specific`), lampiran, gerbang visibilitas per role, dispatch `AnnouncementNotification` |
+| [features/admin-akademik.md](features/admin-akademik.md) | Halaman terpadu `/admin/akademik`, sub-aksi `AkademikController` untuk tahun/semester/jurusan/prodi/kelas/matkul, assign/unassign kelas, route resource lama, CRUD user admin |
+| [features/grades.md](features/grades.md) | Tiga tampilan nilai — daftar filter admin, buku nilai dosen + ekspor CSV + quick-grade, tampilan nilai per matkul mahasiswa |
+| [features/code-execution.md](features/code-execution.md) | Proxy `POST /execute-code`, allowlist bahasa + mapping Piston, kontainer docker bawaan, bentuk request/response, throttle + penanganan error, runtime iframe sisi klien |
+| [features/profile.md](features/profile.md) | CRUD swalayan `/profile`, `ProfileUpdateRequest` (salah satu dari dua FormRequest), alur ganti password + hapus akun, catatan cascade penghapusan |
+| [features/schedule.md](features/schedule.md) | `/mahasiswa/jadwal` — linimasa per hari, isi yang ditampilkan, pewarnaan urgensi, pengecualian konvensi (relasi Eloquent, bukan query mentah) |
+
+## Operasional
+
+| Dokumen | Cakupan |
+|---|---|
+| [ops/jitsi-self-host.md](ops/jitsi-self-host.md) | Runbook lengkap provisioning Jitsi self-hosted di VM GCP — DNS, firewall, Caddy (kontainer), TURN coturn, `docker-jitsi-meet`, secret JWT, redirect SSO, verifikasi, rollback |
+| [ops/seed-testing-ground.md](ops/seed-testing-ground.md) | Runbook seeding produksi untuk testing ground PoliMedia |
+
+## Pengujian & laporan
+
+| Dokumen | Cakupan |
+|---|---|
+| [testing/tester-accounts.md](testing/tester-accounts.md) | Kredensial akun penguji dan panduannya |
+| [testing/conference-test-report-2026-05-31.md](testing/conference-test-report-2026-05-31.md) | Laporan uji konferensi end-to-end manual (Jitsi self-hosted) |
+| [testing/jitsi-stress-test-report-2026-06-05.md](testing/jitsi-stress-test-report-2026-06-05.md) | Uji beban Jitsi produksi — kapasitas ruang 100 peserta di VM GCP |
+| [testing/loadtest/](testing/loadtest/) | Harness uji beban, rencana, log, dan laporan 20-bot (`loadtest-report-2026-06-01.md`) |
+
+> Laporan uji & log load-test dibiarkan apa adanya sebagai artefak historis (Bahasa Inggris).
+
+## Sumber / khusus
+
+| Dokumen | Cakupan |
+|---|---|
+| [bab4-implementasi.md](bab4-implementasi.md) | Referensi implementasi rinci (Indonesia) — panduan pengembangan & implementasi akurat-produksi untuk bab BAB 4 skripsi |
+| [struktur_database_baru.md](struktur_database_baru.md) | Catatan desain struktur basis data (Indonesia) |
+| [PAGES_GUIDE.md](PAGES_GUIDE.md) | Referensi per halaman untuk layar UI tiap role |
+
+---
+
+## Penunjuk di dalam repo (di luar docs/)
+
+- [CLAUDE.md](../CLAUDE.md) — panduan proyek ringkas yang dipakai sebagai memori agen; mencerminkan arsitektur tingkat tinggi & gotcha pada kumpulan dokumen ini (dibiarkan dalam Bahasa Inggris)
+- `routes/web.php` + `routes/auth.php` — sumber kebenaran tunggal pemetaan URL → controller
+- `app/Notifications/` — katalog kelas notifikasi
+- `database/migrations/` — linimasa skema
+- `config/code_execution.php`, `config/services.php` — bahasa Piston, kunci env Jitsi

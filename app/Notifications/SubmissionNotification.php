@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
+// Notifikasi untuk dosen saat mahasiswa mengumpulkan tugas. Disimpan ke database (lonceng in-app).
 class SubmissionNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -21,6 +22,7 @@ class SubmissionNotification extends Notification implements ShouldQueue
         $this->actionUrl = $actionUrl;
     }
 
+    // Kirim ke channel database (notifikasi in-app).
     public function via(object $notifiable): array
     {
         return ['database'];

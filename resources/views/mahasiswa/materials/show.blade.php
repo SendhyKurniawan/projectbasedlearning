@@ -1,3 +1,4 @@
+{{-- Halaman baca materi + navigasi prev/next pada jalur belajar (mahasiswa). --}}
 <x-app-layout>
     @vite(['resources/js/markdown-renderer.js'])
     

@@ -5,18 +5,19 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+// Seeder contoh matkul (legacy/alternatif) beserta materi, tugas, dan enrollment mahasiswa.
 class CourseSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Jalankan seeder.
      */
     public function run(): void
     {
-        // Get dosen users
+        // Ambil akun dosen
         $dosen1 = \App\Models\User::where('email', 'budi.dosen@pjbl.test')->first();
         $dosen2 = \App\Models\User::where('email', 'siti.dosen@pjbl.test')->first();
 
-        // Create Courses
+        // Buat matkul
         $course1 = \App\Models\Course::create([
             'nama_matkul' => 'Pengembangan Website Dasar',
             'kode_matkul' => 'WEB101',
@@ -37,7 +38,7 @@ class CourseSeeder extends Seeder
             'semester_id' => 1,
         ]);
 
-        // Create Materials for Course 1
+        // Buat materi untuk matkul 1
         \App\Models\Material::create([
             'course_id' => $course1->id,
             'title' => 'Pengenalan HTML',
@@ -52,7 +53,7 @@ class CourseSeeder extends Seeder
             'order' => 2,
         ]);
 
-        // Create Materials for Course 2
+        // Buat materi untuk matkul 2
         \App\Models\Material::create([
             'course_id' => $course2->id,
             'title' => 'Pengenalan Database',
@@ -60,7 +61,7 @@ class CourseSeeder extends Seeder
             'order' => 1,
         ]);
 
-        // Create Assignments for Course 1
+        // Buat tugas untuk matkul 1
         \App\Models\Assignment::create([
             'course_id' => $course1->id,
             'title' => 'Tugas 1: Membuat Halaman HTML Sederhana',
@@ -79,7 +80,7 @@ class CourseSeeder extends Seeder
             'max_score' => 100,
         ]);
 
-        // Enroll students to courses
+        // Daftarkan mahasiswa ke matkul
         $students = \App\Models\User::where('role', 'mahasiswa')->get();
         foreach ($students as $student) {
             $course1->students()->attach($student->id, [

@@ -1,3 +1,5 @@
+{{-- Layout utama aplikasi (<x-app-layout>): kerangka halaman setelah login —
+     sidebar + topbar + konten ($slot). Juga mendaftarkan service worker untuk Web Push. --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
  <head>
@@ -34,8 +36,9 @@
  @stack('head')
  </head>
  <body class="font-body antialiased h-screen overflow-hidden bg-background text-on-surface">
+ {{-- State Alpine `open` mengatur buka/tutup sidebar di tampilan mobile --}}
  <div x-data="{ open: false }" class="flex h-full">
- <!-- Mobile Backdrop -->
+ <!-- Latar gelap (backdrop) saat sidebar mobile terbuka -->
  <div x-show="open" 
  x-transition:enter="transition-opacity ease-linear duration-300"
  x-transition:enter-start="opacity-0"
@@ -47,10 +50,10 @@
  class="fixed inset-0 bg-on-surface/30 backdrop-blur-sm z-20 lg:hidden">
  </div>
 
- <!-- Sidebar -->
+ <!-- Sidebar navigasi -->
  @include('layouts.sidebar')
 
- <!-- Main Content Wrapper -->
+ <!-- Pembungkus konten utama -->
  <div class="flex-1 flex flex-col h-full overflow-hidden relative [transform:translateZ(0)]">
  
  <!-- Mobile Toggle (Floating) -->
@@ -60,7 +63,7 @@
  </button>
  </div>
 
- <!-- Page Heading -->
+ <!-- Judul halaman (slot $header opsional) + lonceng notifikasi -->
  @if (isset($header))
  <header class="bg-surface-container-lowest/80 backdrop-blur-md shadow-sm shadow-outline-variant/10 relative z-30 border-b border-outline-variant/10">
  <div class="py-5 px-4 sm:px-6 lg:px-8 pt-16 lg:pt-5 flex justify-between items-center">
@@ -88,7 +91,9 @@
  @livewireScripts
  @stack('scripts')
 
+ {{-- Daftarkan service worker & langganan Web Push (minta izin notifikasi, lalu kirim ke server) --}}
  <script>
+ // Ubah VAPID public key (base64url) menjadi Uint8Array yang dibutuhkan PushManager.
  function urlBase64ToUint8Array(base64String) {
  const padding = '='.repeat((4 - base64String.length % 4) % 4);
  const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');

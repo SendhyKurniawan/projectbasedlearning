@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\AcademicYear;
 
+// Seeder contoh satu tahun ajaran aktif (legacy/alternatif).
 class AcademicYearSeeder extends Seeder
 {
     public function run(): void

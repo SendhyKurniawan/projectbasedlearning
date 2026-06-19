@@ -35,12 +35,14 @@ return [
         ],
     ],
 
+    // Jitsi self-hosted: domain server + kredensial JWT (harus sama dengan JWT_APP_ID/SECRET di server Jitsi).
     'jitsi' => [
         'domain' => env('JITSI_DOMAIN', 'meet.polimedia.pblworkspace.com'),
         'jwt_app_id' => env('JITSI_JWT_APP_ID'),
         'jwt_app_secret' => env('JITSI_JWT_APP_SECRET'),
     ],
 
+    // Piston: endpoint API eksekusi kode + timeout (detik) untuk proxy CodeExecutionController.
     'piston' => [
         'url' => env('PISTON_URL', 'https://emkc.org/api/v2/piston'),
         'timeout' => (int) env('PISTON_TIMEOUT', 10),

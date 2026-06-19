@@ -1,3 +1,4 @@
+{{-- Halaman daftar rekap nilai (mahasiswa). --}}
 <x-app-layout>
     @php
         $allScores = [];

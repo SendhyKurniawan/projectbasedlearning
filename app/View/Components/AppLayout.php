@@ -5,10 +5,11 @@ namespace App\View\Components;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
+// Komponen layout utama (<x-app-layout>) untuk halaman setelah login.
 class AppLayout extends Component
 {
     /**
-     * Get the view / contents that represents the component.
+     * Kembalikan view layout aplikasi.
      */
     public function render(): View
     {

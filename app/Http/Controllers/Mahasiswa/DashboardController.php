@@ -10,8 +10,11 @@ use App\Models\Submission;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+// Controller dashboard mahasiswa: matkul yang diikuti, progres belajar nyata, tugas terdekat,
+// konferensi hari ini, pengumuman, dan grafik aktivitas/sebaran nilai.
 class DashboardController extends Controller
 {
+    // Rakit semua data dashboard mahasiswa yang sedang login.
     public function index()
     {
         $mahasiswa = auth()->user();
@@ -22,11 +25,11 @@ class DashboardController extends Controller
 
         $enrolledCourseIds = $enrolled_courses->pluck('id');
 
-        // Real per-course progress = (viewed materials + submitted assignments) / total items.
-        // Mirrors the learning-path completion used on the course detail page
-        // (CourseController::buildLearningPath). The old dashboard formula was
-        // assignments/(materials+assignments) — a static ratio of course content that
-        // ignored the student entirely (e.g. a 5-assignment/2-material course always read 71%).
+        // Progres nyata per matkul = (materi dibaca + tugas dikumpulkan) / total item.
+        // Selaras dengan progres learning-path di halaman detail matkul
+        // (CourseController::buildLearningPath). Rumus lama dashboard adalah
+        // assignments/(materials+assignments) — rasio statis isi matkul yang
+        // mengabaikan mahasiswa (mis. matkul 5 tugas/2 materi selalu terbaca 71%).
         $viewedMaterialsByCourse = DB::table('material_views')
             ->join('materials', 'materials.id', '=', 'material_views.material_id')
             ->where('material_views.student_id', $mahasiswa->id)
@@ -50,7 +53,7 @@ class DashboardController extends Controller
             return [$c->id => $total > 0 ? (int) round($done / $total * 100) : 0];
         });
 
-        // Include null-deadline and recent-past (7d) so the panel isn't empty.
+        // Sertakan tugas tanpa deadline & yang baru lewat (7 hari) agar panel tidak kosong.
         $upcoming_assignments = Assignment::whereIn('course_id', $enrolledCourseIds)
             ->with('course')
             ->where(function ($q) {
@@ -94,7 +97,7 @@ class DashboardController extends Controller
             ->take(3)
             ->get();
 
-        // 30-day submission activity series
+        // Seri aktivitas pengumpulan 30 hari terakhir (untuk grafik garis)
         $start = now()->subDays(29)->startOfDay();
         $labels = collect(range(0, 29))->map(fn ($i) => $start->copy()->addDays($i)->format('Y-m-d'));
         $mine = Submission::where('mahasiswa_id', $mahasiswa->id)
@@ -108,7 +111,7 @@ class DashboardController extends Controller
             'values' => $labels->map(fn ($d) => (int) ($mine[$d] ?? 0))->all(),
         ];
 
-        // Score histogram
+        // Histogram nilai: kelompokkan skor ke dalam rentang (untuk grafik batang)
         $buckets = ['0–50' => 0, '51–70' => 0, '71–85' => 0, '86–100' => 0];
         Submission::where('mahasiswa_id', $mahasiswa->id)
             ->whereNotNull('score')

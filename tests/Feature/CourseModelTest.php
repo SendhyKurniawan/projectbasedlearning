@@ -1,5 +1,7 @@
 <?php
 
+// Uji model Course: relasi ke dosen, materi/tugas terurut kolom order, mahasiswa via enrollments,
+// dan conferences.
 use App\Models\Assignment;
 use App\Models\Conference;
 use App\Models\Course;

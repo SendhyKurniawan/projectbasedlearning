@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Submission;
 
+// Controller dashboard dosen: ringkasan matkul yang diampu, statistik, grafik, dan antrean koreksi.
 class DashboardController extends Controller
 {
+    // Susun daftar matkul (dikelompokkan per course_group_key / siblings), statistik,
+    // seri submission 7 hari, dan jumlah submission yang belum dinilai.
     public function index()
     {
         $dosen = auth()->user();
@@ -34,7 +37,7 @@ class DashboardController extends Controller
             'total_assignments' => $courses->sum('assignments_count'),
         ];
 
-        // 7-day submission series
+        // Seri jumlah submission 7 hari terakhir (untuk grafik)
         $courseIds = $courses->pluck('id');
         $assignmentIds = Assignment::whereIn('course_id', $courseIds)->pluck('id');
 
@@ -51,7 +54,7 @@ class DashboardController extends Controller
             'values' => $labels->map(fn ($d) => (int) ($counts[$d->format('Y-m-d')] ?? 0))->all(),
         ];
 
-        // Pending review count
+        // Jumlah submission yang masih menunggu penilaian (score belum diisi)
         $pendingReview = Submission::whereIn('assignment_id', $assignmentIds)
             ->whereNull('score')
             ->count();

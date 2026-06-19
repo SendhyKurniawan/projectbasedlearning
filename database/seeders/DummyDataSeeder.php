@@ -9,17 +9,19 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+// Seeder data dummy lengkap (legacy/alternatif, banyak memakai factory): tahun ajaran,
+// semester, dosen, 15 mahasiswa, matkul beserta tugas, dan enrollment.
 class DummyDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Create Active Academic Year
+        // 1. Buat tahun ajaran aktif
         $academicYear = AcademicYear::factory()->active()->create([
             'year_start' => 2024,
             'year_end' => 2025,
         ]);
 
-        // 2. Create Semesters (Ganjil is active)
+        // 2. Buat semester (Ganjil yang aktif)
         $ganjil = Semester::factory()->active()->create([
             'academic_year_id' => $academicYear->id,
             'name' => 'Ganjil',
@@ -35,7 +37,7 @@ class DummyDataSeeder extends Seeder
             'is_active' => false,
         ]);
 
-        // 3. Create Lecturer Users
+        // 3. Buat akun dosen
         $lecturers = [
             [
                 'name' => 'Ahmad Fuadi, M.T.',
@@ -65,7 +67,7 @@ class DummyDataSeeder extends Seeder
             $createdLecturers[] = User::create($lecturer);
         }
 
-        // 4. Create Student Users
+        // 4. Buat akun mahasiswa
         $students = [];
         for ($i = 1; $i <= 15; $i++) {
             $students[] = User::create([
@@ -78,7 +80,7 @@ class DummyDataSeeder extends Seeder
             ]);
         }
 
-        // 5. Create Courses for Ganjil Semester
+        // 5. Buat matkul untuk semester Ganjil
         $courses = [
             [
                 'nama_matkul' => 'Algoritma dan Pemrograman',
@@ -110,7 +112,7 @@ class DummyDataSeeder extends Seeder
                 'semester_id' => $ganjil->id,
             ]);
 
-            // Create some assignments for each course
+            // Buat beberapa tugas untuk tiap matkul
             \App\Models\Assignment::create([
                 'course_id' => $course->id,
                 'title' => 'Tugas 1: ' . $course->nama_matkul,
@@ -129,7 +131,7 @@ class DummyDataSeeder extends Seeder
                 'max_score' => 100,
             ]);
 
-            // Enroll all students in each course
+            // Daftarkan semua mahasiswa ke tiap matkul
             foreach ($students as $student) {
                 $course->students()->attach($student->id, [
                     'enrolled_at' => now(),

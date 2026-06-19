@@ -1,3 +1,4 @@
+{{-- Halaman daftar mata kuliah (admin). --}}
 @push('styles')
     @vite('resources/css/pages/admin/courses.css')
 @endpush

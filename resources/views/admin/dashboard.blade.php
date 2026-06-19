@@ -1,3 +1,4 @@
+{{-- Halaman dashboard admin: kartu statistik, daftar user/matkul terbaru, dan grafik aktivitas. --}}
 @push('styles')
     @vite('resources/css/pages/admin/dashboard.css')
 @endpush

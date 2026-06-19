@@ -9,10 +9,13 @@ use App\Models\Submission;
 use App\Models\User;
 use Carbon\Carbon;
 
+// Controller dashboard admin: ringkasan statistik, data terbaru, dan seri grafik aktivitas.
 class DashboardController extends Controller
 {
+    // Susun kartu statistik, daftar terbaru, seri aktivitas 30 hari, dan distribusi peran.
     public function index()
     {
+        // Hitung jumlah user per peran sekali query, lalu pakai ulang untuk statistik & donut.
         $userCounts = User::selectRaw('role, count(*) as total')
             ->groupBy('role')
             ->pluck('total', 'role');
@@ -28,7 +31,7 @@ class DashboardController extends Controller
         $recent_users = User::select('id', 'name', 'email', 'role', 'created_at')->latest()->take(5)->get();
         $recent_courses = Course::with('dosen:id,name')->select('id', 'kode_matkul', 'nama_matkul', 'dosen_id', 'created_at')->withCount('students')->latest()->take(5)->get();
 
-        // 30-day activity series
+        // Seri aktivitas 30 hari terakhir (untuk grafik garis)
         $start = now()->subDays(29)->startOfDay();
         $labels = collect(range(0, 29))->map(fn ($i) => $start->copy()->addDays($i)->format('Y-m-d'));
 
@@ -43,7 +46,7 @@ class DashboardController extends Controller
             'materials' => $labels->map(fn ($d) => (int) ($views[$d] ?? 0))->all(),
         ];
 
-        // Role distribution (donut)
+        // Distribusi peran pengguna (untuk grafik donut)
         $roleDistribution = [
             'labels' => ['Mahasiswa', 'Dosen', 'Admin'],
             'values' => [

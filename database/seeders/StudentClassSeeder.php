@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\StudentClass;
 
+// Seeder contoh data kelas (legacy/alternatif).
 class StudentClassSeeder extends Seeder
 {
     public function run(): void

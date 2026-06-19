@@ -1,5 +1,6 @@
 <?php
 
+// Uji registrasi: mahasiswa langsung login & masuk dashboard; dosen menunggu aktivasi admin.
 use App\Models\StudentClass;
 
 test('registration screen can be rendered', function () {
@@ -34,7 +35,7 @@ test('new dosen registration requires admin approval', function () {
         'password_confirmation' => 'password',
     ]);
 
-    // Dosen is not logged in -- must wait for admin activation
+    // Dosen belum login -- harus menunggu aktivasi oleh admin
     $this->assertGuest();
     $response->assertRedirect(route('login'));
     $response->assertSessionHas('status');

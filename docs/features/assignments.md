@@ -1,31 +1,31 @@
-# Assignments
+# Tugas (Assignments)
 
-## Three types
+## Tiga tipe
 
-`assignments.type` is an enum with values `tugas | quiz | exercise`. The type drives the submission flow, which fields apply, and how grading works.
+`assignments.type` adalah enum dengan nilai `tugas | quiz | exercise`. Tipe menggerakkan alur pengumpulan, field mana yang berlaku, dan cara penilaian bekerja.
 
-| Type | Mahasiswa submits | Auto-grade | Score path |
+| Tipe | Mahasiswa mengumpulkan | Auto-grade | Jalur nilai |
 |---|---|---|---|
-| `tugas` | PDF file or URL | No | Dosen grades via `Dosen\AssignmentController::grade` (or `gradeGroup` for group tugas) |
-| `quiz` | Quiz form (timed if `duration_minutes` set) | MC only | Pure-MC quizzes are auto-graded on submit; quizzes with `essay`/`code_snippet` questions get a provisional MC score, dosen reviews via `showQuizAttempt` |
-| `exercise` | Code via CodeMirror | No (only a hint) | Dosen grades via `grade`; the keyword-match hint goes into `submissions.validation_result` |
+| `tugas` | Berkas PDF atau URL | Tidak | Dosen menilai via `Dosen\AssignmentController::grade` (atau `gradeGroup` untuk tugas kelompok) |
+| `quiz` | Form kuis (berwaktu bila `duration_minutes` diset) | MC saja | Kuis MC murni dinilai otomatis saat submit; kuis dengan soal `essay`/`code_snippet` mendapat nilai MC sementara, dosen mereview via `showQuizAttempt` |
+| `exercise` | Kode via CodeMirror | Tidak (hanya petunjuk) | Dosen menilai via `grade`; petunjuk keyword-match masuk ke `submissions.validation_result` |
 
-The full assignment column list is in [database.md](../database.md#assignments). Notable fields:
+Daftar kolom assignment lengkap ada di [database.md](../database.md#assignments). Field penting:
 
-- `order` — drag-and-drop order within course (all types)
-- `assignment_number` — sequential display ("Tugas/Latihan ke-N", for `tugas` and `exercise`)
-- `quiz_number` — sequential display ("Kuis ke-N", quiz only)
-- `submission_format` — `pdf|url` (tugas only; for non-tugas, store-time forces `pdf`)
-- `is_group`, `max_group_size`, `grading_mode` — group tugas settings
-- `duration_minutes` — quiz time limit; null = unlimited
-- `required_material_id` — prerequisite gate; if set, students must have a `MaterialView` for that material
-- `exercise_config` — JSON-cast array, exercise-only payload (`language`, `starter_code`, `solution_code`, `required_keywords[]`, `hints[]`)
+- `order` — urutan drag-and-drop dalam mata kuliah (semua tipe)
+- `assignment_number` — nomor tampilan berurutan ("Tugas/Latihan ke-N", untuk `tugas` dan `exercise`)
+- `quiz_number` — nomor tampilan berurutan ("Kuis ke-N", quiz saja)
+- `submission_format` — `pdf|url` (tugas saja; untuk non-tugas, saat store dipaksa `pdf`)
+- `is_group`, `max_group_size`, `grading_mode` — pengaturan tugas kelompok
+- `duration_minutes` — batas waktu kuis; null = tak terbatas
+- `required_material_id` — gerbang prasyarat; bila diset, mahasiswa harus punya `MaterialView` untuk materi itu
+- `exercise_config` — array dicast JSON, payload khusus exercise (`language`, `starter_code`, `solution_code`, `required_keywords[]`, `hints[]`)
 
 ---
 
-## Dosen authoring routes
+## Route penulisan oleh dosen
 
-### Generic (tugas + quiz)
+### Generik (tugas + quiz)
 
 ```
 GET    /dosen/courses/{course}/assignments                 assignments.index
@@ -41,7 +41,7 @@ POST   /dosen/submissions/{submission}/grade               submissions.grade
 POST   /dosen/groups/{group}/grade                         groups.grade
 ```
 
-### Quiz question management
+### Manajemen soal kuis
 
 ```
 GET    /dosen/assignments/{assignment}/questions               assignments.questions.index
@@ -53,7 +53,7 @@ DELETE /dosen/questions/{question}                             assignments.quest
 GET    /dosen/assignments/{assignment}/submissions/{submission} assignments.submissions.show
 ```
 
-### Exercise (dedicated, separate from generic create)
+### Exercise (khusus, terpisah dari create generik)
 
 ```
 GET    /dosen/courses/{course}/exercises/create  exercises.create
@@ -62,25 +62,25 @@ GET    /dosen/exercises/{assignment}/edit        exercises.edit
 PUT    /dosen/exercises/{assignment}             exercises.update
 ```
 
-The exercise CRUD has its own flow because the form is dominated by the CodeMirror starter/solution editors + the comma-separated `required_keywords` and newline-separated `hints` inputs.
+CRUD exercise punya alur sendiri karena form-nya didominasi editor starter/solution CodeMirror + input `required_keywords` dipisah-koma dan `hints` dipisah-baris.
 
-All authoring routes are gated by `AssignmentPolicy` or `CoursePolicy::update` — see [auth-roles.md](../auth-roles.md).
+Semua route penulisan digerbang `AssignmentPolicy` atau `CoursePolicy::update` — lihat [auth-roles.md](../auth-roles.md).
 
 ---
 
 ## Tugas
 
-### Fields
+### Field
 
-- `submission_format`: `pdf` or `url` — drives the mahasiswa submission form input
-- `is_group` (boolean) — enables group formation
-- `max_group_size` (integer, includes submitter) — cap on group size
-- `grading_mode`: `equal` (one score for all members) or `individual` (per-member input)
-- `assignment_number`: sequential display number
+- `submission_format`: `pdf` atau `url` — menggerakkan input form pengumpulan mahasiswa
+- `is_group` (boolean) — mengaktifkan pembentukan kelompok
+- `max_group_size` (integer, termasuk pengirim) — batas ukuran kelompok
+- `grading_mode`: `equal` (satu nilai untuk semua anggota) atau `individual` (input per-anggota)
+- `assignment_number`: nomor tampilan berurutan
 
 ### Create / update
 
-Validation in `Dosen\AssignmentController::store`:
+Validasi di `Dosen\AssignmentController::store`:
 
 ```php
 $request->validate([
@@ -100,13 +100,13 @@ $request->validate([
 ]);
 ```
 
-After creation, the controller dispatches `AcademicUpdateNotification` to all enrolled mahasiswa of the course (and of each sibling kelas if fan-out is selected). Group settings are **locked once submissions exist** — `update()` ignores `is_group`, `max_group_size`, `grading_mode` if `$assignment->submissions()->exists()`.
+Setelah create, controller men-dispatch `AcademicUpdateNotification` ke semua mahasiswa terdaftar mata kuliah (dan tiap kelas sibling bila fan-out dipilih). Pengaturan kelompok **terkunci begitu ada submission** — `update()` mengabaikan `is_group`, `max_group_size`, `grading_mode` bila `$assignment->submissions()->exists()`.
 
-The `assignment_number` is computed per type per course: count existing rows of the same `type`, +1. The same applies to `quiz_number` for quiz type.
+`assignment_number` dihitung per tipe per mata kuliah: hitung baris yang ada bertipe sama, +1. Hal yang sama berlaku untuk `quiz_number` pada tipe quiz.
 
-### Grading
+### Penilaian
 
-`POST /dosen/submissions/{submission}/grade` (single-student tugas):
+`POST /dosen/submissions/{submission}/grade` (tugas mahasiswa-tunggal):
 
 ```php
 $submission->update([
@@ -114,19 +114,19 @@ $submission->update([
     'feedback' => $request->feedback,
     'status' => 'graded',
 ]);
-// then: Notification::send($student, new GradeNotification($assignment->title, $course->id));
+// lalu: Notification::send($student, new GradeNotification($assignment->title, $course->id));
 ```
 
-`POST /dosen/groups/{group}/grade` for group tugas:
+`POST /dosen/groups/{group}/grade` untuk tugas kelompok:
 
-- `grading_mode = equal` — one `$request->score` written to every submission in the group
-- `grading_mode = individual` — `$request->scores[mahasiswa_id]` and `$request->feedbacks[mahasiswa_id]` per member, only members whose `score` is set get `status=graded`
+- `grading_mode = equal` — satu `$request->score` ditulis ke setiap submission dalam kelompok
+- `grading_mode = individual` — `$request->scores[mahasiswa_id]` dan `$request->feedbacks[mahasiswa_id]` per anggota, hanya anggota yang `score`-nya diset yang mendapat `status=graded`
 
-Both flows send `GradeNotification` to graded members.
+Kedua alur mengirim `GradeNotification` ke anggota yang dinilai.
 
-### Quick-grade (grade book)
+### Quick-grade (buku nilai)
 
-`PATCH /dosen/grades/{assignment}/{mahasiswa}/quick-grade` — inline single-cell edit on the grade-book view (`Dosen\GradeController::quickGrade`). Uses `updateOrCreate` so it can create a submission row on the fly for a student who never submitted:
+`PATCH /dosen/grades/{assignment}/{mahasiswa}/quick-grade` — edit satu sel inline pada view buku nilai (`Dosen\GradeController::quickGrade`). Memakai `updateOrCreate` sehingga bisa membuat baris submission seketika untuk mahasiswa yang tak pernah mengumpulkan:
 
 ```php
 Submission::updateOrCreate(
@@ -135,23 +135,23 @@ Submission::updateOrCreate(
 );
 ```
 
-`submitted_at` is set on first grade if absent so the row isn't permanently null-timestamped.
+`submitted_at` diset pada penilaian pertama bila kosong agar baris tidak permanen ber-timestamp null.
 
 ---
 
 ## Quiz
 
-### Question types (`quiz_questions.question_type`)
+### Tipe soal (`quiz_questions.question_type`)
 
-| Type | Auto-scored |
+| Tipe | Dinilai otomatis |
 |---|---|
-| `pilihan_ganda` | Yes — `QuizController::submit` adds `score_weight` for each question where the submitted `answers[question_id]` matches an option with `is_correct=true`. |
-| `essay` | No — dosen reviews. |
-| `code_snippet` | No — dosen reviews. |
+| `pilihan_ganda` | Ya — `QuizController::submit` menambah `score_weight` tiap soal yang `answers[question_id]` yang dikirim cocok dengan opsi ber-`is_correct=true`. |
+| `essay` | Tidak — dosen mereview. |
+| `code_snippet` | Tidak — dosen mereview. |
 
-Options exist only for `pilihan_ganda`. `score_weight` per question defaults to 1.
+Opsi hanya ada untuk `pilihan_ganda`. `score_weight` per soal default 1.
 
-### Mahasiswa flow
+### Alur mahasiswa
 
 ```
 GET  /mahasiswa/assignments/{assignment}/quiz          quizzes.show
@@ -161,31 +161,31 @@ POST /mahasiswa/assignments/{assignment}/quiz/submit   quizzes.submit
 GET  /mahasiswa/assignments/{assignment}/quiz/result   quizzes.result
 ```
 
-1. `show` — info page. If a submission has `finished_at`, redirect straight to `result`.
-2. `start` — `Submission::firstOrCreate({assignment, mahasiswa}, {started_at: now()})`. Redirect to `take`.
-3. `take` — render the answer form. If already finished, redirect back to `show`.
-4. `submit` — score MC questions inside a DB transaction, write `answers` JSON, set `finished_at = now()`, set `score` to the MC subtotal.
-   - **All questions are pilihan_ganda** → `status = graded` (final).
-   - **Any essay or code_snippet** → `status = submitted` (provisional MC score, awaiting dosen).
-5. `result` — render the score, optionally with reveal of correct answers.
+1. `show` — halaman info. Bila submission punya `finished_at`, redirect langsung ke `result`.
+2. `start` — `Submission::firstOrCreate({assignment, mahasiswa}, {started_at: now()})`. Redirect ke `take`.
+3. `take` — render form jawaban. Bila sudah selesai, redirect kembali ke `show`.
+4. `submit` — nilai soal MC dalam transaksi DB, tulis `answers` JSON, set `finished_at = now()`, set `score` ke subtotal MC.
+   - **Semua soal pilihan_ganda** → `status = graded` (final).
+   - **Ada essay atau code_snippet** → `status = submitted` (nilai MC sementara, menunggu dosen).
+5. `result` — render nilai, opsional dengan pengungkapan jawaban benar.
 
-The MC scoring is a single query per submit — collect the submitted option ids, fetch the rows with `is_correct=true`, then iterate the question collection adding `score_weight` for each match.
+Penilaian MC adalah satu query per submit — kumpulkan id opsi yang dikirim, ambil baris ber-`is_correct=true`, lalu iterasi koleksi soal menambah `score_weight` untuk tiap kecocokan.
 
-### Dosen review of quiz attempts
+### Review percobaan kuis oleh dosen
 
-`GET /dosen/assignments/{assignment}/submissions` for a quiz routes to `dosen.assignments.quiz_attempts` view (`Dosen\AssignmentController::submissions`). Each row links to:
+`GET /dosen/assignments/{assignment}/submissions` untuk kuis dirutekan ke view `dosen.assignments.quiz_attempts` (`Dosen\AssignmentController::submissions`). Tiap baris menautkan ke:
 
-`GET /dosen/assignments/{assignment}/submissions/{submission}` (`assignments.submissions.show`) which renders `dosen.assignments.quiz_attempt_show` — per-question with correct answer marked. Dosen can then go to `submissions.grade` to set the final score on essay/code_snippet quizzes.
+`GET /dosen/assignments/{assignment}/submissions/{submission}` (`assignments.submissions.show`) yang merender `dosen.assignments.quiz_attempt_show` — per-soal dengan jawaban benar ditandai. Dosen lalu bisa ke `submissions.grade` untuk menetapkan nilai akhir pada kuis essay/code_snippet.
 
-### Quiz copy behaviour
+### Perilaku copy kuis
 
-Copying a quiz creates a **shell** assignment with no questions. The success message tells the dosen to add questions separately. This is intentional: question sets often need kelas-specific tweaks.
+Menyalin kuis membuat assignment **cangkang** tanpa soal. Pesan sukses memberi tahu dosen untuk menambah soal secara terpisah. Ini disengaja: set soal sering perlu penyesuaian per kelas.
 
 ---
 
 ## Exercise
 
-### `exercise_config` JSON structure
+### Struktur JSON `exercise_config`
 
 ```json
 {
@@ -197,24 +197,24 @@ Copying a quiz creates a **shell** assignment with no questions. The success mes
 }
 ```
 
-Cast in `Assignment::casts()` as `'exercise_config' => 'array'`. Access via `$assignment->exercise_config['key']`. The `Dosen\ExerciseController` form posts:
+Dicast di `Assignment::casts()` sebagai `'exercise_config' => 'array'`. Akses via `$assignment->exercise_config['key']`. Form `Dosen\ExerciseController` mem-post:
 
-- `exercise_language` → mapped to `language`
-- `required_keywords` → comma-separated string → array via `array_map('trim', explode(',', …))`
-- `hints` → newline-separated string → array
+- `exercise_language` → dipetakan ke `language`
+- `required_keywords` → string dipisah-koma → array via `array_map('trim', explode(',', …))`
+- `hints` → string dipisah-baris → array
 
-Allowed `exercise_language` values: `html`, `css`, `javascript`, `htmlmixed`, `java`, `php`, `csharp`. Only `java`, `php`, `csharp` can proxy to Piston via `/execute-code` (see `config/code_execution.php` and [architecture.md](../architecture.md#code-execution-sandbox-piston)). The HTML/CSS/JS ones run in a client-side preview iframe.
+Nilai `exercise_language` yang diizinkan: `html`, `css`, `javascript`, `htmlmixed`, `java`, `php`, `csharp`. Hanya `java`, `php`, `csharp` yang bisa mem-proxy ke Piston via `/execute-code` (lihat `config/code_execution.php` dan [architecture.md](../architecture.md#sandbox-eksekusi-kode-piston)). Yang HTML/CSS/JS berjalan di iframe preview sisi klien.
 
-### Mahasiswa flow
+### Alur mahasiswa
 
 ```
 GET  /mahasiswa/exercises/{assignment}/solve    exercises.solve  (check.assignment.unlocked)
 POST /mahasiswa/exercises/submit                exercises.submit
 ```
 
-1. `solve` — render `mahasiswa.exercises.solve` with the CodeMirror editor pre-populated from `starter_code`. Existing submission (if any) is loaded for display.
-2. The "Run" button → `POST /execute-code` (`CodeExecutionController`, throttled 10/min). Returns `{stdout, stderr, exit_code}`.
-3. "Submit" → `POST /mahasiswa/exercises/submit`. The controller validates `code_answer`, runs `validateCode()` (keyword match), and stores everything:
+1. `solve` — render `mahasiswa.exercises.solve` dengan editor CodeMirror terisi dari `starter_code`. Submission yang ada (bila ada) dimuat untuk ditampilkan.
+2. Tombol "Run" → `POST /execute-code` (`CodeExecutionController`, dibatasi 10/menit). Mengembalikan `{stdout, stderr, exit_code}`.
+3. "Submit" → `POST /mahasiswa/exercises/submit`. Controller memvalidasi `code_answer`, menjalankan `validateCode()` (keyword match), dan menyimpan semuanya:
 
 ```php
 Submission::create([
@@ -229,7 +229,7 @@ Submission::create([
 ]);
 ```
 
-The `validation_result` shape:
+Bentuk `validation_result`:
 
 ```json
 {
@@ -240,23 +240,23 @@ The `validation_result` shape:
 }
 ```
 
-This is a **hint shown to dosen** as "Validasi Mesin" in the submissions view (`resources/views/dosen/assignments/submissions.blade.php`). It does **not** set `score` or change `status`. There is no `auto_grade` column — an earlier WIP design had it; it was reverted.
+Ini **petunjuk yang ditampilkan ke dosen** sebagai "Validasi Mesin" di view pengumpulan (`resources/views/dosen/assignments/submissions.blade.php`). Ia **tidak** menetapkan `score` atau mengubah `status`. Tidak ada kolom `auto_grade` — desain WIP sebelumnya pernah ada; sudah di-revert.
 
-Dosen grades the exercise manually via `Dosen\AssignmentController::grade` → `GradeNotification`.
+Dosen menilai exercise secara manual via `Dosen\AssignmentController::grade` → `GradeNotification`.
 
 ---
 
-## Material prerequisite
+## Prasyarat materi
 
-Any assignment can require a student to view a specific material first:
+Tugas apa pun dapat mewajibkan mahasiswa membuka materi tertentu dulu:
 
 ```php
-$assignment->required_material_id;          // FK to materials, nullable
+$assignment->required_material_id;          // FK ke materials, nullable
 $assignment->isUnlockedFor($userId);        // bool
 $assignment->requiredMaterial;              // belongsTo(Material)
 ```
 
-`isUnlockedFor()` returns `true` if `required_material_id` is null, otherwise checks for a `MaterialView` row. `CheckAssignmentUnlocked` middleware applies this on:
+`isUnlockedFor()` mengembalikan `true` bila `required_material_id` null, jika tidak mengecek baris `MaterialView`. Middleware `CheckAssignmentUnlocked` menerapkan ini pada:
 
 ```php
 Route::resource('submissions', Mahasiswa\SubmissionController::class)
@@ -267,49 +267,49 @@ Route::get('/exercises/{assignment}/solve', [Mahasiswa\ExerciseController::class
     ->middleware('check.assignment.unlocked');
 ```
 
-Failure redirects back with `error` flash. See [auth-roles.md](../auth-roles.md#checkassignmentunlocked-middleware).
+Kegagalan me-redirect kembali dengan flash `error`. Lihat [auth-roles.md](../auth-roles.md#middleware-checkassignmentunlocked).
 
 ---
 
-## Display order fields — why three?
+## Field urutan tampilan — kenapa tiga?
 
-| Field | Used for |
+| Field | Dipakai untuk |
 |---|---|
-| `order` | Drag-and-drop position within course (all types). Updated by `assignments.reorder`. |
-| `assignment_number` | "Tugas ke-N" or "Latihan ke-N" label, only used in tugas/exercise views. |
-| `quiz_number` | "Kuis ke-N" label, only used in quiz views. |
+| `order` | Posisi drag-and-drop dalam mata kuliah (semua tipe). Diperbarui oleh `assignments.reorder`. |
+| `assignment_number` | Label "Tugas ke-N" atau "Latihan ke-N", hanya dipakai di view tugas/exercise. |
+| `quiz_number` | Label "Kuis ke-N", hanya dipakai di view kuis. |
 
-The number fields are set on create as `count(matching-type-in-course) + 1` and are display-only — they don't update on reorder. `order` is the canonical sort key.
+Field nomor diset saat create sebagai `count(tipe-cocok-dalam-course) + 1` dan hanya untuk tampilan — tidak diperbarui saat reorder. `order` adalah kunci sortir kanonik.
 
 ---
 
 ## Copy fan-out
 
-`POST /dosen/assignments/{assignment}/copy` copies an assignment to selected sibling kelas. Same security intersect as elsewhere — see [contributing.md](../contributing.md).
+`POST /dosen/assignments/{assignment}/copy` menyalin assignment ke kelas sibling terpilih. Irisan keamanan sama seperti di tempat lain — lihat [contributing.md](../contributing.md).
 
-Fields copied: `title`, `description`, `deadline`, `max_score`, `type`, `submission_format`, `duration_minutes`, `is_group`, `max_group_size`, `grading_mode`, `exercise_config`.
+Field yang disalin: `title`, `description`, `deadline`, `max_score`, `type`, `submission_format`, `duration_minutes`, `is_group`, `max_group_size`, `grading_mode`, `exercise_config`.
 
-Per copy:
+Per salinan:
 
 - `course_id` = sibling
-- `assignment_number` = `(count of same-type assignments in sibling) + 1`
-- `quiz_number` = same logic for quizzes
+- `assignment_number` = `(jumlah assignment bertipe sama di sibling) + 1`
+- `quiz_number` = logika sama untuk kuis
 - `order` = `(sibling.assignments.max('order') ?? 0) + 1`
 
-If `type === 'quiz'`, the success message reminds the dosen to add questions in each sibling separately.
+Bila `type === 'quiz'`, pesan sukses mengingatkan dosen untuk menambah soal di tiap sibling secara terpisah.
 
 ---
 
-## Notifications
+## Notifikasi
 
-Every mutation that affects mahasiswa visibility dispatches an `AcademicUpdateNotification`:
+Setiap mutasi yang memengaruhi visibilitas mahasiswa men-dispatch `AcademicUpdateNotification`:
 
-| Action | Recipients | Title |
+| Aksi | Penerima | Judul |
 |---|---|---|
-| `store` (non-quiz) | enrolled mahasiswa of `$course` | "Tugas/Exercise Baru Ditambahkan" |
-| `store` fan-out per sibling | enrolled mahasiswa of sibling | same |
-| `update` | enrolled mahasiswa of `$course` | "Tugas/Exercise Diperbarui" |
-| `grade` | the student | `GradeNotification` |
-| `gradeGroup` | all graded members | `GradeNotification` |
+| `store` (non-quiz) | mahasiswa terdaftar `$course` | "Tugas/Exercise Baru Ditambahkan" |
+| `store` fan-out per sibling | mahasiswa terdaftar sibling | sama |
+| `update` | mahasiswa terdaftar `$course` | "Tugas/Exercise Diperbarui" |
+| `grade` | mahasiswa tersebut | `GradeNotification` |
+| `gradeGroup` | semua anggota yang dinilai | `GradeNotification` |
 
-See [notifications.md](notifications.md) for the channel/queue semantics.
+Lihat [notifications.md](notifications.md) untuk semantik channel/queue.

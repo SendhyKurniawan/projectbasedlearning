@@ -4,24 +4,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Server-side languages
+    | Bahasa server-side
     |--------------------------------------------------------------------------
     |
-    | Languages whose "Run" button proxies to Piston via /execute-code.
-    | Anything outside this list runs client-side in the preview iframe.
-    | Must match the option values used in dosen.exercises.{create,edit} forms.
+    | Bahasa yang tombol "Run"-nya diteruskan ke Piston via /execute-code.
+    | Bahasa di luar daftar ini dijalankan di sisi klien dalam iframe preview.
+    | Harus cocok dengan nilai opsi pada form dosen.exercises.{create,edit}.
     |
     */
     'server_side_languages' => ['java', 'php', 'csharp'],
 
     /*
     |--------------------------------------------------------------------------
-    | App language → Piston language identifier
+    | Bahasa aplikasi → identifier bahasa Piston
     |--------------------------------------------------------------------------
     |
-    | The frontend posts our app-side slug; CodeExecutionController translates
-    | to whatever Piston actually expects. emkc.org/api/v2/piston exposes
-    | `csharp.net` (Mono) for C#; the others map 1:1.
+    | Frontend mengirim slug versi aplikasi kita; CodeExecutionController
+    | menerjemahkannya ke nama yang dikenali Piston. emkc.org/api/v2/piston
+    | memakai `csharp.net` (Mono) untuk C#; bahasa lain dipetakan 1:1.
     |
     */
     'piston_language_map' => [

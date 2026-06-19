@@ -1,5 +1,7 @@
 <?php
 
+// Uji halaman profil: tampil, perbarui nama/email (reset verifikasi bila email berubah),
+// dan hapus akun (wajib password benar).
 use App\Models\User;
 
 test('profile page is displayed', function () {

@@ -6,8 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Conference;
 
+// Controller jadwal mahasiswa (/mahasiswa/jadwal): linimasa konferensi & tugas mendatang
+// disusun hari per hari. Catatan: di sini sengaja memakai relasi Eloquent enrollments(),
+// pengecualian dari konvensi query pivot langsung yang dipakai flow mahasiswa lain.
 class ScheduleController extends Controller
 {
+    // Susun jadwal 14 hari ke depan (plus hari berikutnya yang masih ada acara).
     public function index()
     {
         $mahasiswa = auth()->user();
@@ -42,12 +46,12 @@ class ScheduleController extends Controller
             fn ($c) => $c->scheduled_at->format('Y-m-d')
         );
 
-        // Null deadlines bucket under 'no-deadline'.
+        // Tugas tanpa deadline dikelompokkan ke bucket 'no-deadline'.
         $assignmentsByDate = $assignments->groupBy(
             fn ($a) => $a->deadline ? $a->deadline->format('Y-m-d') : 'no-deadline'
         );
 
-        // Render the next 14 days plus any later days that still have events.
+        // Tampilkan 14 hari ke depan, ditambah hari setelahnya yang masih punya acara.
         $days = collect();
         for ($i = 0; $i < 14; $i++) {
             $days->push(now()->startOfDay()->addDays($i)->format('Y-m-d'));

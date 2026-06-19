@@ -8,23 +8,26 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controller titik masuk SSO Jitsi: menangani pengunjung tanpa token (mis. dari link "Share")
+// agar tetap terautentikasi, terotorisasi sesuai peran, lalu dibalikkan ke Jitsi membawa JWT.
 class ConferenceJoinController extends Controller
 {
+    // Inject service pembuat token Jitsi.
     public function __construct(private JitsiTokenService $jitsi)
     {
     }
 
     /**
-     * SSO target for Jitsi's `config.tokenAuthUrl`.
+     * Target SSO untuk `config.tokenAuthUrl` milik Jitsi.
      *
-     * A tokenless visitor (e.g. someone who opened Jitsi's in-room "Share" link)
-     * is redirected here by Jitsi with `?room={room}`. Because this route is
-     * behind `auth`, a logged-out visitor first lands on the PBL login page and
-     * is returned here afterwards (Laravel's intended() redirect). We then verify
-     * the user is actually allowed in this room — using the same rules as the
-     * role-specific room controllers — mint a per-user JWT, and bounce them back
-     * to Jitsi with the token so they join. The moderator flag mirrors the
-     * in-app rooms: admin/owning-dosen = moderator, enrolled mahasiswa = not.
+     * Pengunjung tanpa token (mis. yang membuka link "Share" di dalam ruangan Jitsi)
+     * diarahkan ke sini oleh Jitsi dengan `?room={room}`. Karena route ini di balik
+     * middleware `auth`, pengunjung yang belum login akan mampir ke halaman login PBL
+     * lalu dikembalikan ke sini (redirect intended() Laravel). Setelah itu kita verifikasi
+     * apakah user memang boleh masuk ruangan ini — memakai aturan yang sama dengan
+     * controller room per-peran — lalu mint JWT per-user dan pantulkan kembali ke Jitsi
+     * dengan token tersebut. Flag moderator mengikuti aturan room in-app:
+     * admin/dosen pengampu = moderator, mahasiswa terdaftar = bukan.
      */
     public function jitsiAuth(Request $request): RedirectResponse
     {
@@ -37,7 +40,7 @@ class ConferenceJoinController extends Controller
 
         $user = auth()->user();
 
-        // Authorize + decide moderator, matching the per-role room controllers.
+        // Otorisasi + tentukan status moderator, selaras dengan controller room per-peran.
         switch ($user->role) {
             case 'admin':
                 $moderator = true;
@@ -73,9 +76,9 @@ class ConferenceJoinController extends Controller
             email: $user->email,
         );
 
-        // Bounce back to the Jitsi room with the freshly minted token. Use the
-        // canonical room_name (not the raw query value) so the token's `room`
-        // claim always matches the room being joined.
+        // Pantulkan kembali ke ruangan Jitsi membawa token yang baru dibuat. Pakai
+        // room_name kanonis (bukan nilai query mentah) agar klaim `room` di token
+        // selalu cocok dengan ruangan yang dimasuki.
         $domain = config('services.jitsi.domain');
 
         return redirect()->away("https://{$domain}/{$conference->room_name}?jwt={$jwt}");

@@ -1,3 +1,4 @@
+{{-- Halaman ruang konferensi (mahasiswa) — pemuat Jitsi sebagai peserta. --}}
 @php
     $domain = config('services.jitsi.domain');
 @endphp

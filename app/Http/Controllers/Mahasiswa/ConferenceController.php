@@ -8,12 +8,15 @@ use App\Models\Course;
 use App\Services\JitsiTokenService;
 use Illuminate\Support\Facades\DB;
 
+// Controller konferensi sisi mahasiswa: lihat daftar sesi & masuk room sebagai peserta biasa.
 class ConferenceController extends Controller
 {
+    // Inject service pembuat token Jitsi.
     public function __construct(private JitsiTokenService $jitsi)
     {
     }
 
+    // Daftar konferensi sebuah matkul (live di atas, lalu terjadwal, lalu berakhir).
     public function index(Course $course)
     {
         $this->authorizeEnrolled($course);
@@ -26,6 +29,7 @@ class ConferenceController extends Controller
         return view('mahasiswa.conferences.index', compact('course', 'conferences'));
     }
 
+    // Masuk room sebagai peserta (moderator=false). Hanya bila sesi sedang berlangsung.
     public function room(Conference $conference)
     {
         $this->authorizeEnrolled($conference->course);
@@ -49,6 +53,7 @@ class ConferenceController extends Controller
         return view('mahasiswa.conferences.room', compact('conference', 'meetUrl'));
     }
 
+    // Penjaga: pastikan mahasiswa terdaftar di matkul sebelum boleh mengakses konferensinya.
     private function authorizeEnrolled(Course $course): void
     {
         $isEnrolled = DB::table('enrollments')

@@ -1,9 +1,10 @@
 <?php
 
+// Uji middleware role: gerbang akses dashboard per role + redirect root sesuai role pengguna.
 use App\Models\User;
 
 // ----------------------------------------------------------------
-// Unauthenticated Access
+// Akses tanpa login
 // ----------------------------------------------------------------
 
 test('unauthenticated user is redirected from admin dashboard', function () {
@@ -22,7 +23,7 @@ test('unauthenticated user is redirected from mahasiswa dashboard', function () 
 });
 
 // ----------------------------------------------------------------
-// Admin Role Guard
+// Gerbang role Admin
 // ----------------------------------------------------------------
 
 test('mahasiswa cannot access admin dashboard', function () {
@@ -47,7 +48,7 @@ test('admin can access admin dashboard', function () {
 });
 
 // ----------------------------------------------------------------
-// Dosen Role Guard
+// Gerbang role Dosen
 // ----------------------------------------------------------------
 
 test('mahasiswa cannot access dosen dashboard', function () {
@@ -72,7 +73,7 @@ test('dosen can access dosen dashboard', function () {
 });
 
 // ----------------------------------------------------------------
-// Mahasiswa Role Guard
+// Gerbang role Mahasiswa
 // ----------------------------------------------------------------
 
 test('dosen cannot access mahasiswa dashboard', function () {
@@ -90,7 +91,7 @@ test('mahasiswa can access mahasiswa dashboard', function () {
 });
 
 // ----------------------------------------------------------------
-// Root Redirect
+// Redirect halaman root (/)
 // ----------------------------------------------------------------
 
 test('root redirects authenticated admin to admin dashboard', function () {

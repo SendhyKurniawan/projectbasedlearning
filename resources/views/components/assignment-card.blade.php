@@ -1,3 +1,6 @@
+{{-- Komponen kartu tugas (dipakai di daftar tugas dosen). Menampilkan judul, tipe (tugas/quiz/
+     exercise), status, deadline, jumlah submission, + tombol aksi (kelola soal, salin, edit, review,
+     hapus). Mendukung drag-and-drop reorder (class sortable-item + data-id). --}}
 @props(['assignment', 'siblings' => collect()])
 
 <div class="group bg-surface-container-lowest p-6 rounded-2xl flex flex-col md:flex-row md:items-center gap-6 {{ $assignment->type === 'tugas' ? 'border-l-4 border-secondary' : 'border-l-4 border-tertiary' }} transition-all hover:bg-surface-container-lowest hover:shadow-xl hover:shadow-primary/5 cursor-grab drag-handle relative sortable-item ring-1 ring-outline-variant/20" data-id="{{ $assignment->id }}">

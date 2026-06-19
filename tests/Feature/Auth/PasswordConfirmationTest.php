@@ -1,5 +1,6 @@
 <?php
 
+// Uji konfirmasi password (gerbang area sensitif): render form & validasi password benar/salah.
 use App\Models\User;
 
 test('confirm password screen can be rendered', function () {

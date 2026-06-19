@@ -1,6 +1,6 @@
-# Grades
+# Nilai (Grades)
 
-Three controllers serve the "grades" surface, one per role. They share the underlying tables (`enrollments`, `assignments`, `submissions`) but render different shapes.
+Tiga controller melayani permukaan "nilai", satu per role. Mereka berbagi tabel dasar (`enrollments`, `assignments`, `submissions`) tetapi merender bentuk berbeda.
 
 | Role | Controller | URL |
 |---|---|---|
@@ -8,24 +8,24 @@ Three controllers serve the "grades" surface, one per role. They share the under
 | Dosen | `App\Http\Controllers\Dosen\GradeController` | `/dosen/grades` |
 | Mahasiswa | `App\Http\Controllers\Mahasiswa\GradeController` | `/mahasiswa/grades` |
 
-The dosen flow also includes a CSV export and an inline quick-grade endpoint.
+Alur dosen juga mencakup ekspor CSV dan endpoint quick-grade inline.
 
 ---
 
 ## Admin — `/admin/grades` (`Admin\GradeController::index`)
 
-Read-only cross-course grade view for administrative oversight.
+View nilai lintas-mata-kuliah read-only untuk pengawasan administratif.
 
-### Filters
+### Filter
 
-| Query param | Effect |
+| Param query | Efek |
 |---|---|
-| `search` | filter the per-course student list by `users.name` LIKE OR `users.nim` LIKE |
-| `semester_id` | restrict courses to one semester |
-| `academic_year_id` | restrict courses via `semester.academic_year_id` |
-| `dosen_id` | restrict courses to one dosen |
+| `search` | menyaring daftar mahasiswa per-mata-kuliah berdasarkan `users.name` LIKE ATAU `users.nim` LIKE |
+| `semester_id` | membatasi mata kuliah ke satu semester |
+| `academic_year_id` | membatasi mata kuliah via `semester.academic_year_id` |
+| `dosen_id` | membatasi mata kuliah ke satu dosen |
 
-### Query shape
+### Bentuk query
 
 ```php
 $coursesQuery = Course::query()
@@ -37,11 +37,11 @@ $coursesQuery = Course::query()
     ])
     ->select('id', 'semester_id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'created_at');
 
-// + the filters above
+// + filter di atas
 
 $courses = $coursesQuery->orderBy('created_at', 'desc')->get();
 
-// Per-course students with optional search filter, eager-load submissions
+// Mahasiswa per-mata-kuliah dengan filter search opsional, eager-load submissions
 $courses->load(['students' => function ($query) use ($search) {
     $query->select('users.id', 'users.name', 'users.nim');
     if ($search) {
@@ -56,17 +56,17 @@ $courses->load(['students' => function ($query) use ($search) {
 }]);
 ```
 
-View variables: `$courses`, `$availableSemesters`, `$availableYears`, `$availableDosens`, plus the filter values. View: `admin.grades.index`.
+Variabel view: `$courses`, `$availableSemesters`, `$availableYears`, `$availableDosens`, plus nilai filter. View: `admin.grades.index`.
 
-Admin only reads — no inline grading, no exports, no per-student drill.
+Admin hanya membaca — tanpa penilaian inline, tanpa ekspor, tanpa drill per-mahasiswa.
 
 ---
 
 ## Dosen — `/dosen/grades` (`Dosen\GradeController::index`)
 
-The grade book for a dosen's own courses. Supports per-kelas drill-down and clusters sibling courses by `course_group_key`.
+Buku nilai untuk mata kuliah milik dosen sendiri. Mendukung drill-down per-kelas dan mengelompokkan mata kuliah sibling berdasarkan `course_group_key`.
 
-### Routes
+### Route
 
 ```
 GET   /dosen/grades                                         dosen.grades.index
@@ -74,25 +74,25 @@ GET   /dosen/grades/{course}/export                         dosen.grades.export
 PATCH /dosen/grades/{assignment}/{mahasiswa}/quick-grade    dosen.grades.quickGrade
 ```
 
-### Filters
+### Filter
 
-`Dosen\GradeController::index` accepts every layer of the hierarchy as a query param so the dosen can drill down or widen:
+`Dosen\GradeController::index` menerima setiap lapisan hierarki sebagai param query agar dosen dapat drill-down atau melebarkan:
 
-| Query param | Effect |
+| Param query | Efek |
 |---|---|
-| `search` | filter students by `name` LIKE OR `nim` LIKE |
-| `semester_id` | restrict courses |
-| `academic_year_id` | restrict via `semester.academic_year_id` |
-| `department_id` | restrict via `studentClass.studyProgram.department_id` |
-| `study_program_id` | restrict via `studentClass.studyProgram_id` |
-| `student_class_id` | restrict to a single kelas |
+| `search` | menyaring mahasiswa berdasarkan `name` LIKE ATAU `nim` LIKE |
+| `semester_id` | membatasi mata kuliah |
+| `academic_year_id` | membatasi via `semester.academic_year_id` |
+| `department_id` | membatasi via `studentClass.studyProgram.department_id` |
+| `study_program_id` | membatasi via `studentClass.studyProgram_id` |
+| `student_class_id` | membatasi ke satu kelas |
 
-### Query shape
+### Bentuk query
 
 ```php
 $coursesQuery = Course::where('dosen_id', $dosenId)
     ->with(['semester.academicYear', 'studentClass.studyProgram.department', 'assignments']);
-// + filters
+// + filter
 
 $courses = $coursesQuery->orderBy('created_at', 'desc')->get();
 
@@ -106,7 +106,7 @@ $courses->load(['students' => function ($query) use ($search) {
     }]);
 }]);
 
-// Group siblings together for the matkul header
+// Kelompokkan sibling bersama untuk header matkul
 $courseGroups = $courses->groupBy('course_group_key')->map(fn ($g) => [
     'nama_matkul'       => $g->first()->nama_matkul,
     'kode_matkul'       => $g->first()->kode_matkul,
@@ -117,11 +117,11 @@ $courseGroups = $courses->groupBy('course_group_key')->map(fn ($g) => [
 ])->values();
 ```
 
-View variables: `$courseGroups`, every filter value, plus the dropdown lists (`$availableYears`, `$availableSemesters`, `$availableDepartments`, `$availablePrograms`, `$availableClasses`). View: `dosen.grades.index`.
+Variabel view: `$courseGroups`, setiap nilai filter, plus daftar dropdown (`$availableYears`, `$availableSemesters`, `$availableDepartments`, `$availablePrograms`, `$availableClasses`). View: `dosen.grades.index`.
 
-### CSV export
+### Ekspor CSV
 
-`GET /dosen/grades/{course}/export` → `Dosen\GradeController::export` streams a CSV:
+`GET /dosen/grades/{course}/export` → `Dosen\GradeController::export` mengalirkan CSV:
 
 ```php
 $this->authorize('view', $course);
@@ -162,11 +162,11 @@ return response()->streamDownload(function () use ($course) {
 }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
 ```
 
-Output columns: `NIM | Nama | <one column per assignment in display order> | Rata-rata`. Average is `n > 0 ? sum/n : ''` — only graded submissions contribute. Ungraded cells render as blank, not zero.
+Kolom keluaran: `NIM | Nama | <satu kolom per assignment dalam urutan tampilan> | Rata-rata`. Rata-rata adalah `n > 0 ? sum/n : ''` — hanya submission yang dinilai yang berkontribusi. Sel yang belum dinilai dirender kosong, bukan nol.
 
 ### Quick-grade (inline)
 
-`PATCH /dosen/grades/{assignment}/{mahasiswa}/quick-grade` powers the grade-book inline edit:
+`PATCH /dosen/grades/{assignment}/{mahasiswa}/quick-grade` menggerakkan edit inline buku nilai:
 
 ```php
 $this->authorize('update', $assignment);
@@ -200,30 +200,30 @@ return response()->json([
 ]);
 ```
 
-Key behaviour:
+Perilaku kunci:
 
-- `updateOrCreate` means a row is created if the student never submitted. Useful for marking missed submissions with a zero or partial credit.
-- `submitted_at` is set on first grade if absent — so the row isn't permanently null-timestamped.
-- `group_id` is hardcoded `null` — quick-grade only handles individual submissions. For group tugas use the regular `groups.grade` endpoint (see [assignments.md](assignments.md#grading)).
-- Returns JSON for AJAX consumers; no view.
+- `updateOrCreate` berarti baris dibuat bila mahasiswa tak pernah mengumpulkan. Berguna untuk menandai pengumpulan yang terlewat dengan nol atau kredit parsial.
+- `submitted_at` diset pada penilaian pertama bila kosong — agar baris tidak permanen ber-timestamp null.
+- `group_id` di-hardcode `null` — quick-grade hanya menangani submission individu. Untuk tugas kelompok pakai endpoint `groups.grade` biasa (lihat [assignments.md](assignments.md#penilaian)).
+- Mengembalikan JSON untuk konsumen AJAX; tanpa view.
 
-### Notification
+### Notifikasi
 
-Quick-grade does **not** dispatch a notification. The full `submissions.grade` and `groups.grade` paths do (`GradeNotification`).
+Quick-grade **tidak** men-dispatch notifikasi. Jalur penuh `submissions.grade` dan `groups.grade` melakukannya (`GradeNotification`).
 
 ---
 
 ## Mahasiswa — `/mahasiswa/grades` (`Mahasiswa\GradeController::index`)
 
-Student-side view of their own graded submissions, grouped by course.
+View sisi-mahasiswa atas pengumpulan mereka yang dinilai, dikelompokkan per mata kuliah.
 
-### Filters
+### Filter
 
-| Query param | Effect |
+| Param query | Efek |
 |---|---|
-| `search` | restrict courses by `nama_matkul` LIKE OR `kode_matkul` LIKE |
-| `semester_id` | restrict courses |
-| `academic_year_id` | restrict via `semester.academic_year_id` |
+| `search` | membatasi mata kuliah berdasarkan `nama_matkul` LIKE ATAU `kode_matkul` LIKE |
+| `semester_id` | membatasi mata kuliah |
+| `academic_year_id` | membatasi via `semester.academic_year_id` |
 
 ### Query
 
@@ -240,24 +240,24 @@ $coursesQuery = Course::whereHas('students', function ($query) use ($mahasiswaId
 ]);
 ```
 
-Each assignment's `submissions` relation is constrained to **only** the current student — so the view can render the score directly without extra filtering.
+Relasi `submissions` tiap assignment dibatasi **hanya** ke mahasiswa saat ini — sehingga view dapat merender nilai langsung tanpa penyaringan ekstra.
 
-View: `mahasiswa.grades.index`. View variables: `$courses`, `$availableSemesters`, `$availableYears`, `$search`, `$semesterId`, `$academicYearId`.
+View: `mahasiswa.grades.index`. Variabel view: `$courses`, `$availableSemesters`, `$availableYears`, `$search`, `$semesterId`, `$academicYearId`.
 
-### What the view shows
+### Apa yang ditampilkan view
 
-For each enrolled course, all assignments are listed with the student's `score` (or "—" if no submission) and `status`. The dashboard has its own histogram (`0–50 | 51–70 | 71–85 | 86–100`) computed independently by `Mahasiswa\DashboardController`.
+Untuk tiap mata kuliah yang diikuti, semua assignment didaftarkan dengan `score` mahasiswa (atau "—" bila tak ada submission) dan `status`. Dashboard punya histogramnya sendiri (`0–50 | 51–70 | 71–85 | 86–100`) yang dihitung independen oleh `Mahasiswa\DashboardController`.
 
 ---
 
-## Authorization summary
+## Ringkasan otorisasi
 
-| Route | Guard |
+| Route | Penjaga |
 |---|---|
 | `/admin/grades` | `auth + role:admin` |
 | `/dosen/grades` | `auth + role:dosen` |
 | `/dosen/grades/{course}/export` | `auth + role:dosen` + `CoursePolicy::view` (`$course->dosen_id === auth()->id()`) |
-| `/dosen/grades/{assignment}/{mahasiswa}/quick-grade` | `auth + role:dosen` + `AssignmentPolicy::update` (assignment's course owned by dosen) |
+| `/dosen/grades/{assignment}/{mahasiswa}/quick-grade` | `auth + role:dosen` + `AssignmentPolicy::update` (mata kuliah assignment dimiliki dosen) |
 | `/mahasiswa/grades` | `auth + role:mahasiswa` |
 
-See [auth-roles.md](../auth-roles.md) for policy details.
+Lihat [auth-roles.md](../auth-roles.md) untuk detail policy.

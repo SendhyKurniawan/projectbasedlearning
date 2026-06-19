@@ -1,61 +1,61 @@
-# Courses
+# Mata Kuliah (Courses)
 
-## The data model
+## Model data
 
-One `Course` row = one matkul × one kelas × one semester × one dosen. This is intentional — every kelas gets its own materials/assignments/conferences tree without sharing rows across kelas.
+Satu baris `Course` = satu matkul × satu kelas × satu semester × satu dosen. Ini disengaja — setiap kelas mendapat pohon materi/tugas/konferensinya sendiri tanpa berbagi baris antar kelas.
 
-Key columns (see [database.md](../database.md#courses) for the full schema):
+Kolom kunci (lihat [database.md](../database.md#courses) untuk skema lengkap):
 
 - `nama_matkul`, `kode_matkul`, `sks`, `description`, `course_img`
 - `dosen_id` (FK users), `semester_id` (FK semesters), `student_class_id` (FK student_classes)
-- composite unique constraint `(kode_matkul, semester_id, student_class_id)` named `courses_code_semester_class_unique`. The earlier global `unique(kode_matkul)` was dropped by migration `2026_05_14_000001_relax_course_kode_matkul_unique`.
+- constraint unik komposit `(kode_matkul, semester_id, student_class_id)` bernama `courses_code_semester_class_unique`. `unique(kode_matkul)` global sebelumnya dihapus oleh migrasi `2026_05_14_000001_relax_course_kode_matkul_unique`.
 
-Relationships (`app/Models/Course.php`):
+Relasi (`app/Models/Course.php`):
 
-| Relation | Returns |
+| Relasi | Mengembalikan |
 |---|---|
-| `dosen()` | `belongsTo(User)` on `dosen_id` |
+| `dosen()` | `belongsTo(User)` pada `dosen_id` |
 | `semester()` | `belongsTo(Semester)` |
-| `studentClass()` | `belongsTo(StudentClass)` on `student_class_id` |
+| `studentClass()` | `belongsTo(StudentClass)` pada `student_class_id` |
 | `materials()` | `hasMany(Material)->orderBy('order')` |
 | `assignments()` | `hasMany(Assignment)->orderBy('order')` |
 | `students()` | `belongsToMany(User, 'enrollments', 'course_id', 'mahasiswa_id')->withPivot('final_grade', 'enrolled_at')` |
 | `conferences()` | `hasMany(Conference)` |
 
-The reverse-side `User::courses()` (taught) and `User::enrollments()` / `User::enrolledCourses()` (enrolled, with alias) are defined on `User`.
+Sisi-balik `User::courses()` (yang diajar) dan `User::enrollments()` / `User::enrolledCourses()` (terdaftar, dengan alias) didefinisikan di `User`.
 
 ---
 
 ## Siblings
 
-A dosen teaching the same `kode_matkul` to two kelas in the same semester gets two `Course` rows. These are **siblings**.
+Dosen yang mengajar `kode_matkul` sama ke dua kelas di semester yang sama mendapat dua baris `Course`. Ini disebut **siblings**.
 
 ```php
-// Returns Collection<Course> — excludes self, eager-loads studentClass, ordered by student_class_id
+// Mengembalikan Collection<Course> — tidak termasuk diri sendiri, eager-load studentClass, diurut student_class_id
 $siblings = $course->siblings();
 
-// Used to populate copy-to-kelas checkboxes
+// Dipakai mengisi checkbox copy-to-kelas
 $siblingIds = $course->siblings()->pluck('id');
 ```
 
-The match is `dosen_id + kode_matkul + semester_id`, ignoring `student_class_id`. Result is memoized per instance via `$cachedSiblings` so repeated calls within one request are free.
+Pencocokannya adalah `dosen_id + kode_matkul + semester_id`, mengabaikan `student_class_id`. Hasilnya dimemo per instance via `$cachedSiblings` sehingga pemanggilan berulang dalam satu request gratis.
 
-The unique constraint on `courses` is composite — a dosen *can* legitimately have multiple rows with the same `kode_matkul`, as long as `student_class_id` differs. Admin form validation enforces the composite uniqueness.
+Constraint unik pada `courses` bersifat komposit — seorang dosen *bisa* secara sah memiliki banyak baris dengan `kode_matkul` sama, selama `student_class_id` berbeda. Validasi form admin memberlakukan keunikan komposit ini.
 
 ---
 
-## `course_group_key` and the sidebar
+## `course_group_key` dan sidebar
 
-The sidebar and dashboards need to visually group sibling courses under one accordion. The grouping key is an accessor on the model:
+Sidebar dan dashboard perlu mengelompokkan mata kuliah sibling secara visual di bawah satu akordeon. Kunci pengelompokan adalah accessor pada model:
 
 ```php
 // Course::getCourseGroupKeyAttribute()
 return $this->dosen_id . '|' . $this->nama_matkul . '|' . ($this->semester_id ?? '');
 ```
 
-Notice it uses **`nama_matkul`** (display name), not `kode_matkul`. Two courses with the same display name but different codes (a legacy renamed course) will cluster together — intentional.
+Perhatikan ia memakai **`nama_matkul`** (nama tampilan), bukan `kode_matkul`. Dua mata kuliah dengan nama tampilan sama tetapi kode berbeda (mata kuliah lama yang diganti namanya) akan berkelompok bersama — disengaja.
 
-`SidebarComposer` caches the resolved dosen course list:
+`SidebarComposer` meng-cache daftar mata kuliah dosen yang sudah diresolusi:
 
 ```php
 $dosenCourses = Cache::remember("sidebar:dosen:{$user->id}", 300, fn () =>
@@ -67,26 +67,26 @@ $dosenCourses = Cache::remember("sidebar:dosen:{$user->id}", 300, fn () =>
 $dosenCourseGroups = $dosenCourses->groupBy('course_group_key');
 ```
 
-The `Course::booted()` hook flushes `sidebar:dosen:{dosen_id}` on every create/update/delete. If the sidebar isn't refreshing after a course change, verify the `dosen_id` on the course matches the logged-in user.
+Hook `Course::booted()` membersihkan `sidebar:dosen:{dosen_id}` setiap create/update/delete. Bila sidebar tidak menyegarkan setelah perubahan mata kuliah, verifikasi `dosen_id` pada mata kuliah cocok dengan user yang login.
 
 ---
 
 ## Enrollment
 
-### Admin-side
+### Sisi admin
 
-`Admin\CourseController` exposes the full resource CRUD at `/admin/courses` and dedicated enrollment endpoints:
+`Admin\CourseController` mengekspos CRUD resource penuh di `/admin/courses` dan endpoint enrollment khusus:
 
-| Method + URL | Action |
+| Method + URL | Aksi |
 |---|---|
 | `POST /admin/courses/{course}/enroll` | `Admin\CourseController@enroll` |
 | `DELETE /admin/courses/{course}/enroll/{student}` | `Admin\CourseController@unenroll` |
 
-Admin can also manage assignments to kelas through `/admin/akademik` — see `Admin\AkademikController::assignStudents()` and `unassignStudent()` for the kelas-side moves.
+Admin juga dapat mengelola penugasan ke kelas melalui `/admin/akademik` — lihat `Admin\AkademikController::assignStudents()` dan `unassignStudent()` untuk pergerakan sisi-kelas.
 
-### Mahasiswa self-enrollment
+### Self-enrollment mahasiswa
 
-`Mahasiswa\CourseController::enroll` accepts `POST /mahasiswa/courses/{course}/enroll`. There is currently no public/private gate on courses — any logged-in mahasiswa can enroll in any course they can reach via `/mahasiswa/courses`. If you need to gate self-enrollment, add the check there.
+`Mahasiswa\CourseController::enroll` menerima `POST /mahasiswa/courses/{course}/enroll`. Saat ini tidak ada gerbang publik/privat pada mata kuliah — mahasiswa yang login mana pun dapat mendaftar ke mata kuliah mana pun yang bisa ia jangkau via `/mahasiswa/courses`. Bila perlu menggerbang self-enrollment, tambahkan cek di sana.
 
 ```php
 $alreadyEnrolled = DB::table('enrollments')
@@ -101,51 +101,51 @@ if ($alreadyEnrolled) {
 $mahasiswa->enrollments()->attach($course->id, ['enrolled_at' => now()]);
 ```
 
-### Reading enrollments
+### Membaca enrollment
 
-Two coexisting patterns — both are correct, but if you change the `enrollments` schema, grep for both. See [database.md](../database.md#enrollments).
+Dua pola yang berdampingan — keduanya benar, tetapi bila Anda mengubah skema `enrollments`, grep keduanya. Lihat [database.md](../database.md#enrollments).
 
 ```php
-// Raw query (used by most mahasiswa controllers for speed)
+// Query mentah (dipakai mayoritas controller mahasiswa demi kecepatan)
 $isEnrolled = DB::table('enrollments')
     ->where('mahasiswa_id', $mahasiswa->id)
     ->where('course_id', $course->id)
     ->exists();
 
-// Eloquent relation (used by ScheduleController, SubmissionController, DashboardController)
+// Relasi Eloquent (dipakai ScheduleController, SubmissionController, DashboardController)
 $courseIds = $mahasiswa->enrollments()->pluck('courses.id');
 $isEnrolled = $mahasiswa->enrollments()->where('courses.id', $course->id)->exists();
 ```
 
 ---
 
-## Mahasiswa course-show view
+## View course-show mahasiswa
 
-`Mahasiswa\CourseController::show` (`GET /mahasiswa/courses/{course}`) builds a "learning path" combining materials and assignments. The view loads:
+`Mahasiswa\CourseController::show` (`GET /mahasiswa/courses/{course}`) membangun "learning path" yang menggabungkan materi dan tugas. View memuat:
 
-- `$course->materials` ordered by `order`
-- `$course->assignments` with `questions` + `requiredMaterial`, ordered by `order` then `deadline`
-- `$viewedMaterialIds` from `MaterialView`
-- `$submissions` keyed by `assignment_id`
+- `$course->materials` diurut `order`
+- `$course->assignments` dengan `questions` + `requiredMaterial`, diurut `order` lalu `deadline`
+- `$viewedMaterialIds` dari `MaterialView`
+- `$submissions` dikunci oleh `assignment_id`
 
-The learning path is constructed by `buildLearningPath()`:
+Learning path dikonstruksi oleh `buildLearningPath()`:
 
 ```
-For each material (in order):
+Untuk setiap materi (berurutan):
   emit { type: material, item, completed: viewed, locked: false }
-  if an assignment has required_material_id === material.id:
+  bila sebuah tugas punya required_material_id === material.id:
     emit { type: assignment, item, completed: has_submission, locked: !viewed }
 
-After all materials, emit any assignments with required_material_id IS NULL.
+Setelah semua materi, emit tugas mana pun dengan required_material_id IS NULL.
 ```
 
-This drives the UI's "complete this material to unlock the next assignment" experience. The CSS gating (`locked: true`) is purely visual — the server-side gate is `CheckAssignmentUnlocked` middleware on the submission/exercise-solve routes.
+Ini menggerakkan pengalaman UI "selesaikan materi ini untuk membuka tugas berikutnya". Penggerbangan CSS (`locked: true`) murni visual — gerbang sisi server adalah middleware `CheckAssignmentUnlocked` pada route pengumpulan/pengerjaan-exercise.
 
 ---
 
 ## Copy fan-out
 
-When a dosen copies a material, assignment, conference, or exercise to sibling kelas, the controller intersects submitted `sibling_ids` against actual siblings before acting:
+Saat dosen menyalin materi, tugas, konferensi, atau exercise ke kelas sibling, controller mengiriskan `sibling_ids` yang dikirim terhadap sibling sesungguhnya sebelum beraksi:
 
 ```php
 $allowedSiblingIds = $course->siblings()->pluck('id');
@@ -154,38 +154,38 @@ $targetIds = collect($request->sibling_ids ?? [])
     ->intersect($allowedSiblingIds);
 
 foreach (Course::whereIn('id', $targetIds)->get() as $sibling) {
-    // copy to $sibling
+    // salin ke $sibling
 }
 ```
 
-This is the security boundary — without it, a crafted POST could target other dosens' courses. The `<x-copy-modal>` Blade component renders the sibling-checkbox UI. See [contributing.md](../contributing.md) for the rule.
+Ini adalah batas keamanan — tanpanya, POST yang dibuat-buat bisa menargetkan mata kuliah dosen lain. Komponen Blade `<x-copy-modal>` merender UI checkbox-sibling. Lihat [contributing.md](../contributing.md) untuk aturannya.
 
-| Feature | Create with fan-out | Copy after create |
+| Fitur | Create dengan fan-out | Copy setelah create |
 |---|---|---|
 | Material | `Dosen\MaterialController::store` | `materials.copy` → `Dosen\MaterialController::copy` |
 | Assignment | `Dosen\AssignmentController::store` | `assignments.copy` → `Dosen\AssignmentController::copy` |
 | Conference | `Dosen\ConferenceController::store` | `conferences.copy` → `Dosen\ConferenceController::copy` |
-| Exercise | `Dosen\ExerciseController::store` | (no dedicated copy endpoint — use assignment copy) |
+| Exercise | `Dosen\ExerciseController::store` | (tidak ada endpoint copy khusus — pakai copy assignment) |
 
-See feature pages for the per-type fan-out behaviour ([materials](materials.md), [assignments](assignments.md), [conferences](conferences.md)).
+Lihat halaman fitur untuk perilaku fan-out per-tipe ([materials](materials.md), [assignments](assignments.md), [conferences](conferences.md)).
 
 ---
 
-## Dosen sections and "bare URL" fallbacks
+## Section dosen dan fallback "URL polos"
 
-Dosen has a few sections that need a course context (Materials, Assignments, Exercises, Conferences). The sidebar links to them under the dosen's first course. For convenience, bare URLs without a course parameter exist:
+Dosen punya beberapa section yang perlu konteks mata kuliah (Materi, Tugas, Exercise, Konferensi). Sidebar menautkannya di bawah mata kuliah pertama dosen. Untuk kenyamanan, URL polos tanpa parameter mata kuliah tersedia:
 
-| Bare route | Behaviour |
+| Route polos | Perilaku |
 |---|---|
-| `GET /dosen/materials` (`dosen.materials.bare`) | redirect to `dosen.materials.index` for the dosen's first course, or render `dosen.no-course` view |
-| `GET /dosen/assignments` (`dosen.assignments.bare`) | same, for assignments |
-| `GET /dosen/exercises` (`dosen.exercises.bare`) | redirects to assignments index (exercises and assignments share the index) |
-| `GET /dosen/conferences` (`dosen.conferences.bare`) | same, for conferences |
+| `GET /dosen/materials` (`dosen.materials.bare`) | redirect ke `dosen.materials.index` untuk mata kuliah pertama dosen, atau render view `dosen.no-course` |
+| `GET /dosen/assignments` (`dosen.assignments.bare`) | sama, untuk tugas |
+| `GET /dosen/exercises` (`dosen.exercises.bare`) | redirect ke index tugas (exercise dan tugas berbagi index) |
+| `GET /dosen/conferences` (`dosen.conferences.bare`) | sama, untuk konferensi |
 
-These are defined inline in `routes/web.php` with a closure that picks the first owned course.
+Ini didefinisikan inline di `routes/web.php` dengan closure yang memilih mata kuliah pertama yang dimiliki.
 
 ---
 
-## Admin course validation
+## Validasi mata kuliah admin
 
-Admin enforces the composite uniqueness — see `Admin\CourseController::store/update` and `Admin\AkademikController::storeCourse`. When creating multiple courses with the same `kode_matkul` for different kelas in the same semester, validation must accept the duplication on `kode_matkul` alone but reject it on the full tuple.
+Admin memberlakukan keunikan komposit — lihat `Admin\CourseController::store/update` dan `Admin\AkademikController::storeCourse`. Saat membuat banyak mata kuliah dengan `kode_matkul` sama untuk kelas berbeda di semester yang sama, validasi harus menerima duplikasi pada `kode_matkul` saja tetapi menolaknya pada tuple penuh.

@@ -1,3 +1,4 @@
+{{-- Halaman daftar seluruh notifikasi milik user. --}}
 @push('styles')
     @vite('resources/css/pages/shared/notifications.css')
 @endpush

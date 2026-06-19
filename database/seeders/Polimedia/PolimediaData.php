@@ -5,33 +5,33 @@ namespace Database\Seeders\Polimedia;
 use Illuminate\Support\Str;
 
 /**
- * Shared helpers for the PoliMedia seeders: loads the fetched structure JSON,
- * derives prodi abbreviations, and defines the 4-year academic calendar plus the
- * demo-class constants used to give testers a fully-populated example to land on.
+ * Helper bersama untuk seeder PoliMedia: memuat JSON struktur hasil fetch,
+ * menurunkan singkatan prodi, dan mendefinisikan kalender akademik 4 tahun plus
+ * konstanta kelas-demo yang dipakai agar tester langsung mendarat di contoh yang lengkap.
  *
- * The calendar is 4 academic years x (Ganjil, Genap) = 8 semesters; only the
- * latest Ganjil is active. Departments/prodi/dosen are global; classes, students,
- * courses and content are seeded per-semester.
+ * Kalender = 4 tahun ajaran x (Ganjil, Genap) = 8 semester; hanya Ganjil terbaru
+ * yang aktif. Jurusan/prodi/dosen bersifat global; kelas, mahasiswa, matkul, dan
+ * konten di-seed per-semester.
  */
 class PolimediaData
 {
-    /** Prodi code that gets named handout accounts + sample submissions (active term, kelas A). */
+    /** Kode prodi yang memperoleh akun bernama (handout) + contoh submission (term aktif, kelas A). */
     public const DEMO_PRODI_CODE = '90442';   // Desain Grafis (D3)
-    public const DEMO_KELAS_INDEX = 0;        // first kelas (A)
+    public const DEMO_KELAS_INDEX = 0;        // kelas pertama (A)
 
-    /** Shared password for every pre-made account (documented for testers). */
+    /** Password bersama untuk setiap akun yang dibuat otomatis (didokumentasikan untuk tester). */
     public const SHARED_PASSWORD = 'password';
 
     public const EMAIL_DOMAIN = 'polimedia.test';
     public const STUDENT_EMAIL_DOMAIN = 'student.polimedia.test';
 
-    // 4-year calendar: 4 academic years x (Ganjil, Genap) = 8 semesters.
+    // Kalender 4 tahun: 4 tahun ajaran x (Ganjil, Genap) = 8 semester.
     public const ACADEMIC_YEARS = [[2022, 2023], [2023, 2024], [2024, 2025], [2025, 2026]];
     public const TERMS = ['Ganjil', 'Genap'];
     public const ACTIVE_YEAR_START = 2025;
     public const ACTIVE_TERM = 'Ganjil';
 
-    // Per prodi, per term sizing.
+    // Ukuran per prodi, per term.
     public const KELAS_LETTERS = ['A', 'B', 'C'];
     public const STUDENTS_PER_KELAS = 8;
 
@@ -43,8 +43,8 @@ class PolimediaData
     }
 
     /**
-     * Deterministic dosen email per prodi so the course seeder can find the
-     * right lecturer. The demo prodi's dosen gets the friendly handout address.
+     * Email dosen yang deterministik per prodi agar seeder matkul bisa menemukan
+     * dosen yang tepat. Dosen prodi demo memakai alamat handout yang mudah diingat.
      */
     public static function dosenEmail(string $prodiCode): string
     {
@@ -58,7 +58,7 @@ class PolimediaData
         return $yearStart === self::ACTIVE_YEAR_START && $term === self::ACTIVE_TERM;
     }
 
-    /** Chronological study-level 1..8 for a (year, term). 2022 Ganjil=1 … 2025 Genap=8. */
+    /** Tingkat studi kronologis 1..8 untuk (tahun, term). 2022 Ganjil=1 … 2025 Genap=8. */
     public static function level(int $yearStart, string $term): int
     {
         $yearIdx = $yearStart - self::ACADEMIC_YEARS[0][0];
@@ -73,7 +73,7 @@ class PolimediaData
             : ["{$yearEnd}-02-01", "{$yearEnd}-07-31"];
     }
 
-    /** Kelas label disambiguated by term, e.g. "DG-A 25Gj". */
+    /** Label kelas yang dibedakan per term, mis. "DG-A 25Gj". */
     public static function className(string $abbr, string $letter, int $yearStart, string $term): string
     {
         $yy = substr((string) $yearStart, 2, 2);
@@ -87,7 +87,7 @@ class PolimediaData
         return [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII'][$n] ?? (string) $n;
     }
 
-    /** Absolute path to the committed structure file. */
+    /** Path absolut ke berkas struktur yang ada di repo. */
     public static function path(): string
     {
         return database_path('data/polimedia.json');
@@ -115,8 +115,8 @@ class PolimediaData
     }
 
     /**
-     * Short uppercase abbreviation for a prodi name, used for kelas labels and
-     * course codes. "Desain Grafis" -> "DG", "Animasi" -> "ANI".
+     * Singkatan huruf kapital dari nama prodi, dipakai untuk label kelas & kode matkul.
+     * "Desain Grafis" -> "DG", "Animasi" -> "ANI".
      */
     public static function abbr(string $name): string
     {

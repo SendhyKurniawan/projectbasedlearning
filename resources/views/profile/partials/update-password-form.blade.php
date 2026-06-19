@@ -1,3 +1,4 @@
+{{-- Partial form ganti password. --}}
 <section>
  <header>
  <h2 class="text-lg font-medium text-on-surface">

@@ -7,8 +7,11 @@ use App\Models\Assignment;
 use App\Models\Course;
 use Illuminate\Http\Request;
 
+// Controller pembuatan exercise (latihan koding) oleh dosen. Exercise disimpan sebagai
+// Assignment bertipe 'exercise' dengan detail di kolom JSON exercise_config.
 class ExerciseController extends Controller
 {
+    // Form buat exercise (sertakan siblings untuk opsi fan-out).
     public function create(Course $course)
     {
         $this->authorize('update', $course);
@@ -16,6 +19,8 @@ class ExerciseController extends Controller
         return view('dosen.exercises.create', compact('course', 'siblings'));
     }
 
+    // Simpan exercise baru; bahasa/starter/solusi/keyword/hint dirakit ke exercise_config,
+    // lalu di-fan-out ke kelas siblings yang dipilih.
     public function store(Request $request, Course $course)
     {
         $this->authorize('update', $course);
@@ -34,11 +39,13 @@ class ExerciseController extends Controller
             'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
+        // Keamanan fan-out: batasi target hanya ke siblings milik matkul ini.
         $allowedSiblingIds = $course->siblings()->pluck('id');
         $targetIds = collect($request->sibling_ids ?? [])
             ->map(fn($id) => (int) $id)
             ->intersect($allowedSiblingIds);
 
+        // Keyword wajib dipisah koma; hint dipisah baris baru.
         $keywords = $request->required_keywords
             ? array_map('trim', explode(',', $request->required_keywords))
             : [];
@@ -61,8 +68,10 @@ class ExerciseController extends Controller
             ],
         ];
 
+        // Buat exercise pada matkul utama.
         Assignment::create(array_merge($sharedData, ['course_id' => $course->id]));
 
+        // Fan-out: buat exercise identik untuk tiap kelas sibling terpilih.
         $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
         foreach ($targetCourses as $sibling) {
             Assignment::create(array_merge($sharedData, ['course_id' => $sibling->id]));
@@ -77,6 +86,7 @@ class ExerciseController extends Controller
             ->with('success', $msg);
     }
 
+    // Form edit exercise (pastikan assignment memang bertipe exercise).
     public function edit(Assignment $assignment)
     {
         $course = $assignment->course;
@@ -89,6 +99,7 @@ class ExerciseController extends Controller
         return view('dosen.exercises.edit', compact('assignment', 'course'));
     }
 
+    // Perbarui exercise: rakit ulang exercise_config dari input (edit tidak ikut fan-out).
     public function update(Request $request, Assignment $assignment)
     {
         $course = $assignment->course;

@@ -1,3 +1,4 @@
+{{-- Partial pesan flash (sukses/error) untuk halaman akademik admin. --}}
 @if(session('success'))
     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
          x-transition:leave="transition ease-in duration-300"

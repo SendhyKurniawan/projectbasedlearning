@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
+// Controller CRUD mata kuliah versi admin (resource route lama) + enroll/unenroll mahasiswa.
 class CourseController extends Controller
 {
+    // Daftar mata kuliah dengan filter pencarian, semester, dan dosen (paginasi 10).
     public function index(Request $request)
     {
         $query = \App\Models\Course::query()->with('dosen:id,name', 'semester:id,name,academic_year_id', 'semester.academicYear:id,year_start,year_end', 'studentClass:id,name')->select('id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'sks', 'semester_id', 'student_class_id', 'created_at')->withCount('students');
@@ -41,6 +43,7 @@ class CourseController extends Controller
         return view('admin.courses.index', compact('courses', 'availableSemesters', 'availableDosens'));
     }
 
+    // Form tambah matkul: sediakan daftar dosen, kelas, dan semester.
     public function create()
     {
         $dosens = \App\Models\User::where('role', 'dosen')->select('id', 'name')->get();
@@ -49,12 +52,14 @@ class CourseController extends Controller
         return view('admin.courses.create', compact('dosens', 'classes', 'semesters'));
     }
 
+    // Simpan matkul baru. Keunikan kode_matkul dicek komposit terhadap dosen+semester+kelas.
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama_matkul'      => ['required', 'string', 'max:255'],
             'kode_matkul'      => [
                 'required', 'string', 'max:50',
+                // Unik per kombinasi dosen + semester + kelas (bukan global per kode_matkul).
                 Rule::unique('courses')->where(fn ($q) => $q
                     ->where('dosen_id', $request->dosen_id)
                     ->where('semester_id', $request->semester_id)
@@ -67,6 +72,7 @@ class CourseController extends Controller
             'semester_id'      => ['required', 'exists:semesters,id'],
         ]);
 
+        // Pastikan user yang dipilih benar-benar berperan dosen.
         $dosen = \App\Models\User::find($request->dosen_id);
         if ($dosen->role !== 'dosen') {
             return back()->withErrors(['dosen_id' => 'Selected user is not a lecturer.']);
@@ -78,11 +84,13 @@ class CourseController extends Controller
             ->with('success', 'Course created successfully.');
     }
 
+    // Tidak dipakai (placeholder route resource).
     public function show(string $id)
     {
         //
     }
 
+    // Form edit matkul: sertakan mahasiswa terdaftar + kandidat mahasiswa yang bisa di-enroll.
     public function edit(string $id)
     {
         $course = \App\Models\Course::with('students')->findOrFail($id);
@@ -99,6 +107,7 @@ class CourseController extends Controller
         return view('admin.courses.edit', compact('course', 'dosens', 'availableStudents', 'classes', 'semesters'));
     }
 
+    // Perbarui matkul (keunikan kode_matkul komposit, abaikan baris matkul ini sendiri).
     public function update(Request $request, string $id)
     {
         $course = \App\Models\Course::findOrFail($id);
@@ -125,6 +134,7 @@ class CourseController extends Controller
             ->with('success', 'Course updated successfully.');
     }
 
+    // Hapus matkul.
     public function destroy(string $id)
     {
         $course = \App\Models\Course::findOrFail($id);
@@ -134,6 +144,7 @@ class CourseController extends Controller
             ->with('success', 'Course deleted successfully.');
     }
 
+    // Daftarkan (enroll) seorang mahasiswa ke matkul via pivot enrollments.
     public function enroll(Request $request, string $courseId)
     {
         $course = \App\Models\Course::findOrFail($courseId);
@@ -147,6 +158,7 @@ class CourseController extends Controller
         return back()->with('success', 'Student enrolled successfully.');
     }
 
+    // Keluarkan (unenroll) seorang mahasiswa dari matkul.
     public function unenroll(string $courseId, string $studentId)
     {
         $course = \App\Models\Course::findOrFail($courseId);

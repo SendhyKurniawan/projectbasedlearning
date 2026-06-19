@@ -7,6 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
+// Notifikasi email berisi kode OTP 6 digit untuk verifikasi saat registrasi. Antre (queued).
 class OtpVerificationNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -15,6 +16,7 @@ class OtpVerificationNotification extends Notification implements ShouldQueue
     {
     }
 
+    // Kirim lewat channel email.
     public function via(mixed $notifiable): array
     {
         return ['mail'];

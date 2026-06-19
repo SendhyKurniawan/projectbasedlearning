@@ -1,3 +1,4 @@
+{{-- Partial daftar pengumpulan kelompok pada halaman submission tugas (dosen). --}}
 @if($groups->isEmpty())
     <div class="flex flex-col items-center justify-center py-20 bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-sm">
         <span class="material-symbols-outlined text-[80px] text-primary/20 mb-4">groups</span>

@@ -6,6 +6,7 @@ use App\Models\Assignment;
 use App\Models\Course;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+// Factory pembuat data Assignment palsu (default tipe 'tugas' format pdf).
 class AssignmentFactory extends Factory
 {
     protected $model = Assignment::class;
@@ -24,6 +25,7 @@ class AssignmentFactory extends Factory
         ];
     }
 
+    // State: jadikan tugas bertipe quiz.
     public function quiz(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -31,6 +33,7 @@ class AssignmentFactory extends Factory
         ]);
     }
 
+    // State: jadikan tugas bertipe tugas.
     public function tugas(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -38,6 +41,7 @@ class AssignmentFactory extends Factory
         ]);
     }
 
+    // State: jadikan tugas sudah lewat deadline (untuk uji skenario terlambat).
     public function overdue(): static
     {
         return $this->state(fn (array $attributes) => [

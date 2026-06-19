@@ -1,3 +1,5 @@
+{{-- Halaman akademik terpadu (admin): CRUD tahun ajaran, semester, jurusan, prodi, kelas, & matkul
+     dalam satu halaman, dikendalikan komponen Alpine akademikPage(). --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-on-surface leading-tight">Manajemen Akademik</h2>

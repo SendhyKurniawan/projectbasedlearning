@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Semester;
 
+// Seeder contoh satu semester aktif (legacy/alternatif).
 class SemesterSeeder extends Seeder
 {
     public function run(): void

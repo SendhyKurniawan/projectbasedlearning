@@ -5,14 +5,15 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+// Seeder akun contoh (legacy/alternatif): 1 admin, beberapa dosen, dan beberapa mahasiswa.
 class UserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Jalankan seeder.
      */
     public function run(): void
     {
-        // Create Admin
+        // Buat akun Admin
         \App\Models\User::create([
             'name' => 'Administrator',
             'email' => 'admin@pjbl.test',
@@ -20,7 +21,7 @@ class UserSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        // Create Dosen (Lecturers)
+        // Buat akun Dosen
         \App\Models\User::create([
             'name' => 'Dosen Utama',
             'email' => 'dosen@pjbl.test',
@@ -42,7 +43,7 @@ class UserSeeder extends Seeder
             'role' => 'dosen',
         ]);
 
-        // Create Mahasiswa (Students)
+        // Buat akun Mahasiswa
         \App\Models\User::create([
             'name' => 'Mahasiswa Utama',
             'email' => 'mahasiswa@pjbl.test',

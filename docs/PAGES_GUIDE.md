@@ -1,10 +1,10 @@
-# ðŸ“„ Panduan Halaman PBL E-Learning
+# 📄 Panduan Halaman PBL E-Learning
 
 Dokumentasi ini merinci seluruh halaman yang tersedia dalam sistem E-Learning berbasis **Project-Based Learning (PBL)**, dikelompokkan berdasarkan hak akses pengguna dan fitur utama.
 
 ---
 
-## ðŸ” Halaman Publik & Autentikasi
+## 🔐 Halaman Publik & Autentikasi
 
 Halaman yang dapat diakses sebelum atau sesaat setelah login dasar.
 
@@ -15,7 +15,7 @@ Halaman yang dapat diakses sebelum atau sesaat setelah login dasar.
 
 ---
 
-## ðŸ‘¤ Fitur Umum (Semua Pengguna)
+## 👤 Fitur Umum (Semua Pengguna)
 
 Halaman yang tersedia untuk Admin, Dosen, dan Mahasiswa.
 
@@ -26,7 +26,7 @@ Halaman yang tersedia untuk Admin, Dosen, dan Mahasiswa.
 
 ---
 
-## âš¡ Dashboard Admin (`/admin`)
+## ⚡ Dashboard Admin (`/admin`)
 
 Halaman khusus untuk manajemen infrastruktur akademik dan pengguna.
 
@@ -37,13 +37,13 @@ Halaman khusus untuk manajemen infrastruktur akademik dan pengguna.
     - **Tahun Akademik & Semester:** Mengatur periode aktif pembelajaran.
     - **Jurusan & Program Studi:** Manajemen hierarki institusi.
     - **Kelas Mahasiswa:** Pengorganisasian mahasiswa ke dalam grup kelas.
-- **Hierarki Akademik (Drill-down):** Navigasi visual dari Jurusan -> Prodi -> Semester -> Mata Kuliah.
+- **Hierarki Akademik (Drill-down):** Navigasi visual dari Jurusan → Prodi → Semester → Mata Kuliah.
 - **Manajemen Nilai Keseluruhan:** Memantau rekapitulasi nilai seluruh mahasiswa di semua mata kuliah.
 - **Debug Push Notification:** Alat teknis untuk menguji pengiriman notifikasi ke browser.
 
 ---
 
-## ðŸ‘¨â€ðŸ« Dashboard Dosen (`/dosen`)
+## 👨‍🏫 Dashboard Dosen (`/dosen`)
 
 Halaman untuk mengelola proses belajar mengajar.
 
@@ -59,11 +59,11 @@ Halaman untuk mengelola proses belajar mengajar.
     - Memberikan nilai dan feedback pada tugas atau kuis.
 - **Kelas Virtual (Conference):**
     - Penjadwalan sesi live conference.
-    - **Ruang Meeting:** Virtual room berbasis Jitsi JaaS (embed via JitsiMeetExternalAPI) untuk tatap muka daring.
+    - **Ruang Meeting:** Virtual room berbasis **Jitsi self-hosted** (dimuat via `external_api.js` dengan token JWT HS256) untuk tatap muka daring.
 
 ---
 
-## ðŸŽ“ Dashboard Mahasiswa (`/mahasiswa`)
+## 🎓 Dashboard Mahasiswa (`/mahasiswa`)
 
 Halaman untuk aktivitas pembelajaran mahasiswa.
 
@@ -81,8 +81,8 @@ Halaman untuk aktivitas pembelajaran mahasiswa.
 
 ---
 
-## ðŸ› ï¸ Fitur Teknis Tambahan
+## 🛠️ Fitur Teknis Tambahan
 
 - **Mode Gelap (Dark Mode):** Seluruh halaman mendukung optimasi visual untuk kenyamanan mata.
 - **Web Push Notifications:** Menerima pesan instan bahkan saat browser tidak membuka website.
-- **Jitsi JaaS Integration:** Engine video conference (8x8.vc) untuk kapasitas kelas besar.
+- **Integrasi Jitsi Self-Hosted:** Engine video conference yang di-host sendiri (lihat `JITSI_DOMAIN`) untuk kapasitas kelas besar; moderator ditentukan via klaim JWT.

@@ -1,5 +1,6 @@
 <?php
 
+// Uji ganti password dari halaman profil: sukses bila current_password benar, gagal bila salah.
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 

@@ -1,5 +1,6 @@
 <?php
 
+// Uji model Submission: accessor is_graded (null = belum dinilai) & relasi ke assignment/mahasiswa.
 use App\Models\Assignment;
 use App\Models\Course;
 use App\Models\Submission;

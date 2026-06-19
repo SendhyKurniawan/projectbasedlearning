@@ -1,3 +1,4 @@
+{{-- Halaman jadwal mahasiswa: linimasa konferensi & tenggat tugas per hari. --}}
 <x-app-layout>
     <div class="space-y-6">
         {{-- Header --}}

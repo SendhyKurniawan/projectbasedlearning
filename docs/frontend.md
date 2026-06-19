@@ -2,21 +2,21 @@
 
 ## Stack
 
-- **Blade** server-rendered templates — every page.
-- **Tailwind 3** for utilities, configured in `tailwind.config.js`. The design tokens live in `resources/css/design-system.css` and are referenced in classes through arbitrary properties or via the MD3 colour tokens (`bg-surface`, `text-on-surface`, etc.).
-- **Alpine 3** for client-side state — shipped automatically by Livewire 4 (`@livewireScripts`). `app.js` itself does **not** `import 'alpinejs'`.
-- **Livewire 4** for the single discussion component (and brings Alpine with it).
-- **CodeMirror 5** for the dosen exercise editor and the mahasiswa solve view.
-- **EasyMDE** for the markdown editor on dosen material create/edit.
-- **marked + highlight.js** for read-only markdown rendering on mahasiswa material view.
-- **Chart.js 4** for dashboards.
-- **Vite 7** as bundler / dev server, with `laravel-vite-plugin` and `fast-glob` for per-page CSS auto-discovery.
+- **Blade** template server-rendered — setiap halaman.
+- **Tailwind 3** untuk utilitas, dikonfigurasi di `tailwind.config.js`. Design token berada di `resources/css/design-system.css` dan dirujuk di kelas melalui arbitrary property atau via token warna MD3 (`bg-surface`, `text-on-surface`, dst.).
+- **Alpine 3** untuk state sisi klien — dikirim otomatis oleh Livewire 4 (`@livewireScripts`). `app.js` sendiri **tidak** `import 'alpinejs'`.
+- **Livewire 4** untuk satu komponen diskusi (sekaligus membawa Alpine).
+- **CodeMirror 5** untuk editor exercise dosen dan view pengerjaan mahasiswa.
+- **EasyMDE** untuk editor markdown di create/edit materi dosen.
+- **marked + highlight.js** untuk render markdown read-only di view materi mahasiswa.
+- **Chart.js 4** untuk dashboard.
+- **Vite 7** sebagai bundler / dev server, dengan `laravel-vite-plugin` dan `fast-glob` untuk auto-discovery CSS per-halaman.
 
-`package.json` versions to check before changing: `alpinejs ^3.4.2`, `tailwindcss ^3.1.0`, `vite ^7.0.7`, `chart.js ^4.4.0`, `codemirror ^5.65.20`, `easymde ^2.20.0`, `marked ^17.0.1`, `highlight.js ^11.11.1`.
+Versi `package.json` yang perlu dicek sebelum mengubah: `alpinejs ^3.4.2`, `tailwindcss ^3.1.0`, `vite ^7.0.7`, `chart.js ^4.4.0`, `codemirror ^5.65.20`, `easymde ^2.20.0`, `marked ^17.0.1`, `highlight.js ^11.11.1`.
 
 ---
 
-## Vite entry points (`vite.config.js`)
+## Entry point Vite (`vite.config.js`)
 
 ```js
 laravel({
@@ -34,108 +34,108 @@ laravel({
 });
 ```
 
-| File | When loaded | What it does |
+| Berkas | Kapan dimuat | Fungsinya |
 |---|---|---|
-| `resources/css/app.css` | every page (via layout `@vite`) | Tailwind layers + global utility overrides |
-| `resources/css/design-system.css` | every page | MD3-flavoured tokens (`--md-sys-color-*`) and typography scale |
-| `resources/css/pages/**/*.css` | per page | Auto-globbed page-specific styles; `@vite` them only on the views that need them |
-| `resources/js/app.js` | every page | Currently just `import './bootstrap';` (axios + CSRF header). Alpine arrives through `@livewireScripts`. |
-| `resources/js/code-editor.js` | dosen exercise create/edit, mahasiswa exercise solve | CodeMirror init keyed by `data-codemirror` |
-| `resources/js/markdown-editor.js` | dosen material create/edit | EasyMDE on `textarea[data-markdown-editor]` |
-| `resources/js/markdown-renderer.js` | mahasiswa material show | Renders Markdown via marked + highlight.js into elements that opt in |
-| `resources/js/charts.js` | dashboards (admin/dosen/mahasiswa) | Chart.js init reading MD3 tokens from `getComputedStyle(document.documentElement)` |
+| `resources/css/app.css` | setiap halaman (via `@vite` layout) | Layer Tailwind + override utilitas global |
+| `resources/css/design-system.css` | setiap halaman | Token rasa MD3 (`--md-sys-color-*`) dan skala tipografi |
+| `resources/css/pages/**/*.css` | per halaman | Style spesifik halaman yang di-glob otomatis; `@vite` hanya di view yang membutuhkannya |
+| `resources/js/app.js` | setiap halaman | Saat ini hanya `import './bootstrap';` (axios + header CSRF). Alpine tiba lewat `@livewireScripts`. |
+| `resources/js/code-editor.js` | create/edit exercise dosen, pengerjaan exercise mahasiswa | Init CodeMirror dikunci oleh `data-codemirror` |
+| `resources/js/markdown-editor.js` | create/edit materi dosen | EasyMDE pada `textarea[data-markdown-editor]` |
+| `resources/js/markdown-renderer.js` | show materi mahasiswa | Render Markdown via marked + highlight.js ke elemen yang ikut serta |
+| `resources/js/charts.js` | dashboard (admin/dosen/mahasiswa) | Init Chart.js membaca token MD3 dari `getComputedStyle(document.documentElement)` |
 
-There is **no** `conference-jitsi.js`. Conference rooms open Jitsi in a new tab via a plain `<a href="https://{JITSI_DOMAIN}/{room_name}?jwt={jwt}" target="_blank">` link — see [features/conferences.md](features/conferences.md).
+**Tidak ada** `conference-jitsi.js`. Ruang konferensi membuka Jitsi di tab baru via tautan biasa `<a href="https://{JITSI_DOMAIN}/{room_name}?jwt={jwt}" target="_blank">` — lihat [features/conferences.md](features/conferences.md).
 
 ---
 
-## Layouts
+## Layout
 
 ### `<x-app-layout>` (`resources/views/layouts/app.blade.php`)
 
-The authenticated shell.
+Kerangka untuk pengguna terautentikasi.
 
 ```blade
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="text-2xl font-bold">Page Title</h1>
+        <h1 class="text-2xl font-bold">Judul Halaman</h1>
     </x-slot>
 
-    {{-- page content here --}}
+    {{-- konten halaman di sini --}}
 </x-app-layout>
 ```
 
-What it includes:
+Yang disertakan:
 
-- HTML head with `@vite(['resources/css/app.css', 'resources/css/design-system.css', 'resources/js/app.js'])`, `@livewireStyles`, Inter/Manrope/Material Symbols font preloads.
-- A mobile sidebar toggle wrapped in `x-data="{ open: false }"` with a click-outside backdrop.
-- `@include('layouts.sidebar')` — sidebar is composed by `SidebarComposer`.
-- Optional `$header` slot rendered inside a sticky top bar; otherwise the bell floats top-right.
-- `@include('layouts.notifications')` — unread bell badge in the top bar.
-- Main content slot.
-- `@livewireScripts` (also brings Alpine).
-- Inline service-worker registration that subscribes the browser to WebPush via `/push-subscribe`. Uses `env('VAPID_PUBLIC_KEY')` (called directly in Blade — be aware this prevents `config:cache` from masking missing keys, but also means the front-end silently skips subscription if the env var is empty).
+- Head HTML dengan `@vite(['resources/css/app.css', 'resources/css/design-system.css', 'resources/js/app.js'])`, `@livewireStyles`, preload font Inter/Manrope/Material Symbols.
+- Toggle sidebar mobile dibungkus `x-data="{ open: false }"` dengan backdrop click-outside.
+- `@include('layouts.sidebar')` — sidebar disusun oleh `SidebarComposer`.
+- Slot `$header` opsional dirender di dalam top bar yang sticky; jika tidak, lonceng mengambang di kanan atas.
+- `@include('layouts.notifications')` — badge lonceng belum dibaca di top bar.
+- Slot konten utama.
+- `@livewireScripts` (juga membawa Alpine).
+- Registrasi service-worker inline yang men-subscribe browser ke WebPush via `/push-subscribe`. Memakai `env('VAPID_PUBLIC_KEY')` (dipanggil langsung di Blade — sadari ini mencegah `config:cache` menutupi kunci yang hilang, tetapi juga berarti front-end diam-diam melewati subscription bila env kosong).
 
 ### `<x-guest-layout>` (`resources/views/layouts/guest.blade.php`)
 
-Used for login, register, password reset, OTP verify, etc.
+Dipakai untuk login, register, reset password, verifikasi OTP, dll.
 
 ### `layouts/sidebar.blade.php`
 
-Composed by `App\Http\View\Composers\SidebarComposer` (registered in `AppServiceProvider::boot()`). Provides:
+Disusun oleh `App\Http\View\Composers\SidebarComposer` (didaftarkan di `AppServiceProvider::boot()`). Menyediakan:
 
-| Variable | For role | Notes |
+| Variabel | Untuk role | Catatan |
 |---|---|---|
-| `$dosenCourses` | dosen | `Cache::remember("sidebar:dosen:{user.id}", 300, …)` — eager-loads `studentClass`, ordered by `created_at desc` |
-| `$dosenCourseGroups` | dosen | `$dosenCourses->groupBy('course_group_key')` for collapsible matkul groups |
-| `$mahasiswaFirstCourse` | mahasiswa | The first enrolled course (raw DB query for speed) |
+| `$dosenCourses` | dosen | `Cache::remember("sidebar:dosen:{user.id}", 300, …)` — eager-load `studentClass`, diurut `created_at desc` |
+| `$dosenCourseGroups` | dosen | `$dosenCourses->groupBy('course_group_key')` untuk grup matkul yang dapat dilipat |
+| `$mahasiswaFirstCourse` | mahasiswa | Mata kuliah terdaftar pertama (query DB mentah demi kecepatan) |
 
-The cache key is flushed by `Course::booted()` on every create/update/delete.
+Kunci cache dibersihkan oleh `Course::booted()` setiap create/update/delete.
 
 ### `layouts/topbar.blade.php`, `layouts/notifications.blade.php`
 
-`topbar.blade.php` renders the page header band. `notifications.blade.php` renders the bell — unread count comes from `auth()->user()->unreadNotifications->count()` (database channel).
+`topbar.blade.php` merender pita header halaman. `notifications.blade.php` merender lonceng — jumlah belum dibaca dari `auth()->user()->unreadNotifications->count()` (channel database).
 
 ---
 
-## Alpine patterns
+## Pola Alpine
 
-Alpine is sprinkled inline on elements via `x-data` / `x-show` / `x-on` / `x-transition`. There is no global Alpine store; component state is scoped per `x-data` block.
+Alpine disisipkan inline pada elemen via `x-data` / `x-show` / `x-on` / `x-transition`. Tidak ada store Alpine global; state komponen berskop per blok `x-data`.
 
-Common patterns in the codebase:
+Pola umum dalam basis kode:
 
-- **Modals**: `x-data="{ open: false }"` + `@click.outside="open = false"` + transition classes (`<x-modal>`, `<x-copy-modal>`).
-- **Tab switching**: `x-data="{ tab: 'info' }"` on dashboard sections.
-- **Dynamic form fields**: toggling visibility based on selects (e.g. assignment type, submission format, group toggle).
-- **Quiz timer**: client-side countdown from `started_at` + `duration_minutes`, auto-submit on expiry.
-- **Inline confirm dialogs**: `@click="if (confirm('…')) { $refs.endForm.submit(); }"` — used for "Akhiri Sesi" in the conference room.
+- **Modal**: `x-data="{ open: false }"` + `@click.outside="open = false"` + kelas transisi (`<x-modal>`, `<x-copy-modal>`).
+- **Pergantian tab**: `x-data="{ tab: 'info' }"` pada bagian dashboard.
+- **Field form dinamis**: men-toggle visibilitas berdasarkan select (mis. tipe assignment, format pengumpulan, toggle kelompok).
+- **Timer kuis**: hitung mundur sisi klien dari `started_at` + `duration_minutes`, auto-submit saat habis.
+- **Dialog konfirmasi inline**: `@click="if (confirm('…')) { $refs.endForm.submit(); }"` — dipakai untuk "Akhiri Sesi" di ruang konferensi.
 
-Avoid adding global Alpine stores; if state needs to cross pages, push it server-side.
+Hindari menambah store Alpine global; bila state perlu melintasi halaman, dorong ke sisi server.
 
 ---
 
-## Reusable Blade components
+## Komponen Blade yang dapat dipakai ulang
 
 `resources/views/components/`:
 
-| Component | Purpose |
+| Komponen | Tujuan |
 |---|---|
-| `<x-app-layout>` | Authenticated shell (described above) |
-| `<x-guest-layout>` | Unauthenticated shell |
-| `<x-application-logo />` | SVG logo for the brand mark |
-| `<x-assignment-card :assignment="…" />` | Repeated assignment card used in lists |
-| `<x-auth-session-status :status="…" />` | Renders `session('status')` for auth flashes |
-| `<x-copy-modal :course :siblings :action />` | Alpine modal that POSTs `sibling_ids` to a copy endpoint |
-| `<x-danger-button>`, `<x-primary-button>`, `<x-secondary-button>` | Consistent button styling |
-| `<x-dropdown>`, `<x-dropdown-link>` | Alpine dropdown shell |
-| `<x-input-error :messages="…" />` | Validation error message under a field |
-| `<x-input-label :value="…" />` | Form label |
-| `<x-modal>` | Generic Alpine modal shell |
-| `<x-nav-link>`, `<x-responsive-nav-link>` | Sidebar / mobile navigation links |
-| `<x-text-input>` | Text input wrapper with standard Tailwind classes |
-| `<x-discussion.*>` | Components specific to the discussion module |
+| `<x-app-layout>` | Kerangka terautentikasi (dijelaskan di atas) |
+| `<x-guest-layout>` | Kerangka tak terautentikasi |
+| `<x-application-logo />` | Logo SVG untuk merek |
+| `<x-assignment-card :assignment="…" />` | Kartu tugas berulang yang dipakai di daftar |
+| `<x-auth-session-status :status="…" />` | Merender `session('status')` untuk flash auth |
+| `<x-copy-modal :course :siblings :action />` | Modal Alpine yang mem-POST `sibling_ids` ke endpoint copy |
+| `<x-danger-button>`, `<x-primary-button>`, `<x-secondary-button>` | Gaya tombol konsisten |
+| `<x-dropdown>`, `<x-dropdown-link>` | Kerangka dropdown Alpine |
+| `<x-input-error :messages="…" />` | Pesan error validasi di bawah field |
+| `<x-input-label :value="…" />` | Label form |
+| `<x-modal>` | Kerangka modal Alpine generik |
+| `<x-nav-link>`, `<x-responsive-nav-link>` | Tautan navigasi sidebar / mobile |
+| `<x-text-input>` | Pembungkus input teks dengan kelas Tailwind standar |
+| `<x-discussion.*>` | Komponen khusus modul diskusi |
 
-Use these for consistency. Plain `<button>` / `<input>` are fine for one-offs but the variants above wrap the standard `bg-primary text-on-primary` etc.
+Pakai ini demi konsistensi. `<button>` / `<input>` polos boleh untuk kasus sekali pakai, tetapi varian di atas membungkus standar `bg-primary text-on-primary` dll.
 
 ### `<x-copy-modal>`
 
@@ -147,56 +147,56 @@ Use these for consistency. Plain `<button>` / `<input>` are fine for one-offs bu
 />
 ```
 
-Renders a checkbox-per-sibling form; the action endpoint applies the security intersect server-side.
+Merender form checkbox-per-sibling; endpoint action menerapkan irisan keamanan di sisi server.
 
 ### `dosen/partials/sibling-kelas-picker.blade.php`
 
-`@include('dosen.partials.sibling-kelas-picker')` on the dosen Material / Assignment / Conference / Exercise **create** forms. It renders the same sibling checkboxes inline so the create handler can fan out at creation time. Different from `<x-copy-modal>` (which acts on an existing record).
+`@include('dosen.partials.sibling-kelas-picker')` pada form **create** Material / Assignment / Conference / Exercise dosen. Ia merender checkbox sibling yang sama secara inline sehingga handler create dapat fan-out saat pembuatan. Berbeda dengan `<x-copy-modal>` (yang beraksi pada record yang sudah ada).
 
 ---
 
-## Editors
+## Editor
 
 ### CodeMirror (`code-editor.js`)
 
-Used on:
-- Dosen exercise create/edit forms (starter code, solution code).
-- Mahasiswa exercise solve page.
+Dipakai pada:
+- Form create/edit exercise dosen (starter code, solution code).
+- Halaman pengerjaan exercise mahasiswa.
 
-Targets elements marked with `data-codemirror`, language is read from `data-language` (one of `html`, `css`, `javascript`, `htmlmixed`, `java`, `php`, `csharp`). For server-side languages (`java`, `php`, `csharp`), the Run button posts to `/execute-code`. For HTML/CSS/JS the preview happens in a client-side iframe.
+Menargetkan elemen bertanda `data-codemirror`, bahasa dibaca dari `data-language` (salah satu dari `html`, `css`, `javascript`, `htmlmixed`, `java`, `php`, `csharp`). Untuk bahasa server-side (`java`, `php`, `csharp`), tombol Run mem-POST ke `/execute-code`. Untuk HTML/CSS/JS preview terjadi di iframe sisi klien.
 
 ### EasyMDE (`markdown-editor.js`)
 
-Initialised on `textarea[data-markdown-editor]`. Output is the raw Markdown stored in `materials.content` — there is no server-side Markdown→HTML conversion at save time. HTML rendering happens at view time via `markdown-renderer.js`.
+Diinisialisasi pada `textarea[data-markdown-editor]`. Outputnya adalah Markdown mentah yang disimpan di `materials.content` — tidak ada konversi Markdown→HTML sisi server saat menyimpan. Render HTML terjadi saat view via `markdown-renderer.js`.
 
 ### `markdown-renderer.js`
 
-Read-only. Used on `mahasiswa.materials.show`. Reads markdown source from a data attribute and pipes it through `marked` + `highlight.js`.
+Read-only. Dipakai pada `mahasiswa.materials.show`. Membaca sumber markdown dari atribut data dan menyalurkannya melalui `marked` + `highlight.js`.
 
 ---
 
-## Charts
+## Chart
 
-`charts.js` initialises Chart.js on canvases with known IDs. Colours are pulled from CSS custom properties so charts stay in sync with the design system:
+`charts.js` menginisialisasi Chart.js pada canvas dengan ID yang dikenal. Warna ditarik dari CSS custom property agar chart tetap selaras dengan design system:
 
 ```js
 const styles = getComputedStyle(document.documentElement);
 const primary = styles.getPropertyValue('--md-sys-color-primary').trim();
 ```
 
-Datasets are passed from the controller via JSON-encoded `data-*` attributes (or via inline `<script>` blocks emitting `window.X = @json($payload)`).
+Dataset dilewatkan dari controller via atribut `data-*` JSON-encoded (atau via blok `<script>` inline yang memancarkan `window.X = @json($payload)`).
 
-Dashboard-specific series produced by controllers:
+Seri spesifik dashboard yang diproduksi controller:
 
-- **Admin dashboard** (`Admin\DashboardController`): 30-day activity series (`submissions`, `materials`), role distribution donut.
-- **Dosen dashboard** (`Dosen\DashboardController`): 7-day submission series, pending-review count.
-- **Mahasiswa dashboard** (`Mahasiswa\DashboardController`): 30-day own-submission series, score histogram (`0–50`, `51–70`, `71–85`, `86–100`).
+- **Dashboard admin** (`Admin\DashboardController`): seri aktivitas 30 hari (`submissions`, `materials`), donut distribusi role.
+- **Dashboard dosen** (`Dosen\DashboardController`): seri pengumpulan 7 hari, jumlah menunggu review.
+- **Dashboard mahasiswa** (`Mahasiswa\DashboardController`): seri pengumpulan sendiri 30 hari, histogram nilai (`0–50`, `51–70`, `71–85`, `86–100`).
 
 ---
 
 ## Design system
 
-`resources/css/design-system.css` exposes Material You-style tokens:
+`resources/css/design-system.css` mengekspos token bergaya Material You:
 
 ```css
 :root {
@@ -205,25 +205,25 @@ Dashboard-specific series produced by controllers:
   --md-sys-color-surface: …;
   --md-sys-color-on-surface: …;
   --md-sys-color-surface-container-lowest: …;
-  /* …shape, typography, motion */
+  /* …shape, tipografi, motion */
 }
 ```
 
-These map to Tailwind utility colours through `tailwind.config.js` (e.g. `bg-primary`, `text-on-surface-variant`, `bg-surface-container-lowest`). When changing colours, run:
+Ini dipetakan ke warna utilitas Tailwind via `tailwind.config.js` (mis. `bg-primary`, `text-on-surface-variant`, `bg-surface-container-lowest`). Saat mengubah warna, jalankan:
 
 ```bash
 npm run audit:contrast
 ```
 
-It executes `scripts/audit-contrast.mjs` to verify WCAG contrast ratios on the palette. CI/PR review uses this check.
+Ia mengeksekusi `scripts/audit-contrast.mjs` untuk memverifikasi rasio kontras WCAG pada palet. Review CI/PR memakai cek ini.
 
-Fonts: **Inter** (body, LCP-critical, loaded eagerly), **Manrope** (headings, deferred), **Material Symbols Outlined** (icon font, deferred). All three are pulled from Google Fonts via `<link rel="stylesheet">` in the layout — no self-hosting.
+Font: **Inter** (body, kritikal-LCP, dimuat segera), **Manrope** (heading, ditangguhkan), **Material Symbols Outlined** (font ikon, ditangguhkan). Ketiganya ditarik dari Google Fonts via `<link rel="stylesheet">` di layout — tanpa self-hosting.
 
 ---
 
-## Push notifications (front-end side)
+## Push notification (sisi front-end)
 
-The layout includes an inline service-worker bootstrap:
+Layout menyertakan bootstrap service-worker inline:
 
 ```js
 if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -242,16 +242,16 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
 }
 ```
 
-`/sw.js` is the service worker living in `public/`. `vapidPublicKey` is interpolated from `env('VAPID_PUBLIC_KEY')` directly in Blade — if the env var is empty the front-end skips subscription silently.
+`/sw.js` adalah service worker yang berada di `public/`. `vapidPublicKey` diinterpolasi dari `env('VAPID_PUBLIC_KEY')` langsung di Blade — bila env kosong front-end melewati subscription diam-diam.
 
-`POST /push-subscribe` and `POST /push-unsubscribe` go to `PushSubscriptionController`, which calls `User::updatePushSubscription()` / `User::deletePushSubscription()` from the `HasPushSubscriptions` trait.
+`POST /push-subscribe` dan `POST /push-unsubscribe` menuju `PushSubscriptionController`, yang memanggil `User::updatePushSubscription()` / `User::deletePushSubscription()` dari trait `HasPushSubscriptions`.
 
 ---
 
-## Where pages live
+## Lokasi halaman
 
 - Admin: `resources/views/admin/{akademik,announcements,auth,conferences,courses,dashboard,debug,departments,grades,study-programs,student-classes,semesters,users}/…`
 - Dosen: `resources/views/dosen/{assignments,conferences,courses,exercises,grades,materials,partials}/…`
 - Mahasiswa: `resources/views/mahasiswa/{conferences,courses,exercises,grades,materials,quizzes,schedule,submissions}/…`
-- Shared: `resources/views/{announcements,auth,discussions,notifications,profile,errors,layouts,livewire,components,vendor}/…`
-- Livewire view: `resources/views/livewire/discussion/show.blade.php`
+- Bersama: `resources/views/{announcements,auth,discussions,notifications,profile,errors,layouts,livewire,components,vendor}/…`
+- View Livewire: `resources/views/livewire/discussion/show.blade.php`

@@ -1,8 +1,9 @@
-// Read-only markdown renderer (no EasyMDE). Used on mahasiswa/materials/show.
+// Renderer markdown read-only (tanpa EasyMDE). Dipakai di halaman mahasiswa/materials/show.
 import { marked } from "marked";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 
+// Render string markdown jadi HTML dengan highlight code block (hljs).
 window.renderMarkdown = function (markdownText) {
     if (!markdownText) return "";
 
@@ -26,6 +27,7 @@ window.renderMarkdown = function (markdownText) {
     return marked.parse(markdownText);
 };
 
+// Render otomatis semua elemen ber-atribut [data-markdown] menjadi HTML.
 window.autoRenderMarkdown = function () {
     document.querySelectorAll("[data-markdown]").forEach(function (element) {
         const markdown = element.getAttribute("data-markdown");

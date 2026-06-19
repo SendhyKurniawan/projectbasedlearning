@@ -4,22 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Tambahkan kolom khusus exercise ke submissions: jawaban kode, hasil validasi (hint), & flag auto-grade.
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
         Schema::table('submissions', function (Blueprint $table) {
-            $table->text('code_answer')->nullable();
-            $table->json('validation_result')->nullable();
-            $table->boolean('auto_graded')->default(false);
+            $table->text('code_answer')->nullable();         // jawaban kode mahasiswa
+            $table->json('validation_result')->nullable();   // hasil validasi keyword (hint untuk dosen)
+            $table->boolean('auto_graded')->default(false);  // apakah dinilai otomatis (selalu false untuk exercise)
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Batalkan migrasi.
      */
     public function down(): void
     {

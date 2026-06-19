@@ -4,10 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Buat tabel study_programs (program studi) di bawah sebuah jurusan.
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
@@ -16,13 +17,13 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('code')->unique();
-            $table->enum('level', ['D3', 'D4', 'S1', 'S2', 'S3'])->default('D4');
+            $table->enum('level', ['D3', 'D4', 'S1', 'S2', 'S3'])->default('D4'); // jenjang prodi
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Batalkan migrasi.
      */
     public function down(): void
     {

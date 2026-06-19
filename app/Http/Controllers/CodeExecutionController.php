@@ -9,8 +9,11 @@ use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+// Controller proxy eksekusi kode: meneruskan kode dari klien ke Piston API di sisi server
+// (jangan dipanggil langsung dari frontend). Di-throttle 10/menit oleh route.
 class CodeExecutionController extends Controller
 {
+    // Jalankan kode lewat Piston. Bahasa dibatasi allowlist & dipetakan ke nama bahasa Piston.
     public function execute(Request $request): JsonResponse
     {
         $map = config('code_execution.piston_language_map', []);
@@ -31,6 +34,7 @@ class CodeExecutionController extends Controller
                 'files'    => [['content' => $validated['code']]],
             ]);
         } catch (ConnectionException | RequestException $e) {
+            // Gagal menghubungi Piston → kembalikan respons "layanan tidak tersedia".
             Log::warning('Piston request failed', ['error' => $e->getMessage()]);
             return $this->serviceUnavailable();
         }
@@ -52,6 +56,7 @@ class CodeExecutionController extends Controller
         ]);
     }
 
+    // Respons standar saat layanan eksekusi (Piston) tidak dapat diakses (HTTP 502).
     private function serviceUnavailable(): JsonResponse
     {
         return response()->json([

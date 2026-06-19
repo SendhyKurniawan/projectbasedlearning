@@ -9,10 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+// Controller login khusus portal admin (terpisah dari login umum).
 class LoginController extends Controller
 {
     /**
-     * Display the login view.
+     * Tampilkan halaman login admin.
      */
     public function create(): View
     {
@@ -20,7 +21,8 @@ class LoginController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Proses permintaan login admin. Setelah autentikasi & regenerasi sesi,
+     * tolak (logout paksa) bila user yang masuk ternyata bukan admin.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -28,6 +30,7 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        // Portal admin hanya untuk peran admin; selain itu langsung dikeluarkan.
         if (Auth::user()->role !== 'admin') {
             Auth::guard('web')->logout();
             $request->session()->invalidate();

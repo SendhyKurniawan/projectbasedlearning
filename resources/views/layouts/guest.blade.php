@@ -1,3 +1,5 @@
+{{-- Layout tamu (<x-guest-layout>): kerangka halaman publik/autentikasi (login, register, dll).
+     Kiri = panel branding (desktop), kanan = form ($slot). --}}
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
  <head>

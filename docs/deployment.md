@@ -1,41 +1,56 @@
 # Deployment
 
-## Production topology
+## Topologi produksi
 
 ```
 Browser
-  └── Caddy on host VM (TLS, Let's Encrypt, port 443)
-        ├── reverse_proxy 127.0.0.1:8000  → Nginx container → app:9000 (PHP-FPM)
-        └── reverse_proxy 127.0.0.1:8080  → Jitsi web container (self-hosted Jitsi)
+  └── kontainer pjbl-caddy (TLS, Let's Encrypt, port 80/443 + 443/udp HTTP/3)
+        ├── reverse_proxy pjbl-web:80   → kontainer Nginx → pjbl-app:9000 (PHP-FPM)
+        └── reverse_proxy jitsi-web:80  → kontainer web Jitsi (Jitsi self-hosted)
+
+  └── kontainer pjbl-coturn (host networking) → relay TURN UDP/TCP 3478 untuk NAT traversal Jitsi
+  └── kontainer jitsi-meet-jvb-1 → media UDP 10000 (langsung, bukan via Caddy)
 ```
 
-Caddy is installed directly on the GCP VM (`pjbl-vm` in project `pjbl-app-btgs6`, IP `34.50.107.24`) — see [ops/jitsi-self-host.md](ops/jitsi-self-host.md) for the full provisioning runbook. The app runs through `docker compose` with the services described below; Caddy proxies HTTPS to the internally-bound containers.
+Semuanya berjalan di VM GCP `pjbl-vm` (project `pjbl-app-btgs6`, zona `asia-southeast2-a`, IP `34.50.107.24`) — sebuah `e2-standard-4` (4 vCPU / 16 GB) di **Debian 12 (bookworm)**. Lihat [ops/jitsi-self-host.md](ops/jitsi-self-host.md) untuk runbook provisioning lengkap.
+
+**Caddy berjalan sebagai kontainer Docker** (`pjbl-caddy`, `caddy:2-alpine`), didefinisikan di `docker-compose.override.yml` dan bergabung ke `pjbl-network`. Ia menerminasi TLS dan mem-reverse-proxy **berdasarkan nama kontainer** (`pjbl-web:80`, `jitsi-web:80`) — bukan port host `127.0.0.1`. Port host `127.0.0.1:8000` (nginx aplikasi) dan `127.0.0.1:8080` (web jitsi) masih ada untuk debugging lokal, tetapi lalu lintas produksi mengalir sepenuhnya lewat jaringan docker. Caddy menyajikan tiga host:
+
+- `polimedia.pblworkspace.com` → `pjbl-web:80` (host aplikasi kanonik)
+- `meet.polimedia.pblworkspace.com` → `jitsi-web:80` (Jitsi)
+- `pbl.kurniawansendhy.site` → `pjbl-web:80` (host lama, dipertahankan demi kontinuitas)
+
+Jitsi adalah **proyek compose terpisah** (`~/jitsi-meet`, `jitsi/*:stable-9909`); kontainer `web`-nya bergabung ke `pjbl_pjbl-network` (external) aplikasi sehingga Caddy dapat me-resolve `jitsi-web` berdasarkan nama.
 
 ---
 
-## Docker services (`docker-compose.yml`)
+## Service Docker
 
-| Service | Image | Bound port | Purpose |
-|---|---|---|---|
-| `app` | `pjbl-app` (built from `Dockerfile`) | — | PHP-FPM application |
-| `web` | `nginx:alpine` | `127.0.0.1:8000:80` | Nginx — Caddy on host reverse-proxies to this |
-| `db` | `mysql:8.0` | internal only | MySQL 8 |
-| `phpmyadmin` | `phpmyadmin:latest` | `8081:80` | DB GUI |
-| `mailhog` | `mailhog/mailhog` | `8025:8025` | Mail catcher (dev only) |
-| `piston` | `ghcr.io/engineer-man/piston` | internal only | Code execution sandbox; `tmpfs` for `/piston/jobs`, persistent volume for `/piston/packages` |
+`docker-compose.yml` dasar mendefinisikan stack aplikasi; `docker-compose.override.yml` menambah `caddy` dan `coturn` (override inilah yang menjadikannya deployment produksi alih-alih stack dev polos).
 
-The `app` container mounts the project, plus named volumes for `vendor/`, `node_modules/`, and `public/build/` (see "Vite assets gotcha" below). The `web` container shares the project mount and the `app_build` volume.
+| Service | Kontainer | Image | Port terikat | Tujuan |
+|---|---|---|---|---|
+| `app` | `pjbl-app` | `pjbl-app` (di-build dari `Dockerfile`) | `9000` internal | Aplikasi PHP-FPM |
+| `web` | `pjbl-web` | `nginx:alpine` | `127.0.0.1:8000:80` | Nginx — Caddy mem-reverse-proxy ke `pjbl-web:80` |
+| `db` | `pjbl-db` | `mysql:8.0` | internal saja | MySQL 8 (healthcheck `mysqladmin ping`) |
+| `phpmyadmin` | `pjbl-phpmyadmin` | `phpmyadmin:latest` | `8081:80` | GUI DB |
+| `mailhog` | `pjbl-mailhog` | `mailhog/mailhog` | `8025:8025` | Penangkap mail (dev saja; prod pakai Resend) |
+| `piston` | `pjbl-piston` | `ghcr.io/engineer-man/piston` | internal saja | Sandbox eksekusi kode; `tmpfs` untuk `/piston/jobs`, volume persisten untuk `/piston/packages` |
+| `caddy` *(override)* | `pjbl-caddy` | `caddy:2-alpine` | `80:80`, `443:443`, `443:443/udp` | Terminasi TLS + reverse proxy (HTTP/3 aktif) |
+| `coturn` *(override)* | `pjbl-coturn` | `coturn/coturn:latest` | host networking, `3478` udp/tcp | Relay TURN/STUN untuk NAT traversal Jitsi |
+
+Kontainer `app` me-mount proyek, plus volume bernama untuk `vendor/`, `node_modules/`, dan `public/build/` (lihat "Gotcha aset Vite" di bawah). Kontainer `web` berbagi mount proyek dan volume `app_build`. Caddy memakai volume bernama **external** `pjbl_caddy_data` (sertifikat yang diterbitkan) dan `pjbl_caddy_config`. coturn membaca `~/coturn/turnserver.conf` (mount read-only) dan memakai `network_mode: host` agar rentang port relay-nya tidak terjebak di balik NAT Docker.
 
 ```bash
 docker compose up -d --build
 docker compose exec app php artisan migrate --seed
 ```
 
-Health: `db` has a `mysqladmin ping` healthcheck (interval 5s, 10 retries). `app` waits on `db: service_healthy` + `mailhog: service_started`.
+Kesehatan: `db` punya healthcheck `mysqladmin ping` (interval 5s, 10 retry). `app` menunggu `db: service_healthy` + `mailhog: service_started`.
 
-### Vite assets gotcha
+### Gotcha aset Vite
 
-The `app_build` volume is mounted at `/var/www/public/build` for both `app` and `web`. Once it's populated, **adding new entry points or rebuilding will go into the volume**, not be replaced. After deploying JS additions:
+Volume `app_build` di-mount di `/var/www/public/build` untuk `app` dan `web`. Setelah terisi, **menambah entry point baru atau rebuild akan masuk ke volume**, bukan menggantikannya. Setelah deploy penambahan JS:
 
 ```bash
 docker compose down
@@ -44,36 +59,51 @@ docker compose up -d
 docker compose exec app npm run build
 ```
 
-(Project-name prefix depends on compose project name; the running volume name is `pjbl_app_build` for the default project.)
+(Prefiks nama-proyek bergantung pada nama proyek compose; nama volume yang berjalan adalah `pjbl_app_build` untuk proyek default.)
 
 ---
 
-## Nginx config (`docker/nginx/conf.d/app.conf`)
+## Konfigurasi Nginx (`docker/nginx/conf.d/app.conf`)
 
-- Brotli + Gzip on for text assets.
-- Long cache headers on `/build/*` (Vite fingerprints) — `Cache-Control: immutable, max-age=31536000`.
-- FastCGI to `app:9000`.
-- `try_files $uri $uri/ /index.php?$query_string` for Laravel routing.
+- Brotli + Gzip aktif untuk aset teks.
+- Header cache panjang pada `/build/*` (fingerprint Vite) — `Cache-Control: immutable, max-age=31536000`.
+- FastCGI ke `app:9000`.
+- `try_files $uri $uri/ /index.php?$query_string` untuk routing Laravel.
 
 ---
 
-## Caddy config (`/etc/caddy/Caddyfile`)
+## Konfigurasi Caddy (`./Caddyfile`, di-mount ke `pjbl-caddy`)
+
+Caddyfile berada di samping `docker-compose.yml` dan di-bind-mount ke `/etc/caddy/Caddyfile` di dalam kontainer. Ia mem-proxy berdasarkan **nama kontainer** lewat jaringan docker:
 
 ```caddy
+pbl.kurniawansendhy.site {
+    encode gzip
+    reverse_proxy pjbl-web:80
+}
+
 polimedia.pblworkspace.com {
-    reverse_proxy 127.0.0.1:8000
+    encode gzip
+    reverse_proxy pjbl-web:80
 }
 
 meet.polimedia.pblworkspace.com {
-    reverse_proxy 127.0.0.1:8080
+    encode gzip
+    reverse_proxy jitsi-web:80
 }
 ```
 
-Caddy obtains/renews Let's Encrypt certs automatically. Reload with `sudo systemctl reload caddy`.
+Caddy memperoleh/memperbarui sertifikat Let's Encrypt otomatis (disimpan di volume `pjbl_caddy_data`). Reload setelah mengedit Caddyfile:
+
+```bash
+docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile
+# atau restart kontainer:
+docker compose restart caddy
+```
 
 ---
 
-## Production checklist
+## Checklist produksi
 
 ```bash
 # 1. Env
@@ -81,64 +111,67 @@ APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://polimedia.pblworkspace.com
 
-# 2. Fill required secrets (see env section below)
+# 2. Isi secret yang wajib (lihat bagian env di bawah)
 
-# 3. Migrate
+# 3. Migrasi
 php artisan migrate --force
 
-# 4. Cache everything
+# 4. Cache semuanya
 composer optimize         # config:cache + route:cache + view:cache + event:cache
 
-# 5. Build assets
+# 5. Build aset
 npm install
 npm run build
 
-# 6. Storage symlink (if not done)
+# 6. Symlink storage (bila belum)
 php artisan storage:link
 
-# 7. Queue worker as a supervised process (see Queue section)
+# 7. Queue: prod saat ini memakai QUEUE_CONNECTION=sync (tanpa worker). Hanya tambah
+#    worker tersupervisi bila beralih ke driver database (lihat bagian Queue).
 
-# 8. File permissions
+# 8. Izin berkas
 chmod -R 775 storage bootstrap/cache
 ```
 
-**`composer optimize` runs after every deploy.** Config-cache stale state will silently mask `.env` changes — bouncing the queue worker isn't enough; you need `php artisan config:clear` (or `composer optimize` which re-caches afresh) and a process restart.
+**`composer optimize` dijalankan setelah setiap deploy.** State config-cache yang basi akan diam-diam menutupi perubahan `.env` — memantulkan queue worker tidak cukup; Anda perlu `php artisan config:clear` (atau `composer optimize` yang meng-cache ulang segar) dan restart proses.
 
 ---
 
-## Environment variables (production)
+## Variabel lingkungan (produksi)
 
-See [getting-started.md](getting-started.md) for the full reference. Production-critical ones:
+Lihat [getting-started.md](getting-started.md) untuk referensi lengkap. Yang kritikal untuk produksi:
 
-| Variable | Required | Notes |
+| Variabel | Wajib | Catatan |
 |---|---|---|
-| `APP_KEY` | yes | `php artisan key:generate` |
-| `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://…` | yes | Wrong `APP_URL` will break absolute route URLs in mail/webpush. |
-| `SESSION_DOMAIN=polimedia.pblworkspace.com`, `SESSION_SECURE_COOKIE=true` | yes (TLS) | |
-| `DB_*` | yes | MySQL (or compatible) |
-| `QUEUE_CONNECTION` | recommend `database` for prod | default `.env.example` is `sync` |
-| `BROADCAST_CONNECTION=log` | leave alone | no Pusher/Reverb wired up |
-| `MAIL_*` | yes | swap from Mailhog to real SMTP / relay (see Mail) |
-| `JITSI_DOMAIN`, `JITSI_JWT_APP_ID`, `JITSI_JWT_APP_SECRET` | yes for conferences | `JitsiTokenService::mint()` throws if any is missing |
-| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | yes for push | `php artisan webpush:vapid` to generate |
-| `PISTON_URL`, `PISTON_TIMEOUT` | yes for exercise Run | default `http://piston:2000/api/v2` (uses bundled container) |
+| `APP_KEY` | ya | `php artisan key:generate` |
+| `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://…` | ya | `APP_URL` salah akan merusak URL route absolut di mail/webpush. |
+| `SESSION_DOMAIN=polimedia.pblworkspace.com`, `SESSION_SECURE_COOKIE=true` | ya (TLS) | |
+| `DB_*` | ya | MySQL (atau kompatibel) |
+| `QUEUE_CONNECTION` | `sync` (prod saat ini) | Notifikasi dispatch inline — tidak ada worker. Ganti ke `database` + worker tersupervisi hanya bila fan-out saat request (mis. umumkan-ke-semua) melambat. |
+| `BROADCAST_CONNECTION=log` | biarkan | tidak ada Pusher/Reverb terpasang |
+| `MAIL_*` | ya | ganti dari Mailhog ke SMTP / relay nyata (lihat Mail) |
+| `JITSI_DOMAIN`, `JITSI_JWT_APP_ID`, `JITSI_JWT_APP_SECRET` | ya untuk konferensi | `JitsiTokenService::mint()` melempar error bila ada yang hilang |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | ya untuk push | `php artisan webpush:vapid` untuk generate |
+| `PISTON_URL`, `PISTON_TIMEOUT` | ya untuk Run exercise | default `http://piston:2000/api/v2` (memakai kontainer bawaan) |
 
 ---
 
 ## Provisioning: Jitsi (self-hosted)
 
-Conference rooms run on a self-hosted Jitsi at `meet.polimedia.pblworkspace.com`, behind Caddy on the same VM. Full step-by-step (DNS, firewall, Caddy, `docker-jitsi-meet` install, JWT secret generation, end-to-end verification, rollback) is in [ops/jitsi-self-host.md](ops/jitsi-self-host.md).
+Ruang konferensi berjalan di Jitsi self-hosted di `meet.polimedia.pblworkspace.com`, di belakang Caddy berkontainer pada VM yang sama. Langkah lengkap (DNS, firewall, Caddy, instalasi `docker-jitsi-meet`, pembangkitan secret JWT, redirect SSO, verifikasi end-to-end, rollback) ada di [ops/jitsi-self-host.md](ops/jitsi-self-host.md).
 
-After Jitsi is running and you have the JWT secret from `~/jitsi-meet/.env`:
+NAT traversal untuk peserta di balik jaringan restriktif melewati server TURN mandiri **`pjbl-coturn`** (`coturn/coturn:latest`, host networking, `~/coturn/turnserver.conf`, port `3478` udp/tcp). `.env` Jitsi mengarahkan `TURN_HOST=meet.polimedia.pblworkspace.com` / `TURN_PORT=3478` ke sana. Media JVB tetap mengalir langsung lewat **UDP 10000** saat jaringan mengizinkan; coturn adalah relay cadangan.
+
+Setelah Jitsi berjalan dan Anda punya secret JWT dari `~/jitsi-meet/.env`:
 
 1. `JITSI_DOMAIN=meet.polimedia.pblworkspace.com`
-2. `JITSI_JWT_APP_ID=<JWT_APP_ID from Jitsi .env>` (e.g. `pjbl`)
-3. `JITSI_JWT_APP_SECRET=<JWT_APP_SECRET from Jitsi .env>` — 32-byte hex via `openssl rand -hex 32`. Never commit.
+2. `JITSI_JWT_APP_ID=<JWT_APP_ID dari .env Jitsi>` (mis. `pjbl`)
+3. `JITSI_JWT_APP_SECRET=<JWT_APP_SECRET dari .env Jitsi>` — hex 32-byte via `openssl rand -hex 32`. Jangan pernah di-commit.
 4. `php artisan config:clear && php artisan config:cache`
 
-`App\Services\JitsiTokenService::mint()` throws `RuntimeException('Jitsi JWT credentials not configured…')` if `JITSI_JWT_APP_ID` or `JITSI_JWT_APP_SECRET` is missing — surface that error in staging before prod or every conference room view will 500.
+`App\Services\JitsiTokenService::mint()` melempar `RuntimeException('Jitsi JWT credentials not configured…')` bila `JITSI_JWT_APP_ID` atau `JITSI_JWT_APP_SECRET` hilang — munculkan error itu di staging sebelum prod, atau setiap view ruang konferensi akan 500.
 
-JWT lifetime is 2 hours, signed HS256. Claims: `aud=iss=JITSI_JWT_APP_ID`, `sub=JITSI_DOMAIN`, `room=<conference.room_name>`, moderator flag inside `context.user.moderator` as a string (`'true'`/`'false'`).
+Masa berlaku JWT 2 jam, ditandatangani HS256. Klaim: `aud=iss=JITSI_JWT_APP_ID`, `sub=JITSI_DOMAIN`, `room=<conference.room_name>`, flag moderator di dalam `context.user.moderator` sebagai string (`'true'`/`'false'`).
 
 ---
 
@@ -148,7 +181,7 @@ JWT lifetime is 2 hours, signed HS256. Claims: `aud=iss=JITSI_JWT_APP_ID`, `sub=
 php artisan webpush:vapid
 ```
 
-Copy both keys into `.env`:
+Salin kedua kunci ke `.env`:
 
 ```env
 VAPID_PUBLIC_KEY=BB….
@@ -156,17 +189,19 @@ VAPID_PRIVATE_KEY=…
 VAPID_SUBJECT=mailto:admin@pblworkspace.com
 ```
 
-**Keys must be stable**. Rotating them invalidates every row in `push_subscriptions` — every browser re-subscribes on next page load anyway (the layout's inline service-worker bootstrap calls `pushManager.subscribe()` automatically), but in-flight notifications between rotation and re-subscribe will fail to deliver.
+**Kunci harus stabil**. Memutarnya membatalkan setiap baris di `push_subscriptions` — setiap browser akan re-subscribe pada load halaman berikutnya (bootstrap service-worker inline layout memanggil `pushManager.subscribe()` otomatis), tetapi notifikasi yang sedang dalam perjalanan antara rotasi dan re-subscribe akan gagal terkirim.
 
-`VAPID_PUBLIC_KEY` is read directly from `env()` inside `layouts/app.blade.php` — calling `php artisan config:cache` does **not** bake it into the cache for that template. Don't rely on `config:clear` to surface a missing key; it'll just be empty.
+`VAPID_PUBLIC_KEY` dibaca langsung dari `env()` di dalam `layouts/app.blade.php` — memanggil `php artisan config:cache` **tidak** membakukannya ke cache untuk template itu. Jangan andalkan `config:clear` untuk memunculkan kunci yang hilang; ia hanya akan kosong.
 
 ---
 
 ## Queue worker
 
-`composer dev` includes `php artisan queue:listen --tries=1 --timeout=0` for local — fine because `QUEUE_CONNECTION=sync` by default (notifications never enqueue).
+**Produksi saat ini memakai `QUEUE_CONNECTION=sync` tanpa proses worker** — setiap notifikasi dispatch inline di dalam request yang memicunya. Ini setup paling sederhana dan inilah yang ter-deploy sekarang (`composer dev` secara lokal juga membiarkan default `sync`, jadi `php artisan queue:listen` di runner dev adalah no-op untuk notifikasi).
 
-**In production**, set `QUEUE_CONNECTION=database` and run a supervised worker:
+Trade-off-nya: satu dispatch yang fan-out ke banyak penerima (mis. pengumuman ke semua mahasiswa) berjalan sinkron dan memperlambat request itu. Untuk ukuran kelas saat ini hal ini dapat diterima.
+
+**Bila nanti Anda beralih ke `QUEUE_CONNECTION=database`**, setiap notifikasi di `app/Notifications/` mengimplementasikan `ShouldQueue`, jadi Anda **harus** menjalankan worker tersupervisi atau **tidak ada notifikasi yang terkirim**:
 
 ```ini
 # /etc/supervisor/conf.d/pjbl-queue.conf
@@ -179,13 +214,13 @@ redirect_stderr=true
 stdout_logfile=/var/log/pjbl-queue.log
 ```
 
-`reload supervisorctl` then `supervisorctl restart pjbl-queue`. Every notification in `app/Notifications/` implements `ShouldQueue`, so a stopped worker means **no notifications get delivered** under `database` driver. If you want sync-only delivery, leave `QUEUE_CONNECTION=sync` and skip the worker entirely — the cost is slow request handlers when a single dispatch fans out to many recipients (e.g. an announcement to all mahasiswa).
+`reload supervisorctl` lalu `supervisorctl restart pjbl-queue`.
 
 ---
 
 ## Mail
 
-For production, switch from MailHog to real SMTP or a third-party relay (GCP blocks port 25, so direct outbound SMTP from the VM does not work — use a service like Resend, Brevo, Postmark, Mailgun, or SES):
+**Produksi memakai Resend** (`smtp.resend.com:587`). GCP memblokir port 25, jadi SMTP keluar langsung dari VM tidak berfungsi — relay pihak ketiga wajib (Resend, Brevo, Postmark, Mailgun, atau SES semua bisa). Config prod saat ini:
 
 ```env
 MAIL_MAILER=smtp
@@ -198,53 +233,53 @@ MAIL_FROM_ADDRESS=noreply@pblworkspace.com
 MAIL_FROM_NAME="PBL Workspace"
 ```
 
-Mail-channel notifications in this app: `OtpVerificationNotification`, `ResetPasswordNotification`. Both are `ShouldQueue`.
+Notifikasi channel-mail di aplikasi ini: `OtpVerificationNotification`, `ResetPasswordNotification`. Keduanya `ShouldQueue`.
 
 ---
 
-## File storage
+## Penyimpanan berkas
 
-`FILESYSTEM_DISK=local` by default. Uploaded content (material files, submissions, announcement attachments, course banners) is stored on the `public` disk under:
+`FILESYSTEM_DISK=local` secara default. Konten unggahan (berkas materi, pengumpulan, lampiran pengumuman, banner mata kuliah) disimpan pada disk `public` di bawah:
 
 - `storage/app/public/materials/…`
 - `storage/app/public/submissions/…`
 - `storage/app/public/announcements/…`
 
-`php artisan storage:link` creates `public/storage` → `storage/app/public`. Re-run after any deploy that wipes `public/`.
+`php artisan storage:link` membuat `public/storage` → `storage/app/public`. Jalankan ulang setelah deploy apa pun yang menghapus `public/`.
 
 ---
 
-## Backups
+## Cadangan (Backup)
 
-The repo doesn't ship a backup story. Minimal recommendation on the VM:
+Repo tidak menyertakan strategi backup. Rekomendasi minimal di VM:
 
 ```bash
-# Daily MySQL dump
+# Dump MySQL harian
 docker compose exec -T db mysqldump -uroot -p"$DB_ROOT_PASSWORD" pjbl > /backups/pjbl_$(date +%F).sql
 
-# Sync to GCS
+# Sinkronkan ke GCS
 gsutil rsync -r /backups gs://pjbl-backups/
 ```
 
-Also snapshot the VM disk through GCP Console after the Jitsi cutover (see [ops/jitsi-self-host.md](ops/jitsi-self-host.md) Step 5).
+Juga snapshot disk VM lewat GCP Console setelah cutover Jitsi (lihat [ops/jitsi-self-host.md](ops/jitsi-self-host.md) Langkah 5).
 
 ---
 
 ## Rollback
 
-- App revert: `git revert <sha>` on the deploy branch, then `composer optimize` and bounce PHP-FPM + queue worker.
-- Database: restore from the latest dump if a migration corrupts data. **Never** `php artisan migrate:rollback` blind in prod — read the `down()` method first.
-- Jitsi rollback to JaaS is no longer possible without re-introducing the removed code (JaaS support, the RSA key file at `storage/app/private/jaas-private-key.pk`, and the old env keys are gone — see the cleanup section of [ops/jitsi-self-host.md](ops/jitsi-self-host.md)). If you need to revert, bring up a managed conferencing provider and reintroduce its driver in `JitsiTokenService` (or a sibling service).
+- Revert aplikasi: `git revert <sha>` pada branch deploy, lalu `composer optimize` dan pantulkan PHP-FPM + queue worker.
+- Database: pulihkan dari dump terbaru bila sebuah migrasi merusak data. **Jangan pernah** `php artisan migrate:rollback` membabi buta di prod — baca method `down()` dulu.
+- Rollback Jitsi ke JaaS tidak lagi mungkin tanpa memperkenalkan kembali kode yang telah dihapus (dukungan JaaS, berkas kunci RSA di `storage/app/private/jaas-private-key.pk`, dan kunci env lama sudah tiada — lihat bagian cleanup di [ops/jitsi-self-host.md](ops/jitsi-self-host.md)). Bila perlu kembali, hadirkan penyedia konferensi terkelola dan perkenalkan kembali driver-nya di `JitsiTokenService` (atau service sejenis).
 
 ---
 
 ## Logging
 
-`LOG_CHANNEL=stack`, `LOG_STACK=single`, `LOG_LEVEL=debug` by default. In production, ratchet to `LOG_LEVEL=info` or `warning` and consider switching to `daily` for rotation:
+`LOG_CHANNEL=stack`, `LOG_STACK=single`, `LOG_LEVEL=debug` secara default. Di produksi, naikkan ke `LOG_LEVEL=info` atau `warning` dan pertimbangkan beralih ke `daily` untuk rotasi:
 
 ```env
 LOG_STACK=daily
 LOG_LEVEL=info
 ```
 
-Pail (`php artisan pail`) is included in `composer dev` for local log tailing.
+Pail (`php artisan pail`) disertakan di `composer dev` untuk tail log lokal.

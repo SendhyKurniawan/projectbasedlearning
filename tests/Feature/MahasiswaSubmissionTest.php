@@ -7,8 +7,11 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+// Uji alur pengumpulan tugas mahasiswa: form create, simpan berkas, larangan submit ganda/
+// tanpa enroll, serta hapus submission sendiri yang belum dinilai (graded tak bisa dihapus).
+
 // ----------------------------------------------------------------
-// Submission Create (GET)
+// Form pengumpulan (GET create)
 // ----------------------------------------------------------------
 
 test('mahasiswa can view submission create form for enrolled course', function () {
@@ -48,7 +51,7 @@ test('mahasiswa cannot submit to course they are not enrolled in', function () {
 });
 
 // ----------------------------------------------------------------
-// Submission Store (POST)
+// Simpan pengumpulan (POST store)
 // ----------------------------------------------------------------
 
 test('mahasiswa can store a file submission', function () {
@@ -107,7 +110,7 @@ test('mahasiswa cannot submit to the same assignment twice', function () {
 });
 
 // ----------------------------------------------------------------
-// Submission Delete
+// Hapus pengumpulan (delete)
 // ----------------------------------------------------------------
 
 test('mahasiswa can delete their own ungraded submission', function () {

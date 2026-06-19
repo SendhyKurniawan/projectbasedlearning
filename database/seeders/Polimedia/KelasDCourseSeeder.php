@@ -9,16 +9,16 @@ use App\Models\StudyProgram;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Backfills the 2 mata kuliah (sibling Course rows) + full content for every
- * kelas D across all terms, bringing kelas D to parity with the A/B/C classes
- * the main CourseContentSeeder builds. Reuses CourseContentSeeder::seedClassCourses
- * so the content recipe stays in one place.
+ * Melengkapi 2 mata kuliah (baris Course sibling) + konten lengkap untuk setiap
+ * kelas D di semua term, menyamakan kelas D dengan kelas A/B/C yang dibangun
+ * CourseContentSeeder utama. Memakai ulang CourseContentSeeder::seedClassCourses
+ * agar resep kontennya tetap di satu tempat.
  *
- * Idempotent: skips any kelas D that already has courses, and never touches
- * A/B/C. Does NOT create students or enrol anyone — kelas D stay empty of
- * enrolment until real users self-register (matching the live DB's current state).
+ * Idempoten: melewati kelas D yang sudah punya matkul, dan tidak menyentuh A/B/C.
+ * TIDAK membuat mahasiswa atau mendaftarkan siapa pun — kelas D tetap kosong dari
+ * enrollment sampai user nyata mendaftar sendiri (sesuai kondisi DB live saat ini).
  *
- * One-off, run manually (kelas D rows must already exist):
+ * Sekali pakai, dijalankan manual (baris kelas D harus sudah ada):
  *   php artisan db:seed --class="Database\Seeders\Polimedia\KelasDCourseSeeder" --force
  */
 class KelasDCourseSeeder extends CourseContentSeeder
@@ -48,13 +48,13 @@ class KelasDCourseSeeder extends CourseContentSeeder
                     if (! $class) {
                         $missing++;
 
-                        continue; // no kelas D for this prodi/term
+                        continue; // tidak ada kelas D untuk prodi/term ini
                     }
 
                     if (Course::where('student_class_id', $class->id)->exists()) {
                         $skipped++;
 
-                        continue; // already seeded — idempotent
+                        continue; // sudah pernah di-seed — idempoten
                     }
 
                     $created += $this->seedClassCourses($program, $semester, $class, false);

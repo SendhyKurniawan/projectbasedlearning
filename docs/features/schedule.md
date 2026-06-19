@@ -1,12 +1,12 @@
-# Mahasiswa Schedule
+# Jadwal Mahasiswa (Schedule)
 
-## Overview
+## Ringkasan
 
-`GET /mahasiswa/jadwal` → `mahasiswa.schedule.index` — a day-by-day timeline of upcoming conferences and assignment deadlines across every enrolled course.
+`GET /mahasiswa/jadwal` → `mahasiswa.schedule.index` — linimasa per-hari konferensi mendatang dan deadline tugas di seluruh mata kuliah yang diikuti.
 
 - **Controller**: `app/Http/Controllers/Mahasiswa/ScheduleController.php`
 - **View**: `resources/views/mahasiswa/schedule/index.blade.php`
-- **Route**: registered in `routes/web.php` under the `auth + role:mahasiswa` middleware group:
+- **Route**: didaftarkan di `routes/web.php` di bawah grup middleware `auth + role:mahasiswa`:
 
 ```php
 Route::get('/jadwal', [Mahasiswa\ScheduleController::class, 'index'])->name('schedule.index');
@@ -14,23 +14,23 @@ Route::get('/jadwal', [Mahasiswa\ScheduleController::class, 'index'])->name('sch
 
 ---
 
-## What it shows
+## Apa yang ditampilkan
 
-- **Conferences** with `status='live'` OR `scheduled_at >= today`.
-- **Assignments** with `deadline >= today` OR `deadline IS NULL` (null deadlines bucket under a special `'no-deadline'` key).
-- **Window**: the next 14 calendar days are always rendered, plus any later days that still have events.
+- **Konferensi** dengan `status='live'` ATAU `scheduled_at >= hari ini`.
+- **Tugas** dengan `deadline >= hari ini` ATAU `deadline IS NULL` (deadline null masuk ke kunci khusus `'no-deadline'`).
+- **Jendela**: 14 hari kalender berikutnya selalu dirender, plus hari-hari setelahnya yang masih punya event.
 
-There is no past view — once a conference ends or an assignment deadline passes, it falls off the schedule. Use `/mahasiswa/grades` or the course-show page to find historic items.
+Tidak ada tampilan lampau — begitu konferensi berakhir atau deadline tugas lewat, ia hilang dari jadwal. Pakai `/mahasiswa/grades` atau halaman course-show untuk menemukan item historis.
 
 ---
 
-## Data loading
+## Pemuatan data
 
 ```php
 $enrolledCourseIds = $mahasiswa->enrollments()->pluck('courses.id');
 ```
 
-This is the **convention exception**: the rest of the mahasiswa controllers use `DB::table('enrollments')->where(...)` raw queries (see [database.md](../database.md#enrollments)). `ScheduleController`, `SubmissionController`, and `DashboardController` use the Eloquent relation. If you rename a column in `enrollments`, grep for both patterns.
+Ini adalah **pengecualian konvensi**: sebagian besar controller mahasiswa memakai query mentah `DB::table('enrollments')->where(...)` (lihat [database.md](../database.md#enrollments)). `ScheduleController`, `SubmissionController`, dan `DashboardController` memakai relasi Eloquent. Bila Anda mengganti nama kolom di `enrollments`, grep kedua pola.
 
 ```php
 $conferences = Conference::whereIn('course_id', $enrolledCourseIds)
@@ -58,13 +58,13 @@ $submittedAssignmentIds = $assignments->isNotEmpty()
     : collect();
 ```
 
-`orderByRaw('deadline IS NULL, deadline ASC')` puts null-deadline assignments at the bottom of any non-grouped list.
+`orderByRaw('deadline IS NULL, deadline ASC')` menempatkan tugas berdeadline-null di bawah daftar non-grup.
 
-`$submittedAssignmentIds` is a flat collection of assignment IDs so the view can do a fast `.contains()` check per row.
+`$submittedAssignmentIds` adalah koleksi datar ID assignment agar view bisa melakukan cek `.contains()` cepat per baris.
 
 ---
 
-## Day-bucketing
+## Pengelompokan per hari
 
 ```php
 $conferencesByDate = $conferences->groupBy(
@@ -87,50 +87,50 @@ $extraDays = $conferencesByDate->keys()
 $days = $days->merge($extraDays);
 ```
 
-So the view iterates a single ordered list of date strings (`Y-m-d`), looking up `$conferencesByDate[$day]` and `$assignmentsByDate[$day]`. The `'no-deadline'` bucket is rendered as a separate panel below the day-by-day grid.
+Sehingga view mengiterasi satu daftar string tanggal terurut (`Y-m-d`), mencari `$conferencesByDate[$day]` dan `$assignmentsByDate[$day]`. Bucket `'no-deadline'` dirender sebagai panel terpisah di bawah grid per-hari.
 
 ---
 
-## View variables
+## Variabel view
 
-| Variable | Type | Contents |
+| Variabel | Tipe | Isi |
 |---|---|---|
-| `$days` | `Collection<string>` | ordered date strings (14-day window + extras with events) |
-| `$conferencesByDate` | `Collection<string, Collection<Conference>>` | keyed by `Y-m-d` |
-| `$assignmentsByDate` | `Collection<string, Collection<Assignment>>` | keyed by `Y-m-d`; null-deadline entries under key `'no-deadline'` |
-| `$submittedAssignmentIds` | `Collection<int>` | flat list for `.contains($id)` checks |
+| `$days` | `Collection<string>` | string tanggal terurut (jendela 14-hari + ekstra dengan event) |
+| `$conferencesByDate` | `Collection<string, Collection<Conference>>` | dikunci `Y-m-d` |
+| `$assignmentsByDate` | `Collection<string, Collection<Assignment>>` | dikunci `Y-m-d`; entri deadline-null di kunci `'no-deadline'` |
+| `$submittedAssignmentIds` | `Collection<int>` | daftar datar untuk cek `.contains($id)` |
 
 ---
 
-## Urgency colouring (rendered inline in the view)
+## Pewarnaan urgensi (dirender inline di view)
 
-The view computes per-assignment urgency from the time-to-deadline:
+View menghitung urgensi per-tugas dari waktu-ke-deadline:
 
-| Condition | Label | Colour |
+| Kondisi | Label | Warna |
 |---|---|---|
 | `now > deadline` | `lewat` | error |
-| `0 < hours_until < 48` | `urgent` | error |
-| `48 <= hours_until < 168` (7 days) | `soon` | tertiary |
-| `>= 168` | `ok` | neutral |
+| `0 < jam_tersisa < 48` | `urgent` | error |
+| `48 <= jam_tersisa < 168` (7 hari) | `soon` | tertiary |
+| `>= 168` | `ok` | netral |
 
-Submitted assignments (`$submittedAssignmentIds->contains($a->id)`) show a strikethrough title and a "Sudah Submit" badge regardless of urgency.
-
----
-
-## Conferences in the schedule
-
-Conferences listed include `live` and future scheduled. Mahasiswa cannot join a `scheduled` one — clicking "Gabung" only works once the dosen flips it to `live` via `Dosen\ConferenceController::start`. See [conferences.md](conferences.md).
-
-Each conference card links to `route('mahasiswa.conferences.room', $conference)` so the routing through the Jitsi launcher is consistent with the per-course conference list.
+Tugas yang sudah dikumpulkan (`$submittedAssignmentIds->contains($a->id)`) menampilkan judul dicoret dan badge "Sudah Submit" tanpa memandang urgensi.
 
 ---
 
-## Things this view does NOT include
+## Konferensi dalam jadwal
 
-- Quiz attempts already in progress (no `started_at` timestamps surfaced here).
-- Exercise solve sessions.
-- Discussion or announcement activity.
-- Past items (use the grade view).
-- Course-level reminders unrelated to a specific assignment/conference.
+Konferensi yang terdaftar mencakup `live` dan terjadwal masa depan. Mahasiswa tak bisa bergabung yang `scheduled` — mengklik "Gabung" hanya berfungsi setelah dosen membaliknya ke `live` via `Dosen\ConferenceController::start`. Lihat [conferences.md](conferences.md).
 
-If you add any of those, mirror the day-bucket pattern so the view stays a single iteration over `$days`.
+Tiap kartu konferensi menautkan ke `route('mahasiswa.conferences.room', $conference)` sehingga routing lewat peluncur Jitsi konsisten dengan daftar konferensi per-mata kuliah.
+
+---
+
+## Yang TIDAK disertakan view ini
+
+- Percobaan kuis yang sedang berlangsung (tidak ada timestamp `started_at` yang dimunculkan di sini).
+- Sesi pengerjaan exercise.
+- Aktivitas diskusi atau pengumuman.
+- Item lampau (pakai view nilai).
+- Pengingat tingkat-mata-kuliah yang tak terkait tugas/konferensi spesifik.
+
+Bila Anda menambah salah satunya, cerminkan pola bucket-hari agar view tetap satu iterasi atas `$days`.

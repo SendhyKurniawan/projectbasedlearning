@@ -1,5 +1,8 @@
 <?php
 
+// Konfigurasi Pest: mengikat kelas test case + trait ke tiap folder (Browser/Feature),
+// mendaftarkan expectation kustom, dan helper global.
+
 pest()->extend(Tests\DuskTestCase::class)
 //  ->use(Illuminate\Foundation\Testing\DatabaseMigrations::class)
     ->in('Browser');
@@ -10,8 +13,8 @@ pest()->extend(Tests\DuskTestCase::class)
 
 pest()->extend(Tests\DuskTestCase::class)
     ->beforeEach(function () {
-        // Seed only when DB is empty to avoid concurrent-seeder conflicts.
-        // Run `php artisan migrate:fresh --seeder=DuskSeeder` to force a fresh seed.
+        // Seed hanya saat DB kosong untuk menghindari konflik seeder paralel.
+        // Jalankan `php artisan migrate:fresh --seeder=DuskSeeder` untuk memaksa seed bersih.
         if (\App\Models\User::count() === 0) {
             $this->seed(\Database\Seeders\DuskSeeder::class);
         }
@@ -29,6 +32,7 @@ pest()->extend(Tests\DuskTestCase::class)
 |
 */
 
+// Test Feature memakai TestCase aplikasi + RefreshDatabase (reset DB tiap test).
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Feature');

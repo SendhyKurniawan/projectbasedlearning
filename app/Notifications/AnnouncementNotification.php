@@ -6,6 +6,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
+// Notifikasi adanya pengumuman baru untuk audiens sasaran. Disimpan ke database (in-app).
 class AnnouncementNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -21,6 +22,7 @@ class AnnouncementNotification extends Notification implements ShouldQueue
         $this->authorName = $authorName;
     }
 
+    // Kirim ke channel database (notifikasi in-app).
     public function via(object $notifiable): array
     {
         return ['database'];

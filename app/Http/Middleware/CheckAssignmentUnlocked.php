@@ -7,6 +7,8 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+// Middleware penjaga prasyarat tugas: blokir akses tugas bila materi prasyaratnya
+// belum dibaca mahasiswa (lihat Assignment::isUnlockedFor).
 class CheckAssignmentUnlocked
 {
     public function handle(Request $request, Closure $next): Response
@@ -14,6 +16,7 @@ class CheckAssignmentUnlocked
         $assignment = $request->route('assignment');
 
         if ($assignment instanceof Assignment) {
+            // Belum terbuka → kembalikan dengan pesan agar membaca materi prasyarat dulu.
             if (!$assignment->isUnlockedFor(auth()->id())) {
                 return redirect()
                     ->back()

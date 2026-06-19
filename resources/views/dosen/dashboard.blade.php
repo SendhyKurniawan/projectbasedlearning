@@ -1,3 +1,4 @@
+{{-- Halaman dashboard dosen: ringkasan matkul, statistik, grafik, & antrean koreksi. --}}
 @push('styles')
     @vite('resources/css/pages/dosen/dashboard.css')
 @endpush

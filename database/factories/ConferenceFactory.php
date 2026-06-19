@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
+// Factory pembuat data Conference palsu (default status 'scheduled').
 class ConferenceFactory extends Factory
 {
     protected $model = Conference::class;
@@ -25,6 +26,7 @@ class ConferenceFactory extends Factory
         ];
     }
 
+    // State: konferensi sedang berlangsung.
     public function live(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -32,6 +34,7 @@ class ConferenceFactory extends Factory
         ]);
     }
 
+    // State: konferensi sudah berakhir.
     public function ended(): static
     {
         return $this->state(fn (array $attributes) => [

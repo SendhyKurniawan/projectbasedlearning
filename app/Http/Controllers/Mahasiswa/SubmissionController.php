@@ -15,8 +15,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
+// Controller pengumpulan tugas oleh mahasiswa: CRUD submission, baik tugas individu
+// maupun kelompok (pembentukan kelompok + pengumpulan untuk semua anggota sekaligus).
 class SubmissionController extends Controller
 {
+    // Form pengumpulan. Untuk tugas kelompok: tampilkan kelompok yang ada atau kandidat anggota.
     public function create(Request $request)
     {
         $assignment_id = $request->query('assignment_id');
@@ -42,7 +45,7 @@ class SubmissionController extends Controller
                 ->first();
 
             if (!$existingGroup) {
-                // Pickable classmates exclude the user and anyone already in a group for this assignment.
+                // Kandidat anggota tidak termasuk diri sendiri & mahasiswa yang sudah masuk kelompok pada tugas ini.
                 $busyMahasiswaIds = GroupMember::whereHas('group', fn($q) => $q->where('assignment_id', $assignment->id))
                     ->pluck('mahasiswa_id')
                     ->toArray();
@@ -59,6 +62,8 @@ class SubmissionController extends Controller
         return view('mahasiswa.submissions.create', compact('assignment', 'existing', 'existingGroup', 'classmates'));
     }
 
+    // Simpan pengumpulan. Aturan validasi menyesuaikan format (file/url) & mode (individu/kelompok).
+    // Untuk kelompok: bentuk Group + GroupMember + satu Submission per anggota (dalam transaksi).
     public function store(Request $request)
     {
         $assignment = Assignment::findOrFail($request->assignment_id);
@@ -129,7 +134,7 @@ class SubmissionController extends Controller
                     ->with('error', 'Anda atau salah satu anggota sudah tergabung di kelompok lain untuk tugas ini.');
             }
 
-            // max_group_size includes the submitter.
+            // max_group_size sudah termasuk si pengumpul.
             if ($assignment->max_group_size && ($memberIds->count() + 1) > $assignment->max_group_size) {
                 return redirect()->back()->withInput()
                     ->with('error', 'Jumlah anggota melebihi batas maksimal kelompok.');
@@ -196,6 +201,8 @@ class SubmissionController extends Controller
             ->with('success', 'Tugas berhasil dikumpulkan!');
     }
 
+    // Form edit pengumpulan. Hanya pemilik; tugas yang sudah dinilai tidak boleh diubah;
+    // untuk kelompok hanya pembuat kelompok yang boleh mengedit.
     public function edit(Submission $submission)
     {
         if ($submission->mahasiswa_id !== auth()->id()) {
@@ -218,6 +225,7 @@ class SubmissionController extends Controller
         return view('mahasiswa.submissions.edit', compact('submission', 'assignment'));
     }
 
+    // Perbarui pengumpulan (ganti berkas/url/catatan). Untuk kelompok, perubahan disalin ke semua anggota.
     public function update(Request $request, Submission $submission)
     {
         if ($submission->mahasiswa_id !== auth()->id()) {
@@ -266,7 +274,7 @@ class SubmissionController extends Controller
         }
 
         if ($submission->group_id) {
-            // Mirror file/url/notes to every member's submission row.
+            // Salin berkas/url/catatan ke baris submission semua anggota kelompok.
             Submission::where('group_id', $submission->group_id)->update($data);
         } else {
             $submission->update($data);
@@ -276,6 +284,7 @@ class SubmissionController extends Controller
             ->with('success', 'Tugas berhasil diperbarui!');
     }
 
+    // Hapus pengumpulan (beserta berkasnya). Untuk kelompok, hapus seluruh data kelompok terkait.
     public function destroy(Submission $submission)
     {
         if ($submission->mahasiswa_id !== auth()->id()) {

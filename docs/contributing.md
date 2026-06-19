@@ -1,100 +1,100 @@
-# Contributing
+# Berkontribusi
 
-## Branch model
+## Model branch
 
-Branch off `main`. Use the `feat/`, `fix/`, `chore/`, `refactor/`, `docs/` prefixes followed by a short kebab description (e.g. `feat/quiz-timer-warning`, `fix/conference-end-redirect`). PRs target `main` directly. Squash-merge unless there's a reason not to.
-
----
-
-## Before committing
-
-```bash
-vendor/bin/pint       # PSR-12 + Laravel preset
-composer test         # Pest suite (config:clear → php artisan test)
-```
-
-Pint is non-negotiable — run it on every save, not just at PR time. CI will fail on a violation.
-
-For UI changes, also:
-
-```bash
-npm run audit:contrast   # if you touched design-system.css colours
-npm run build            # confirm Vite builds cleanly
-```
-
-Manual smoke-test the changed screens in a real browser before opening the PR. Type checks and tests verify code correctness, not feature correctness — if you can't manually test the UI, say so in the PR description.
+Buat branch dari `main`. Pakai prefiks `feat/`, `fix/`, `chore/`, `refactor/`, `docs/` diikuti deskripsi kebab singkat (mis. `feat/quiz-timer-warning`, `fix/conference-end-redirect`). PR menargetkan `main` langsung. Squash-merge kecuali ada alasan lain.
 
 ---
 
-## Code conventions
+## Sebelum commit
 
-### Validation — inline only
+```bash
+vendor/bin/pint       # PSR-12 + preset Laravel
+composer test         # suite Pest (config:clear → php artisan test)
+```
+
+Pint wajib — jalankan setiap save, bukan hanya saat PR. CI akan gagal pada pelanggaran.
+
+Untuk perubahan UI, juga:
+
+```bash
+npm run audit:contrast   # bila Anda menyentuh warna design-system.css
+npm run build            # pastikan Vite mem-build bersih
+```
+
+Lakukan smoke-test manual layar yang berubah di browser sungguhan sebelum membuka PR. Type check dan test memverifikasi kebenaran kode, bukan kebenaran fitur — bila Anda tak bisa menguji UI secara manual, sebutkan di deskripsi PR.
+
+---
+
+## Konvensi kode
+
+### Validasi — inline saja
 
 ```php
-// Correct — inline in controller
+// Benar — inline di controller
 $validated = $request->validate([
     'title' => 'required|string|max:255',
     'deadline' => 'required|date|after:now',
 ]);
 
-// Wrong — no FormRequest classes outside Breeze auth
-// The only existing ones are LoginRequest and ProfileUpdateRequest.
+// Salah — tidak ada kelas FormRequest di luar auth Breeze
+// Satu-satunya yang ada adalah LoginRequest dan ProfileUpdateRequest.
 class StoreAssignmentRequest extends FormRequest { ... }
 ```
 
-If the same validation block is duplicated across `store()` and `update()`, copy it. Don't extract a FormRequest just for DRY.
+Bila blok validasi yang sama terduplikasi antara `store()` dan `update()`, salin saja. Jangan ekstrak FormRequest hanya demi DRY.
 
-### Authorization — Policies, never Gates
+### Otorisasi — Policy, jangan pernah Gate
 
 ```php
-// Correct
+// Benar
 $this->authorize('update', $course);
 $this->authorize('view', $assignment);
 
-// Wrong
-if ($user->role !== 'dosen') abort(403);          // ad-hoc role check
-Gate::check('update-course', $course);            // Gate facade
+// Salah
+if ($user->role !== 'dosen') abort(403);          // cek role ad-hoc
+Gate::check('update-course', $course);            // facade Gate
 ```
 
-Existing policies: `CoursePolicy`, `AssignmentPolicy` (auto-discovered by Laravel's naming convention). If a new resource needs auth, add a policy class first.
+Policy yang ada: `CoursePolicy`, `AssignmentPolicy` (otomatis ditemukan oleh konvensi penamaan Laravel). Bila resource baru perlu auth, tambahkan kelas policy lebih dulu.
 
-For mahasiswa-side flows that need enrollment checks, do an explicit `DB::table('enrollments')->where(...)->exists()` inline — that's the current convention, not a policy. See [database.md](database.md) for the convention exception list.
+Untuk alur sisi mahasiswa yang perlu cek enrollment, lakukan `DB::table('enrollments')->where(...)->exists()` eksplisit inline — itu konvensi saat ini, bukan policy. Lihat [database.md](database.md) untuk daftar pengecualian konvensi.
 
-### Indonesian domain terms
+### Istilah domain Indonesia
 
-Keep these as-is in code, identifiers, and docs:
+Pertahankan apa adanya di kode, identifier, dan dokumen:
 
 `mata_kuliah`, `kode_matkul`, `nama_matkul`, `sks`, `nim`, `nip`, `dosen`, `mahasiswa`, `akademik`, `kelas`, `tugas`, `pilihan_ganda`, `essay`, `code_snippet`.
 
-They are domain terms, not typos. Do not rename them to English.
+Ini istilah domain, bukan typo. Jangan ganti ke bahasa Inggris.
 
-### Boolean form fields
+### Field form boolean
 
-HTML forms POST `"1"` and `"0"` as strings. The `boolean` validation rule accepts those plus actual booleans (and `null` when the field isn't submitted). Use it:
+Form HTML mem-POST `"1"` dan `"0"` sebagai string. Aturan validasi `boolean` menerima itu plus boolean asli (dan `null` saat field tidak dikirim). Pakai itu:
 
 ```php
 $request->validate([
     'is_group' => 'nullable|boolean',
 ]);
 
-// And cast in the model:
+// Dan cast di model:
 protected function casts(): array
 {
     return ['is_group' => 'boolean'];
 }
 ```
 
-Some older code uses `'nullable|in:0,1,true,false'` instead — both work; pick `boolean` for new code.
+Sebagian kode lama memakai `'nullable|in:0,1,true,false'` — keduanya berfungsi; pilih `boolean` untuk kode baru.
 
-### Don't add notifications without checking the queue setup
+### Jangan menambah notifikasi tanpa memeriksa setup queue
 
-Every notification class in `app/Notifications/` implements `ShouldQueue`. Under the default `.env.example` (`QUEUE_CONNECTION=sync`) they dispatch inline. In production (`QUEUE_CONNECTION=database`) they require a running queue worker. When adding a notification class, default to `ShouldQueue` to match the rest of the suite, and warn in the PR description if the new notification will fan out to many recipients (which makes the synchronous code path slow).
+Setiap kelas notifikasi di `app/Notifications/` mengimplementasikan `ShouldQueue`. Di bawah default `.env.example` (`QUEUE_CONNECTION=sync`) mereka dispatch inline. Di produksi (`QUEUE_CONNECTION=database`) mereka memerlukan queue worker yang berjalan. Saat menambah kelas notifikasi, default ke `ShouldQueue` agar selaras dengan sisanya, dan beri peringatan di deskripsi PR bila notifikasi baru akan fan-out ke banyak penerima (yang membuat jalur kode sinkron menjadi lambat).
 
 ---
 
-## Copy fan-out security (do not skip)
+## Keamanan copy fan-out (jangan dilewati)
 
-When a dosen copies content (Material, Assignment, Conference, Exercise) to sibling kelas — either at create time or via a copy endpoint — always intersect the submitted IDs with the course's actual siblings before acting:
+Saat dosen menyalin konten (Material, Assignment, Conference, Exercise) ke kelas sibling — baik saat create maupun via endpoint copy — selalu iriskan ID yang dikirim dengan sibling sesungguhnya milik mata kuliah sebelum beraksi:
 
 ```php
 $allowedSiblingIds = $course->siblings()->pluck('id');
@@ -108,86 +108,86 @@ if ($targetIds->isEmpty()) {
 
 $targetCourses = Course::whereIn('id', $targetIds)->get();
 foreach ($targetCourses as $sibling) {
-    // act on $sibling — never on raw $request->sibling_ids
+    // beraksi pada $sibling — jangan pernah pada $request->sibling_ids mentah
 }
 ```
 
-**Never skip this intersect.** Without it, a crafted POST with arbitrary `sibling_ids` would target other dosens' courses.
+**Jangan pernah melewati irisan ini.** Tanpanya, POST yang dibuat-buat dengan `sibling_ids` sembarang akan menargetkan mata kuliah dosen lain.
 
-Material file fan-out also physically copies the file with a unique suffix (`_kelas{id}` on create-fanout, `_kelas{id}_{time()}` on later copy) to avoid sharing a path. See `Dosen\MaterialController::store()` and `::copy()` for the exact pattern.
+Fan-out berkas materi juga menyalin berkas secara fisik dengan akhiran unik (`_kelas{id}` pada create-fanout, `_kelas{id}_{time()}` pada copy berikutnya) untuk menghindari berbagi path. Lihat `Dosen\MaterialController::store()` dan `::copy()` untuk pola persisnya.
 
-Quiz copies create a **shell** assignment with no questions. The success message tells the dosen to add questions to each copy separately. Don't change this — question sets often need kelas-specific tweaks.
-
----
-
-## Adding a new assignment type
-
-If you add a fourth `assignment.type` value alongside `tugas | quiz | exercise`:
-
-1. **Migration** — extend the enum: `Schema::table('assignments', fn ($t) => $t->enum('type', ['tugas','quiz','exercise','new'])->change())`. Use Laravel's `change()` (which requires `doctrine/dbal` in older Laravels; 12.x ships with native support).
-2. **`Assignment` model** — update the type PHPDoc and any helpers.
-3. **`Dosen\AssignmentController`** — extend the `store()` validation and the per-type branching. Decide whether the new type needs `submission_format`, `duration_minutes`, `is_group`, etc.
-4. **`Dosen\AssignmentController::copy()`** — make sure `$assignment->only([…])` includes any new columns.
-5. **View partials** — add partials under `resources/views/dosen/assignments/` for the type's form fields.
-6. **Mahasiswa submission flow** — add a route + controller. Decide whether `CheckAssignmentUnlocked` should gate it (it should — apply the `check.assignment.unlocked` middleware).
-7. **Sibling fan-out** — confirm `siblings()` and the security intersect still apply.
-8. **Seeder** — add at least one example in `AssignmentSeeder` so devs have test data.
+Copy kuis membuat assignment **cangkang** tanpa soal. Pesan sukses memberi tahu dosen untuk menambahkan soal ke tiap salinan secara terpisah. Jangan ubah ini — set soal sering perlu penyesuaian per kelas.
 
 ---
 
-## Adding enrollment logic
+## Menambah tipe assignment baru
 
-Mahasiswa enrollment uses `DB::table('enrollments')->where(...)` raw queries throughout `Mahasiswa\*` controllers (exceptions: `ScheduleController`, `SubmissionController`, `DashboardController` use the `User::enrollments()` relation). If you change the `enrollments` schema:
+Bila Anda menambah nilai keempat `assignment.type` di samping `tugas | quiz | exercise`:
+
+1. **Migrasi** — perluas enum: `Schema::table('assignments', fn ($t) => $t->enum('type', ['tugas','quiz','exercise','new'])->change())`. Pakai `change()` Laravel (yang memerlukan `doctrine/dbal` di Laravel lama; 12.x hadir dengan dukungan native).
+2. **Model `Assignment`** — perbarui PHPDoc tipe dan helper apa pun.
+3. **`Dosen\AssignmentController`** — perluas validasi `store()` dan percabangan per-tipe. Putuskan apakah tipe baru perlu `submission_format`, `duration_minutes`, `is_group`, dst.
+4. **`Dosen\AssignmentController::copy()`** — pastikan `$assignment->only([…])` menyertakan kolom baru.
+5. **Partial view** — tambahkan partial di bawah `resources/views/dosen/assignments/` untuk field form tipe tersebut.
+6. **Alur pengumpulan mahasiswa** — tambahkan route + controller. Putuskan apakah `CheckAssignmentUnlocked` harus menggerbangnya (seharusnya ya — terapkan middleware `check.assignment.unlocked`).
+7. **Fan-out sibling** — pastikan `siblings()` dan irisan keamanan tetap berlaku.
+8. **Seeder** — tambahkan minimal satu contoh di `AssignmentSeeder` agar dev punya data uji.
+
+---
+
+## Menambah logika enrollment
+
+Enrollment mahasiswa memakai query mentah `DB::table('enrollments')->where(...)` di seluruh controller `Mahasiswa\*` (pengecualian: `ScheduleController`, `SubmissionController`, `DashboardController` memakai relasi `User::enrollments()`). Bila Anda mengubah skema `enrollments`:
 
 ```bash
 grep -r "DB::table('enrollments'" app/
 grep -r "->enrollments()"          app/
-grep -r "->enrolledCourses()"      app/   # alias relation defined on User
+grep -r "->enrolledCourses()"      app/   # relasi alias yang didefinisikan di User
 ```
 
-Update every site.
+Perbarui setiap lokasi.
 
 ---
 
 ## Livewire vs. Blade
 
-There is one real Livewire component: `App\Livewire\Discussion\Show`. It exists so that comment posting can re-render the comment list without a full page reload — Alpine alone can't do that.
+Ada satu komponen Livewire nyata: `App\Livewire\Discussion\Show`. Ia ada agar pengiriman komentar dapat me-render ulang daftar komentar tanpa reload halaman penuh — Alpine saja tidak bisa.
 
-**Don't reach for Livewire for new features.** If you need:
+**Jangan langsung memakai Livewire untuk fitur baru.** Bila Anda butuh:
 
-- pure client-side interactivity → Alpine
-- server-side state with a redirect → plain Blade form + redirect
-- partial reactive re-render → only then consider Livewire
+- interaktivitas murni sisi klien → Alpine
+- state sisi server dengan redirect → form Blade biasa + redirect
+- render ulang reaktif parsial → baru pertimbangkan Livewire
 
-Livewire 4 has a [known quirk where `redirect()` to the same URL won't refresh Blade content outside the component](https://github.com/livewire/livewire/issues/…) — if you hit this, use `loadX()` to refresh in-component or `redirect(..., navigate: false)`.
+Livewire 4 punya kuirk yang diketahui: `redirect()` ke URL yang sama tidak akan menyegarkan konten Blade di luar komponen — bila menemui ini, pakai `loadX()` untuk menyegarkan dalam-komponen atau `redirect(..., navigate: false)`.
 
-Playwright + Livewire `wire:model` quirk: `.fill()` short-circuits the input event sequence and submits empty state. Use slow `.pressSequentially(text, { delay: 30 })` instead.
-
----
-
-## Working in this repo
-
-- Operate from `D:\Projects\pjbl\`. Ignore `.claude/worktrees/*`.
-- Don't use destructive git recovery (`git reset --hard`, `git checkout .`, `git clean -f`) to fix a broken state. Describe the situation and ask first.
-- Don't strip the Indonesian terms.
-- Commit messages use Conventional Commits-ish prefixes: `feat(area): …`, `fix(area): …`, `refactor(area): …`, `chore(area): …`, `docs(area): …`. See `git log` for examples.
-- Don't add `Co-Authored-By: Claude` or "🤖 Generated with Claude Code" lines to commits/PRs — strip them if they appear.
+Kuirk Playwright + Livewire `wire:model`: `.fill()` melompati urutan event input dan men-submit state kosong. Pakai pengetikan lambat `.pressSequentially(text, { delay: 30 })` sebagai gantinya.
 
 ---
 
-## PR description template
+## Bekerja di repo ini
+
+- Beroperasi dari `D:\Projects\pjbl\`. Abaikan `.claude/worktrees/*`.
+- Jangan pakai pemulihan git destruktif (`git reset --hard`, `git checkout .`, `git clean -f`) untuk memperbaiki keadaan rusak. Jelaskan situasinya dan tanya dulu.
+- Jangan menghapus istilah Indonesia.
+- Pesan commit memakai prefiks ala Conventional Commits: `feat(area): …`, `fix(area): …`, `refactor(area): …`, `chore(area): …`, `docs(area): …`. Lihat `git log` untuk contoh.
+- Jangan menambah baris `Co-Authored-By: Claude` atau "🤖 Generated with Claude Code" ke commit/PR — hapus bila muncul.
+
+---
+
+## Template deskripsi PR
 
 ```markdown
-## Summary
-- one-line description of what changed
-- second bullet for the why
-- third bullet for any noteworthy decision
+## Ringkasan
+- deskripsi satu baris tentang apa yang berubah
+- poin kedua untuk alasannya
+- poin ketiga untuk keputusan penting apa pun
 
-## Test plan
-- [ ] Pest passes (`composer test`)
-- [ ] Pint clean (`vendor/bin/pint --test`)
-- [ ] Manually walked through <feature> as <role>
-- [ ] (if env changes) `.env.example` updated
-- [ ] (if schema changes) `docs/database.md` updated
-- [ ] (if Vite entry added) note about removing `pjbl_app_build` volume on deploy
+## Rencana uji
+- [ ] Pest lolos (`composer test`)
+- [ ] Pint bersih (`vendor/bin/pint --test`)
+- [ ] Sudah menelusuri <fitur> secara manual sebagai <role>
+- [ ] (bila ada perubahan env) `.env.example` diperbarui
+- [ ] (bila ada perubahan skema) `docs/database.md` diperbarui
+- [ ] (bila ada entry Vite ditambahkan) catatan tentang menghapus volume `pjbl_app_build` saat deploy
 ```

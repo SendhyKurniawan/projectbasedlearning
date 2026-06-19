@@ -9,10 +9,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+// Controller sesi login umum (mahasiswa/dosen). Memblokir akun nonaktif dan mengarahkan
+// user ke dashboard sesuai perannya setelah login.
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Tampilkan halaman login.
      */
     public function create(): View
     {
@@ -20,7 +22,7 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Proses permintaan login.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -28,15 +30,15 @@ class AuthenticatedSessionController extends Controller
 
         $user = auth()->user();
 
-        // Block inactive accounts: distinguish OTP-pending (offer resend)
-        // from admin-approval-pending (dosen waiting).
+        // Blokir akun nonaktif: bedakan yang masih menunggu OTP (tawarkan kirim ulang)
+        // dari yang menunggu persetujuan admin (dosen).
         if (!$user->is_active) {
             Auth::guard('web')->logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
             if ($user->otp_verified_at === null) {
-                // Stash the user so they can land on /verify-otp and resend a code.
+                // Simpan user agar bisa mendarat di /verify-otp dan mengirim ulang kode.
                 $request->session()->put('otp_user_id', $user->id);
 
                 return redirect()->route('verification.otp')
@@ -49,6 +51,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // Tujuan setelah login ditentukan oleh peran user.
         $dashboard = match($user->role) {
             'admin'     => route('admin.dashboard'),
             'dosen'     => route('dosen.dashboard'),
@@ -60,7 +63,7 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Destroy an authenticated session.
+     * Akhiri sesi (logout) dan bersihkan token sesi.
      */
     public function destroy(Request $request): RedirectResponse
     {

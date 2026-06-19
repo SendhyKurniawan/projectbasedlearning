@@ -1,10 +1,11 @@
-// EasyMDE markdown editor + marked/hljs renderer.
+// Editor markdown EasyMDE + renderer marked/highlight.js (dipakai dosen saat menulis materi).
 import EasyMDE from "easymde";
 import "easymde/dist/easymde.min.css";
 import { marked } from "marked";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 
+// Ubah <textarea> menjadi editor markdown EasyMDE (toolbar + preview pakai renderMarkdown).
 window.initMarkdownEditor = function (elementId, options = {}) {
     const element = document.getElementById(elementId);
     if (!element) {
@@ -53,6 +54,7 @@ window.initMarkdownEditor = function (elementId, options = {}) {
     return editor;
 };
 
+// Render string markdown jadi HTML dengan syntax highlighting (hljs) untuk code block.
 window.renderMarkdown = function (markdownText) {
     if (!markdownText) return "";
 
@@ -76,6 +78,7 @@ window.renderMarkdown = function (markdownText) {
     return marked.parse(markdownText);
 };
 
+// Render otomatis semua elemen ber-atribut [data-markdown] menjadi HTML.
 window.autoRenderMarkdown = function () {
     document.querySelectorAll("[data-markdown]").forEach(function (element) {
         const markdown = element.getAttribute("data-markdown");

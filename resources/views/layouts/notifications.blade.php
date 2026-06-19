@@ -1,6 +1,9 @@
+{{-- Lonceng notifikasi (dropdown Alpine): badge jumlah belum dibaca + 10 notifikasi terbaru,
+     aksi tandai-dibaca per item / semua, dan tautan ke halaman semua notifikasi. --}}
 <div x-data="{ open: false }" class="relative z-50">
  <button @click="open = !open" class="text-on-surface-variant hover:text-on-surface focus:outline-none relative transition-colors duration-200 p-2 rounded-xl hover:bg-surface-container-low">
  <span class="material-symbols-outlined text-2xl">notifications</span>
+ {{-- Badge jumlah notifikasi belum dibaca (maks tampil "99+") --}}
  @if(auth()->user()->unreadNotifications->count() > 0)
  <span class="absolute top-0.5 right-0.5 inline-flex items-center justify-center min-w-[18px] px-1 py-0.5 text-[10px] font-bold leading-none text-white bg-error rounded-full">
  {{ auth()->user()->unreadNotifications->count() > 99 ? '99+' : auth()->user()->unreadNotifications->count() }}
@@ -27,6 +30,7 @@
  @endif
  </div>
  
+ {{-- Daftar 10 notifikasi terbaru; ikon disesuaikan dengan tipe notifikasi --}}
  <div class="max-h-[24rem] overflow-y-auto w-full">
  @forelse(auth()->user()->notifications()->take(10)->get() as $notification)
  <div class="p-4 border-b border-surface-container-low hover:bg-surface-bright transition-colors {{ $notification->unread() ? 'bg-primary/3' : '' }}">

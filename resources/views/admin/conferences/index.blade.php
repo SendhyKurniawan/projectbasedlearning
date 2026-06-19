@@ -1,3 +1,4 @@
+{{-- Halaman daftar konferensi (kelas virtual) (admin). --}}
 <x-app-layout>
     <div class="space-y-8">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">

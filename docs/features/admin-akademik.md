@@ -1,8 +1,8 @@
-# Admin — Akademik (unified hierarchy management)
+# Admin — Akademik (manajemen hierarki terpadu)
 
-## What it replaces
+## Apa yang digantikannya
 
-There used to be one CRUD per level (`/admin/academic-years`, `/admin/semesters`, `/admin/departments`, `/admin/study-programs`, `/admin/student-classes`) and a separate `/admin/hierarchy/…` drill-down. The `HierarchyController` has been **deleted** and the drill-down URLs now permanently redirect:
+Dulu ada satu CRUD per level (`/admin/academic-years`, `/admin/semesters`, `/admin/departments`, `/admin/study-programs`, `/admin/student-classes`) dan drill-down `/admin/hierarchy/…` terpisah. `HierarchyController` telah **dihapus** dan URL drill-down kini me-redirect permanen:
 
 ```php
 // routes/web.php
@@ -10,48 +10,48 @@ Route::get('/admin/hierarchy/{any?}', fn () => redirect()->route('admin.akademik
     ->where('any', '.*')->middleware(['auth', 'role:admin']);
 ```
 
-The unified replacement is `/admin/akademik`, served by `Admin\AkademikController`. The legacy per-level resource routes (`admin.academic-years.*`, `admin.semesters.*`, etc.) are still registered for back-compat — they continue to work for things like `Admin\AcademicYearController::index` rendering a flat list — but new admin work should go through `/admin/akademik`.
+Pengganti terpadunya adalah `/admin/akademik`, dilayani `Admin\AkademikController`. Route resource per-level lama (`admin.academic-years.*`, `admin.semesters.*`, dst.) masih terdaftar demi kompatibilitas mundur — masih berfungsi untuk hal seperti `Admin\AcademicYearController::index` yang merender daftar datar — tetapi pekerjaan admin baru sebaiknya lewat `/admin/akademik`.
 
 ---
 
-## Page structure
+## Struktur halaman
 
-`GET /admin/akademik` (`admin.akademik.index`) renders a single page with the whole hierarchy navigable via query-string selection:
+`GET /admin/akademik` (`admin.akademik.index`) merender satu halaman dengan seluruh hierarki yang dapat dinavigasi via seleksi query-string:
 
-| Query param | Meaning |
+| Param query | Arti |
 |---|---|
-| `?ay=<id>` | selected `AcademicYear` |
-| `?sem=<id>` | selected `Semester` (must belong to the selected ay) |
-| `?dep=<id>` | selected `Department` |
-| `?prog=<id>` | selected `StudyProgram` (must belong to selected dep) |
+| `?ay=<id>` | `AcademicYear` terpilih |
+| `?sem=<id>` | `Semester` terpilih (harus milik ay terpilih) |
+| `?dep=<id>` | `Department` terpilih |
+| `?prog=<id>` | `StudyProgram` terpilih (harus milik dep terpilih) |
 
-`index()` resolves these in order — if any of them is omitted, it picks "active first, then first" as a default. The resulting payload to the view:
+`index()` menyelesaikannya berurutan — bila salah satu diabaikan, ia memilih "aktif dulu, lalu pertama" sebagai default. Payload yang dihasilkan ke view:
 
-| Variable | Contents |
+| Variabel | Isi |
 |---|---|
-| `$academicYears` | all years with `semesters_count` |
-| `$selectedAy` | resolved by `?ay` or active or first |
-| `$semesters` | semesters of `$selectedAy`, ordered by `is_active DESC, name ASC` |
-| `$selectedSem` | resolved by `?sem` or active or first |
-| `$departments` | all departments with `study_programs_count` |
-| `$selectedDep` | resolved by `?dep` or first |
-| `$studyPrograms` | programs of `$selectedDep`, with `student_classes_count` |
-| `$selectedProg` | resolved by `?prog` or first |
-| `$classes` | kelas of `$selectedProg` + `$selectedSem`, with students eager-loaded |
-| `$semesterCourses` | courses with `semester_id=$selectedSem.id` AND `student_class_id IS NULL` (semester-wide courses) |
-| `$classCourses` | courses with `student_class_id IN $classes.ids` (per-kelas courses) |
-| `$dosens` | all `role=dosen` users (for course-create dropdown) |
-| `$availableStudents` | all `role=mahasiswa` users (for kelas-assign dropdown), only populated when a kelas is selected |
+| `$academicYears` | semua tahun dengan `semesters_count` |
+| `$selectedAy` | diresolusi oleh `?ay` atau aktif atau pertama |
+| `$semesters` | semester dari `$selectedAy`, diurut `is_active DESC, name ASC` |
+| `$selectedSem` | diresolusi oleh `?sem` atau aktif atau pertama |
+| `$departments` | semua jurusan dengan `study_programs_count` |
+| `$selectedDep` | diresolusi oleh `?dep` atau pertama |
+| `$studyPrograms` | prodi dari `$selectedDep`, dengan `student_classes_count` |
+| `$selectedProg` | diresolusi oleh `?prog` atau pertama |
+| `$classes` | kelas dari `$selectedProg` + `$selectedSem`, dengan mahasiswa di-eager-load |
+| `$semesterCourses` | mata kuliah dengan `semester_id=$selectedSem.id` DAN `student_class_id IS NULL` (matkul se-semester) |
+| `$classCourses` | mata kuliah dengan `student_class_id IN $classes.ids` (matkul per-kelas) |
+| `$dosens` | semua user `role=dosen` (untuk dropdown create matkul) |
+| `$availableStudents` | semua user `role=mahasiswa` (untuk dropdown assign kelas), hanya terisi saat sebuah kelas dipilih |
 
-The result is one page that can edit any level inline. Each mutation route below redirects back to `admin.akademik.index` with the relevant query params preserved so the post-action view stays scoped to the same selection.
+Hasilnya satu halaman yang dapat mengedit level mana pun secara inline. Tiap route mutasi di bawah redirect kembali ke `admin.akademik.index` dengan param query relevan dipertahankan agar view pasca-aksi tetap terskop ke seleksi yang sama.
 
 ---
 
-## Routes
+## Route
 
-All routes are under `Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')`.
+Semua route di bawah `Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')`.
 
-### Academic year
+### Tahun akademik
 
 ```
 POST   /admin/akademik/academic-years              akademik.academic-years.store
@@ -60,7 +60,7 @@ DELETE /admin/akademik/academic-years/{ay}         akademik.academic-years.destr
 PATCH  /admin/akademik/academic-years/{ay}/activate akademik.academic-years.activate
 ```
 
-Validation: `year_start` and `year_end` strings max 4, `is_active` boolean. Setting `is_active=true` deactivates every other AY in one bulk update. `activate` is a shortcut that does the same thing without re-validating other fields. `destroy` blocks if `semesters()->exists()`.
+Validasi: `year_start` dan `year_end` string max 4, `is_active` boolean. Menyetel `is_active=true` menonaktifkan setiap AY lain dalam satu bulk update. `activate` adalah pintasan yang melakukan hal sama tanpa memvalidasi ulang field lain. `destroy` memblokir bila `semesters()->exists()`.
 
 ### Semester
 
@@ -71,9 +71,9 @@ DELETE /admin/akademik/semesters/{sem}             akademik.semesters.destroy
 PATCH  /admin/akademik/semesters/{sem}/activate    akademik.semesters.activate
 ```
 
-Validation: `name` must be `Ganjil` or `Genap` (`Rule::in(['Ganjil','Genap'])`), `start_date` and `end_date` with `after:start_date`, `academic_year_id` must exist, `is_active` boolean. Like AY, `is_active=true` deactivates all other semesters. `destroy` blocks if any `courses()` OR `student_classes` reference the semester.
+Validasi: `name` harus `Ganjil` atau `Genap` (`Rule::in(['Ganjil','Genap'])`), `start_date` dan `end_date` dengan `after:start_date`, `academic_year_id` harus ada, `is_active` boolean. Seperti AY, `is_active=true` menonaktifkan semua semester lain. `destroy` memblokir bila ada `courses()` ATAU `student_classes` mereferensikan semester.
 
-### Department (Jurusan)
+### Jurusan (Department)
 
 ```
 POST   /admin/akademik/departments                 akademik.departments.store
@@ -81,9 +81,9 @@ PUT    /admin/akademik/departments/{dep}           akademik.departments.update
 DELETE /admin/akademik/departments/{dep}           akademik.departments.destroy
 ```
 
-Validation: `name` required, `code` unique on `departments.code` (ignoring self on update). `destroy` blocks if `studyPrograms()->exists()`.
+Validasi: `name` wajib, `code` unik pada `departments.code` (mengabaikan diri sendiri saat update). `destroy` memblokir bila `studyPrograms()->exists()`.
 
-### Study program (Prodi)
+### Program studi (Prodi)
 
 ```
 POST   /admin/akademik/study-programs              akademik.study-programs.store
@@ -91,9 +91,9 @@ PUT    /admin/akademik/study-programs/{prog}       akademik.study-programs.updat
 DELETE /admin/akademik/study-programs/{prog}       akademik.study-programs.destroy
 ```
 
-Validation: `department_id` exists, `name` required, `code` unique on `study_programs.code` (ignore self), `level` in `D3|D4|S1|S2|S3`. `destroy` blocks if `studentClasses()->exists()`.
+Validasi: `department_id` ada, `name` wajib, `code` unik pada `study_programs.code` (abaikan diri sendiri), `level` di `D3|D4|S1|S2|S3`. `destroy` memblokir bila `studentClasses()->exists()`.
 
-### Student class (Kelas)
+### Kelas (Student class)
 
 ```
 POST   /admin/akademik/classes                                       akademik.classes.store
@@ -103,7 +103,7 @@ POST   /admin/akademik/classes/{kelas}/students                      akademik.cl
 DELETE /admin/akademik/classes/{kelas}/students/{user}               akademik.classes.unassign-student
 ```
 
-Validation: `study_program_id`, `semester_id`, `name`. `destroy` blocks if `students()` OR `courses()` reference the kelas.
+Validasi: `study_program_id`, `semester_id`, `name`. `destroy` memblokir bila `students()` ATAU `courses()` mereferensikan kelas.
 
 `assignStudents`:
 
@@ -113,7 +113,7 @@ $request->validate([
     'student_ids.*' => 'exists:users,id',
 ]);
 
-// Filter: only users with role=mahasiswa actually move
+// Filter: hanya user dengan role=mahasiswa yang benar-benar dipindah
 $users = User::whereIn('id', $request->student_ids)->where('role', 'mahasiswa')->get();
 
 if ($users->count() !== count($request->student_ids)) {
@@ -124,21 +124,21 @@ User::whereIn('id', $users->pluck('id'))
     ->update(['student_class_id' => $studentClass->id]);
 ```
 
-Note this bulk update **moves** the mahasiswa to the kelas (changing `users.student_class_id`), not just adds an enrollment. A mahasiswa has exactly one home kelas.
+Perhatikan bulk update ini **memindah** mahasiswa ke kelas (mengubah `users.student_class_id`), bukan sekadar menambah enrollment. Seorang mahasiswa punya tepat satu kelas asal.
 
-`unassignStudent` sets `user.student_class_id = null`. The 404-guard checks `$user->student_class_id === $studentClass->id` first.
+`unassignStudent` menyetel `user.student_class_id = null`. Penjaga 404 mengecek `$user->student_class_id === $studentClass->id` dulu.
 
-### Course (Mata Kuliah)
+### Mata kuliah (Course)
 
 ```
 POST   /admin/akademik/courses              akademik.courses.store
 DELETE /admin/akademik/courses/{course}     akademik.courses.destroy
 ```
 
-Course CRUD here only covers create + delete; full editing happens via `admin.courses.*` (legacy resource at `/admin/courses`). The store handler accepts a `scope` field:
+CRUD mata kuliah di sini hanya mencakup create + delete; pengeditan penuh terjadi via `admin.courses.*` (resource lama di `/admin/courses`). Handler store menerima field `scope`:
 
-- `scope=semester` — `student_class_id` is forced to null (semester-wide course; mahasiswa from any kelas in that semester can enroll)
-- `scope=class` — `student_class_id` is taken from the request
+- `scope=semester` — `student_class_id` dipaksa null (matkul se-semester; mahasiswa dari kelas mana pun di semester itu bisa enroll)
+- `scope=class` — `student_class_id` diambil dari request
 
 ```php
 $exists = Course::where('kode_matkul', $kodeMatkul)
@@ -153,33 +153,33 @@ $exists = Course::where('kode_matkul', $kodeMatkul)
     })->exists();
 ```
 
-The uniqueness check here is application-level rather than DB-level — it covers the four-column composite (incl. `dosen_id`), while the DB `courses_code_semester_class_unique` index only covers `(kode_matkul, semester_id, student_class_id)`. Two dosen can theoretically register the same course shape; the controller blocks that with the explicit check.
+Cek keunikan di sini di tingkat aplikasi, bukan tingkat-DB — ia mencakup komposit empat-kolom (termasuk `dosen_id`), sementara indeks DB `courses_code_semester_class_unique` hanya mencakup `(kode_matkul, semester_id, student_class_id)`. Secara teoretis dua dosen bisa mendaftarkan bentuk mata kuliah yang sama; controller memblokirnya dengan cek eksplisit ini.
 
-`destroy` blocks if the course has materials, assignments, or enrolled students — listing which to the operator.
+`destroy` memblokir bila mata kuliah punya materi, tugas, atau mahasiswa terdaftar — menampilkan yang mana ke operator.
 
 ---
 
-## Legacy admin routes (kept for back-compat)
+## Route admin lama (dipertahankan demi kompatibilitas mundur)
 
-These still exist under `Route::middleware(['auth', 'role:admin'])`:
+Ini masih ada di bawah `Route::middleware(['auth', 'role:admin'])`:
 
-| Resource | Controller | Notes |
+| Resource | Controller | Catatan |
 |---|---|---|
-| `admin.academic-years.*` | `Admin\AcademicYearController` | Used to drive a flat AY list page |
-| `admin.semesters.*` | `Admin\SemesterController` | flat list |
-| `admin.departments.*` | `Admin\DepartmentController` | flat list |
-| `admin.study-programs.*` | `Admin\StudyProgramController` | flat list |
-| `admin.student-classes.*` | `Admin\StudentClassController` | flat list |
-| `admin.courses.*` | `Admin\CourseController` | full CRUD + enroll/unenroll endpoints |
-| `admin.users.*` | `Admin\UserController` | full CRUD + `toggleActive`, `bulkDestroy` |
+| `admin.academic-years.*` | `Admin\AcademicYearController` | Dipakai menggerakkan halaman daftar AY datar |
+| `admin.semesters.*` | `Admin\SemesterController` | daftar datar |
+| `admin.departments.*` | `Admin\DepartmentController` | daftar datar |
+| `admin.study-programs.*` | `Admin\StudyProgramController` | daftar datar |
+| `admin.student-classes.*` | `Admin\StudentClassController` | daftar datar |
+| `admin.courses.*` | `Admin\CourseController` | CRUD penuh + endpoint enroll/unenroll |
+| `admin.users.*` | `Admin\UserController` | CRUD penuh + `toggleActive`, `bulkDestroy` |
 
-These exist mainly for direct admin URLs the unified akademik page doesn't yet cover (full course edit, user management). They use the same `Rule::unique` composite for the `courses` table.
+Ini ada terutama untuk URL admin langsung yang belum dicakup halaman akademik terpadu (edit mata kuliah penuh, manajemen user). Mereka memakai komposit `Rule::unique` yang sama untuk tabel `courses`.
 
 ---
 
-## Admin users
+## User admin
 
-`Admin\UserController` (`/admin/users`) is a separate CRUD:
+`Admin\UserController` (`/admin/users`) adalah CRUD terpisah:
 
 ```
 GET    /admin/users                            admin.users.index
@@ -192,11 +192,11 @@ DELETE /admin/users/bulk-destroy               admin.users.bulk-destroy
 PATCH  /admin/users/{user}/toggle-active       admin.users.toggle-active
 ```
 
-Filters on index: `?search=` (matches `name`/`email`/`nim`/`nip`), `?role=`, `?status=active|inactive` (mapped to `is_active=true|false`). Pagination 15/page.
+Filter di index: `?search=` (mencocokkan `name`/`email`/`nim`/`nip`), `?role=`, `?status=active|inactive` (dipetakan ke `is_active=true|false`). Paginasi 15/halaman.
 
-The index counts pending dosen (`role=dosen && is_active=false`) for the activation queue badge. `toggleActive` is the action that flips `is_active` for a registered dosen waiting on admin approval — see [auth-roles.md](../auth-roles.md#admin-approval).
+Index menghitung dosen yang menunggu (`role=dosen && is_active=false`) untuk badge antrean aktivasi. `toggleActive` adalah aksi yang membalik `is_active` untuk dosen terdaftar yang menunggu persetujuan admin — lihat [auth-roles.md](../auth-roles.md#persetujuan-admin).
 
-Validation in `store`:
+Validasi di `store`:
 
 ```php
 $validated = $request->validate([
@@ -210,19 +210,19 @@ $validated = $request->validate([
 ]);
 
 $validated['password']  = Hash::make($validated['password']);
-$validated['is_active'] = true;  // admin-created users are active immediately, no OTP
+$validated['is_active'] = true;  // user yang dibuat admin langsung aktif, tanpa OTP
 ```
 
-`update` allows changing role and class; the password is hashed only if provided. `is_active` toggles via checkbox.
+`update` mengizinkan mengubah role dan kelas; password di-hash hanya bila diberikan. `is_active` di-toggle via checkbox.
 
 ---
 
-## Admin push debug
+## Debug push admin
 
-`/admin/debug/push` — see [notifications.md](notifications.md#admin-debug--manual-push).
+`/admin/debug/push` — lihat [notifications.md](notifications.md#debug-admin--push-manual).
 
 ---
 
-## Admin conference observer
+## Pengamat konferensi admin
 
-`/admin/conferences/*` — see [conferences.md](conferences.md#admin-adminconferencecontroller).
+`/admin/conferences/*` — lihat [conferences.md](conferences.md#admin-adminconferencecontroller).

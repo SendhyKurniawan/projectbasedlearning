@@ -1,33 +1,33 @@
-# Conferences
+# Konferensi (Conferences)
 
-## The model
+## Modelnya
 
-`Conference` belongs to a `Course` and to a creating `dosen` (User). Columns:
+`Conference` milik sebuah `Course` dan dosen pembuat (User). Kolom:
 
-| Column | Notes |
+| Kolom | Catatan |
 |---|---|
 | `id` | PK |
 | `course_id` | FK courses cascade |
-| `dosen_id` | FK users cascade — who created/owns the session |
+| `dosen_id` | FK users cascade — yang membuat/memiliki sesi |
 | `title` | string |
 | `description` | text nullable |
-| `room_name` | string **unique** — used as the Jitsi room identifier |
+| `room_name` | string **unik** — dipakai sebagai identifier ruang Jitsi |
 | `scheduled_at` | datetime |
 | `ended_at` | datetime nullable |
 | `status` | enum `scheduled\|live\|ended`, default `scheduled` |
 | timestamps | |
 
-`room_name` is generated as `room-{course_id}-{Str::uuid()}` at create time, which keeps the global unique constraint satisfied even across courses.
+`room_name` dibangkitkan sebagai `room-{course_id}-{Str::uuid()}` saat create, sehingga constraint unik global tetap terpenuhi bahkan lintas mata kuliah.
 
-Status values are exactly `scheduled`, `live`, `ended`. There is no `ongoing`. `Conference::isLive()` and `Conference::isEnded()` are helpers.
+Nilai status persis `scheduled`, `live`, `ended`. Tidak ada `ongoing`. `Conference::isLive()` dan `Conference::isEnded()` adalah helper.
 
 ---
 
-## Conferencing stack — self-hosted Jitsi via HS256 JWT
+## Stack konferensi — Jitsi self-hosted via JWT HS256
 
-There is no LiveKit, no Jitsi-as-a-Service (JaaS), no embedded iframe. Conferences point at a self-hosted Jitsi at `JITSI_DOMAIN` and use HS256-signed JWTs minted by `App\Services\JitsiTokenService::mint()`. The room view renders a button that opens `https://{JITSI_DOMAIN}/{room_name}?jwt={jwt}` in a new tab. The browser hands the JWT to Jitsi over the standard `?jwt=` query param.
+Tidak ada LiveKit, tidak ada Jitsi-as-a-Service (JaaS), tidak ada iframe tertanam. Konferensi mengarah ke Jitsi self-hosted di `JITSI_DOMAIN` dan memakai JWT bertanda HS256 yang di-mint oleh `App\Services\JitsiTokenService::mint()`. View ruang merender tombol yang membuka `https://{JITSI_DOMAIN}/{room_name}?jwt={jwt}` di tab baru. Browser menyerahkan JWT ke Jitsi lewat query param standar `?jwt=`.
 
-This is the result of a recent migration from JaaS (RSA / 8x8.vc / tenant-prefixed rooms) to self-hosted (HS256 / direct domain). See the commit history (`db5378a refactor(conferences): drop iframe, use standalone Jitsi tab launcher`, `099a07e refactor(conferences): migrate from Jitsi JaaS to self-hosted (HS256 JWT)`).
+Ini hasil migrasi terbaru dari JaaS (RSA / 8x8.vc / ruang ber-prefiks tenant) ke self-hosted (HS256 / domain langsung). Lihat riwayat commit (`db5378a refactor(conferences): drop iframe, use standalone Jitsi tab launcher`, `099a07e refactor(conferences): migrate from Jitsi JaaS to self-hosted (HS256 JWT)`).
 
 ### `JitsiTokenService::mint($room, $userId, $name, $moderator, $email)`
 
@@ -35,12 +35,12 @@ This is the result of a recent migration from JaaS (RSA / 8x8.vc / tenant-prefix
 $now = time();
 $payload = [
     'aud' => $appId,                      // JITSI_JWT_APP_ID
-    'iss' => $appId,                      // same
+    'iss' => $appId,                      // sama
     'sub' => $domain,                     // JITSI_DOMAIN
     'room' => $room,                      // conference.room_name
     'iat' => $now,
     'nbf' => $now - 10,
-    'exp' => $now + 7200,                 // 2 hours
+    'exp' => $now + 7200,                 // 2 jam
     'context' => [
         'user' => [
             'id' => (string) $userId,
@@ -55,35 +55,35 @@ $payload = [
 return JWT::encode($payload, $secret, 'HS256');
 ```
 
-If `JITSI_JWT_APP_ID` or `JITSI_JWT_APP_SECRET` is missing, `mint()` throws `RuntimeException('Jitsi JWT credentials not configured…')` — every conference room view will then 500. Surface this in staging before prod.
+Bila `JITSI_JWT_APP_ID` atau `JITSI_JWT_APP_SECRET` hilang, `mint()` melempar `RuntimeException('Jitsi JWT credentials not configured…')` — setiap view ruang konferensi lalu akan 500. Munculkan ini di staging sebelum prod.
 
-`JITSI_JWT_APP_ID` and `JITSI_JWT_APP_SECRET` must equal the Jitsi server's `JWT_APP_ID` and `JWT_APP_SECRET`. Generate the secret with `openssl rand -hex 32` and never commit it.
+`JITSI_JWT_APP_ID` dan `JITSI_JWT_APP_SECRET` harus sama dengan `JWT_APP_ID` dan `JWT_APP_SECRET` server Jitsi. Generate secret dengan `openssl rand -hex 32` dan jangan pernah di-commit.
 
-The Jitsi server is provisioned per [ops/jitsi-self-host.md](../ops/jitsi-self-host.md).
-
----
-
-## Room lifecycle
-
-```
-scheduled ──[dosen: start]──► live ──[dosen or admin: end]──► ended
-```
-
-- `scheduled` — created by the dosen via `conferences.store`. Visible in dosen + admin lists; mahasiswa sees it in their conference list but cannot join.
-- `live` — set by `Dosen\ConferenceController::start` (`POST /dosen/conferences/{conference}/start`). Mahasiswa can now enter.
-- `ended` — set by `Dosen\ConferenceController::end` or `Admin\ConferenceController::end`. Also sets `ended_at = now()`. Once ended, mahasiswa/dosen are redirected away.
-
-The dosen "end" form returns either JSON (if AJAX/`wantsJson`) or redirect to the index with a success flash — the room view triggers it through an Alpine confirm modal that POSTs via a hidden form.
+Server Jitsi diprovisioning sesuai [ops/jitsi-self-host.md](../ops/jitsi-self-host.md).
 
 ---
 
-## Per-role behaviour
+## Daur hidup ruang
+
+```
+scheduled ──[dosen: start]──► live ──[dosen atau admin: end]──► ended
+```
+
+- `scheduled` — dibuat dosen via `conferences.store`. Terlihat di daftar dosen + admin; mahasiswa melihatnya di daftar konferensinya tetapi belum bisa bergabung.
+- `live` — diset oleh `Dosen\ConferenceController::start` (`POST /dosen/conferences/{conference}/start`). Mahasiswa kini bisa masuk.
+- `ended` — diset oleh `Dosen\ConferenceController::end` atau `Admin\ConferenceController::end`. Juga menyetel `ended_at = now()`. Setelah berakhir, mahasiswa/dosen diarahkan keluar.
+
+Form "end" dosen mengembalikan JSON (bila AJAX/`wantsJson`) atau redirect ke index dengan flash sukses — view ruang memicunya lewat modal konfirmasi Alpine yang mem-POST via form tersembunyi.
+
+---
+
+## Perilaku per role
 
 ### Dosen (`Dosen\ConferenceController`)
 
-| Route | Action |
+| Route | Aksi |
 |---|---|
-| `GET /dosen/courses/{course}/conferences` | List active + ended (`conferences.index`) |
+| `GET /dosen/courses/{course}/conferences` | Daftar aktif + selesai (`conferences.index`) |
 | `GET /dosen/courses/{course}/conferences/create` | `conferences.create` |
 | `POST /dosen/courses/{course}/conferences` | `conferences.store` |
 | `GET /dosen/conferences/{conference}/edit` | `conferences.edit` |
@@ -92,36 +92,36 @@ The dosen "end" form returns either JSON (if AJAX/`wantsJson`) or redirect to th
 | `POST /dosen/conferences/{conference}/copy` | `conferences.copy` |
 | `POST /dosen/conferences/{conference}/start` | `conferences.start` (→ status=live) |
 | `POST /dosen/conferences/{conference}/end` | `conferences.end` (→ status=ended, ended_at=now) |
-| `GET /dosen/conferences/{conference}/room` | mint moderator JWT, render `dosen.conferences.room` |
+| `GET /dosen/conferences/{conference}/room` | mint JWT moderator, render `dosen.conferences.room` |
 
-The room view renders a "Buka Ruang Konferensi" link with `target="_blank" rel="noopener"` to `https://{domain}/{room_name}?jwt={jwt}`. JWT is minted with `moderator: true` so the dosen lands with the moderator toolbar. Below it is an "Akhiri Sesi" button that POSTs to `conferences.end` after a confirm.
+View ruang merender tautan "Buka Ruang Konferensi" dengan `target="_blank" rel="noopener"` ke `https://{domain}/{room_name}?jwt={jwt}`. JWT di-mint dengan `moderator: true` sehingga dosen mendarat dengan toolbar moderator. Di bawahnya ada tombol "Akhiri Sesi" yang mem-POST ke `conferences.end` setelah konfirmasi.
 
-Authorization: `$course->dosen_id === auth()->id()` (inline check in `authorizeDosen()`).
+Otorisasi: `$course->dosen_id === auth()->id()` (cek inline di `authorizeDosen()`).
 
 ### Admin (`Admin\ConferenceController`)
 
-| Route | Action |
+| Route | Aksi |
 |---|---|
-| `GET /admin/conferences` | observer index of every active + ended conference (paginated) |
-| `GET /admin/conferences/{conference}/room` | mint moderator JWT (admin gets moderator too), render `admin.conferences.room` |
-| `POST /admin/conferences/{conference}/end` | force-end a session |
+| `GET /admin/conferences` | index pengamat semua konferensi aktif + selesai (berpaginasi) |
+| `GET /admin/conferences/{conference}/room` | mint JWT moderator (admin juga moderator), render `admin.conferences.room` |
+| `POST /admin/conferences/{conference}/end` | paksa-akhiri sesi |
 
-Admin is named `Name (Admin)` in the JWT context so dosen/mahasiswa can see who the admin is in the room. Admin's `room` action requires the conference to be `live` (redirects to index with error if not).
+Admin dinamai `Name (Admin)` di konteks JWT agar dosen/mahasiswa dapat melihat siapa admin di ruang. Aksi `room` admin mewajibkan konferensi `live` (redirect ke index dengan error bila tidak).
 
 ### Mahasiswa (`Mahasiswa\ConferenceController`)
 
-| Route | Action |
+| Route | Aksi |
 |---|---|
-| `GET /mahasiswa/courses/{course}/conferences` | list — ordered with `live` first, then `scheduled`, then `ended`; ordered by `scheduled_at` within each group |
-| `GET /mahasiswa/conferences/{conference}/room` | mint participant JWT (`moderator: false`), render `mahasiswa.conferences.room` |
+| `GET /mahasiswa/courses/{course}/conferences` | daftar — diurut `live` dulu, lalu `scheduled`, lalu `ended`; diurut `scheduled_at` dalam tiap grup |
+| `GET /mahasiswa/conferences/{conference}/room` | mint JWT peserta (`moderator: false`), render `mahasiswa.conferences.room` |
 
-The mahasiswa room view 403s / redirects if `!isLive()`. Enrollment is checked via `DB::table('enrollments')`.
+View ruang mahasiswa 403 / redirect bila `!isLive()`. Enrollment dicek via `DB::table('enrollments')`.
 
 ---
 
-## Room view (Blade)
+## View ruang (Blade)
 
-Both dosen and mahasiswa room views build the meet URL inline:
+Baik view ruang dosen maupun mahasiswa membangun URL meet secara inline:
 
 ```blade
 @php
@@ -134,15 +134,15 @@ Both dosen and mahasiswa room views build the meet URL inline:
 </a>
 ```
 
-The link opens Jitsi in a new tab, fully native (no iframe embedding). This avoids a stack of permission/Storage/iframe issues that plagued the embed approach. The footer reminds users that mobile clients (Jitsi Meet app) need to point at `JITSI_DOMAIN` in the app settings to join.
+Tautan membuka Jitsi di tab baru, sepenuhnya native (tanpa embedding iframe). Ini menghindari setumpuk masalah permission/Storage/iframe yang mengganggu pendekatan embed. Footer mengingatkan pengguna bahwa klien mobile (aplikasi Jitsi Meet) perlu mengarah ke `JITSI_DOMAIN` di pengaturan aplikasi untuk bergabung.
 
-No JavaScript bundle is required for the room view — there is no `conference-jitsi.js`.
+Tidak ada bundel JavaScript yang diperlukan untuk view ruang — tidak ada `conference-jitsi.js`.
 
 ---
 
 ## Create / store
 
-`Dosen\ConferenceController::store` validation:
+Validasi `Dosen\ConferenceController::store`:
 
 ```php
 $request->validate([
@@ -154,19 +154,19 @@ $request->validate([
 ]);
 ```
 
-Then:
+Lalu:
 
-1. Create the primary conference under `$course` with a generated `room-{course.id}-{uuid()}` `room_name` and `status=scheduled`.
-2. `AcademicUpdateNotification` to enrolled mahasiswa of `$course` ("Jadwal Kelas Virtual Baru").
-3. For each valid sibling: create its own conference (new uuid for room name) and notify the sibling's mahasiswa.
+1. Buat konferensi utama di bawah `$course` dengan `room_name` `room-{course.id}-{uuid()}` yang dibangkitkan dan `status=scheduled`.
+2. `AcademicUpdateNotification` ke mahasiswa terdaftar `$course` ("Jadwal Kelas Virtual Baru").
+3. Untuk tiap sibling valid: buat konferensinya sendiri (uuid baru untuk nama ruang) dan beri tahu mahasiswa sibling.
 
-Security intersect identical to other fan-out paths — submitted `sibling_ids` are filtered through `$course->siblings()->pluck('id')`.
+Irisan keamanan identik dengan jalur fan-out lain — `sibling_ids` yang dikirim difilter lewat `$course->siblings()->pluck('id')`.
 
 ---
 
 ## Copy
 
-`POST /dosen/conferences/{conference}/copy` accepts `sibling_ids` (required, array, min:1). After intersect:
+`POST /dosen/conferences/{conference}/copy` menerima `sibling_ids` (required, array, min:1). Setelah irisan:
 
 ```php
 foreach (Course::whereIn('id', $targetIds)->get() as $sibling) {
@@ -181,35 +181,35 @@ foreach (Course::whereIn('id', $targetIds)->get() as $sibling) {
 }
 ```
 
-Each copy gets `status=scheduled`, a fresh `room_name`, and no `ended_at`. The copy endpoint does **not** dispatch notifications (the create endpoint does that on its own per-sibling path).
+Tiap salinan mendapat `status=scheduled`, `room_name` segar, dan tanpa `ended_at`. Endpoint copy **tidak** men-dispatch notifikasi (endpoint create yang melakukannya pada jalur per-sibling-nya sendiri).
 
 ---
 
 ## Update / destroy
 
-`update()` allows changing `title`, `description`, `scheduled_at` only — not `status`. Updating fires `AcademicUpdateNotification` ("Jadwal Kelas Virtual Diperbarui") to enrolled mahasiswa.
+`update()` mengizinkan mengubah `title`, `description`, `scheduled_at` saja — bukan `status`. Update memicu `AcademicUpdateNotification` ("Jadwal Kelas Virtual Diperbarui") ke mahasiswa terdaftar.
 
-`destroy()` removes the row outright. Cascade on `course_id` and `dosen_id` is on delete; no per-conference soft-delete.
-
----
-
-## Failure modes / edge cases
-
-- **Missing JWT env vars** → `RuntimeException` from `JitsiTokenService::mint()`, response 500. Validate `JITSI_JWT_APP_ID` and `JITSI_JWT_APP_SECRET` in staging.
-- **`JITSI_DOMAIN` wrong** → meet URL still renders, but the new tab will fail to connect. Verify DNS + Caddy + Jitsi web container.
-- **Mahasiswa joins a `scheduled` conference** → controller redirects back to the index with `error` flash: *"Sesi konferensi ini belum dimulai atau sudah berakhir."*
-- **Dosen reopens a room after `end`** → `Dosen\ConferenceController::room` checks `isEnded()` and redirects out with an error.
-- **Admin force-ends a session** → `conferences.status='ended'`, `ended_at=now()`. The Jitsi room itself doesn't immediately kick anyone — moderators have to use the in-meeting "End Meeting for All". The DB-side end is a record-keeping action.
-- **Token rejection by Jitsi** → wrong `JITSI_JWT_APP_SECRET` mismatch between app and server: Jitsi shows "invalid token" on the join page. Run the verification step in [ops/jitsi-self-host.md](../ops/jitsi-self-host.md#step-4--verification) to confirm.
+`destroy()` menghapus baris langsung. Cascade pada `course_id` dan `dosen_id` berlaku saat delete; tidak ada soft-delete per-konferensi.
 
 ---
 
-## Related env
+## Mode kegagalan / kasus tepi
 
-| Variable | Purpose |
+- **Variabel env JWT hilang** → `RuntimeException` dari `JitsiTokenService::mint()`, respons 500. Validasi `JITSI_JWT_APP_ID` dan `JITSI_JWT_APP_SECRET` di staging.
+- **`JITSI_DOMAIN` salah** → URL meet tetap ter-render, tetapi tab baru gagal terhubung. Verifikasi DNS + Caddy + kontainer web Jitsi.
+- **Mahasiswa bergabung konferensi `scheduled`** → controller redirect kembali ke index dengan flash `error`: *"Sesi konferensi ini belum dimulai atau sudah berakhir."*
+- **Dosen membuka ulang ruang setelah `end`** → `Dosen\ConferenceController::room` mengecek `isEnded()` dan redirect keluar dengan error.
+- **Admin memaksa-akhiri sesi** → `conferences.status='ended'`, `ended_at=now()`. Ruang Jitsi sendiri tidak langsung menendang siapa pun — moderator harus memakai "End Meeting for All" dalam meeting. End sisi-DB adalah tindakan pencatatan.
+- **Token ditolak Jitsi** → ketidakcocokan `JITSI_JWT_APP_SECRET` antara aplikasi dan server: Jitsi menampilkan "invalid token" di halaman join. Jalankan langkah verifikasi di [ops/jitsi-self-host.md](../ops/jitsi-self-host.md#langkah-4--verifikasi) untuk memastikan.
+
+---
+
+## Env terkait
+
+| Variabel | Tujuan |
 |---|---|
-| `JITSI_DOMAIN` | Public hostname of the self-hosted Jitsi (e.g. `meet.polimedia.pblworkspace.com`). |
-| `JITSI_JWT_APP_ID` | Must equal Jitsi `JWT_APP_ID`. |
-| `JITSI_JWT_APP_SECRET` | Must equal Jitsi `JWT_APP_SECRET`. 32-byte hex, never commit. |
+| `JITSI_DOMAIN` | Hostname publik Jitsi self-hosted (mis. `meet.polimedia.pblworkspace.com`). |
+| `JITSI_JWT_APP_ID` | Harus sama dengan `JWT_APP_ID` Jitsi. |
+| `JITSI_JWT_APP_SECRET` | Harus sama dengan `JWT_APP_SECRET` Jitsi. Hex 32-byte, jangan pernah di-commit. |
 
-Set in `config/services.php` as `services.jitsi.{domain,jwt_app_id,jwt_app_secret}`.
+Diset di `config/services.php` sebagai `services.jitsi.{domain,jwt_app_id,jwt_app_secret}`.

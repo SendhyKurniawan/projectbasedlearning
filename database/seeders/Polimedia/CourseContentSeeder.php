@@ -21,20 +21,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Builds courses and all feature content on top of the PoliMedia structure, for
- * every semester (8 terms). Per prodi per term, each mata kuliah is created as
- * sibling Course rows (one per kelas, same dosen+kode+semester) so the multi-kelas
- * / copy-to-sibling feature has real data. Course titles carry the term's study
- * level (I..VIII) for curriculum flavour. Every course ships full content
- * (materials, all assignment types, a conference). The active-term demo kelas
- * additionally gets sample submissions. Global announcements + discussions are
- * seeded once.
+ * Membangun matkul dan seluruh konten fitur di atas struktur PoliMedia, untuk
+ * setiap semester (8 term). Per prodi per term, tiap mata kuliah dibuat sebagai
+ * baris Course sibling (satu per kelas, dosen+kode+semester sama) agar fitur
+ * multi-kelas / copy-to-sibling punya data nyata. Judul matkul membawa tingkat
+ * studi term (I..VIII) sebagai nuansa kurikulum. Tiap matkul dilengkapi konten penuh
+ * (materi, semua jenis tugas, satu konferensi). Kelas demo pada term aktif
+ * mendapat tambahan contoh submission. Pengumuman + diskusi global di-seed sekali.
  *
- * Runs after StructureSeeder + UsersSeeder.
+ * Dijalankan setelah StructureSeeder + UsersSeeder.
  */
 class CourseContentSeeder extends Seeder
 {
-    /** Two base mata kuliah per department; suffixed with the term's level. */
+    /** Dua matkul dasar per jurusan; diberi sufiks tingkat term. */
     private const COURSE_BASES = [
         'DSN' => ['Studio Desain', 'Teori dan Sejarah Desain'],
         'TGP' => ['Teknologi Grafika', 'Manajemen Produksi Cetak'],
@@ -47,7 +46,7 @@ class CourseContentSeeder extends Seeder
         $semesters = Semester::with('academicYear')->get();
         $programs = StudyProgram::with('department')->get();
 
-        // One transaction batches the many inserts (far faster than per-row commits).
+        // Satu transaksi membungkus banyak insert (jauh lebih cepat dari commit per baris).
         $courseCount = DB::transaction(fn () => $this->seedCourses($semesters, $programs));
 
         $this->seedAnnouncements();
@@ -69,7 +68,7 @@ class CourseContentSeeder extends Seeder
                     ->orderBy('name')->get();
 
                 foreach ($classes as $idx => $class) {
-                    // Only the active-term demo kelas (DG-A) gets sample submissions.
+                    // Hanya kelas demo pada term aktif (DG-A) yang mendapat contoh submission.
                     $withSamples = $isActiveTerm
                         && PolimediaData::isDemoProdi($program->code)
                         && $idx === PolimediaData::DEMO_KELAS_INDEX;
@@ -83,11 +82,11 @@ class CourseContentSeeder extends Seeder
     }
 
     /**
-     * Create the prodi's mata kuliah for a single kelas — one sibling Course row
-     * per base, each with full content (materials, assignments, conference) and
-     * the kelas's students enrolled. Returns the number of courses created.
+     * Buat matkul prodi untuk satu kelas — satu baris Course sibling per matkul dasar,
+     * masing-masing dengan konten penuh (materi, tugas, konferensi) dan mahasiswa
+     * kelas tersebut ter-enroll. Mengembalikan jumlah matkul yang dibuat.
      *
-     * Shared by the full seeder and KelasDCourseSeeder so the recipe lives once.
+     * Dipakai bersama oleh seeder penuh & KelasDCourseSeeder agar resepnya satu tempat.
      */
     protected function seedClassCourses(StudyProgram $program, Semester $semester, StudentClass $class, bool $withSamples): int
     {
@@ -159,8 +158,8 @@ class CourseContentSeeder extends Seeder
     }
 
     /**
-     * Full set of assignment types — mirrors AssignmentSeeder's recipe:
-     * tugas (pdf), tugas (url group), MC quiz, coding exercise, essay quiz.
+     * Set lengkap jenis tugas — mengikuti resep AssignmentSeeder:
+     * tugas (pdf), tugas kelompok (url), quiz pilihan ganda, exercise koding, quiz essay.
      */
     private function addAssignments(Course $course): void
     {
@@ -273,7 +272,7 @@ class CourseContentSeeder extends Seeder
         ]);
     }
 
-    /** A few submissions on the first tugas so the grading view has data. */
+    /** Beberapa submission pada tugas pertama agar tampilan penilaian punya data. */
     private function addSampleSubmissions(Course $course, $studentIds): void
     {
         $tugas = $course->assignments()->where('type', 'tugas')

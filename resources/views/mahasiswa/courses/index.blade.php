@@ -1,3 +1,4 @@
+{{-- Halaman daftar mata kuliah (mahasiswa). --}}
 <x-app-layout>
     <div class="space-y-8">
         <!-- Header Section -->

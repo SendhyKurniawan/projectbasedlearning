@@ -10,6 +10,8 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
 use NotificationChannels\WebPush\WebPushChannel;
 
+// Notifikasi percobaan untuk menguji pengiriman push (dipakai halaman debug admin).
+// Catatan: tidak meng-implements ShouldQueue, jadi dikirim sinkron.
 class TestNotification extends Notification
 {
     use Queueable;

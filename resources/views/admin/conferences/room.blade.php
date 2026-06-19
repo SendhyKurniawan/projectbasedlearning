@@ -1,3 +1,4 @@
+{{-- Halaman ruang konferensi (admin) — pemuat Jitsi sebagai moderator pemantau. --}}
 @php
     $domain = config('services.jitsi.domain');
 @endphp

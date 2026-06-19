@@ -1,4 +1,4 @@
-// Shared Chart.js bootstrap. Applies design-system tokens and exposes window.PJBLChart.
+// Inisialisasi Chart.js bersama: menerapkan token design-system & meng-expose window.PJBLChart.
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -6,7 +6,7 @@ Chart.register(...registerables);
 const style = getComputedStyle(document.documentElement);
 const get = (v) => style.getPropertyValue(v).trim();
 
-// tokens.css stores space-separated channels (e.g. "25 27 35") — convert to comma-separated.
+// tokens.css menyimpan channel warna dipisah spasi (mis. "25 27 35") — ubah jadi dipisah koma.
 const rgba = (channel, alpha = 1) => {
     const channels = get(channel).replace(/\s+/g, ', ');
     return `rgba(${channels}, ${alpha})`;
@@ -29,6 +29,7 @@ Chart.defaults.font.size       = 11;
 
 Chart.defaults.plugins.colors = { enabled: false };
 
+// Expose palet & konstruktor Chart agar dipakai inline-script tiap halaman dashboard.
 window.PJBLChartColors = { primary, secondary, tertiary };
 
 window.PJBLChart = Chart;

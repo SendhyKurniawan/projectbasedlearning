@@ -9,6 +9,11 @@ use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
+// Definisi route web (sumber tunggal pemetaan URL → controller).
+// Dikelompokkan per peran: grup /admin, /dosen, /mahasiswa (dijaga middleware role),
+// plus grup berbagi (auth saja) untuk profil, notifikasi, diskusi, pengumuman, dll.
+
+// Halaman root: arahkan user ke dashboard sesuai peran, atau ke login bila belum masuk.
 Route::get('/', function () {
     if (auth()->check()) {
         return match(auth()->user()->role) {
@@ -21,36 +26,37 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+// ===== Grup berbagi (hanya butuh login, lintas peran) =====
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Notifications
+    // Notifikasi
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
     Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
     Route::get('/notifications/{id}/redirect', [NotificationController::class, 'readAndRedirect'])->name('notifications.readAndRedirect');
 
-    // Code execution proxy (server-side languages via Piston API)
+    // Proxy eksekusi kode (bahasa server-side via Piston API), dibatasi 10 request/menit.
     Route::post('/execute-code', [CodeExecutionController::class, 'execute'])->name('execute.code')->middleware('throttle:10,1');
 
-    // Push Notifications Endpoint
+    // Endpoint langganan push notification (dipanggil dari JS).
     Route::post('/push-subscribe', [App\Http\Controllers\PushSubscriptionController::class, 'store']);
     Route::post('/push-unsubscribe', [App\Http\Controllers\PushSubscriptionController::class, 'destroy']);
 
-    // Discussions & Announcements
+    // Diskusi & Pengumuman (resource bersama lintas peran).
     Route::resource('discussions', App\Http\Controllers\DiscussionController::class);
     Route::resource('announcements', App\Http\Controllers\AnnouncementController::class);
 
-    // Jitsi SSO: target for config.tokenAuthUrl. A tokenless Jitsi visitor is
-    // sent here (?room=…); auth gates it through PBL login, then we mint a
-    // per-user JWT and redirect back into the room.
+    // SSO Jitsi: target untuk config.tokenAuthUrl. Pengunjung Jitsi tanpa token
+    // dikirim ke sini (?room=…); middleware auth memaksa lewat login PBL, lalu kita
+    // mint JWT per-user dan pantulkan kembali ke ruangan.
     Route::get('/conferences/jitsi-auth', [App\Http\Controllers\ConferenceJoinController::class, 'jitsiAuth'])
         ->name('conferences.jitsi-auth');
 });
 
-// Admin Auth Routes
+// ===== Route login admin (portal admin terpisah) =====
 Route::middleware('guest')->prefix('admin')->name('admin.')->group(function () {
     Route::get('login', [Admin\Auth\LoginController::class, 'create'])->name('login');
     Route::post('login', [Admin\Auth\LoginController::class, 'store'])->name('login.store');
@@ -60,11 +66,11 @@ Route::get('/admin', function () {
     return redirect()->route('admin.login');
 });
 
-// Back-compat: redirect old hierarchy URLs to unified akademik page
+// Kompatibilitas lama: arahkan URL hierarki lama ke halaman akademik terpadu.
 Route::get('/admin/hierarchy/{any?}', fn() => redirect()->route('admin.akademik.index'))
     ->where('any', '.*')->middleware(['auth', 'role:admin']);
 
-// Admin Routes
+// ===== Grup route Admin (dijaga role:admin) =====
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/grades', [Admin\GradeController::class, 'index'])->name('grades.index');
@@ -81,7 +87,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/courses/{course}/enroll', [Admin\CourseController::class, 'enroll'])->name('courses.enroll');
     Route::delete('/courses/{course}/enroll/{student}', [Admin\CourseController::class, 'unenroll'])->name('courses.unenroll');
 
-    // Unified Akademik Routes (replaces hierarchy drill-down)
+    // Route Akademik terpadu (menggantikan drill-down hierarki lama).
     Route::get('/akademik', [Admin\AkademikController::class, 'index'])->name('akademik.index');
 
     Route::post('/akademik/academic-years', [Admin\AkademikController::class, 'storeAcademicYear'])->name('akademik.academic-years.store');
@@ -111,24 +117,24 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/akademik/courses', [Admin\AkademikController::class, 'storeCourse'])->name('akademik.courses.store');
     Route::delete('/akademik/courses/{course}', [Admin\AkademikController::class, 'destroyCourse'])->name('akademik.courses.destroy');
 
-    // Push Debug Routes
+    // Route alat debug push notification.
     Route::get('/debug/push', [Admin\PushDebugController::class, 'index'])->name('debug.push.index');
     Route::post('/debug/push/send', [Admin\PushDebugController::class, 'send'])->name('debug.push.send');
 
-    // Conference observer
+    // Pemantauan konferensi oleh admin.
     Route::get('/conferences', [Admin\ConferenceController::class, 'index'])->name('conferences.index');
     Route::get('/conferences/{conference}/room', [Admin\ConferenceController::class, 'room'])->name('conferences.room');
     Route::post('/conferences/{conference}/end', [Admin\ConferenceController::class, 'end'])->name('conferences.end');
 });
 
-// Dosen Routes
+// ===== Grup route Dosen (dijaga role:dosen) =====
 Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(function () {
     Route::get('/dashboard', [Dosen\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/grades', [Dosen\GradeController::class, 'index'])->name('grades.index');
     Route::get('/grades/{course}/export', [Dosen\GradeController::class, 'export'])->name('grades.export');
     Route::patch('/grades/{assignment}/{mahasiswa}/quick-grade', [Dosen\GradeController::class, 'quickGrade'])->name('grades.quickGrade');
 
-    // Bare-URL fallbacks: redirect to first course or show "contact admin" page
+    // Fallback URL polos: arahkan ke matkul pertama, atau tampilkan halaman "belum ada matkul".
     $sectionFallback = function (string $routeName, string $section) {
         $firstCourse = auth()->user()->courses()->where('dosen_id', auth()->id())->first();
         if ($firstCourse) {
@@ -165,7 +171,7 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::post('/submissions/{submission}/grade', [Dosen\AssignmentController::class, 'grade'])->name('submissions.grade');
     Route::post('/groups/{group}/grade', [Dosen\AssignmentController::class, 'gradeGroup'])->name('groups.grade');
     
-    // Unified Question Management
+    // Pengelolaan soal quiz terpadu.
     Route::get('/assignments/{assignment}/questions', [Dosen\AssignmentController::class, 'questions'])->name('assignments.questions.index');
     Route::get('/assignments/{assignment}/questions/create', [Dosen\AssignmentController::class, 'createQuestion'])->name('assignments.questions.create');
     Route::post('/assignments/{assignment}/questions', [Dosen\AssignmentController::class, 'storeQuestion'])->name('assignments.questions.store');
@@ -173,10 +179,10 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::put('/questions/{question}', [Dosen\AssignmentController::class, 'updateQuestion'])->name('assignments.questions.update');
     Route::delete('/questions/{question}', [Dosen\AssignmentController::class, 'destroyQuestion'])->name('assignments.questions.destroy');
 
-    // Quiz Attempt (Submission) Review
+    // Tinjau percobaan quiz (submission) seorang mahasiswa.
     Route::get('/assignments/{assignment}/submissions/{submission}', [Dosen\AssignmentController::class, 'showQuizAttempt'])->name('assignments.submissions.show');
 
-    // Conference (Kelas Virtual)
+    // Konferensi (Kelas Virtual)
     Route::get('/courses/{course}/conferences', [Dosen\ConferenceController::class, 'index'])->name('conferences.index');
     Route::get('/courses/{course}/conferences/create', [Dosen\ConferenceController::class, 'create'])->name('conferences.create');
     Route::post('/courses/{course}/conferences', [Dosen\ConferenceController::class, 'store'])->name('conferences.store');
@@ -188,14 +194,14 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::post('/conferences/{conference}/end', [Dosen\ConferenceController::class, 'end'])->name('conferences.end');
     Route::get('/conferences/{conference}/room', [Dosen\ConferenceController::class, 'room'])->name('conferences.room');
 
-    // Code Exercise CRUD (dedicated flow for exercise_config fields)
+    // CRUD exercise/latihan koding (alur khusus untuk field exercise_config).
     Route::get('/courses/{course}/exercises/create', [Dosen\ExerciseController::class, 'create'])->name('exercises.create');
     Route::post('/courses/{course}/exercises', [Dosen\ExerciseController::class, 'store'])->name('exercises.store');
     Route::get('/exercises/{assignment}/edit', [Dosen\ExerciseController::class, 'edit'])->name('exercises.edit');
     Route::put('/exercises/{assignment}', [Dosen\ExerciseController::class, 'update'])->name('exercises.update');
 });
 
-// Mahasiswa Routes
+// ===== Grup route Mahasiswa (dijaga role:mahasiswa) =====
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
     Route::get('/dashboard', [Mahasiswa\DashboardController::class, 'index'])->name('dashboard');
     Route::get('/jadwal', [Mahasiswa\ScheduleController::class, 'index'])->name('schedule.index');
@@ -205,20 +211,21 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::post('/courses/{course}/enroll', [Mahasiswa\CourseController::class, 'enroll'])->name('courses.enroll');
     Route::get('/courses/{course}/materials/{material}', [Mahasiswa\CourseController::class, 'showMaterial'])->name('materials.show');
 
+    // Pengumpulan tugas (kecuali index/show); dijaga middleware syarat materi prasyarat terbuka.
     Route::resource('submissions', Mahasiswa\SubmissionController::class)->except(['index', 'show'])->middleware('check.assignment.unlocked');
-    
-    // Unified Quiz taking (now under Submission umbrella functionally)
+
+    // Pengerjaan quiz (secara fungsional berada di bawah payung Submission).
     Route::get('/assignments/{assignment}/quiz', [Mahasiswa\QuizController::class, 'show'])->name('quizzes.show');
     Route::post('/assignments/{assignment}/quiz/start', [Mahasiswa\QuizController::class, 'start'])->name('quizzes.start');
     Route::get('/assignments/{assignment}/quiz/take', [Mahasiswa\QuizController::class, 'take'])->name('quizzes.take');
     Route::post('/assignments/{assignment}/quiz/submit', [Mahasiswa\QuizController::class, 'submit'])->name('quizzes.submit');
     Route::get('/assignments/{assignment}/quiz/result', [Mahasiswa\QuizController::class, 'result'])->name('quizzes.result');
 
-    // Code Exercise Routes
+    // Route pengerjaan exercise (latihan koding).
     Route::get('/exercises/{assignment}/solve', [Mahasiswa\ExerciseController::class, 'solve'])->name('exercises.solve')->middleware('check.assignment.unlocked');
     Route::post('/exercises/submit', [Mahasiswa\ExerciseController::class, 'submit'])->name('exercises.submit');
 
-    // Conference (Kelas Virtual)
+    // Konferensi (Kelas Virtual)
     Route::get('/courses/{course}/conferences', [Mahasiswa\ConferenceController::class, 'index'])->name('conferences.index');
     Route::get('/conferences/{conference}/room', [Mahasiswa\ConferenceController::class, 'room'])->name('conferences.room');
 });

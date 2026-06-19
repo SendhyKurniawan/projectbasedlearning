@@ -9,8 +9,11 @@ use App\Models\Semester;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// Controller tampilan nilai mahasiswa: daftar matkul yang diikuti beserta nilai tiap tugas,
+// bisa difilter per tahun ajaran/semester dan dicari.
 class GradeController extends Controller
 {
+    // Tampilkan nilai mahasiswa yang login; muat hanya submission miliknya per matkul.
     public function index(Request $request)
     {
         $mahasiswaId = Auth::id();

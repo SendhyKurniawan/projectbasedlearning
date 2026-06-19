@@ -1,3 +1,4 @@
+{{-- Form edit konferensi (kelas virtual) (dosen). --}}
 @push('styles')
     @vite('resources/css/pages/dosen/conferences.css')
 @endpush

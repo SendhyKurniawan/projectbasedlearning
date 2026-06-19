@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Material;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+// Factory pembuat data Material palsu (otomatis membuat course terkait).
 class MaterialFactory extends Factory
 {
     protected $model = Material::class;

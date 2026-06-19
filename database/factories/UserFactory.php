@@ -7,17 +7,19 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
+ * Factory pembuat data User palsu untuk testing/seeding. Default berperan mahasiswa & aktif.
+ *
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
  */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * Cache hash password yang sedang dipakai factory (agar bcrypt tak dijalankan berulang).
      */
     protected static ?string $password;
 
     /**
-     * Define the model's default state.
+     * Definisikan nilai default model.
      *
      * @return array<string, mixed>
      */
@@ -35,7 +37,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * State: tandai email user sebagai belum terverifikasi.
      */
     public function unverified(): static
     {

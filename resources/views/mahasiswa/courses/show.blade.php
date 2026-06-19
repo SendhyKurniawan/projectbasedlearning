@@ -1,3 +1,4 @@
+{{-- Halaman detail matkul + jalur belajar (learning path) untuk mahasiswa. --}}
 @push('styles')
     @vite('resources/css/pages/mahasiswa/courses.css')
 @endpush

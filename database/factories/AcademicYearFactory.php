@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\AcademicYear;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+// Factory pembuat data AcademicYear palsu (default nonaktif).
 class AcademicYearFactory extends Factory
 {
     protected $model = AcademicYear::class;
@@ -19,6 +20,7 @@ class AcademicYearFactory extends Factory
         ];
     }
 
+    // State: jadikan tahun ajaran aktif.
     public function active(): static
     {
         return $this->state(fn (array $attributes) => [

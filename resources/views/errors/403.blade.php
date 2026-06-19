@@ -1,3 +1,4 @@
+{{-- Halaman error 403 (akses ditolak). --}}
 <x-guest-layout>
     <div class="min-h-screen flex items-center justify-center bg-surface px-4 py-12 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8 bg-surface-container-lowest p-8 rounded-[2rem] shadow-xl border border-outline-variant/10 text-center">

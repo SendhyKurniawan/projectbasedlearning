@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Department;
 
+// Seeder contoh data jurusan (seeder legacy/alternatif, di luar rangkaian PoliMedia).
 class DepartmentSeeder extends Seeder
 {
     public function run(): void

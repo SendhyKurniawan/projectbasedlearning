@@ -8,39 +8,41 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @mixin IdeHelperMaterialView
  */
+// Model pencatat "materi sudah dibaca": satu baris = satu mahasiswa membuka satu materi.
+// Dipakai sebagai syarat membuka tugas (lihat Assignment::isUnlockedFor).
 class MaterialView extends Model
 {
     /**
-     * Disable timestamps - we only use viewed_at
+     * Nonaktifkan timestamps bawaan; kita hanya memakai kolom viewed_at.
      */
     public $timestamps = false;
-    
+
     /**
-     * The attributes that are mass assignable.
+     * Kolom yang boleh diisi massal.
      */
     protected $fillable = [
         'material_id',
         'student_id',
         'viewed_at',
     ];
-    
+
     /**
-     * The attributes that should be cast.
+     * Casting kolom waktu baca menjadi datetime.
      */
     protected $casts = [
         'viewed_at' => 'datetime',
     ];
-    
+
     /**
-     * Get the material that was viewed.
+     * Materi yang dibuka.
      */
     public function material(): BelongsTo
     {
         return $this->belongsTo(Material::class);
     }
-    
+
     /**
-     * Get the student who viewed the material.
+     * Mahasiswa yang membuka materi.
      */
     public function mahasiswa(): BelongsTo
     {

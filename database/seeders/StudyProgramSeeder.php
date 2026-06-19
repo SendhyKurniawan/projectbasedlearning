@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\StudyProgram;
 
+// Seeder contoh data program studi (legacy/alternatif).
 class StudyProgramSeeder extends Seeder
 {
     public function run(): void

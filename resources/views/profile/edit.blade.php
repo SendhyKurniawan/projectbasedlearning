@@ -1,3 +1,4 @@
+{{-- Halaman profil mandiri: ubah data, ganti password, hapus akun. --}}
 @push('styles')
     @vite('resources/css/pages/shared/profile.css')
 @endpush

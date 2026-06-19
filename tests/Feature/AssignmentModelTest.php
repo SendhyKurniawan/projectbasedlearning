@@ -1,5 +1,7 @@
 <?php
 
+// Uji model Assignment: scope active/past (berdasarkan deadline) & gerbang prasyarat
+// isUnlockedFor() (tugas terkunci sampai materi prasyarat dibuka mahasiswa).
 use App\Models\Assignment;
 use App\Models\MaterialView;
 use App\Models\Material;

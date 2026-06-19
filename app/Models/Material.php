@@ -29,9 +29,13 @@ use Illuminate\Database\Eloquent\Model;
  * @mixin \Eloquent
  * @mixin IdeHelperMaterial
  */
+// Model materi pembelajaran milik sebuah matkul. Berisi konten markdown dan/atau berkas,
+// diurutkan via kolom 'order'. Riwayat bacanya dicatat lewat MaterialView.
 class Material extends Model
 {
     use HasFactory;
+
+    // Kolom yang boleh diisi massal.
     protected $fillable = [
         'course_id',
         'title',
@@ -40,6 +44,7 @@ class Material extends Model
         'order',
     ];
 
+    // Casting kolom waktu menjadi datetime.
     protected function casts(): array
     {
         return [
@@ -48,18 +53,21 @@ class Material extends Model
         ];
     }
 
-    // Relationships
+    // Relasi
+    // Matkul pemilik materi.
     public function course()
     {
         return $this->belongsTo(\App\Models\Course::class);
     }
-    
+
+    // Catatan mahasiswa yang sudah membuka materi ini.
     public function views()
     {
         return $this->hasMany(MaterialView::class);
     }
-    
-    // Helper Methods
+
+    // Method bantu
+    // Cek apakah seorang mahasiswa sudah pernah membuka materi ini (untuk syarat buka tugas).
     public function hasBeenViewedBy($studentId)
     {
         return $this->views()->where('student_id', $studentId)->exists();

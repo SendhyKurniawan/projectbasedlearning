@@ -4,10 +4,12 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Buat tabel pivot announcement_user: menargetkan pengumuman ke user spesifik
+// (saat target_audience = 'specific').
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
@@ -16,13 +18,13 @@ return new class extends Migration
             $table->foreignId('announcement_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
-            
-            $table->unique(['announcement_id', 'user_id']); // Prevent duplicates
+
+            $table->unique(['announcement_id', 'user_id']); // cegah duplikat sasaran
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Batalkan migrasi.
      */
     public function down(): void
     {

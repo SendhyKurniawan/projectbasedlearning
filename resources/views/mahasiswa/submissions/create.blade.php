@@ -1,3 +1,4 @@
+{{-- Form pengumpulan tugas, termasuk pembentukan kelompok (mahasiswa). --}}
 @push('styles')
     @vite('resources/css/pages/mahasiswa/submission-upload.css')
 @endpush

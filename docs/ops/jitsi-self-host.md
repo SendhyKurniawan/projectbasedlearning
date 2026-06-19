@@ -1,67 +1,124 @@
-# Ops handoff — Self-hosted Jitsi on `pjbl-vm`
+# Serah-terima Ops — Jitsi self-hosted di `pjbl-vm`
 
-This document covers everything that runs on the GCP VM. The Laravel-side code changes (controllers, service class, env keys, views, JS) are already committed; what remains is the VM-side work: DNS, firewall, Caddy reverse proxy, Jitsi stack, and final cutover.
+Dokumen ini mencakup segala sesuatu yang berjalan di VM GCP. Perubahan kode sisi-Laravel (controller, kelas service, kunci env, view, JS) sudah di-commit; yang tersisa adalah pekerjaan sisi-VM: DNS, firewall, reverse proxy Caddy, stack Jitsi, dan cutover akhir.
 
-**Target VM**: `pjbl-vm` in project `pjbl-app-btgs6`, IP `34.50.107.24`.
-**Target domains**:
-- `polimedia.pblworkspace.com` → Laravel app (HTTPS, port 443 via Caddy)
+**VM target**: `pjbl-vm` di project `pjbl-app-btgs6`, zona `asia-southeast2-a`, IP `34.50.107.24` (`e2-standard-4`, Debian 12).
+**Domain target**:
+- `polimedia.pblworkspace.com` → aplikasi Laravel (HTTPS, port 443 via Caddy)
 - `meet.polimedia.pblworkspace.com` → Jitsi (HTTPS, port 443 via Caddy)
-
-## Pacing rule — apply between steps
-
-After finishing each numbered step below, run `/usage` in the Claude Code session. If the 5-hour usage bar is ≥ ~80%, **stop**, append a "Progress log" entry to `~/.claude/plans/i-need-you-to-glowing-lerdorf.md` (last step done, in-flight VM state, next sub-step), and use `ScheduleWakeup` to resume after the usage window resets. See memory `feedback_usage_threshold_schedule`.
 
 ---
 
-## Step 0 — Prerequisites
+## Keadaan terdeploy saat ini (sebagaimana dibangun)
 
-### 0.1 DNS records
+> Runbook ini menangkap *rencana*. Deployment yang sebenarnya dikirim berbeda di beberapa tempat — catatan di bawah ini otoritatif; langkah-langkah berikutnya dipertahankan demi sejarah dan bagian yang masih akurat (DNS, firewall, `.env` Jitsi, JWT, branding, SSO).
 
-Create two `A` records pointing at `34.50.107.24`:
+- **Caddy berjalan sebagai kontainer Docker**, bukan di host. Didefinisikan di `docker-compose.override.yml` repo aplikasi sebagai service `caddy` (`caddy:2-alpine`, kontainer `pjbl-caddy`), bergabung ke `pjbl-network`, mengikat `80:80`, `443:443`, `443:443/udp`. Caddyfile adalah `~/pjbl/Caddyfile`, di-bind-mount ke `/etc/caddy/Caddyfile`. Ia mem-reverse-proxy **berdasarkan nama kontainer** (`pjbl-web:80`, `jitsi-web:80`), bukan `127.0.0.1:8000/8080`. Reload dengan `docker compose exec caddy caddy reload --config /etc/caddy/Caddyfile`.
+- **Jitsi bergabung ke jaringan docker aplikasi.** `~/jitsi-meet/docker-compose.override.yml` melampirkan kontainer `web` ke jaringan external `pjbl_pjbl-network` dengan alias `jitsi-web`, sehingga kontainer Caddy dapat me-resolve-nya berdasarkan nama. Kontainer web mengikat `127.0.0.1:8080:80` dan menjalankan `DISABLE_HTTPS=1`.
+- **Relay coturn mandiri** (`coturn/coturn:latest`, kontainer `pjbl-coturn`, juga di override, `network_mode: host`) melayani TURN/STUN pada `3478` udp/tcp untuk peserta di balik NAT restriktif. `.env` Jitsi menyetel `TURN_HOST=meet.polimedia.pblworkspace.com`, `TURN_PORT=3478`, `TURN_TRANSPORT=udp,tcp`. JVB tetap melakukan UDP 10000 langsung bila memungkinkan.
+- **Host lama** `pbl.kurniawansendhy.site` juga dilayani Caddy → `pjbl-web:80`.
+- Image Jitsi yang berjalan: `jitsi/{web,prosody,jicofo,jvb}:stable-9909`.
+
+## Aturan pacing — terapkan antar langkah
+
+Setelah menyelesaikan tiap langkah bernomor di bawah, jalankan `/usage` di sesi Claude Code. Bila bar penggunaan 5-jam ≥ ~80%, **berhenti**, tambahkan entri "Progress log" ke `~/.claude/plans/i-need-you-to-glowing-lerdorf.md` (langkah terakhir selesai, keadaan VM yang sedang berjalan, sub-langkah berikutnya), dan gunakan `ScheduleWakeup` untuk melanjutkan setelah jendela penggunaan reset. Lihat memori `feedback_usage_threshold_schedule`.
+
+---
+
+## Langkah 0 — Prasyarat
+
+### 0.1 Record DNS
+
+Buat dua record `A` mengarah ke `34.50.107.24`:
 - `polimedia.pblworkspace.com` → `34.50.107.24`
 - `meet.polimedia.pblworkspace.com` → `34.50.107.24`
 
-Wait for propagation, then verify from any machine:
+Tunggu propagasi, lalu verifikasi dari mesin mana pun:
 ```bash
 dig +short polimedia.pblworkspace.com
 dig +short meet.polimedia.pblworkspace.com
 ```
-Both must return `34.50.107.24` before continuing — Caddy's Let's Encrypt challenge will fail otherwise.
+Keduanya harus mengembalikan `34.50.107.24` sebelum melanjutkan — challenge Let's Encrypt Caddy akan gagal jika tidak.
 
-### 0.2 Check VM size
+### 0.2 Cek ukuran VM
 
 ```bash
 gcloud compute instances describe pjbl-vm --zone <zone> \
   --format="value(machineType.basename())"
 ```
 
-- `e2-standard-4` (4 vCPU / 16 GB) or larger → proceed as-is.
-- Smaller (e.g. `e2-medium` = 2 vCPU / 4 GB) → resize first:
+- `e2-standard-4` (4 vCPU / 16 GB) atau lebih besar → lanjut apa adanya.
+- Lebih kecil (mis. `e2-medium` = 2 vCPU / 4 GB) → resize dulu:
   ```bash
   gcloud compute instances stop pjbl-vm --zone <zone>
   gcloud compute instances set-machine-type pjbl-vm --zone <zone> \
     --machine-type=e2-standard-4
   gcloud compute instances start pjbl-vm --zone <zone>
   ```
-- If you expect a single big 30-person room (worst case), use `e2-standard-8` instead.
+- Bila Anda mengantisipasi satu ruang besar 30-orang (kasus terburuk), pakai `e2-standard-8`.
 
 ### 0.3 Firewall
 
-Open the media ports for Jitsi:
+Buka port media untuk Jitsi (JVB UDP 10000, harvester TCP 4443) dan relay TURN coturn (UDP+TCP 3478):
 ```bash
 gcloud compute firewall-rules create allow-jitsi-media \
   --network default --direction INGRESS \
-  --action allow --rules udp:10000,tcp:4443 \
+  --action allow --rules udp:10000,tcp:4443,udp:3478,tcp:3478 \
   --source-ranges 0.0.0.0/0
 ```
 
-Confirm 80 + 443 are already allowed (they should be, for the existing setup). Once Caddy is in front, **remove any public allow on 8000** — that port should not be reachable from outside the VM after cutover.
+Pastikan 80 + 443 sudah diizinkan (seharusnya, untuk setup yang ada). Setelah Caddy di depan, **hapus izin publik apa pun pada 8000** — port itu seharusnya tak terjangkau dari luar VM setelah cutover.
 
 ---
 
-## Step 1 — Install Caddy on the host
+## Langkah 1 — Caddy (berkontainer)
 
-Caddy runs on the VM directly (not in docker). It binds 80/443 and survives docker restarts.
+> **Sebagaimana dibangun:** Caddy berjalan sebagai kontainer Docker di proyek compose aplikasi, bukan sebagai paket host. Jalur host-install di bawah ditinggalkan sebagai referensi, tetapi deployment memakai kontainer.
+
+`docker-compose.override.yml` repo aplikasi menambahkan service Caddy:
+
+```yaml
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: pjbl-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - pjbl-network
+    depends_on:
+      - web
+```
+
+Tulis `~/pjbl/Caddyfile` (mem-proxy berdasarkan nama kontainer lewat `pjbl-network`):
+```caddy
+polimedia.pblworkspace.com {
+    encode gzip
+    reverse_proxy pjbl-web:80
+}
+
+meet.polimedia.pblworkspace.com {
+    encode gzip
+    reverse_proxy jitsi-web:80
+}
+```
+
+Naikkan dan pantau log untuk penerbitan Let's Encrypt:
+```bash
+docker compose up -d caddy
+docker compose logs -f caddy
+```
+
+(Pada titik ini hanya aplikasi di `pjbl-web:80` yang ada — `meet.*` akan 502 sampai Langkah 2 melampirkan `jitsi-web` ke jaringan. Itu wajar.)
+
+<details><summary>Lama: Caddy terinstal-host (tidak dipakai)</summary>
 
 ```bash
 sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
@@ -70,52 +127,35 @@ curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' \
 curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' \
   | sudo tee /etc/apt/sources.list.d/caddy-stable.list
 sudo apt update && sudo apt install -y caddy
-```
-
-Write `/etc/caddy/Caddyfile`:
-```caddy
-polimedia.pblworkspace.com {
-    reverse_proxy 127.0.0.1:8000
-}
-
-meet.polimedia.pblworkspace.com {
-    reverse_proxy 127.0.0.1:8080
-}
-```
-
-Reload Caddy and watch the log for Let's Encrypt issuance:
-```bash
 sudo systemctl reload caddy
-sudo journalctl -u caddy -f
 ```
+</details>
 
-(At this point only the app at `127.0.0.1:8000` exists — `meet.*` will 502 until Step 2. That's expected.)
-
-**Verify the app**:
+**Verifikasi aplikasi**:
 ```bash
 curl -I https://polimedia.pblworkspace.com
 ```
-Should return 200 from the Laravel app via Caddy's TLS termination.
+Seharusnya mengembalikan 200 dari aplikasi Laravel via terminasi TLS Caddy.
 
-**Pacing check**: run `/usage`. If ≥ 80%, stop here.
+**Cek pacing**: jalankan `/usage`. Bila ≥ 80%, berhenti di sini.
 
 ---
 
-## Step 2 — Stand up Jitsi
+## Langkah 2 — Mendirikan Jitsi
 
-Clone `docker-jitsi-meet` into `~/jitsi-meet` (pin to a stable tag):
+Klon `docker-jitsi-meet` ke `~/jitsi-meet` (pin ke tag stabil):
 
 ```bash
 cd ~
 git clone https://github.com/jitsi/docker-jitsi-meet.git
 cd jitsi-meet
-git checkout stable-9909   # or the latest stable tag at the time
+git checkout stable-9909   # atau tag stabil terbaru saat itu
 cp env.example .env
-./gen-passwords.sh          # generates internal Prosody/Jicofo/JVB secrets
+./gen-passwords.sh          # men-generate secret internal Prosody/Jicofo/JVB
 mkdir -p ~/.jitsi-meet-cfg/{web,transcripts,prosody/config,prosody/prosody-plugins-custom,jicofo,jvb,jigasi,jibri}
 ```
 
-Edit `~/jitsi-meet/.env` — set / change these keys:
+Edit `~/jitsi-meet/.env` — set / ubah kunci ini:
 ```
 PUBLIC_URL=https://meet.polimedia.pblworkspace.com
 HTTP_PORT=8080
@@ -123,61 +163,80 @@ HTTPS_PORT=8443
 TZ=Asia/Jakarta
 DOCKER_HOST_ADDRESS=34.50.107.24
 
-# Caddy terminates TLS, not Jitsi
+# Caddy menerminasi TLS, bukan Jitsi
 DISABLE_HTTPS=1
 ENABLE_LETSENCRYPT=0
 ENABLE_HTTP_REDIRECT=0
 
-# JWT auth — only authenticated tokens can join
+# Auth JWT — hanya token terautentikasi yang dapat bergabung
 ENABLE_AUTH=1
 ENABLE_GUESTS=0
 AUTH_TYPE=jwt
 JWT_APP_ID=pjbl
-JWT_APP_SECRET=<paste output of `openssl rand -hex 32`>
+JWT_APP_SECRET=<tempel output `openssl rand -hex 32`>
 JWT_ACCEPTED_ISSUERS=pjbl
 JWT_ACCEPTED_AUDIENCES=pjbl
+
+# Peran moderator ditentukan HANYA oleh klaim JWT `context.user.moderator`.
+# Default ENABLE_AUTO_OWNER=1 otomatis mempromosikan joiner PERTAMA ke moderator
+# tanpa memandang token — yang akan memberi mahasiswa moderator bila ia
+# bergabung sebelum dosen. Nonaktifkan agar mahasiswa (moderator:false) tak pernah
+# jadi moderator otomatis. Dosen/admin tetap bisa memberi moderator dalam-call
+# via menu peserta ("Grant moderator").
+ENABLE_AUTO_OWNER=0
 ```
 
-**Save `JWT_APP_ID` and `JWT_APP_SECRET`** — both go into the Laravel app's `.env` in Step 3.
+**Simpan `JWT_APP_ID` dan `JWT_APP_SECRET`** — keduanya masuk ke `.env` aplikasi Laravel di Langkah 3.
 
-Edit `~/jitsi-meet/docker-compose.yml`: find the `web:` service's `ports:` section and change it from:
+Alih-alih mengedit `docker-compose.yml` di tempat, deployment memakai `~/jitsi-meet/docker-compose.override.yml` untuk (a) mengikat port web hanya ke localhost, dan (b) bergabung ke jaringan docker aplikasi agar kontainer Caddy dapat menjangkau `jitsi-web` berdasarkan nama:
+
 ```yaml
-ports:
-    - '${HTTP_PORT}:80'
-    - '${HTTPS_PORT}:443'
-```
-to:
-```yaml
-ports:
-    - '127.0.0.1:${HTTP_PORT}:80'
-```
-This keeps the container only reachable on localhost (so Caddy proxies to it but outside traffic must go through Caddy on 443).
+services:
+  web:
+    container_name: jitsi-web
+    ports: !reset
+      - '127.0.0.1:${HTTP_PORT}:80'   # localhost saja; Caddy mem-proxy masuk
+    networks:
+      meet.jitsi: null
+      pjbl-shared:
+        aliases:
+          - jitsi-web
+    volumes:
+      - ${CONFIG}/web/favicon.svg:/usr/share/jitsi-meet/images/favicon.svg:ro
 
-Bring up the stack:
+networks:
+  pjbl-shared:
+    name: pjbl_pjbl-network   # jaringan stack aplikasi
+    external: true
+```
+
+Ini menjaga kontainer hanya terjangkau di localhost (lalu lintas luar harus lewat Caddy di 443) sembari membuatnya dapat diresolusi sebagai `jitsi-web` di dalam `pjbl-network`.
+
+Naikkan stack:
 ```bash
 docker compose up -d
-docker compose ps   # all services should be "Up"/"healthy"
+docker compose ps   # semua service harus "Up"/"healthy"
 ```
 
-Verify locally on the VM:
+Verifikasi lokal di VM:
 ```bash
 curl -I http://localhost:8080
 ```
-Should return 200 (Jitsi web container).
+Seharusnya mengembalikan 200 (kontainer web Jitsi).
 
-Verify externally:
+Verifikasi eksternal:
 ```bash
 curl -I https://meet.polimedia.pblworkspace.com
 ```
-Should return 200 via Caddy. Visit the URL in a browser — Jitsi should refuse to let you join without a token ("Authentication required").
+Seharusnya mengembalikan 200 via Caddy. Kunjungi URL di browser — Jitsi seharusnya menolak Anda bergabung tanpa token ("Authentication required").
 
-**Pacing check**: run `/usage`. If ≥ 80%, stop here.
+**Cek pacing**: jalankan `/usage`. Bila ≥ 80%, berhenti di sini.
 
 ---
 
-## Step 3 — Update Laravel `.env` on the VM
+## Langkah 3 — Perbarui `.env` Laravel di VM
 
-The app's `.env` lives at `/var/www/.env` inside the container (mounted from the host repo). Edit it:
+`.env` aplikasi berada di `/var/www/.env` dalam kontainer (di-mount dari repo host). Edit:
 
 ```env
 APP_URL=https://polimedia.pblworkspace.com
@@ -186,21 +245,21 @@ SESSION_SECURE_COOKIE=true
 
 JITSI_DOMAIN=meet.polimedia.pblworkspace.com
 JITSI_JWT_APP_ID=pjbl
-JITSI_JWT_APP_SECRET=<same value as JWT_APP_SECRET in Step 2>
+JITSI_JWT_APP_SECRET=<nilai yang sama dengan JWT_APP_SECRET di Langkah 2>
 ```
 
-**Remove** the old keys: `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`.
+**Hapus** kunci lama: `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`.
 
-Apply:
+Terapkan:
 ```bash
 cd /path/to/app/repo
-git pull   # pulls the JitsiTokenService + view/JS changes
+git pull   # menarik perubahan JitsiTokenService + view/JS
 docker compose exec app php artisan config:clear
 docker compose exec app php artisan config:cache
 docker compose exec app php artisan route:cache
 ```
 
-**Rebuild Vite assets** — remember the named-volume gotcha (`pjbl_app_build` shadows new builds):
+**Rebuild aset Vite** — ingat gotcha named-volume (`pjbl_app_build` membayangi build baru):
 ```bash
 docker compose down
 docker volume rm pjbl_app_build
@@ -208,160 +267,141 @@ docker compose up -d
 docker compose exec app npm run build
 ```
 
-Confirm the app is reachable through the new domain:
+Konfirmasi aplikasi terjangkau lewat domain baru:
 ```bash
 curl -I https://polimedia.pblworkspace.com
 ```
 
-**Pacing check**: run `/usage`. If ≥ 80%, stop here.
+**Cek pacing**: jalankan `/usage`. Bila ≥ 80%, berhenti di sini.
 
 ---
 
-## Step 4 — Verification
+## Langkah 4 — Verifikasi
 
-End-to-end on the live VM. Run each in order and stop if any fails.
+End-to-end di VM live. Jalankan tiap langkah berurutan dan berhenti bila ada yang gagal.
 
-1. **App TLS**: `curl -I https://polimedia.pblworkspace.com` → 200, Let's Encrypt cert.
-2. **Jitsi TLS**: `curl -I https://meet.polimedia.pblworkspace.com` → 200, separate Let's Encrypt cert.
-3. **Old port closed**: from a machine *outside* the VM, `curl -I http://34.50.107.24:8000` → connection refused / timeout. (App should no longer be reachable bypassing TLS.)
-4. **Anonymous join blocked**: open `https://meet.polimedia.pblworkspace.com/test123` in a browser → "Authentication required" page. Confirms JWT enforcement.
-5. **Dosen happy path**:
-   - Log in to `https://polimedia.pblworkspace.com` as a dosen.
-   - Create a conference for a course, click "Mulai", then "Join".
-   - Room loads; you're prompted for camera/mic; moderator toolbar visible.
-   - DevTools Network: `external_api.js` loads from `meet.polimedia.pblworkspace.com` (not `8x8.vc`).
-6. **Mahasiswa join from a second device**:
-   - Log in as a student enrolled in that course on a different device / browser profile.
-   - Join the same conference.
-   - Video and audio flow both directions.
-   - **This is the load-bearing test for UDP/10000.** If video shows "connecting" but never streams, the firewall is wrong.
-7. **End session**: dosen clicks "Akhiri Sesi" → all participants kicked, `conferences.status = 'ended'` in DB.
-8. **Token rejection**: temporarily change `JITSI_JWT_APP_SECRET` in app `.env` to a wrong value, `php artisan config:clear`, try to join → Jitsi rejects with "invalid token". Restore the correct secret.
-9. **Optional load test**: open 10 browser tabs against the same room and watch `docker stats` on the VM — JVB CPU should be the dominant load.
+1. **TLS aplikasi**: `curl -I https://polimedia.pblworkspace.com` → 200, sertifikat Let's Encrypt.
+2. **TLS Jitsi**: `curl -I https://meet.polimedia.pblworkspace.com` → 200, sertifikat Let's Encrypt terpisah.
+3. **Port lama tertutup**: dari mesin *di luar* VM, `curl -I http://34.50.107.24:8000` → connection refused / timeout. (Aplikasi seharusnya tak lagi terjangkau mem-bypass TLS.)
+4. **Join anonim terblokir**: buka `https://meet.polimedia.pblworkspace.com/test123` di browser → halaman "Authentication required". Mengonfirmasi penegakan JWT.
+5. **Jalur sukses dosen**:
+   - Login ke `https://polimedia.pblworkspace.com` sebagai dosen.
+   - Buat konferensi untuk sebuah mata kuliah, klik "Mulai", lalu "Join".
+   - Ruang termuat; Anda diminta izin kamera/mik; toolbar moderator terlihat.
+   - DevTools Network: `external_api.js` dimuat dari `meet.polimedia.pblworkspace.com` (bukan `8x8.vc`).
+6. **Join mahasiswa dari perangkat kedua**:
+   - Login sebagai mahasiswa terdaftar di mata kuliah itu pada perangkat / profil browser berbeda.
+   - Bergabung ke konferensi yang sama.
+   - Video dan audio mengalir dua arah.
+   - **Ini uji penanggung-beban untuk UDP/10000.** Bila video menampilkan "connecting" tetapi tak pernah streaming, firewall salah.
+7. **Akhiri sesi**: dosen klik "Akhiri Sesi" → semua peserta ditendang, `conferences.status = 'ended'` di DB.
+8. **Penolakan token**: ubah sementara `JITSI_JWT_APP_SECRET` di `.env` aplikasi ke nilai salah, `php artisan config:clear`, coba bergabung → Jitsi menolak dengan "invalid token". Pulihkan secret yang benar.
+9. **Uji beban opsional**: buka 10 tab browser ke ruang yang sama dan pantau `docker stats` di VM — CPU JVB seharusnya jadi beban dominan.
 
-**Pacing check**: run `/usage`. If ≥ 80%, stop and write the final progress log.
+**Cek pacing**: jalankan `/usage`. Bila ≥ 80%, berhenti dan tulis progress log akhir.
 
 ---
 
-## Step 5 — Cleanup
+## Langkah 5 — Pembersihan
 
-Once verification passes:
+Setelah verifikasi lolos:
 
-1. Delete the old RSA key (no longer used):
+1. Hapus kunci RSA lama (tak lagi dipakai):
    ```bash
    docker compose exec app rm -f storage/app/private/jaas-private-key.pk
    ```
-2. Snapshot the VM (GCP console → `Compute Engine` → `Snapshots`) as a rollback point.
-3. Remove any documentation references to JaaS / 8x8.vc that you spot during normal work — code references are already cleaned up.
+2. Snapshot VM (GCP console → `Compute Engine` → `Snapshots`) sebagai titik rollback.
+3. Hapus referensi dokumentasi apa pun ke JaaS / 8x8.vc yang Anda temukan saat bekerja normal — referensi kode sudah dibersihkan.
 
 ---
 
-## Step 6 — Branding (PBL Workspace name, logo, favicon)
+## Langkah 6 — Branding (nama PBL Workspace, logo, favicon)
 
-The app already sends in-call name/logo via the room URL hash
-(`JitsiTokenService::roomUrl()`). This step makes the branding authoritative on the
-Jitsi server and covers what the URL hash can't reach: the **browser-tab favicon**, the
-document **title**, and the **welcome page**. Config is version-controlled in the app
-repo under `docker/jitsi/web/` (see its `README.md`) — copy it onto the VM.
+Aplikasi sudah mengirim nama/logo dalam-call via hash URL ruang (`JitsiTokenService::roomUrl()`). Langkah ini membuat branding otoritatif di server Jitsi dan mencakup yang tak terjangkau hash URL: **favicon tab-browser**, **judul** dokumen, dan **halaman selamat datang**. Config di-version-control di repo aplikasi di bawah `docker/jitsi/web/` (lihat `README.md`-nya) — salin ke VM.
 
 ```bash
-# From the app repo on the VM (already pulled in Step 3):
+# Dari repo aplikasi di VM (sudah ditarik di Langkah 3):
 APP_REPO=/path/to/app/repo
 
-# 1. interface_config override — auto-appended by the web container.
+# 1. Override interface_config — auto-ditambahkan oleh kontainer web.
 cp "$APP_REPO/docker/jitsi/web/custom-interface_config.js" \
    ~/.jitsi-meet-cfg/web/custom-interface_config.js
 
-# 2. Logo + favicon assets, staged where the bind-mounts (below) expect them.
+# 2. Aset logo + favicon, ditempatkan di tempat yang diharapkan bind-mount (di bawah).
 cp "$APP_REPO/docker/jitsi/web/pbl-logo.svg" ~/.jitsi-meet-cfg/web/pbl-logo.svg
 cp "$APP_REPO/docker/jitsi/web/favicon.svg" ~/.jitsi-meet-cfg/web/favicon.svg
 ```
 
-Bind-mount the assets into the web container. Edit `~/jitsi-meet/docker-compose.yml`,
-under the `web:` service `volumes:` list, add:
+Bind-mount aset ke kontainer web. Edit `~/jitsi-meet/docker-compose.yml`, di bawah daftar `volumes:` service `web:`, tambahkan:
 ```yaml
       - ${CONFIG}/web/pbl-logo.svg:/usr/share/jitsi-meet/images/pbl-logo.svg:ro
       - ${CONFIG}/web/favicon.svg:/usr/share/jitsi-meet/images/favicon.svg:ro
 ```
-(`${CONFIG}` is already defined in the Jitsi `.env` as `~/.jitsi-meet-cfg`.)
+(`${CONFIG}` sudah didefinisikan di `.env` Jitsi sebagai `~/.jitsi-meet-cfg`.)
 
-Apply and restart just the web container:
+Terapkan dan restart hanya kontainer web:
 ```bash
 cd ~/jitsi-meet
-docker compose up -d web      # picks up the new volume mounts
-docker compose restart web    # reloads custom-interface_config.js
+docker compose up -d web      # mengambil mount volume baru
+docker compose restart web    # memuat ulang custom-interface_config.js
 ```
 
-**Verify**:
-1. Open `https://meet.polimedia.pblworkspace.com` in a browser → tab title reads
-   **PBL Workspace**, tab favicon is the blue graduation-cap icon, welcome page shows our logo.
-2. Start a conference from the app and join → the top-left watermark is our logo, the
-   in-call header reads **PBL Workspace**, and there's no Jitsi "powered by" branding.
-3. Hard-refresh (Ctrl+Shift+R) if you still see the old favicon — browsers cache it aggressively.
-   The served HTML links `images/favicon.svg?v=1`, so the bind-mount over `favicon.svg` is what takes effect.
+**Verifikasi**:
+1. Buka `https://meet.polimedia.pblworkspace.com` di browser → judul tab bertuliskan **PBL Workspace**, favicon tab adalah ikon topi-wisuda biru, halaman selamat datang menampilkan logo kita.
+2. Mulai konferensi dari aplikasi dan bergabung → watermark kiri-atas adalah logo kita, header dalam-call bertuliskan **PBL Workspace**, dan tak ada branding "powered by" Jitsi.
+3. Hard-refresh (Ctrl+Shift+R) bila Anda masih melihat favicon lama — browser meng-cache-nya agresif. HTML yang disajikan menautkan `images/favicon.svg?v=1`, jadi bind-mount di atas `favicon.svg` yang berlaku.
 
 ---
 
-## Step 7 — SSO (Jitsi login uses PBL)
+## Langkah 7 — SSO (login Jitsi memakai PBL)
 
-Without this, a tokenless visitor (e.g. someone who opens Jitsi's in-room **Share**
-link) hits Jitsi's dead-end "Authentication required" wall. This step points Jitsi's
-`tokenAuthUrl` at PBL, so that visitor is redirected to PBL, logs in with their normal
-account, and is bounced back into the room with a freshly minted JWT.
+Tanpa ini, pengunjung tanpa-token (mis. seseorang yang membuka tautan **Share** dalam-ruang Jitsi) menabrak dinding buntu "Authentication required" Jitsi. Langkah ini mengarahkan `tokenAuthUrl` Jitsi ke PBL, sehingga pengunjung itu diarahkan ke PBL, login dengan akun normalnya, dan dipantulkan kembali ke ruang dengan JWT yang baru di-mint.
 
-The PBL side ships in the app repo: route `conferences.jitsi-auth`
-(`App\Http\Controllers\ConferenceJoinController@jitsiAuth`, behind `auth`). It looks up
-the conference by `room_name`, verifies access (admin / owning-dosen / enrolled-mahasiswa,
-same rules as the in-app rooms), mints a per-user JWT, and redirects back to
-`https://meet.…/{room}?jwt=…`. Make sure the app repo is pulled (Step 3) so the route exists.
+Sisi PBL dikirim di repo aplikasi: route `conferences.jitsi-auth` (`App\Http\Controllers\ConferenceJoinController@jitsiAuth`, di belakang `auth`). Ia mencari konferensi berdasarkan `room_name`, memverifikasi akses (admin / dosen-pemilik / mahasiswa-terdaftar, aturan sama dengan ruang dalam-aplikasi), me-mint JWT per-user, dan redirect kembali ke `https://meet.…/{room}?jwt=…`. Pastikan repo aplikasi sudah ditarik (Langkah 3) agar route ada.
 
-Jitsi side — install the config override:
+Sisi Jitsi — pasang override config:
 ```bash
-APP_REPO=/path/to/app/repo   # e.g. ~/pjbl
+APP_REPO=/path/to/app/repo   # mis. ~/pjbl
 cp "$APP_REPO/docker/jitsi/web/custom-config.js" ~/.jitsi-meet-cfg/web/custom-config.js
 cd ~/jitsi-meet
-docker compose restart web    # reloads config.js (custom-config.js auto-appended)
+docker compose restart web    # memuat ulang config.js (custom-config.js auto-ditambahkan)
 ```
 
-Confirm it's served:
+Konfirmasi tersaji:
 ```bash
 curl -s https://meet.polimedia.pblworkspace.com/config.js | grep -i tokenAuthUrl
 ```
-Should show `config.tokenAuthUrl = 'https://polimedia.pblworkspace.com/conferences/jitsi-auth?room={room}';`
+Seharusnya menampilkan `config.tokenAuthUrl = 'https://polimedia.pblworkspace.com/conferences/jitsi-auth?room={room}';`
 
-**Verify the round-trip**:
-1. In a logged-in conference, click Jitsi's **Share** button → copy the link
-   (`https://meet.…/{room}`).
-2. Open it in a fresh incognito window → you land on the **PBL login page**.
-3. Log in as a user enrolled in / teaching that course → you're redirected back and join
-   the room (moderator if dosen/admin, participant if mahasiswa).
-4. Try as a user *not* in that course → 403 from PBL (no token minted). Try the link for
-   an **ended** conference → 410.
+**Verifikasi round-trip**:
+1. Dalam konferensi yang sudah login, klik tombol **Share** Jitsi → salin tautan (`https://meet.…/{room}`).
+2. Buka di jendela incognito baru → Anda mendarat di **halaman login PBL**.
+3. Login sebagai user yang terdaftar di / mengajar mata kuliah itu → Anda diarahkan kembali dan bergabung ke ruang (moderator bila dosen/admin, peserta bila mahasiswa).
+4. Coba sebagai user yang *bukan* di mata kuliah itu → 403 dari PBL (tak ada token di-mint). Coba tautan untuk konferensi yang **berakhir** → 410.
 
-> No loop: the return URL carries a valid `jwt`, so Jitsi joins instead of re-redirecting.
-> If you ever see a redirect loop, it means the minted token is invalid (wrong
-> `JITSI_JWT_APP_SECRET`) — fix the secret, `php artisan config:clear`.
+> Tanpa loop: URL kembali membawa `jwt` valid, jadi Jitsi bergabung alih-alih me-redirect ulang. Bila Anda pernah melihat redirect loop, artinya token yang di-mint tidak valid (`JITSI_JWT_APP_SECRET` salah) — perbaiki secret, `php artisan config:clear`.
 
 ---
 
 ## Rollback
 
-The migration is now merged to `main` — the JaaS code path (`JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`, the RS256 JWT signing, the embedded iframe) has been removed from the codebase. A rollback to JaaS is no longer a single `git revert`; you'd need to:
+Migrasi kini sudah merge ke `main` — jalur kode JaaS (`JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`, penandatanganan JWT RS256, iframe tertanam) telah dihapus dari basis kode. Rollback ke JaaS tak lagi satu `git revert`; Anda perlu:
 
-1. Identify the merge SHA(s) for the self-hosted migration (`099a07e refactor(conferences): migrate from Jitsi JaaS to self-hosted (HS256 JWT)`, `db5378a refactor(conferences): drop iframe, use standalone Jitsi tab launcher`) plus the favicon/clean-up commits after.
-2. Revert those commits in order (non-destructive `git revert`, never `git reset --hard`).
-3. Restore the RSA key file at `storage/app/private/jaas-private-key.pk` if Step 5 cleanup was run.
-4. Restore the old env keys in the VM's app `.env`: `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`.
+1. Identifikasi SHA merge untuk migrasi self-hosted (`099a07e refactor(conferences): migrate from Jitsi JaaS to self-hosted (HS256 JWT)`, `db5378a refactor(conferences): drop iframe, use standalone Jitsi tab launcher`) plus commit favicon/pembersihan setelahnya.
+2. Revert commit itu berurutan (`git revert` non-destruktif, jangan pernah `git reset --hard`).
+3. Pulihkan berkas kunci RSA di `storage/app/private/jaas-private-key.pk` bila pembersihan Langkah 5 telah dijalankan.
+4. Pulihkan kunci env lama di `.env` aplikasi VM: `JITSI_APP_ID`, `JITSI_KID`, `JITSI_PRIVATE_KEY_PATH`.
 5. `docker compose exec app php artisan config:clear && php artisan config:cache`.
 
-If the Jitsi stack on the VM goes down without a code-level cause (cert renewal failure, docker crash, etc.), bring it back without touching the app:
+Bila stack Jitsi di VM mati tanpa penyebab tingkat-kode (kegagalan pembaruan sertifikat, crash docker, dll.), bawa kembali tanpa menyentuh aplikasi:
 
 ```bash
 cd ~/jitsi-meet
 docker compose down
 docker compose up -d
-docker compose ps      # confirm "Up"/"healthy"
-sudo systemctl restart caddy   # if certs went stale
+docker compose ps      # konfirmasi "Up"/"healthy"
+# bila sertifikat basi, restart kontainer Caddy dari proyek aplikasi:
+cd ~/pjbl && docker compose restart caddy
 ```
 
-Caddy + the new domain setup stay in place regardless — the app continues to serve over HTTPS at `polimedia.pblworkspace.com`, which is the load-bearing piece even if Jitsi is temporarily down.
+Caddy + setup domain baru tetap di tempat tanpa memandang — aplikasi terus melayani lewat HTTPS di `polimedia.pblworkspace.com`, yang merupakan bagian penanggung-beban bahkan bila Jitsi sementara mati.

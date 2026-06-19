@@ -7,10 +7,12 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 
+// Notifikasi reset password dengan template email berbahasa Indonesia (mengganti bawaan Laravel).
 class ResetPasswordNotification extends ResetPassword implements ShouldQueue
 {
     use Queueable;
 
+    // Susun isi email reset password (tombol menuju URL reset, masa berlaku 60 menit).
     public function toMail(mixed $notifiable): MailMessage
     {
         $resetUrl = $this->resetUrl($notifiable);

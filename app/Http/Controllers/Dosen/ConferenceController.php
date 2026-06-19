@@ -12,12 +12,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Notification;
 
+// Controller konferensi sisi dosen: CRUD jadwal, salin ke kelas siblings, mulai/akhiri sesi,
+// dan masuk room sebagai moderator.
 class ConferenceController extends Controller
 {
+    // Inject service pembuat token Jitsi.
     public function __construct(private JitsiTokenService $jitsi)
     {
     }
 
+    // Daftar konferensi sebuah matkul (aktif & berakhir) plus daftar kelas siblings.
     public function index(Course $course)
     {
         $this->authorizeDosen($course);
@@ -37,6 +41,7 @@ class ConferenceController extends Controller
         return view('dosen.conferences.index', compact('course', 'activeConferences', 'endedConferences', 'siblings'));
     }
 
+    // Form buat jadwal konferensi (sertakan siblings untuk opsi fan-out).
     public function create(Course $course)
     {
         $this->authorizeDosen($course);
@@ -44,6 +49,8 @@ class ConferenceController extends Controller
         return view('dosen.conferences.create', compact('course', 'siblings'));
     }
 
+    // Simpan jadwal konferensi pada matkul utama, notifikasi mahasiswa, lalu fan-out ke
+    // kelas siblings yang dipilih (id di-intersect dengan siblings agar aman).
     public function store(Request $request, Course $course)
     {
         $this->authorizeDosen($course);
@@ -56,11 +63,13 @@ class ConferenceController extends Controller
             'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
+        // Keamanan fan-out: hanya izinkan id yang benar-benar milik siblings matkul ini.
         $allowedSiblingIds = $course->siblings()->pluck('id');
         $targetIds = collect($request->sibling_ids ?? [])
             ->map(fn($id) => (int) $id)
             ->intersect($allowedSiblingIds);
 
+        // Buat konferensi pada matkul utama dulu (room_name unik per matkul).
         $conference = $course->conferences()->create([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
@@ -70,6 +79,7 @@ class ConferenceController extends Controller
             'status' => 'scheduled',
         ]);
 
+        // Beri tahu mahasiswa matkul utama tentang jadwal baru.
         $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $course->id))->get();
         if ($students->isNotEmpty()) {
             Notification::send($students, new AcademicUpdateNotification(
@@ -79,6 +89,7 @@ class ConferenceController extends Controller
             ));
         }
 
+        // Fan-out: buat konferensi serupa + notifikasi untuk tiap kelas sibling terpilih.
         $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
         foreach ($targetCourses as $sibling) {
             $sibConf = $sibling->conferences()->create([
@@ -109,6 +120,7 @@ class ConferenceController extends Controller
             ->with('success', $msg);
     }
 
+    // Form edit jadwal konferensi.
     public function edit(Conference $conference)
     {
         $course = $conference->course;
@@ -117,6 +129,7 @@ class ConferenceController extends Controller
         return view('dosen.conferences.edit', compact('conference', 'course'));
     }
 
+    // Perbarui jadwal & beri tahu mahasiswa matkul terkait.
     public function update(Request $request, Conference $conference)
     {
         $this->authorizeDosen($conference->course);
@@ -145,6 +158,7 @@ class ConferenceController extends Controller
             ->with('success', 'Jadwal konferensi berhasil diperbarui.');
     }
 
+    // Hapus jadwal konferensi.
     public function destroy(Conference $conference)
     {
         $course = $conference->course;
@@ -157,6 +171,7 @@ class ConferenceController extends Controller
             ->with('success', 'Konferensi berhasil dihapus.');
     }
 
+    // Salin satu jadwal konferensi ke beberapa kelas siblings sekaligus.
     public function copy(Request $request, Conference $conference)
     {
         $course = $conference->course;
@@ -167,6 +182,7 @@ class ConferenceController extends Controller
             'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
+        // Batasi target ke siblings milik matkul ini saja (cegah menyalin ke matkul dosen lain).
         $allowedSiblingIds = $course->siblings()->pluck('id');
         $targetIds = collect($request->sibling_ids)
             ->map(fn($id) => (int) $id)
@@ -191,6 +207,7 @@ class ConferenceController extends Controller
         return back()->with('success', "Jadwal '{$conference->title}' disalin ke {$targetIds->count()} kelas lain.");
     }
 
+    // Mulai sesi (status → live) lalu arahkan dosen langsung ke room.
     public function start(Conference $conference)
     {
         $this->authorizeDosen($conference->course);
@@ -202,6 +219,7 @@ class ConferenceController extends Controller
             ->with('success', 'Sesi konferensi telah dimulai.');
     }
 
+    // Akhiri sesi (status → ended); dukung respons JSON untuk pemanggilan AJAX.
     public function end(Conference $conference)
     {
         $this->authorizeDosen($conference->course);
@@ -220,6 +238,7 @@ class ConferenceController extends Controller
             ->with('success', 'Sesi konferensi telah diakhiri.');
     }
 
+    // Masuk room sebagai moderator: mint JWT (moderator=true) lalu render view room.
     public function room(Conference $conference)
     {
         $this->authorizeDosen($conference->course);
@@ -243,6 +262,7 @@ class ConferenceController extends Controller
         return view('dosen.conferences.room', compact('conference', 'meetUrl'));
     }
 
+    // Penjaga sederhana: pastikan matkul memang milik dosen yang sedang login.
     private function authorizeDosen(Course $course): void
     {
         if ($course->dosen_id !== auth()->id()) {

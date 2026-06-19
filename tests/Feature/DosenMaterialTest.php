@@ -7,8 +7,10 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
+// Uji CRUD materi oleh dosen + otorisasi (dosen tak bisa menyentuh matkul dosen lain → 403).
+
 // ----------------------------------------------------------------
-// Material Index
+// Daftar materi (index)
 // ----------------------------------------------------------------
 
 test('dosen can view materials for their own course', function () {
@@ -29,7 +31,7 @@ test('dosen cannot view materials for another dosen course', function () {
 });
 
 // ----------------------------------------------------------------
-// Material Store
+// Simpan materi (store) — termasuk unggah berkas
 // ----------------------------------------------------------------
 
 test('dosen can create a material with a file', function () {
@@ -69,7 +71,7 @@ test('dosen cannot create material for another dosen course', function () {
 });
 
 // ----------------------------------------------------------------
-// Material Update
+// Perbarui materi (update)
 // ----------------------------------------------------------------
 
 test('dosen can update their own material', function () {
@@ -90,7 +92,7 @@ test('dosen can update their own material', function () {
 });
 
 // ----------------------------------------------------------------
-// Material Delete
+// Hapus materi (delete)
 // ----------------------------------------------------------------
 
 test('dosen can delete their own material', function () {

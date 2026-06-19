@@ -1,8 +1,8 @@
-# Discussions
+# Diskusi (Discussions)
 
-## Access
+## Akses
 
-`/discussions` is shared across all three roles. Registered as a resource route under the auth-only middleware group (no role prefix):
+`/discussions` dibagikan ke ketiga role. Didaftarkan sebagai route resource di bawah grup middleware auth-only (tanpa prefiks role):
 
 ```php
 Route::middleware('auth')->group(function () {
@@ -11,60 +11,60 @@ Route::middleware('auth')->group(function () {
 });
 ```
 
-So admin, dosen, and mahasiswa share the same discussion forum.
+Jadi admin, dosen, dan mahasiswa berbagi forum diskusi yang sama.
 
 ---
 
-## Models
+## Model
 
-### `Discussion` (`app/Models/Discussion.php`, table `discussions`)
+### `Discussion` (`app/Models/Discussion.php`, tabel `discussions`)
 
-| Column | Notes |
+| Kolom | Catatan |
 |---|---|
 | `id` | PK |
-| `user_id` | FK users cascade — the author |
-| `topic` | string — free-text category (e.g. `general`, `akademik`, `tugas`); aggregated for the sidebar popular-topics list |
+| `user_id` | FK users cascade — penulis |
+| `topic` | string — kategori teks-bebas (mis. `general`, `akademik`, `tugas`); diagregasi untuk daftar topik-populer di sidebar |
 | `title` | string |
 | `content` | text |
 | timestamps | |
 
-> Originally there was a `course_id` FK; migration `2026_03_12_065022_alter_discussions_table_replace_course_with_topic.php` dropped it in favour of the free-text `topic` column.
+> Semula ada FK `course_id`; migrasi `2026_03_12_065022_alter_discussions_table_replace_course_with_topic.php` menghapusnya demi kolom teks-bebas `topic`.
 
-Relations: `user()` belongsTo `User`, `comments()` hasMany `DiscussionComment`.
+Relasi: `user()` belongsTo `User`, `comments()` hasMany `DiscussionComment`.
 
-### `DiscussionComment` (`app/Models/DiscussionComment.php`, table `discussion_comments`)
+### `DiscussionComment` (`app/Models/DiscussionComment.php`, tabel `discussion_comments`)
 
-| Column | Notes |
+| Kolom | Catatan |
 |---|---|
 | `id` | PK |
 | `discussion_id` | FK discussions cascade |
 | `user_id` | FK users cascade |
-| `content` | text — **the field name is `content`, not `body`** |
+| `content` | text — **nama field adalah `content`, bukan `body`** |
 | timestamps | |
 
-Relations: `discussion()`, `user()`.
+Relasi: `discussion()`, `user()`.
 
 ---
 
-## Routes (`DiscussionController`)
+## Route (`DiscussionController`)
 
-| Method + URL | Action |
+| Method + URL | Aksi |
 |---|---|
-| `GET /discussions` | `index` — list with search, topic filter, sort (`latest`/`popular`), pagination |
-| `GET /discussions/create` | `create` — accepts optional `?topic=` to prefill |
-| `POST /discussions` | `store` — validates `topic`, `title`, `content`; sets `user_id = auth()->id()` |
-| `GET /discussions/{discussion}` | `show` — eager-loads `user` + `comments.user`, renders `discussions.show` which embeds the Livewire component |
+| `GET /discussions` | `index` — daftar dengan pencarian, filter topik, sortir (`latest`/`popular`), paginasi |
+| `GET /discussions/create` | `create` — menerima `?topic=` opsional untuk prefill |
+| `POST /discussions` | `store` — memvalidasi `topic`, `title`, `content`; menyetel `user_id = auth()->id()` |
+| `GET /discussions/{discussion}` | `show` — eager-load `user` + `comments.user`, render `discussions.show` yang menyematkan komponen Livewire |
 | `GET /discussions/{discussion}/edit` | `edit` — authorize `update` |
-| `PUT /discussions/{discussion}` | `update` — `title`, `content` (topic isn't editable post-create) |
+| `PUT /discussions/{discussion}` | `update` — `title`, `content` (topic tak bisa diedit pasca-create) |
 | `DELETE /discussions/{discussion}` | `destroy` — authorize `delete` |
 
-Authorization for `edit`/`update`/`destroy` uses Laravel's policy auto-discovery (`$this->authorize('update'|'delete', $discussion)`). The default rule should restrict to the author + admin; if you need a `DiscussionPolicy`, add one — none is committed yet, so currently any auth user can edit/delete (verify before assuming).
+Otorisasi untuk `edit`/`update`/`destroy` memakai auto-discovery policy Laravel (`$this->authorize('update'|'delete', $discussion)`). Aturan default seharusnya membatasi ke penulis + admin; bila Anda perlu `DiscussionPolicy`, tambahkan satu — belum ada yang di-commit, jadi saat ini user auth mana pun bisa edit/delete (verifikasi sebelum berasumsi).
 
 ---
 
-## Sidebar cache
+## Cache sidebar
 
-The discussion-index sidebar (popular topics, total count, top contributors) is cached for 10 minutes:
+Sidebar index diskusi (topik populer, total hitungan, kontributor teratas) di-cache selama 10 menit:
 
 ```php
 $sidebar = Cache::remember('discussions:index:sidebar', 600, function () {
@@ -81,7 +81,7 @@ $sidebar = Cache::remember('discussions:index:sidebar', 600, function () {
 });
 ```
 
-The `Discussion::booted()` hook invalidates the key on every create/update/delete:
+Hook `Discussion::booted()` membatalkan kunci pada tiap create/update/delete:
 
 ```php
 protected static function booted(): void
@@ -93,25 +93,25 @@ protected static function booted(): void
 }
 ```
 
-If the sidebar counts are stale after a discussion change, the model hook should have fired — check the cache driver.
+Bila hitungan sidebar basi setelah perubahan diskusi, hook model seharusnya terpicu — cek driver cache.
 
 ---
 
-## Index filtering / sorting
+## Filter / sortir index
 
-`GET /discussions` accepts:
+`GET /discussions` menerima:
 
-- `search` — matches `title` OR `content` with `LIKE %…%`
-- `topic` — exact match on `topic`
-- `sort` — `latest` (default) or `popular`. `popular` reorders by `comments_count` descending.
+- `search` — mencocokkan `title` ATAU `content` dengan `LIKE %…%`
+- `topic` — kecocokan persis pada `topic`
+- `sort` — `latest` (default) atau `popular`. `popular` mengurutkan ulang berdasarkan `comments_count` menurun.
 
-Pagination: 10 per page, `withQueryString()` so filters survive page links.
+Paginasi: 10 per halaman, `withQueryString()` agar filter bertahan di tautan halaman.
 
 ---
 
-## Livewire component — the lone exception
+## Komponen Livewire — satu-satunya pengecualian
 
-`app/Livewire/Discussion/Show.php` is the **only** Livewire component in the app. It exists to handle comment submission with a reactive comment-list re-render (without a full page reload).
+`app/Livewire/Discussion/Show.php` adalah **satu-satunya** komponen Livewire di aplikasi. Ia ada untuk menangani pengiriman komentar dengan render ulang daftar-komentar reaktif (tanpa reload halaman penuh).
 
 ```php
 class Show extends Component
@@ -137,7 +137,7 @@ class Show extends Component
         DiscussionComment::create([
             'discussion_id' => $this->discussion->id,
             'user_id' => auth()->id(),
-            'content' => $this->newComment,           // ← writes to `content`, not `body`
+            'content' => $this->newComment,           // ← menulis ke `content`, bukan `body`
         ]);
 
         $this->newComment = '';
@@ -156,25 +156,25 @@ class Show extends Component
 }
 ```
 
-The view (`resources/views/livewire/discussion/show.blade.php`) renders:
+View (`resources/views/livewire/discussion/show.blade.php`) merender:
 
-- The thread starter (title + content + author + timestamps).
-- The reactive `$comments` list.
-- A `wire:model="newComment"` textarea and a "Kirim" button that calls `wire:click="addComment"`.
+- Pembuka thread (judul + konten + penulis + timestamps).
+- Daftar `$comments` yang reaktif.
+- Textarea `wire:model="newComment"` dan tombol "Kirim" yang memanggil `wire:click="addComment"`.
 
-It is embedded inside `resources/views/discussions/show.blade.php` via `<livewire:discussion.show :discussion="$discussion" />`. The parent Blade view shouldn't render `$discussion->comments` itself — the Livewire component owns the comment list.
+Ia disematkan di dalam `resources/views/discussions/show.blade.php` via `<livewire:discussion.show :discussion="$discussion" />`. View Blade induk tidak boleh merender `$discussion->comments` sendiri — komponen Livewire memiliki daftar komentar.
 
-### Constraints
+### Batasan
 
-- **Don't add more Livewire components** for other features. If you need interactivity, use Alpine. If you need a server round-trip with redirect, use a regular Blade form. Only add a Livewire component when reactive server state is genuinely required.
-- **Livewire 4 redirect-to-same-URL quirk**: redirecting to the same URL within a component doesn't refresh Blade state outside the component. Use `loadX()` for in-component refresh, or `redirect(..., navigate: false)` for a hard reload.
-- **Playwright tip**: `wire:model` does not commit when `.fill()` is used because it short-circuits the input event sequence. Use slow typing — `page.locator(...).pressSequentially(text, { delay: 30 })`.
+- **Jangan menambah komponen Livewire lagi** untuk fitur lain. Bila perlu interaktivitas, pakai Alpine. Bila perlu round-trip server dengan redirect, pakai form Blade biasa. Tambahkan komponen Livewire hanya saat state server reaktif benar-benar diperlukan.
+- **Kuirk Livewire 4 redirect-ke-URL-sama**: redirect ke URL yang sama dalam komponen tidak menyegarkan state Blade di luar komponen. Pakai `loadX()` untuk refresh dalam-komponen, atau `redirect(..., navigate: false)` untuk reload keras.
+- **Tip Playwright**: `wire:model` tidak commit saat `.fill()` dipakai karena ia melompati urutan event input. Pakai pengetikan lambat — `page.locator(...).pressSequentially(text, { delay: 30 })`.
 
 ---
 
-## Adding policies
+## Menambah policy
 
-If you want to lock discussion editing/deleting to the author + admin (current behaviour relies on Laravel's auto-discovery, which without a `DiscussionPolicy` is permissive), add:
+Bila Anda ingin mengunci edit/hapus diskusi ke penulis + admin (perilaku saat ini mengandalkan auto-discovery Laravel, yang tanpa `DiscussionPolicy` bersifat permisif), tambahkan:
 
 ```php
 // app/Policies/DiscussionPolicy.php
@@ -192,4 +192,4 @@ class DiscussionPolicy
 }
 ```
 
-Laravel auto-discovers it via the `Model` → `ModelPolicy` naming.
+Laravel otomatis menemukannya via penamaan `Model` → `ModelPolicy`.

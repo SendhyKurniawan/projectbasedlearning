@@ -9,8 +9,11 @@ use App\Models\Semester;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+// Controller rekap nilai untuk admin: daftar matkul + nilai mahasiswa, bisa difilter.
 class GradeController extends Controller
 {
+    // Tampilkan rekap nilai: matkul difilter (semester/tahun ajaran/dosen) lalu muat
+    // mahasiswa beserta nilai submission-nya (pencarian nama/NIM opsional).
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -27,26 +30,26 @@ class GradeController extends Controller
             ])
             ->select('id', 'semester_id', 'dosen_id', 'kode_matkul', 'nama_matkul', 'created_at');
 
-        // Filter by semester
+        // Filter berdasarkan semester
         if ($semesterId) {
             $coursesQuery->where('semester_id', $semesterId);
         }
 
-        // Filter by academic year (via semester relation)
+        // Filter berdasarkan tahun ajaran (lewat relasi semester)
         if ($academicYearId) {
             $coursesQuery->whereHas('semester', function ($q) use ($academicYearId) {
                 $q->where('academic_year_id', $academicYearId);
             });
         }
 
-        // Filter by dosen
+        // Filter berdasarkan dosen
         if ($dosenId) {
             $coursesQuery->where('dosen_id', $dosenId);
         }
 
         $courses = $coursesQuery->orderBy('created_at', 'desc')->get();
 
-        // Eager load students with optional search filter
+        // Muat mahasiswa beserta submission-nya; terapkan pencarian nama/NIM bila ada
         $courses->load(['students' => function ($query) use ($search) {
             $query->select('users.id', 'users.name', 'users.nim');
             if ($search) {
@@ -60,7 +63,7 @@ class GradeController extends Controller
             }]);
         }]);
 
-        // Fetch filter options
+        // Ambil opsi-opsi untuk dropdown filter
         $availableSemesters = Semester::with('academicYear:id,year_start,year_end')
             ->orderBy('start_date', 'desc')->get();
         $availableYears = AcademicYear::orderBy('year_start', 'desc')->get();

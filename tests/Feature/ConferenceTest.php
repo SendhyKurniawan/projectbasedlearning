@@ -4,8 +4,11 @@ use App\Models\Conference;
 use App\Models\Course;
 use App\Models\User;
 
+// Uji konferensi: dosen jadwalkan/mulai/akhiri (status scheduled→live→ended), otorisasi pemilik,
+// dan mahasiswa terdaftar bisa melihat daftar konferensi matkulnya.
+
 // ----------------------------------------------------------------
-// Conference Index
+// Daftar konferensi (index)
 // ----------------------------------------------------------------
 
 test('dosen can view their course conferences', function () {
@@ -26,7 +29,7 @@ test('dosen cannot view conferences for another dosen course', function () {
 });
 
 // ----------------------------------------------------------------
-// Conference Store
+// Jadwalkan konferensi (store)
 // ----------------------------------------------------------------
 
 test('dosen can schedule a conference', function () {
@@ -48,7 +51,7 @@ test('dosen can schedule a conference', function () {
 });
 
 // ----------------------------------------------------------------
-// Start / End
+// Mulai / Akhiri konferensi
 // ----------------------------------------------------------------
 
 test('dosen can start a conference', function () {
@@ -85,7 +88,7 @@ test('dosen can end a live conference', function () {
 });
 
 // ----------------------------------------------------------------
-// Ownership Guard
+// Gerbang kepemilikan + akses mahasiswa
 // ----------------------------------------------------------------
 
 test('dosen cannot start a conference they do not own', function () {

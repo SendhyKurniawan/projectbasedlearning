@@ -1,15 +1,15 @@
-# Announcements
+# Pengumuman (Announcements)
 
-## What it is
+## Apa ini
 
-A shared communication channel for admin and dosen to broadcast messages to subsets of users (everyone, all dosen, all mahasiswa, or specific users). Mahasiswa cannot author announcements. The resource is registered under the shared auth-only middleware group — no role prefix in the URL.
+Channel komunikasi bersama bagi admin dan dosen untuk menyiarkan pesan ke subset pengguna (semua orang, semua dosen, semua mahasiswa, atau pengguna tertentu). Mahasiswa tidak dapat menulis pengumuman. Resource didaftarkan di bawah grup middleware auth-only bersama — tanpa prefiks role di URL.
 
 ```php
-// routes/web.php (inside the auth-only group)
+// routes/web.php (di dalam grup auth-only)
 Route::resource('announcements', App\Http\Controllers\AnnouncementController::class);
 ```
 
-So URLs are `/announcements`, `/announcements/create`, `/announcements/{announcement}`, etc.
+Jadi URL adalah `/announcements`, `/announcements/create`, `/announcements/{announcement}`, dll.
 
 ---
 
@@ -34,47 +34,47 @@ public function attachmentIsImage(): bool { return $this->hasAttachment() && str
 public function attachmentIsPdf(): bool   { return $this->hasAttachment() && $this->attachment_mime === 'application/pdf'; }
 ```
 
-### Schema
+### Skema
 
-| Column | Type | Notes |
+| Kolom | Tipe | Catatan |
 |---|---|---|
 | `id` | PK | |
-| `user_id` | FK users cascade | author |
+| `user_id` | FK users cascade | penulis |
 | `title` | string | |
 | `content` | text | |
 | `target_audience` | enum | `all\|dosen\|mahasiswa\|specific`, default `all` |
-| `attachment_path` | string nullable | path on `public` disk under `announcements/…` |
-| `attachment_name` | string nullable | original filename |
-| `attachment_mime` | string(100) nullable | for rendering decision (image preview vs PDF link) |
+| `attachment_path` | string nullable | path pada disk `public` di bawah `announcements/…` |
+| `attachment_name` | string nullable | nama berkas asli |
+| `attachment_mime` | string(100) nullable | untuk keputusan render (preview gambar vs tautan PDF) |
 | timestamps | | |
 
-Plus the pivot `announcement_user` (for `target_audience='specific'`):
+Plus pivot `announcement_user` (untuk `target_audience='specific'`):
 
-| Column | Notes |
+| Kolom | Catatan |
 |---|---|
 | `announcement_id` | FK cascade |
 | `user_id` | FK cascade |
-| Unique `(announcement_id, user_id)` | prevents duplicates |
+| Unik `(announcement_id, user_id)` | mencegah duplikat |
 
 ---
 
-## Routes
+## Route
 
-| Method + URL | Action | Notes |
+| Method + URL | Aksi | Catatan |
 |---|---|---|
-| `GET /announcements` | `index` | search + target filter, paginated 10/page |
-| `GET /announcements/create` | `create` | admin or dosen only — 403 for mahasiswa |
-| `POST /announcements` | `store` | author + audience + optional attachment |
-| `GET /announcements/{announcement}` | `show` | per-role visibility gate (see below) |
-| `GET /announcements/{announcement}/edit` | `edit` | author OR admin |
-| `PUT /announcements/{announcement}` | `update` | author OR admin |
-| `DELETE /announcements/{announcement}` | `destroy` | author OR admin |
+| `GET /announcements` | `index` | pencarian + filter target, berpaginasi 10/halaman |
+| `GET /announcements/create` | `create` | admin atau dosen saja — 403 untuk mahasiswa |
+| `POST /announcements` | `store` | penulis + audiens + lampiran opsional |
+| `GET /announcements/{announcement}` | `show` | gerbang visibilitas per-role (lihat bawah) |
+| `GET /announcements/{announcement}/edit` | `edit` | penulis ATAU admin |
+| `PUT /announcements/{announcement}` | `update` | penulis ATAU admin |
+| `DELETE /announcements/{announcement}` | `destroy` | penulis ATAU admin |
 
 ---
 
-## Index filter chain
+## Rantai filter index
 
-`AnnouncementController::index` builds the query depending on the requester's role:
+`AnnouncementController::index` membangun query tergantung role peminta:
 
 ```php
 $query = Announcement::with('author')->latest();
@@ -91,29 +91,29 @@ if ($user->role === 'mahasiswa') {
           ->orWhereHas('targetedUsers', fn ($subq) => $subq->where('user_id', $user->id));
     });
 }
-// admin sees everything (no extra where)
+// admin melihat semuanya (tanpa where tambahan)
 ```
 
-Additional optional filters:
+Filter opsional tambahan:
 
-- `?search=` matches `title` OR `content` with `LIKE %…%`
-- `?target=all|dosen|mahasiswa|specific` exact match
+- `?search=` mencocokkan `title` ATAU `content` dengan `LIKE %…%`
+- `?target=all|dosen|mahasiswa|specific` kecocokan persis
 
-Results: `paginate(10)->withQueryString()` — filters persist across pagination links.
+Hasil: `paginate(10)->withQueryString()` — filter bertahan lintas tautan paginasi.
 
 ---
 
 ## Create / store
 
-`create()` returns role-specific options:
+`create()` mengembalikan opsi spesifik-role:
 
-| Role | Audience choices | User picker scope |
+| Role | Pilihan audiens | Skop picker user |
 |---|---|---|
-| admin | `all`, `dosen`, `mahasiswa`, `specific` | all users except self |
-| dosen | `mahasiswa`, `specific` | mahasiswa only |
-| mahasiswa | aborts 403 | — |
+| admin | `all`, `dosen`, `mahasiswa`, `specific` | semua user kecuali diri sendiri |
+| dosen | `mahasiswa`, `specific` | mahasiswa saja |
+| mahasiswa | abort 403 | — |
 
-### Validation
+### Validasi
 
 ```php
 $rules = [
@@ -128,17 +128,17 @@ if ($request->target_audience === 'specific') {
     $rules['specific_users.*'] = 'exists:users,id';
 }
 
-// dosen extra check
+// cek tambahan dosen
 if ($user->role === 'dosen' && !in_array($request->target_audience, ['mahasiswa', 'specific'])) {
     abort(403, 'Akses audiens ditolak.');
 }
 ```
 
-Attachment cap is 10 MB, MIME-restricted to common image formats + PDF. Files land at `announcements/{time()}_{name}` on the `public` disk; `attachment_name` keeps the original filename for the download link; `attachment_mime` drives whether the view shows an `<img>` or a download link.
+Batas lampiran 10 MB, MIME dibatasi ke format gambar umum + PDF. Berkas mendarat di `announcements/{time()}_{name}` pada disk `public`; `attachment_name` menyimpan nama berkas asli untuk tautan unduh; `attachment_mime` menentukan apakah view menampilkan `<img>` atau tautan unduh.
 
-### Notification dispatch
+### Dispatch notifikasi
 
-After saving, the controller materialises the recipient list and sends `AnnouncementNotification` (database channel only):
+Setelah menyimpan, controller memmaterialisasi daftar penerima dan mengirim `AnnouncementNotification` (channel database saja):
 
 ```php
 $notifiableUsers = collect();
@@ -159,13 +159,13 @@ if ($notifiableUsers->isNotEmpty()) {
 }
 ```
 
-`AnnouncementNotification` is `ShouldQueue` — see [notifications.md](notifications.md). For `target_audience='all'` against a large user base, this can be a slow request under the default `QUEUE_CONNECTION=sync`. Switch to `database` + a worker in production.
+`AnnouncementNotification` adalah `ShouldQueue` — lihat [notifications.md](notifications.md). Untuk `target_audience='all'` terhadap basis pengguna besar, ini bisa jadi request lambat di bawah default `QUEUE_CONNECTION=sync`. Ganti ke `database` + worker di produksi.
 
 ---
 
 ## Show
 
-`AnnouncementController::show` enforces a per-role visibility check that mirrors the index filter:
+`AnnouncementController::show` memberlakukan cek visibilitas per-role yang mencerminkan filter index:
 
 ```php
 $isAllowed = false;
@@ -189,13 +189,13 @@ if (!$isAllowed) {
 }
 ```
 
-A user who lands on `/announcements/{id}` via direct URL but isn't in the audience gets 403, even if they could read the title in their notification list.
+User yang mendarat di `/announcements/{id}` lewat URL langsung tetapi bukan target mendapat 403, bahkan bila ia bisa membaca judulnya di daftar notifikasi.
 
 ---
 
 ## Edit / update / destroy
 
-Only the original author OR admin can mutate an announcement:
+Hanya penulis asli ATAU admin yang dapat mengubah pengumuman:
 
 ```php
 if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {
@@ -203,36 +203,36 @@ if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {
 }
 ```
 
-`update()` handles attachment replacement:
+`update()` menangani penggantian lampiran:
 
-- `remove_attachment` boolean flag → delete the existing file, null the three attachment columns.
-- New `attachment` file → delete the existing file, store the new one.
+- Flag boolean `remove_attachment` → hapus berkas yang ada, null-kan ketiga kolom lampiran.
+- Berkas `attachment` baru → hapus berkas yang ada, simpan yang baru.
 
-For `target_audience='specific'` the pivot is `sync()`'d to the new list. Switching away from `specific` `detach()`'es everything.
+Untuk `target_audience='specific'` pivot di-`sync()` ke daftar baru. Beralih dari `specific` akan `detach()` semuanya.
 
-`destroy()` deletes the attachment file (if any) then the row. Cascade on `user_id` and on the `announcement_user` pivot keeps it clean.
+`destroy()` menghapus berkas lampiran (bila ada) lalu baris. Cascade pada `user_id` dan pada pivot `announcement_user` menjaganya tetap bersih.
 
 ---
 
-## View payload (notification)
+## Payload view (notifikasi)
 
 `AnnouncementNotification::toArray()`:
 
 ```json
 {
   "title": "Pengumuman Baru",
-  "message": "{Author Name} membuat pengumuman: {Announcement Title}",
+  "message": "{Nama Penulis} membuat pengumuman: {Judul Pengumuman}",
   "url": "/announcements/{id}",
   "type": "announcement"
 }
 ```
 
-`NotificationController::readAndRedirect` (`GET /notifications/{id}/redirect`) marks read and follows `url`, which lands on the announcement show page — where the visibility gate runs as the final guard.
+`NotificationController::readAndRedirect` (`GET /notifications/{id}/redirect`) menandai terbaca dan mengikuti `url`, yang mendarat di halaman show pengumuman — tempat gerbang visibilitas berjalan sebagai penjaga terakhir.
 
 ---
 
-## What's intentionally missing
+## Yang sengaja tidak ada
 
-- **No WebPush channel** for announcements. The `AnnouncementNotification` class lists only `['database']` in `via()`. If you want push delivery, add `WebPushChannel::class` and a `toWebPush()` method (mirror `AcademicUpdateNotification`).
-- **No edit history.** Updates overwrite the row in place. If you need an audit trail, add a `revisions` table or a model-events log.
-- **No expiry / scheduled publish.** Announcements appear immediately. Add a `published_at` or `expires_at` column if you need scheduling.
+- **Tidak ada channel WebPush** untuk pengumuman. Kelas `AnnouncementNotification` hanya mendaftar `['database']` di `via()`. Bila ingin pengiriman push, tambahkan `WebPushChannel::class` dan method `toWebPush()` (cermin `AcademicUpdateNotification`).
+- **Tidak ada riwayat edit.** Update menimpa baris di tempat. Bila perlu jejak audit, tambahkan tabel `revisions` atau log event-model.
+- **Tidak ada kadaluarsa / publish terjadwal.** Pengumuman muncul seketika. Tambahkan kolom `published_at` atau `expires_at` bila perlu penjadwalan.

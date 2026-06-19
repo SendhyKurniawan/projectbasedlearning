@@ -1,26 +1,26 @@
-# Materials
+# Materi (Materials)
 
-## The model
+## Modelnya
 
-`Material` belongs to a `Course`. Schema:
+`Material` milik sebuah `Course`. Skema:
 
-| Column | Notes |
+| Kolom | Catatan |
 |---|---|
 | `id` | PK |
-| `course_id` | FK courses cascade, indexed |
+| `course_id` | FK courses cascade, terindeks |
 | `title` | string |
-| `content` | text nullable — Markdown source, **not** HTML |
-| `file_path` | string nullable — uploaded attachment on the `public` disk under `materials/…` |
-| `order` | integer default 0 — drag-and-drop reorder |
+| `content` | text nullable — sumber Markdown, **bukan** HTML |
+| `file_path` | string nullable — lampiran unggahan pada disk `public` di bawah `materials/…` |
+| `order` | integer default 0 — reorder drag-and-drop |
 | timestamps | |
 
-`Material::views()` is `hasMany(MaterialView)`. The helper `hasBeenViewedBy($studentId)` is a quick existence check.
+`Material::views()` adalah `hasMany(MaterialView)`. Helper `hasBeenViewedBy($studentId)` adalah cek keberadaan cepat.
 
-`Course::materials()` orders by `order` ascending.
+`Course::materials()` mengurutkan berdasarkan `order` menaik.
 
 ---
 
-## Dosen authoring routes
+## Route penulisan oleh dosen
 
 ```
 GET    /dosen/courses/{course}/materials                  materials.index
@@ -33,39 +33,39 @@ DELETE /dosen/materials/{material}                        materials.destroy
 POST   /dosen/materials/{material}/copy                   materials.copy
 ```
 
-All gated by `CoursePolicy::update` (so dosen owns the course, or admin).
+Semua digerbang `CoursePolicy::update` (jadi dosen memiliki mata kuliah, atau admin).
 
 ### Create / edit
 
-The create form uses:
+Form create memakai:
 
-- **EasyMDE** (`markdown-editor.js`) for the `content` field — produces Markdown. Stored as-is in `materials.content`; rendered client-side on mahasiswa view.
-- **CodeMirror** inline within EasyMDE for code blocks.
+- **EasyMDE** (`markdown-editor.js`) untuk field `content` — menghasilkan Markdown. Disimpan apa adanya di `materials.content`; dirender sisi klien pada view mahasiswa.
+- **CodeMirror** inline di dalam EasyMDE untuk blok kode.
 
-The form also includes `@include('dosen.partials.sibling-kelas-picker')` for fan-out at create time. The `store()` validation:
+Form juga menyertakan `@include('dosen.partials.sibling-kelas-picker')` untuk fan-out saat create. Validasi `store()`:
 
 ```php
 $request->validate([
     'title' => 'required|string|max:255',
     'content' => 'nullable|string',
-    'file' => 'nullable|file|max:20480',          // 20 MB cap
+    'file' => 'nullable|file|max:20480',          // batas 20 MB
     'sibling_ids' => 'nullable|array',
     'sibling_ids.*' => 'integer|exists:courses,id',
 ]);
 ```
 
-File upload is stored under `materials/` on the `public` disk:
+Unggahan berkas disimpan di bawah `materials/` pada disk `public`:
 
 ```php
 $filename = time() . '_' . $file->getClientOriginalName();
 $file_path = $file->storeAs('materials', $filename, 'public');
 ```
 
-The new material's `order` is `($course->materials()->max('order') ?? 0) + 1` — appended at the end.
+`order` materi baru adalah `($course->materials()->max('order') ?? 0) + 1` — disisipkan di akhir.
 
 ### Reorder
 
-`POST /dosen/courses/{course}/materials/reorder` accepts an ordered array of IDs:
+`POST /dosen/courses/{course}/materials/reorder` menerima array ID terurut:
 
 ```php
 $request->validate([
@@ -76,44 +76,44 @@ $request->validate([
 $order = 1;
 foreach ($request->ordered_ids as $id) {
     Material::where('id', $id)
-            ->where('course_id', $course->id)   // re-scope to prevent cross-course writes
+            ->where('course_id', $course->id)   // re-scope untuk cegah tulis lintas-course
             ->update(['order' => $order]);
     $order++;
 }
 ```
 
-Drag-and-drop in the dosen material list view triggers this. The handler returns JSON.
+Drag-and-drop di view daftar materi dosen memicu ini. Handler mengembalikan JSON.
 
 ### Update
 
-`PUT /dosen/materials/{material}` overwrites `title`, `content`, and optionally `file_path`. If a new file is uploaded, the old `file_path` is deleted from the `public` disk first.
+`PUT /dosen/materials/{material}` menimpa `title`, `content`, dan opsional `file_path`. Bila berkas baru diunggah, `file_path` lama dihapus dulu dari disk `public`.
 
 ### Destroy
 
-`DELETE /dosen/materials/{material}` deletes the file (if any) then deletes the row. Cascade on `course_id` ensures no orphan rows when a course is deleted.
+`DELETE /dosen/materials/{material}` menghapus berkas (bila ada) lalu menghapus baris. Cascade pada `course_id` memastikan tidak ada baris yatim saat mata kuliah dihapus.
 
-### Notification side effects
+### Efek samping notifikasi
 
-`store()`, `update()`, and store-with-fan-out all dispatch `AcademicUpdateNotification` to every enrolled mahasiswa of the affected course (and each sibling kelas's mahasiswa for fan-out copies). See [notifications.md](notifications.md).
+`store()`, `update()`, dan store-dengan-fan-out semuanya men-dispatch `AcademicUpdateNotification` ke setiap mahasiswa terdaftar mata kuliah terdampak (dan mahasiswa tiap kelas sibling untuk salinan fan-out). Lihat [notifications.md](notifications.md).
 
 ---
 
-## File handling and fan-out
+## Penanganan berkas dan fan-out
 
-If a material has an attached file (`file_path`), the fan-out copy creates a **physically separate copy** of the file for each sibling kelas:
+Bila materi punya berkas terlampir (`file_path`), salinan fan-out membuat **salinan terpisah secara fisik** dari berkas untuk tiap kelas sibling:
 
 ```
-original (course=42):  materials/1716300000_notes.pdf
-sibling kelas=5:       materials/1716300000_notes_kelas5.pdf       (on create-fanout)
-sibling kelas=6:       materials/1716300000_notes_kelas6.pdf
-later copy to kelas=7: materials/1716300000_notes_kelas7_1716300999.pdf   (extra _{time()} suffix)
+asli (course=42):       materials/1716300000_notes.pdf
+sibling kelas=5:        materials/1716300000_notes_kelas5.pdf       (pada create-fanout)
+sibling kelas=6:        materials/1716300000_notes_kelas6.pdf
+copy nanti ke kelas=7:  materials/1716300000_notes_kelas7_1716300999.pdf   (akhiran _{time()} tambahan)
 ```
 
-Why? If two sibling materials shared the same path, deleting one would `Storage::delete()` the file used by the others. The unique suffix prevents that.
+Mengapa? Bila dua materi sibling berbagi path sama, menghapus satu akan `Storage::delete()` berkas yang dipakai yang lain. Akhiran unik mencegah itu.
 
-When a material is deleted (`destroy`), only its own `file_path` is unlinked. The originals belonging to other siblings are untouched.
+Saat materi dihapus (`destroy`), hanya `file_path` miliknya yang dilepas tautannya. Berkas asli milik sibling lain tak tersentuh.
 
-The copy logic (`Dosen\MaterialController::copy`):
+Logika copy (`Dosen\MaterialController::copy`):
 
 ```php
 $ext  = pathinfo($material->file_path, PATHINFO_EXTENSION);
@@ -122,27 +122,27 @@ $newPath = 'materials/' . $stem . '_kelas' . $sibling->id . '_' . time() . '.' .
 Storage::disk('public')->copy($material->file_path, $newPath);
 ```
 
-The security intersect runs first — only siblings the dosen actually owns are targeted.
+Irisan keamanan berjalan lebih dulu — hanya sibling yang benar-benar dimiliki dosen yang ditargetkan.
 
 ---
 
-## Mahasiswa view
+## View mahasiswa
 
 `GET /mahasiswa/courses/{course}/materials/{material}` → `Mahasiswa\CourseController::showMaterial`.
 
-The handler:
+Handler:
 
-1. Verifies enrollment via `DB::table('enrollments')`.
-2. Loads the material by id (scoped through `$course->materials()`).
-3. **Records the view** via `MaterialView::updateOrCreate(['material_id', 'student_id'], ['viewed_at' => now()])`.
-4. Rebuilds the learning path (same `buildLearningPath()` as the course-show view).
-5. Renders `mahasiswa.materials.show` with `material`, `learningPath`, `nextItem`, `prevItem`, `currentIndex`.
+1. Memverifikasi enrollment via `DB::table('enrollments')`.
+2. Memuat materi berdasarkan id (diskop lewat `$course->materials()`).
+3. **Mencatat view** via `MaterialView::updateOrCreate(['material_id', 'student_id'], ['viewed_at' => now()])`.
+4. Membangun ulang learning path (sama dengan `buildLearningPath()` pada view course-show).
+5. Merender `mahasiswa.materials.show` dengan `material`, `learningPath`, `nextItem`, `prevItem`, `currentIndex`.
 
-The view uses `markdown-renderer.js` to render the stored Markdown content client-side via marked + highlight.js. The "next / prev" navigation is computed server-side from the learning-path index.
+View memakai `markdown-renderer.js` untuk merender konten Markdown tersimpan sisi klien via marked + highlight.js. Navigasi "next / prev" dihitung sisi server dari indeks learning-path.
 
 ---
 
-## `material_views` and prerequisite unlocking
+## `material_views` dan pembukaan prasyarat
 
 ```php
 MaterialView::updateOrCreate(
@@ -156,9 +156,9 @@ MaterialView::updateOrCreate(
 );
 ```
 
-The unique key `(material_id, student_id)` keeps it idempotent. The model has `$timestamps = false` so only `viewed_at` is tracked.
+Kunci unik `(material_id, student_id)` menjaganya idempoten. Model punya `$timestamps = false` sehingga hanya `viewed_at` yang dilacak.
 
-The existence of the row is the unlock signal for `Assignment::isUnlockedFor()`:
+Keberadaan baris adalah sinyal pembuka untuk `Assignment::isUnlockedFor()`:
 
 ```php
 public function isUnlockedFor($studentId): bool
@@ -173,4 +173,4 @@ public function isUnlockedFor($studentId): bool
 }
 ```
 
-`CheckAssignmentUnlocked` middleware calls this on submission/exercise-solve routes — see [auth-roles.md](../auth-roles.md). Views set the prerequisite are not retroactively cleared if a student viewed the material before it was set as a prerequisite — the student is already unlocked.
+Middleware `CheckAssignmentUnlocked` memanggil ini pada route pengumpulan/pengerjaan-exercise — lihat [auth-roles.md](../auth-roles.md). View yang menjadi prasyarat tidak dihapus retroaktif bila mahasiswa sudah membuka materi sebelum dijadikan prasyarat — mahasiswa sudah terbuka aksesnya.

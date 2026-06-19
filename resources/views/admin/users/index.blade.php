@@ -1,3 +1,4 @@
+{{-- Halaman daftar pengguna (admin). --}}
 @push('styles')
     @vite('resources/css/pages/admin/users.css')
 @endpush

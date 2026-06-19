@@ -7,6 +7,7 @@ use App\Models\Submission;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+// Factory pembuat data Submission palsu (default status 'submitted', belum dinilai).
 class SubmissionFactory extends Factory
 {
     protected $model = Submission::class;
@@ -23,6 +24,7 @@ class SubmissionFactory extends Factory
         ];
     }
 
+    // State: submission sudah dinilai (skor + feedback).
     public function graded(): static
     {
         return $this->state(fn (array $attributes) => [
@@ -32,6 +34,7 @@ class SubmissionFactory extends Factory
         ]);
     }
 
+    // State: submission terlambat.
     public function late(): static
     {
         return $this->state(fn (array $attributes) => [

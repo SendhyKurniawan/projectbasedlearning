@@ -1,5 +1,6 @@
 <?php
 
+// Uji lupa/reset password: render form, kirim notifikasi reset, dan reset sukses dengan token valid.
 use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Facades\Notification;

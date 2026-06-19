@@ -1,3 +1,4 @@
+{{-- Halaman daftar konferensi (kelas virtual) (mahasiswa). --}}
 @push('styles')
     @vite('resources/css/pages/mahasiswa/conference-join.css')
 @endpush

@@ -12,6 +12,9 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// Route autentikasi (scaffolding Breeze + tambahan OTP). Di-include dari routes/web.php.
+
+// ===== Route untuk tamu (belum login): registrasi, login, lupa/reset password, verifikasi OTP =====
 Route::middleware('guest')->group(function () {
     Route::get('register', [RegisteredUserController::class, 'create'])
         ->name('register');
@@ -35,6 +38,7 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 
+    // Verifikasi OTP saat registrasi (tambahan kustom di luar Breeze). Resend dibatasi 3/menit.
     Route::get('verify-otp', [OtpVerificationController::class, 'create'])
         ->name('verification.otp');
 
@@ -46,6 +50,7 @@ Route::middleware('guest')->group(function () {
         ->name('verification.otp.resend');
 });
 
+// ===== Route untuk user terautentikasi: verifikasi email, konfirmasi/ubah password, logout =====
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
         ->name('verification.notice');

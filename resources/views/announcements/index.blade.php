@@ -1,3 +1,4 @@
+{{-- Halaman daftar pengumuman. --}}
 @push('styles')
     @vite('resources/css/pages/shared/announcements.css')
 @endpush

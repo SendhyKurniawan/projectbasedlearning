@@ -1,3 +1,4 @@
+{{-- Halaman daftar percobaan quiz mahasiswa pada sebuah quiz (dosen). --}}
 @push('styles')
     @vite('resources/css/pages/dosen/assignments.css')
 @endpush

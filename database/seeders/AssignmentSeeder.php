@@ -10,15 +10,17 @@ use App\Models\Submission;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
+// Seeder contoh tugas (legacy/alternatif): membuat satu set lengkap tugas/quiz/exercise
+// untuk SETIAP matkul yang ada (tugas PDF, project URL, quiz pilihan ganda, exercise, quiz essay).
 class AssignmentSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Jalankan seeder.
      */
     public function run(): void
     {
-        // 1. Clean existing assignments and dependencies
-        // Due to foreign keys, clearing Assignments will clear Submissions and Quiz Questions
+        // 1. Bersihkan tugas lama beserta dependensinya.
+        // Karena foreign key, mengosongkan Assignments akan ikut mengosongkan Submissions & Quiz.
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Submission::truncate();
         QuizOption::truncate();
@@ -66,7 +68,7 @@ class AssignmentSeeder extends Seeder
                 'deadline' => now()->addDays(7),
             ]);
 
-            // Create some dummy questions for the PG Quiz
+            // Buat beberapa soal contoh untuk quiz pilihan ganda
             $q1 = QuizQuestion::create([
                 'assignment_id' => $quizPG->id,
                 'question_text' => 'Manakah di bawah ini yang merupakan pernyataan paling tepat mengenai materi mata kuliah ini?',

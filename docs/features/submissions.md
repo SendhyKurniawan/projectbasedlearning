@@ -1,36 +1,36 @@
-# Submissions
+# Pengumpulan (Submissions)
 
-## Lifecycle
+## Daur hidup
 
 ```
-                  (new submission)
+                  (submission baru)
                         │
                         ▼
                   ┌─────────────┐
                   │  submitted  │
                   └──────┬──────┘
-                         │  dosen grades
+                         │  dosen menilai
                          ▼
                   ┌─────────────┐
                   │   graded    │
                   └─────────────┘
 
-(quiz submit, all-pilihan-ganda)
+(submit kuis, semua-pilihan-ganda)
                         │
                         ▼
                   ┌─────────────┐
-                  │   graded    │   (status=graded set inline; final MC score)
+                  │   graded    │   (status=graded diset inline; nilai MC final)
                   └─────────────┘
 
-(quiz submit, mixed/essay/code_snippet)
+(submit kuis, campuran/essay/code_snippet)
                         │
                         ▼
                   ┌─────────────┐
-                  │  submitted  │   (provisional MC score; dosen reviews)
+                  │  submitted  │   (nilai MC sementara; dosen mereview)
                   └─────────────┘
 ```
 
-The `late` status exists on the enum (`status` column is `enum('submitted','late','graded')`) but **no controller currently sets it**. Submission handlers create rows with the default `submitted` and only `quickGrade`/`grade`/`gradeGroup` flip to `graded`. If you need to flag late submissions, add the check at submit time:
+Status `late` ada pada enum (kolom `status` adalah `enum('submitted','late','graded')`) tetapi **belum ada controller yang menyetelnya**. Handler pengumpulan membuat baris dengan default `submitted` dan hanya `quickGrade`/`grade`/`gradeGroup` yang membaliknya ke `graded`. Bila Anda perlu menandai pengumpulan terlambat, tambahkan cek saat submit:
 
 ```php
 'status' => now()->greaterThan($assignment->deadline) ? 'late' : 'submitted',
@@ -38,11 +38,11 @@ The `late` status exists on the enum (`status` column is `enum('submitted','late
 
 ---
 
-## Tugas submission
+## Pengumpulan tugas
 
-### Mahasiswa routes (`Mahasiswa\SubmissionController`)
+### Route mahasiswa (`Mahasiswa\SubmissionController`)
 
-The resource is registered with `->except(['index', 'show'])` and the `check.assignment.unlocked` middleware:
+Resource didaftarkan dengan `->except(['index', 'show'])` dan middleware `check.assignment.unlocked`:
 
 ```
 GET    /mahasiswa/submissions/create        submissions.create
@@ -54,16 +54,16 @@ DELETE /mahasiswa/submissions/{submission}   submissions.destroy
 
 ### `create` (GET)
 
-Reads `?assignment_id=` from the query string, loads the assignment + course, validates enrollment, then:
+Membaca `?assignment_id=` dari query string, memuat assignment + mata kuliah, memvalidasi enrollment, lalu:
 
-- If the assignment is `is_group` and the user is already in a group for this assignment, load the group with members + creator.
-- If `is_group` and not in a group, load `classmates` — enrolled mahasiswa not already in a group for this assignment. Renders a picker so the submitter can form the group at submit time.
+- Bila assignment `is_group` dan user sudah dalam kelompok untuk assignment ini, muat kelompok dengan anggota + pembuat.
+- Bila `is_group` dan belum dalam kelompok, muat `classmates` — mahasiswa terdaftar yang belum berada dalam kelompok untuk assignment ini. Merender picker agar pengirim dapat membentuk kelompok saat submit.
 
-Renders `mahasiswa.submissions.create` with `assignment`, `existing` submission (if any), `existingGroup`, `classmates`.
+Merender `mahasiswa.submissions.create` dengan `assignment`, submission `existing` (bila ada), `existingGroup`, `classmates`.
 
 ### `store` (POST)
 
-Validation depends on `submission_format`:
+Validasi bergantung pada `submission_format`:
 
 ```php
 $rules = [
@@ -74,7 +74,7 @@ $rules = [
 if ($assignment->submission_format === 'url') {
     $rules['url_link'] = 'required|url|max:2048';
 } else {
-    $rules['file'] = 'required|file|max:10240';   // 10 MB cap
+    $rules['file'] = 'required|file|max:10240';   // batas 10 MB
 }
 
 if ($assignment->is_group) {
@@ -84,25 +84,25 @@ if ($assignment->is_group) {
 }
 ```
 
-Then:
+Lalu:
 
-1. Re-check enrollment via `enrollments()->where('courses.id', ...)`.
-2. Bail with an error flash if a submission for this user+assignment already exists.
-3. Save the file (path: `submissions/{time()}_{user_id}_{name}`) on the `public` disk or set `url_link`.
-4. **If group**: validate every selected member is enrolled in the course AND not already a member of another group for this assignment AND group size (including submitter) ≤ `max_group_size`. Wrap in a transaction:
-   - Create `Group` with `created_by_mahasiswa_id = submitter`.
-   - For each member (including submitter): create a `GroupMember` + a `Submission` row with the same `file_path`/`url_link`/`notes`.
-   - Send `AcademicUpdateNotification` to the OTHER members ("Ditambahkan ke Kelompok").
-5. **If individual**: a single `Submission` row.
-6. Send `SubmissionNotification` to the course's dosen.
+1. Cek ulang enrollment via `enrollments()->where('courses.id', ...)`.
+2. Batalkan dengan flash error bila submission untuk user+assignment ini sudah ada.
+3. Simpan berkas (path: `submissions/{time()}_{user_id}_{name}`) pada disk `public` atau set `url_link`.
+4. **Bila kelompok**: validasi tiap anggota terpilih terdaftar di mata kuliah DAN belum jadi anggota kelompok lain untuk assignment ini DAN ukuran kelompok (termasuk pengirim) ≤ `max_group_size`. Bungkus dalam transaksi:
+   - Buat `Group` dengan `created_by_mahasiswa_id = pengirim`.
+   - Untuk tiap anggota (termasuk pengirim): buat `GroupMember` + baris `Submission` dengan `file_path`/`url_link`/`notes` yang sama.
+   - Kirim `AcademicUpdateNotification` ke anggota LAIN ("Ditambahkan ke Kelompok").
+5. **Bila individu**: satu baris `Submission`.
+6. Kirim `SubmissionNotification` ke dosen mata kuliah.
 
-Group submissions are mirrored across rows so that grading reflects on every member, while still letting each member's view show their own submission row.
+Pengumpulan kelompok dicerminkan ke beberapa baris agar penilaian terlihat pada setiap anggota, sambil tetap membuat view tiap anggota menampilkan baris submission-nya sendiri.
 
 ### `edit`, `update`
 
-Block if `score !== null` (already graded). For group submissions, only the `created_by_mahasiswa_id` (group creator) can edit.
+Blokir bila `score !== null` (sudah dinilai). Untuk pengumpulan kelompok, hanya `created_by_mahasiswa_id` (pembuat kelompok) yang dapat mengedit.
 
-On update, file or URL is replaced. For group submissions, the mirror update applies to **every row in the group**:
+Saat update, berkas atau URL diganti. Untuk pengumpulan kelompok, update cermin berlaku ke **setiap baris dalam kelompok**:
 
 ```php
 if ($submission->group_id) {
@@ -112,29 +112,29 @@ if ($submission->group_id) {
 
 ### `destroy`
 
-Same gating as `edit` + `update`. For group: only the creator can delete, and the delete cascades to all `Submission` rows + `GroupMember` rows + the `Group` itself. The file (if any) is unlinked first.
+Penggerbangan sama dengan `edit` + `update`. Untuk kelompok: hanya pembuat yang dapat menghapus, dan penghapusan kaskade ke semua baris `Submission` + baris `GroupMember` + `Group` itu sendiri. Berkas (bila ada) dilepas tautannya dulu.
 
 ---
 
-## Quiz submission
+## Pengumpulan kuis
 
-Handled by `Mahasiswa\QuizController`, not `SubmissionController`. See [assignments.md#quiz](assignments.md#quiz) for the full route list and behaviour.
+Ditangani oleh `Mahasiswa\QuizController`, bukan `SubmissionController`. Lihat [assignments.md#quiz](assignments.md#quiz) untuk daftar route lengkap dan perilakunya.
 
-Key submission semantics:
+Semantik pengumpulan kunci:
 
-- `start` creates a `Submission` via `firstOrCreate(['assignment_id','mahasiswa_id'], ['started_at' => now()])`.
-- `submit` writes `answers` (JSON map `{question_id: option_id_or_text}`), sets `finished_at = now()`, sets `score` to the MC subtotal, and sets `status`:
-  - All questions are `pilihan_ganda` → `status = graded`.
-  - Any `essay`/`code_snippet` present → `status = submitted` (provisional).
-- A mahasiswa can only complete the quiz once — the `finished_at` check in `take()` blocks re-entry.
+- `start` membuat `Submission` via `firstOrCreate(['assignment_id','mahasiswa_id'], ['started_at' => now()])`.
+- `submit` menulis `answers` (peta JSON `{question_id: option_id_or_text}`), set `finished_at = now()`, set `score` ke subtotal MC, dan set `status`:
+  - Semua soal `pilihan_ganda` → `status = graded`.
+  - Ada `essay`/`code_snippet` → `status = submitted` (sementara).
+- Mahasiswa hanya bisa menyelesaikan kuis sekali — cek `finished_at` di `take()` memblokir masuk ulang.
 
-`auto_graded` is set to `true` only for the pure-MC path (and only by future code; right now `submit()` does not toggle the column — verify if you depend on it).
+`auto_graded` diset `true` hanya untuk jalur MC-murni (dan hanya oleh kode mendatang; saat ini `submit()` tidak men-toggle kolom itu — verifikasi bila Anda bergantung padanya).
 
 ---
 
-## Exercise submission
+## Pengumpulan exercise
 
-Handled by `Mahasiswa\ExerciseController::submit` (`POST /mahasiswa/exercises/submit`):
+Ditangani oleh `Mahasiswa\ExerciseController::submit` (`POST /mahasiswa/exercises/submit`):
 
 ```php
 $request->validate([
@@ -142,7 +142,7 @@ $request->validate([
     'code_answer' => 'required|string',
 ]);
 
-// Verify enrollment, reject if already submitted.
+// Verifikasi enrollment, tolak bila sudah submit.
 
 $validationResult = $this->validateCode($assignment, $request->code_answer);
 
@@ -159,11 +159,11 @@ Submission::create([
 ]);
 ```
 
-The "Run" button on the solve page goes to `POST /execute-code` separately and does **not** create a submission. Only the explicit "Submit" creates the row.
+Tombol "Run" di halaman solve menuju `POST /execute-code` secara terpisah dan **tidak** membuat submission. Hanya "Submit" eksplisit yang membuat baris.
 
 ### `validation_result`
 
-Computed by `ExerciseController::validateCode($assignment, $code)`:
+Dihitung oleh `ExerciseController::validateCode($assignment, $code)`:
 
 ```php
 foreach ($exercise_config['required_keywords'] as $keyword) {
@@ -184,47 +184,47 @@ return [
 ];
 ```
 
-Result is shown to dosen as "Validasi Mesin" in `resources/views/dosen/assignments/submissions.blade.php`. **It does not set `score` or `status`.** The dosen sets the real grade through `submissions.grade`.
+Hasil ditampilkan ke dosen sebagai "Validasi Mesin" di `resources/views/dosen/assignments/submissions.blade.php`. **Ia tidak menetapkan `score` atau `status`.** Dosen menetapkan nilai sesungguhnya melalui `submissions.grade`.
 
 ---
 
-## Group assignments
+## Tugas kelompok
 
-| Model | Purpose |
+| Model | Tujuan |
 |---|---|
-| `Group` (`groups` table) | One per (assignment, team). Has `assignment_id`, `group_name`, `created_by_mahasiswa_id`. |
-| `GroupMember` (`group_members` table) | Pivot: `group_id`, `mahasiswa_id`. Unique on `(group_id, mahasiswa_id)`. |
+| `Group` (tabel `groups`) | Satu per (assignment, tim). Punya `assignment_id`, `group_name`, `created_by_mahasiswa_id`. |
+| `GroupMember` (tabel `group_members`) | Pivot: `group_id`, `mahasiswa_id`. Unik pada `(group_id, mahasiswa_id)`. |
 
-`Group` exposes: `assignment()`, `members()`, `submissions()`, `creator()` (the `created_by_mahasiswa_id` user), `hasMember($userId)`.
+`Group` menyediakan: `assignment()`, `members()`, `submissions()`, `creator()` (user `created_by_mahasiswa_id`), `hasMember($userId)`.
 
-Only `created_by_mahasiswa_id` can edit/delete the group's submission. Members can view but can't mutate the submission rows.
+Hanya `created_by_mahasiswa_id` yang dapat mengedit/menghapus pengumpulan kelompok. Anggota dapat melihat tetapi tak bisa mengubah baris submission.
 
-Grading is done through `Dosen\AssignmentController::gradeGroup` (`POST /dosen/groups/{group}/grade`). Two modes set on the assignment:
+Penilaian dilakukan lewat `Dosen\AssignmentController::gradeGroup` (`POST /dosen/groups/{group}/grade`). Dua mode yang diset pada assignment:
 
-- `grading_mode = equal` — `$request->score` and `$request->feedback` write to every submission in the group (one shared score).
-- `grading_mode = individual` — `$request->scores[mahasiswa_id]` and `$request->feedbacks[mahasiswa_id]` per row. Only members whose `score` is set (`!== null && !== ''`) get `status = graded`. The rest stay `submitted`.
+- `grading_mode = equal` — `$request->score` dan `$request->feedback` ditulis ke setiap submission dalam kelompok (satu nilai bersama).
+- `grading_mode = individual` — `$request->scores[mahasiswa_id]` dan `$request->feedbacks[mahasiswa_id]` per baris. Hanya anggota yang `score`-nya diset (`!== null && !== ''`) yang mendapat `status = graded`. Sisanya tetap `submitted`.
 
-`GradeNotification` fires to all members with a submission row.
+`GradeNotification` dikirim ke semua anggota yang punya baris submission.
 
 ---
 
-## Notifications
+## Notifikasi
 
-| Event | Notification | Recipient |
+| Peristiwa | Notifikasi | Penerima |
 |---|---|---|
-| Tugas store (individual or group) | `SubmissionNotification` | course dosen |
-| Group store (other members added) | `AcademicUpdateNotification("Ditambahkan ke Kelompok", …)` | other group members |
-| Grade individual | `GradeNotification($assignment->title, $course->id)` | the student |
-| Grade group | `GradeNotification(...)` | all members with a submission |
+| Store tugas (individu atau kelompok) | `SubmissionNotification` | dosen mata kuliah |
+| Store kelompok (anggota lain ditambahkan) | `AcademicUpdateNotification("Ditambahkan ke Kelompok", …)` | anggota kelompok lain |
+| Nilai individu | `GradeNotification($assignment->title, $course->id)` | mahasiswa tersebut |
+| Nilai kelompok | `GradeNotification(...)` | semua anggota dengan submission |
 
-See [notifications.md](notifications.md).
+Lihat [notifications.md](notifications.md).
 
 ---
 
-## Mahasiswa grade view
+## View nilai mahasiswa
 
-`Mahasiswa\GradeController::index` (`GET /mahasiswa/grades`) lists all of the student's submissions with the assignment + course join. Used in the "Grades" sidebar entry.
+`Mahasiswa\GradeController::index` (`GET /mahasiswa/grades`) mendaftar semua pengumpulan mahasiswa dengan join assignment + mata kuliah. Dipakai di entri sidebar "Nilai".
 
-`Dosen\GradeController` exports a per-kelas CSV recap:
+`Dosen\GradeController` mengekspor rekap CSV per-kelas:
 
-`GET /dosen/grades/{course}/export` → `Dosen\GradeController::export` streams a CSV with `NIM`, `Nama`, one column per assignment, and a rolling average. Authorized by `CoursePolicy::view`.
+`GET /dosen/grades/{course}/export` → `Dosen\GradeController::export` mengalirkan CSV dengan `NIM`, `Nama`, satu kolom per assignment, dan rata-rata berjalan. Diotorisasi oleh `CoursePolicy::view`.

@@ -10,21 +10,24 @@ use App\Models\MaterialView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controller sisi mahasiswa untuk matkul: katalog (terbatas kelas), detail + learning path,
+// pendaftaran (enroll), dan tampilan materi (sekaligus mencatat materi dibaca).
 class CourseController extends Controller
 {
+    // Katalog matkul untuk mahasiswa (dengan pencarian & urutan), dibatasi cakupan kelasnya.
     public function index(Request $request)
     {
         $mahasiswa = auth()->user();
 
-        // Courses already enrolled in — always visible regardless of class scope.
+        // Matkul yang sudah diikuti — selalu tampil apa pun cakupan kelasnya.
         $enrolled_ids = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
             ->pluck('course_id')
             ->toArray();
 
-        // Scope the catalog to the student's own kelas + semester-wide courses for
-        // that term (plus anything already enrolled). A course's student_class_id is
-        // the kelas it's tied to in admin Akademik ("Mata Kuliah Khusus Kelas").
+        // Batasi katalog ke kelas mahasiswa + matkul umum semester tersebut (plus yang
+        // sudah diikuti). student_class_id pada course adalah kelas tempat matkul itu
+        // diikat di admin Akademik ("Mata Kuliah Khusus Kelas").
         $classId = $mahasiswa->student_class_id;
         $semesterId = optional($mahasiswa->studentClass)->semester_id;
 
@@ -67,10 +70,12 @@ class CourseController extends Controller
         return view('mahasiswa.courses.index', compact('available_courses', 'enrolled_ids', 'sort'));
     }
 
+    // Halaman detail matkul + learning path. Wajib sudah enroll untuk mengaksesnya.
     public function show(Course $course)
     {
         $mahasiswa = auth()->user();
 
+        // Pakai query pivot langsung (konvensi flow mahasiswa) untuk cek pendaftaran.
         $is_enrolled = DB::table('enrollments')
             ->where('mahasiswa_id', $mahasiswa->id)
             ->where('course_id', $course->id)
@@ -108,6 +113,8 @@ class CourseController extends Controller
         return view('mahasiswa.courses.show', compact('course', 'learningPath', 'submissions', 'quizzes'));
     }
 
+    // Bangun "jalur belajar": selang-seling materi dan tugas prasyaratnya, sambil
+    // menandai item yang sudah selesai dan tugas yang masih terkunci (materi belum dibaca).
     private function buildLearningPath($course, $viewedMaterialIds, $submissions): array
     {
         $path = [];
@@ -151,6 +158,7 @@ class CourseController extends Controller
         return $path;
     }
 
+    // Daftarkan mahasiswa ke matkul (tolak bila sudah terdaftar).
     public function enroll(Request $request, Course $course)
     {
         $mahasiswa = auth()->user();
@@ -172,6 +180,7 @@ class CourseController extends Controller
             ->with('success', 'Berhasil mendaftar ke course ' . $course->nama_matkul);
     }
 
+    // Tampilkan satu materi + navigasi prev/next pada learning path; catat materi sebagai dibaca.
     public function showMaterial(Course $course, $materialId)
     {
         $mahasiswa = auth()->user();
@@ -188,6 +197,7 @@ class CourseController extends Controller
 
         $material = $course->materials()->findOrFail($materialId);
 
+        // Catat/refresh waktu baca materi (jadi syarat membuka tugas prasyaratnya).
         MaterialView::updateOrCreate(
             [
                 'material_id' => $material->id,

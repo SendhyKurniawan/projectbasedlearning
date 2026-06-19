@@ -1,3 +1,4 @@
+{{-- Form tambah program studi (admin). --}}
 <x-app-layout>
  <div class="space-y-6">
  {{-- Section Header --}}

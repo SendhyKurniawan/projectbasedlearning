@@ -9,8 +9,11 @@ use App\Models\QuizOption;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controller pengerjaan quiz oleh mahasiswa: lihat info, mulai, kerjakan, kumpulkan, lihat hasil.
+// Penilaian pilihan ganda otomatis; soal essay/code_snippet menunggu penilaian dosen.
 class QuizController extends Controller
 {
+    // Halaman info quiz. Jika sudah pernah diselesaikan, langsung arahkan ke halaman hasil.
     public function show(Assignment $assignment)
     {
         $mahasiswa = auth()->user();
@@ -37,6 +40,7 @@ class QuizController extends Controller
         ]);
     }
 
+    // Halaman hasil quiz (hanya untuk percobaan yang sudah selesai/finished_at terisi).
     public function result(Assignment $assignment)
     {
         $submission = Submission::where('assignment_id', $assignment->id)
@@ -52,6 +56,7 @@ class QuizController extends Controller
         ]);
     }
 
+    // Mulai quiz: buat submission dengan started_at (sekali saja), lalu arahkan ke halaman kerjakan.
     public function start(Assignment $assignment)
     {
         $mahasiswa = auth()->user();
@@ -77,6 +82,7 @@ class QuizController extends Controller
         return redirect()->route('mahasiswa.quizzes.take', $assignment);
     }
 
+    // Halaman pengerjaan quiz (tampilkan soal). Tolak jika quiz sudah diselesaikan.
     public function take(Assignment $assignment)
     {
         $submission = Submission::where('assignment_id', $assignment->id)
@@ -97,6 +103,7 @@ class QuizController extends Controller
         ]);
     }
 
+    // Kumpulkan jawaban quiz: nilai pilihan ganda otomatis di dalam satu transaksi DB.
     public function submit(Request $request, Assignment $assignment)
     {
         $submission = Submission::where('assignment_id', $assignment->id)
@@ -143,7 +150,7 @@ class QuizController extends Controller
                 }
             }
 
-            // Score covers MC only; treat as final only when no essay/code_snippet questions remain.
+            // Skor hanya mencakup pilihan ganda; dianggap final hanya bila tidak ada soal essay/code_snippet.
             $submission->update([
                 'finished_at' => now(),
                 'score' => $calculatedScore,

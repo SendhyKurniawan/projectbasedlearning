@@ -1,4 +1,5 @@
-{{-- Pass $siblings (Collection<Course> with studentClass loaded) from the controller --}}
+{{-- Partial pemilih kelas siblings (checkbox) untuk fan-out saat membuat materi/tugas/konferensi.
+     Controller harus mengoper $siblings (Collection<Course> dengan studentClass ter-load). --}}
 @if(isset($siblings) && $siblings->count() > 0)
 <div class="rounded-xl border border-primary/20 bg-primary/5 p-4">
     <div class="flex items-center gap-2 mb-2">

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\StudyProgram;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+// Factory pembuat data StudyProgram (prodi) palsu (otomatis membuat jurusan terkait).
 class StudyProgramFactory extends Factory
 {
     protected $model = StudyProgram::class;

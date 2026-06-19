@@ -1,3 +1,4 @@
+{{-- Halaman pengerjaan quiz (mahasiswa). --}}
 <x-app-layout>
     @php
         $duration = $assignment->duration_minutes ?? 0;

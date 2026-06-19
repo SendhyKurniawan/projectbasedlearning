@@ -43,13 +43,15 @@ use NotificationChannels\WebPush\HasPushSubscriptions;
  * @mixin \Eloquent
  * @mixin IdeHelperUser
  */
+// Model pengguna untuk ketiga peran (role): admin, dosen, mahasiswa.
+// Menyimpan identitas akademik (nim untuk mahasiswa, nip untuk dosen) dan data OTP registrasi.
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasPushSubscriptions;
 
     /**
-     * The attributes that are mass assignable.
+     * Kolom yang boleh diisi secara massal.
      *
      * @var list<string>
      */
@@ -69,7 +71,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Kolom yang disembunyikan saat serialisasi (mis. saat di-cast ke JSON).
      *
      * @var list<string>
      */
@@ -79,7 +81,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Casting kolom: password otomatis di-hash, kolom waktu jadi datetime.
      *
      * @return array<string, string>
      */
@@ -93,38 +95,45 @@ class User extends Authenticatable
         ];
     }
 
-    // Role Helper Methods
+    // Method bantu peran (role)
+    // Apakah pengguna ini admin.
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
     }
 
+    // Apakah pengguna ini dosen.
     public function isDosen(): bool
     {
         return $this->role === 'dosen';
     }
 
+    // Apakah pengguna ini mahasiswa.
     public function isMahasiswa(): bool
     {
         return $this->role === 'mahasiswa';
     }
 
+    // Cek peran secara generik.
     public function hasRole(string $role): bool
     {
         return $this->role === $role;
     }
 
-    // Relationships
+    // Relasi
+    // Matkul yang diampu (untuk dosen).
     public function courses()
     {
         return $this->hasMany(\App\Models\Course::class, 'dosen_id');
     }
 
+    // Kelas tempat mahasiswa ini terdaftar.
     public function studentClass()
     {
         return $this->belongsTo(\App\Models\StudentClass::class, 'student_class_id');
     }
 
+    // Matkul yang diikuti mahasiswa (via pivot enrollments), beserta nilai akhir.
     public function enrollments()
     {
         return $this->belongsToMany(\App\Models\Course::class, 'enrollments', 'mahasiswa_id', 'course_id')
@@ -133,24 +142,24 @@ class User extends Authenticatable
     }
 
     /**
-     * Alias for enrollments relationship to ensure backward compatibility across controllers.
+     * Alias relasi enrollments demi kompatibilitas dengan controller lama.
      */
     public function enrolledCourses()
     {
         return $this->enrollments();
     }
 
+    // Pengumpulan tugas milik mahasiswa ini.
     public function submissions()
     {
         return $this->hasMany(\App\Models\Submission::class, 'mahasiswa_id');
     }
 
     /**
-     * Send the password reset notification using our custom Indonesian template.
+     * Kirim notifikasi reset password memakai template kustom berbahasa Indonesia.
      */
     public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
     {
         $this->notify(new ResetPasswordNotification($token));
     }
-
 }

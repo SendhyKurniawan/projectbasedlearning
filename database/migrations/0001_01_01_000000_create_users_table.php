@@ -4,10 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+// Migrasi tabel inti autentikasi: users (akun semua peran), password_reset_tokens, dan sessions.
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      */
     public function up(): void
     {
@@ -15,11 +16,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->enum('role', ['mahasiswa', 'dosen', 'admin'])->default('mahasiswa');
-            $table->string('nim')->unique()->nullable();
-            $table->string('nip')->unique()->nullable();
+            $table->enum('role', ['mahasiswa', 'dosen', 'admin'])->default('mahasiswa'); // peran pengguna
+            $table->string('nim')->unique()->nullable(); // nomor induk mahasiswa
+            $table->string('nip')->unique()->nullable(); // nomor induk pegawai (dosen)
             $table->string('sso_id')->nullable();
-            $table->boolean('is_active')->default(true);
+            $table->boolean('is_active')->default(true); // akun aktif (dosen/mahasiswa baru bisa nonaktif menunggu OTP/persetujuan)
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
@@ -43,7 +44,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Batalkan migrasi.
      */
     public function down(): void
     {

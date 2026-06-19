@@ -1,3 +1,4 @@
+{{-- Halaman detail topik diskusi; daftar komentar dirender komponen Livewire. --}}
 @push('styles')
     @vite('resources/css/pages/shared/discussions.css')
 @endpush

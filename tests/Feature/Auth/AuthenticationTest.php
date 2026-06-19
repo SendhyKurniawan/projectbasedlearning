@@ -1,5 +1,6 @@
 <?php
 
+// Uji autentikasi: render form login, login sukses (redirect sesuai role), tolak password salah, logout.
 use App\Models\User;
 
 test('login screen can be rendered', function () {

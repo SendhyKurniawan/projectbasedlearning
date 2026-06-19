@@ -6,10 +6,12 @@ use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+// FormRequest untuk update profil (salah satu dari dua FormRequest di aplikasi ini).
+// Email/NIM/NIP harus unik, kecuali milik user yang bersangkutan.
 class ProfileUpdateRequest extends FormRequest
 {
     /**
-     * Get the validation rules that apply to the request.
+     * Aturan validasi untuk pembaruan profil.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */

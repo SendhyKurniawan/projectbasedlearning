@@ -33,10 +33,15 @@ use Illuminate\Support\Facades\Cache;
  * @mixin \Eloquent
  * @mixin IdeHelperCourse
  */
+// Model mata kuliah (course). Satu baris Course = satu kelas dari sebuah matkul.
+// Dosen yang mengajar matkul sama (kode_matkul + semester) ke beberapa kelas akan
+// punya beberapa baris Course; baris-baris itu disebut "siblings".
 class Course extends Model
 {
     use HasFactory;
 
+    // Saat course dibuat/diubah/dihapus, kosongkan cache sidebar milik dosen terkait
+    // agar daftar matkul pada sidebar selalu sinkron dengan data terbaru.
     protected static function booted(): void
     {
         $flush = fn (self $course) => Cache::forget("sidebar:dosen:{$course->dosen_id}");
@@ -45,6 +50,7 @@ class Course extends Model
         static::deleted($flush);
     }
 
+    // Kolom yang boleh diisi secara massal (mass assignment).
     protected $fillable = [
         'nama_matkul',
         'kode_matkul',
@@ -56,22 +62,26 @@ class Course extends Model
         'course_img',
     ];
 
-    // Relationships
+    // Relasi
+    // Dosen pengampu matkul ini.
     public function dosen()
     {
         return $this->belongsTo(\App\Models\User::class, 'dosen_id');
     }
 
+    // Semester tempat matkul ini berjalan.
     public function semester()
     {
         return $this->belongsTo(\App\Models\Semester::class);
     }
 
+    // Kelas (rombongan belajar) yang mengikuti matkul ini.
     public function studentClass()
     {
         return $this->belongsTo(\App\Models\StudentClass::class, 'student_class_id');
     }
 
+    // Materi pembelajaran milik matkul, diurutkan sesuai kolom 'order'.
     public function materials()
     {
         return $this->hasMany(\App\Models\Material::class)->orderBy('order');
@@ -79,11 +89,12 @@ class Course extends Model
 
     public function assignments()
     {
-        // Order by the 'order' column on the assignments table itself.
-        // The xxxx_create_course_assignment_order_table pivot approach was never applied.
+        // Urutkan langsung berdasarkan kolom 'order' pada tabel assignments.
+        // Pendekatan pivot xxxx_create_course_assignment_order_table tidak pernah dipakai.
         return $this->hasMany(Assignment::class)->orderBy('order');
     }
 
+    // Mahasiswa yang terdaftar (enroll) di matkul ini, via tabel pivot enrollments.
     public function students()
     {
         return $this->belongsToMany(\App\Models\User::class, 'enrollments', 'course_id', 'mahasiswa_id')
@@ -91,17 +102,20 @@ class Course extends Model
             ->withTimestamps();
     }
 
+    // Sesi konferensi (Jitsi) yang dijadwalkan pada matkul ini.
     public function conferences()
     {
         return $this->hasMany(\App\Models\Conference::class);
     }
 
+    // Cache siblings per instance agar tidak query berulang dalam satu request.
     protected ?\Illuminate\Support\Collection $cachedSiblings = null;
 
     /**
-     * Other courses taught by the same dosen, same matkul code, same semester.
-     * Used to populate kelas-target selectors and copy actions.
-     * Result is memoized per instance so repeated calls within one request are free.
+     * Course "siblings": matkul lain yang diampu dosen yang sama, dengan kode_matkul
+     * dan semester yang sama, tetapi kelas berbeda. Dipakai untuk mengisi pemilih
+     * kelas-tujuan dan aksi copy/fan-out. Hasilnya di-memoize per instance sehingga
+     * pemanggilan berulang dalam satu request tidak melakukan query ulang.
      */
     public function siblings(): \Illuminate\Support\Collection
     {
@@ -115,8 +129,9 @@ class Course extends Model
     }
 
     /**
-     * Stable key for grouping sibling courses in views (dashboard, sidebar).
-     * Group by nama_matkul so legacy courses with different codes still cluster.
+     * Kunci stabil untuk mengelompokkan course siblings pada tampilan (dashboard, sidebar).
+     * Dikelompokkan berdasarkan nama_matkul agar course lama yang kode_matkul-nya berbeda
+     * tetap mengelompok menjadi satu grup.
      */
     public function getCourseGroupKeyAttribute(): string
     {

@@ -9,10 +9,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+// Controller profil mandiri: tiap user mengubah datanya sendiri, ganti password, atau hapus akun.
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Tampilkan form profil milik user; mahasiswa diberi data kelas/prodi/jurusan.
      */
     public function edit(Request $request): View
     {
@@ -27,7 +28,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Perbarui data profil. Jika email berubah, reset status verifikasi email.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -43,7 +44,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's account.
+     * Hapus akun user sendiri; wajib konfirmasi password, lalu logout & bersihkan sesi.
      */
     public function destroy(Request $request): RedirectResponse
     {

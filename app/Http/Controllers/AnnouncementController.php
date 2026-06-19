@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
+// Controller pengumuman (resource bersama untuk admin & dosen). Visibilitas & target audiens
+// disesuaikan per peran; mendukung lampiran (gambar/PDF) dan pengiriman notifikasi.
 class AnnouncementController extends Controller
 {
+    // Daftar pengumuman yang boleh dilihat user (difilter per peran), plus pencarian & filter target.
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -51,6 +54,7 @@ class AnnouncementController extends Controller
         return view('announcements.index', compact('announcements'));
     }
 
+    // Form buat pengumuman. Pilihan target audiens dibatasi sesuai peran (admin vs dosen).
     public function create()
     {
         $user = Auth::user();
@@ -68,6 +72,7 @@ class AnnouncementController extends Controller
         return view('announcements.create', compact('targets', 'users'));
     }
 
+    // Simpan pengumuman (opsional lampiran), set target spesifik bila ada, lalu kirim notifikasi.
     public function store(Request $request)
     {
         $user = Auth::user();
@@ -113,6 +118,7 @@ class AnnouncementController extends Controller
             $announcement->targetedUsers()->sync($validated['specific_users']);
         }
 
+        // Tentukan penerima notifikasi sesuai target audiens.
         $notifiableUsers = collect();
         if ($validated['target_audience'] === 'all') {
             $notifiableUsers = User::where('id', '!=', $user->id)->get();
@@ -131,6 +137,7 @@ class AnnouncementController extends Controller
         return redirect()->route('announcements.index')->with('success', 'Pengumuman berhasil dibuat.');
     }
 
+    // Tampilkan detail pengumuman; cek hak akses sesuai peran & target audiens.
     public function show(Announcement $announcement)
     {
         $user = Auth::user();
@@ -158,6 +165,7 @@ class AnnouncementController extends Controller
         return view('announcements.show', compact('announcement'));
     }
 
+    // Form edit pengumuman (hanya pembuat atau admin).
     public function edit(Announcement $announcement)
     {
          if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {
@@ -178,6 +186,7 @@ class AnnouncementController extends Controller
         return view('announcements.edit', compact('announcement', 'targets', 'users', 'selectedUsers'));
     }
 
+    // Perbarui pengumuman (hanya pembuat/admin); bisa mengganti atau menghapus lampiran.
     public function update(Request $request, Announcement $announcement)
     {
         if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {
@@ -211,6 +220,7 @@ class AnnouncementController extends Controller
             'target_audience' => $validated['target_audience'],
         ];
 
+        // Hapus lampiran lama bila diminta hapus, atau bila ada lampiran baru menggantikan.
         $shouldRemove = $request->boolean('remove_attachment');
         $hasNewFile = $request->hasFile('attachment');
 
@@ -240,6 +250,7 @@ class AnnouncementController extends Controller
         return redirect()->route('announcements.index')->with('success', 'Pengumuman berhasil diperbarui.');
     }
 
+    // Hapus pengumuman beserta lampirannya (hanya pembuat/admin).
     public function destroy(Announcement $announcement)
     {
          if (Auth::id() !== $announcement->user_id && Auth::user()->role !== 'admin') {

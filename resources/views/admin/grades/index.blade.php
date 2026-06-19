@@ -1,9 +1,11 @@
+{{-- Halaman rekap nilai (admin): daftar matkul + nilai mahasiswa dengan filter & pencarian. --}}
 @push('styles')
     @vite('resources/css/pages/admin/grades.css')
 @endpush
 <x-app-layout>
  <div class="space-y-6">
  <!-- Header -->
+
  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
  <h2 class="text-2xl font-extrabold font-headline tracking-tight text-on-surface">Rekap Nilai</h2>

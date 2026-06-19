@@ -4,10 +4,12 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
+// Buat tabel push_subscriptions (dari paket laravel-notification-channels/webpush):
+// menyimpan langganan Web Push milik tiap user (endpoint + kunci) untuk notifikasi browser.
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalankan migrasi.
      *
      * @return void
      */
@@ -25,7 +27,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Batalkan migrasi.
      *
      * @return void
      */

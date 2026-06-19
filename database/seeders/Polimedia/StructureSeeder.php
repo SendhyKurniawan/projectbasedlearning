@@ -9,12 +9,12 @@ use App\Models\StudyProgram;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds the real Politeknik Negeri Media Kreatif (PoliMedia) Jakarta academic
- * structure from database/data/polimedia.json:
- *   departments (jurusan) -> study_programs (prodi)   [global, once]
- *   -> student_classes (A..C) per prodi, per semester  [all 8 terms]
+ * Mengisi struktur akademik nyata PoliMedia (Politeknik Negeri Media Kreatif) Jakarta
+ * dari database/data/polimedia.json:
+ *   jurusan (departments) -> program studi (study_programs)  [global, sekali]
+ *   -> kelas (student_classes, A..C) per prodi, per semester  [semua 8 term]
  *
- * Run after CalendarSeeder. Regenerate the JSON with:
+ * Dijalankan setelah CalendarSeeder. Regenerasi JSON dengan:
  *   python scripts/pddikti/fetch_polimedia.py
  */
 class StructureSeeder extends Seeder
@@ -23,7 +23,7 @@ class StructureSeeder extends Seeder
     {
         $data = PolimediaData::load();
 
-        // Departments + study programs are institution-wide (no semester).
+        // Jurusan + prodi berlaku se-institusi (tidak terikat semester).
         $deptIdByCode = [];
         foreach ($data['departments'] as $dept) {
             $deptIdByCode[$dept['code']] = Department::firstOrCreate(
@@ -44,7 +44,7 @@ class StructureSeeder extends Seeder
             );
         }
 
-        // Classes are per term: every semester gets A..C for every prodi.
+        // Kelas dibuat per term: tiap semester mendapat kelas A..C untuk tiap prodi.
         $semesters = Semester::with('academicYear')->get();
         $classCount = 0;
 

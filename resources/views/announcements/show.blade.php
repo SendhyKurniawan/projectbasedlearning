@@ -1,3 +1,4 @@
+{{-- Halaman detail pengumuman (beserta lampiran bila ada). --}}
 <x-app-layout>
  <div class="space-y-6">
  {{-- Section Header --}}

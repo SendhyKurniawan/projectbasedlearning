@@ -41,9 +41,13 @@ use Illuminate\Database\Eloquent\Model;
  * @mixin \Eloquent
  * @mixin IdeHelperSubmission
  */
+// Model pengumpulan jawaban mahasiswa atas sebuah Assignment. Menampung berkas, link,
+// jawaban kode, jawaban quiz (JSON), nilai, dan feedback dari dosen.
 class Submission extends Model
 {
     use HasFactory;
+
+    // Kolom yang boleh diisi massal.
     protected $fillable = [
         'assignment_id',
         'mahasiswa_id',
@@ -63,6 +67,7 @@ class Submission extends Model
         'finished_at',
     ];
 
+    // Casting: kolom waktu jadi datetime; validation_result & answers disimpan sebagai JSON.
     protected function casts(): array
     {
         return [
@@ -75,23 +80,27 @@ class Submission extends Model
         ];
     }
 
-    // Relationships
+    // Relasi
+    // Tugas yang dikumpulkan.
     public function assignment()
     {
         return $this->belongsTo(\App\Models\Assignment::class);
     }
 
+    // Mahasiswa pemilik pengumpulan.
     public function mahasiswa()
     {
         return $this->belongsTo(\App\Models\User::class, 'mahasiswa_id');
     }
 
+    // Kelompok pengumpul (untuk tugas kelompok).
     public function group()
     {
         return $this->belongsTo(\App\Models\Group::class);
     }
 
-    // Accessors
+    // Accessor
+    // Dianggap sudah dinilai bila kolom score sudah terisi (bukan null).
     public function getIsGradedAttribute(): bool
     {
         return $this->score !== null;

@@ -1,5 +1,6 @@
 <?php
 
+// Uji pembaruan field profil spesifik role: nim (mahasiswa), nip (dosen), sso_id, & keunikan nim.
 use App\Models\User;
 
 test('mahasiswa can update nim', function () {

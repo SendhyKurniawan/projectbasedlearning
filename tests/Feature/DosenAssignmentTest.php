@@ -5,8 +5,10 @@ use App\Models\Course;
 use App\Models\Submission;
 use App\Models\User;
 
+// Uji CRUD tugas + penilaian submission oleh dosen, dengan otorisasi lintas-dosen (403).
+
 // ----------------------------------------------------------------
-// Assignment Index
+// Daftar tugas (index)
 // ----------------------------------------------------------------
 
 test('dosen can view assignments for their own course', function () {
@@ -27,7 +29,7 @@ test('dosen cannot view assignments for another dosen course', function () {
 });
 
 // ----------------------------------------------------------------
-// Assignment Store
+// Simpan tugas (store)
 // ----------------------------------------------------------------
 
 test('dosen can create a tugas assignment', function () {
@@ -70,7 +72,7 @@ test('dosen cannot create assignment for another dosen course', function () {
 });
 
 // ----------------------------------------------------------------
-// Assignment Update
+// Perbarui tugas (update)
 // ----------------------------------------------------------------
 
 test('dosen can update their own assignment', function () {
@@ -95,7 +97,7 @@ test('dosen can update their own assignment', function () {
 });
 
 // ----------------------------------------------------------------
-// Grading
+// Penilaian submission (grading)
 // ----------------------------------------------------------------
 
 test('dosen can grade a submission', function () {

@@ -1,3 +1,4 @@
+{{-- Halaman daftar diskusi. --}}
 @push('styles')
     @vite('resources/css/pages/shared/discussions.css')
 @endpush

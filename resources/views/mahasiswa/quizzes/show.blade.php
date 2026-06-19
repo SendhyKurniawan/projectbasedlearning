@@ -1,3 +1,4 @@
+{{-- Halaman info quiz sebelum dikerjakan (mahasiswa). --}}
 <x-app-layout>
     @php
         $submission = $existingSubmission;

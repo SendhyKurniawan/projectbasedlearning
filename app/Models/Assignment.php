@@ -39,10 +39,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @mixin \Eloquent
  * @mixin IdeHelperAssignment
  */
+// Model tugas/penilaian. Kolom 'type' menentukan jenisnya: tugas, quiz, atau exercise.
+// Bisa berupa tugas individu maupun kelompok (lihat kolom is_group).
 class Assignment extends Model
 {
     use HasFactory;
 
+    // Kolom yang boleh diisi massal.
     protected $fillable = [
         'assignment_number',
         'submission_format',
@@ -62,6 +65,7 @@ class Assignment extends Model
         'grading_mode',
     ];
 
+    // Casting kolom: deadline jadi datetime, exercise_config disimpan sebagai JSON (array).
     protected function casts(): array
     {
         return [
@@ -71,38 +75,43 @@ class Assignment extends Model
         ];
     }
 
-    // Relationships
+    // Relasi
+    // Matkul tempat tugas ini berada.
     public function course()
     {
         return $this->belongsTo(\App\Models\Course::class);
     }
 
+    // Seluruh pengumpulan (submission) mahasiswa untuk tugas ini.
     public function submissions()
     {
         return $this->hasMany(\App\Models\Submission::class);
     }
 
+    // Daftar soal (khusus tugas bertipe quiz).
     public function questions()
     {
         return $this->hasMany(\App\Models\QuizQuestion::class);
     }
 
+    // Kelompok mahasiswa (khusus tugas kelompok).
     public function groups()
     {
         return $this->hasMany(\App\Models\Group::class);
     }
 
+    // Materi prasyarat: tugas baru terbuka setelah materi ini dibaca mahasiswa.
     public function requiredMaterial()
     {
         return $this->belongsTo(Material::class, 'required_material_id');
     }
 
-    // Helper Methods
+    // Method bantu
 
     /**
-     * Check whether the assignment is accessible to a given student.
-     * Returns true if there is no prerequisite material, or if the student
-     * has already recorded a view on that material.
+     * Cek apakah tugas ini sudah "terbuka" (boleh diakses) untuk seorang mahasiswa.
+     * Bernilai true jika tidak ada materi prasyarat, atau jika mahasiswa sudah pernah
+     * tercatat membuka materi prasyarat tersebut.
      */
     public function isUnlockedFor($studentId): bool
     {
@@ -115,12 +124,14 @@ class Assignment extends Model
             ->exists();
     }
 
-    // Scopes
+    // Scope query
+    // Tugas yang masih aktif (deadline belum lewat).
     public function scopeActive($query)
     {
         return $query->where('deadline', '>=', now());
     }
 
+    // Tugas yang sudah lewat deadline.
     public function scopePast($query)
     {
         return $query->where('deadline', '<', now());

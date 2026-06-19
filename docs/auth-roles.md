@@ -1,16 +1,16 @@
-# Auth & Roles
+# Autentikasi & Role
 
-## The role enum
+## Enum role
 
-`users.role` is a MySQL `enum('mahasiswa','dosen','admin')` column with default `mahasiswa` (set in `0001_01_01_000000_create_users_table.php`). There is no separate `roles` table — the `App\Models\Role` model used to exist and has been removed.
+`users.role` adalah kolom MySQL `enum('mahasiswa','dosen','admin')` dengan default `mahasiswa` (diset di `0001_01_01_000000_create_users_table.php`). Tidak ada tabel `roles` terpisah — model `App\Models\Role` dulu pernah ada dan sudah dihapus.
 
-| Value | Route prefix | Dashboard route | Login screen |
+| Nilai | Prefix route | Route dashboard | Layar login |
 |---|---|---|---|
 | `admin` | `/admin` | `admin.dashboard` | `/admin/login` (`Admin\Auth\LoginController`) |
 | `dosen` | `/dosen` | `dosen.dashboard` | `/login` (Breeze) |
 | `mahasiswa` | `/mahasiswa` | `mahasiswa.dashboard` | `/login` (Breeze) |
 
-The root `/` route in `routes/web.php` does the role dispatch:
+Route root `/` di `routes/web.php` melakukan pengalihan berdasarkan role:
 
 ```php
 Route::get('/', function () {
@@ -26,23 +26,23 @@ Route::get('/', function () {
 });
 ```
 
-`User` also exposes helpers used widely in policies: `isAdmin()`, `isDosen()`, `isMahasiswa()`, `hasRole($role)`.
+`User` juga menyediakan helper yang dipakai luas di policy: `isAdmin()`, `isDosen()`, `isMahasiswa()`, `hasRole($role)`.
 
 ---
 
-## Route group middleware stacks
+## Tumpukan middleware grup route
 
 ```php
-// Shared auth-only:
+// Bersama, auth-only:
 Route::middleware('auth')->group(...)
 
-// Role-specific:
+// Spesifik role:
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(...)
 Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->group(...)
 Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(...)
 ```
 
-Middleware aliases are registered in `bootstrap/app.php`:
+Alias middleware didaftarkan di `bootstrap/app.php`:
 
 ```php
 $middleware->alias([
@@ -51,11 +51,11 @@ $middleware->alias([
 ]);
 ```
 
-`$middleware->trustProxies(at: '*')` is also set there — required because Caddy on the host VM terminates TLS before forwarding to the in-container Nginx.
+`$middleware->trustProxies(at: '*')` juga diset di sana — diperlukan karena Caddy pada host VM menerminasi TLS sebelum meneruskan ke Nginx di dalam kontainer.
 
 ---
 
-## `CheckRole` middleware
+## Middleware `CheckRole`
 
 `app/Http/Middleware/CheckRole.php`
 
@@ -69,7 +69,7 @@ public function handle(Request $request, Closure $next, string $requiredRole): R
     $user = auth()->user();
 
     if (!in_array($user->role, ['admin', 'dosen', 'mahasiswa']) || $user->role !== $requiredRole) {
-        // Bounce mismatched roles to their own dashboard.
+        // Pantulkan role yang tidak cocok ke dashboard mereka sendiri.
         return match ($user->role) {
             'admin'     => redirect()->route('admin.dashboard'),
             'dosen'     => redirect()->route('dosen.dashboard'),
@@ -82,18 +82,18 @@ public function handle(Request $request, Closure $next, string $requiredRole): R
 }
 ```
 
-Behaviour summary:
-- Guest → `route('login')`.
-- Authenticated but wrong role → redirect to **their own** dashboard (not 403). A mahasiswa hitting `/dosen/anything` lands on `mahasiswa.dashboard`.
-- Authenticated with unknown role string → `route('login')`.
+Ringkasan perilaku:
+- Tamu → `route('login')`.
+- Terautentikasi tetapi role salah → redirect ke dashboard **mereka sendiri** (bukan 403). Mahasiswa yang mengakses `/dosen/apa-pun` mendarat di `mahasiswa.dashboard`.
+- Terautentikasi dengan string role tak dikenal → `route('login')`.
 
 ---
 
-## `CheckAssignmentUnlocked` middleware
+## Middleware `CheckAssignmentUnlocked`
 
 `app/Http/Middleware/CheckAssignmentUnlocked.php`
 
-Applied to mahasiswa submission and exercise-solve routes:
+Diterapkan pada route pengumpulan dan pengerjaan-exercise mahasiswa:
 
 ```php
 Route::resource('submissions', Mahasiswa\SubmissionController::class)
@@ -105,133 +105,133 @@ Route::get('/exercises/{assignment}/solve', [Mahasiswa\ExerciseController::class
     ->middleware('check.assignment.unlocked');
 ```
 
-The middleware pulls the `assignment` route binding and calls `Assignment::isUnlockedFor(auth()->id())`. If the assignment has a `required_material_id` and the student has no `MaterialView` record for that material, the middleware redirects **back** with `error` flash: *"Anda harus membaca materi prerequisite terlebih dahulu untuk mengakses tugas ini."*
+Middleware mengambil binding route `assignment` dan memanggil `Assignment::isUnlockedFor(auth()->id())`. Bila tugas punya `required_material_id` dan mahasiswa tidak punya record `MaterialView` untuk materi itu, middleware me-redirect **kembali** dengan flash `error`: *"Anda harus membaca materi prerequisite terlebih dahulu untuk mengakses tugas ini."*
 
-`MaterialView` records are created (via `updateOrCreate`) by `Mahasiswa\CourseController::showMaterial`. Viewing a material that later gets set as a prerequisite still counts — the records are never retroactively cleared.
+Record `MaterialView` dibuat (via `updateOrCreate`) oleh `Mahasiswa\CourseController::showMaterial`. Membuka materi yang nantinya dijadikan prasyarat tetap dihitung — record tidak pernah dihapus secara retroaktif.
 
 ---
 
-## Policies
+## Policy
 
-Two policies exist and are auto-discovered by Laravel via the `Model ↔ ModelPolicy` naming convention. Always call them via `$this->authorize()` in controllers — do not add ad-hoc role checks or use `Gate::check()`.
+Ada dua policy dan otomatis ditemukan Laravel via konvensi penamaan `Model ↔ ModelPolicy`. Selalu panggil via `$this->authorize()` di controller — jangan tambah cek role ad-hoc atau pakai `Gate::check()`.
 
 ### `CoursePolicy` (`app/Policies/CoursePolicy.php`)
 
-| Method | Rule |
+| Method | Aturan |
 |---|---|
-| `viewAny(User)` | admin OR dosen |
-| `view(User, Course)` | admin OR (dosen AND `user.id === course.dosen_id`) |
-| `create(User, ?Course)` | admin OR (dosen AND (course is null OR `user.id === course.dosen_id`)) |
-| `update(User, Course)` | admin OR (dosen AND ownership) |
-| `delete(User, Course)` | admin only |
+| `viewAny(User)` | admin ATAU dosen |
+| `view(User, Course)` | admin ATAU (dosen DAN `user.id === course.dosen_id`) |
+| `create(User, ?Course)` | admin ATAU (dosen DAN (course null ATAU `user.id === course.dosen_id`)) |
+| `update(User, Course)` | admin ATAU (dosen DAN pemilik) |
+| `delete(User, Course)` | admin saja |
 
-Mahasiswa access to a course is **not** gated by this policy — controllers do an inline enrollment check via `DB::table('enrollments')->where(...)->exists()`.
+Akses mahasiswa ke mata kuliah **tidak** digerbang policy ini — controller melakukan cek enrollment inline via `DB::table('enrollments')->where(...)->exists()`.
 
 ### `AssignmentPolicy` (`app/Policies/AssignmentPolicy.php`)
 
-| Method | Rule |
+| Method | Aturan |
 |---|---|
-| `viewAny(User)` | admin OR dosen |
-| `view(User, Assignment)` | admin OR (dosen AND owns `assignment.course`) |
-| `create(User)` | admin OR dosen |
-| `update(User, Assignment)` | admin OR (dosen AND owns `assignment.course`) |
-| `delete(User, Assignment)` | admin OR (dosen AND owns `assignment.course`) |
+| `viewAny(User)` | admin ATAU dosen |
+| `view(User, Assignment)` | admin ATAU (dosen DAN memiliki `assignment.course`) |
+| `create(User)` | admin ATAU dosen |
+| `update(User, Assignment)` | admin ATAU (dosen DAN memiliki `assignment.course`) |
+| `delete(User, Assignment)` | admin ATAU (dosen DAN memiliki `assignment.course`) |
 
-`$assignment->course->dosen_id === $user->id` is the ownership check.
+`$assignment->course->dosen_id === $user->id` adalah cek kepemilikan.
 
-### Calling policies
+### Memanggil policy
 
 ```php
-$this->authorize('view',   $course);      // throws AuthorizationException → 403
+$this->authorize('view',   $course);      // melempar AuthorizationException → 403
 $this->authorize('update', $assignment);
-$this->authorize('create', $course);      // create accepts an optional Course
+$this->authorize('create', $course);      // create menerima Course opsional
 ```
 
-If a new resource needs authorization, add a policy class first — do **not** sprinkle role checks in controllers.
+Bila resource baru perlu otorisasi, tambahkan kelas policy lebih dulu — **jangan** menyebar cek role di controller.
 
 ---
 
-## Admin login
+## Login admin
 
-Admin has a dedicated login form to keep `/admin` self-contained:
+Admin punya form login khusus agar `/admin` mandiri:
 
 - `GET /admin/login` → `Admin\Auth\LoginController@create` (view `admin.auth.login`)
-- `POST /admin/login` → `Admin\Auth\LoginController@store` — calls `LoginRequest::authenticate()`, then verifies `Auth::user()->role === 'admin'`. Non-admin accounts that happen to enter the right credentials are immediately logged out and shown a redirect-back error.
+- `POST /admin/login` → `Admin\Auth\LoginController@store` — memanggil `LoginRequest::authenticate()`, lalu memverifikasi `Auth::user()->role === 'admin'`. Akun non-admin yang kebetulan memasukkan kredensial benar langsung di-logout dan diberi error redirect-back.
 
-`GET /admin` (without `/login`) redirects to `admin.login`.
+`GET /admin` (tanpa `/login`) me-redirect ke `admin.login`.
 
-The shared Breeze login at `/login` is for dosen and mahasiswa.
+Login Breeze bersama di `/login` untuk dosen dan mahasiswa.
 
 ---
 
-## Registration & OTP verification
+## Registrasi & verifikasi OTP
 
-Mahasiswa and dosen self-register at `/register` (`Auth\RegisteredUserController`). Admin accounts are never created via the public form — admins are added by other admins in `/admin/users`.
+Mahasiswa dan dosen mendaftar sendiri di `/register` (`Auth\RegisteredUserController`). Akun admin tidak pernah dibuat lewat form publik — admin ditambahkan oleh admin lain di `/admin/users`.
 
-### Registration flow
+### Alur registrasi
 
 ```
 POST /register (RegisteredUserController@store)
-  ├── validate role-specific fields:
-  │     role=mahasiswa → require nim (unique), student_class_id (exists)
-  │     role=dosen     → require nip (unique)
-  ├── create User with is_active=false, otp_code=6-digit, otp_expires_at=now+10m
+  ├── validasi field spesifik role:
+  │     role=mahasiswa → wajib nim (unik), student_class_id (exists)
+  │     role=dosen     → wajib nip (unik)
+  ├── buat User dengan is_active=false, otp_code=6-digit, otp_expires_at=now+10m
   ├── fire Illuminate\Auth\Events\Registered
-  ├── $user->notify(new OtpVerificationNotification($code))  // mail channel
+  ├── $user->notify(new OtpVerificationNotification($code))  // channel mail
   ├── session->put('otp_user_id', $user->id)
-  └── redirect → route('verification.otp')  + status flash
+  └── redirect → route('verification.otp')  + flash status
 
 GET /verify-otp (OtpVerificationController@create)
-  └── reads session('otp_user_id') → renders auth.verify-otp with $email
+  └── baca session('otp_user_id') → render auth.verify-otp dengan $email
 
 POST /verify-otp (OtpVerificationController@store)
-  ├── validate code = digits:6
-  ├── reject if otp_expires_at past → "Kode telah kadaluarsa…"
-  ├── reject if hash_equals mismatch → "Kode verifikasi tidak valid."
-  ├── on success:
+  ├── validasi code = digits:6
+  ├── tolak bila otp_expires_at lewat → "Kode telah kadaluarsa…"
+  ├── tolak bila hash_equals tidak cocok → "Kode verifikasi tidak valid."
+  ├── saat sukses:
   │     mahasiswa: is_active=true, otp_verified_at=now, email_verified_at ?? now,
   │                Auth::login($user), redirect → mahasiswa.dashboard
-  │     dosen:     is_active=false (still!), otp_verified_at=now,
-  │                redirect → login with "menunggu persetujuan admin" status
+  │     dosen:     is_active=false (masih!), otp_verified_at=now,
+  │                redirect → login dengan status "menunggu persetujuan admin"
   └── session->forget('otp_user_id')
 
 POST /verify-otp/resend (throttle:3,1)
-  ├── regenerate otp_code, set otp_expires_at = now+10m
+  ├── generate ulang otp_code, set otp_expires_at = now+10m
   └── notify($user, OtpVerificationNotification)
 ```
 
-### Login-time `is_active` gate
+### Gerbang `is_active` saat login
 
-`Auth\AuthenticatedSessionController::store` checks `$user->is_active` after `LoginRequest::authenticate()`:
+`Auth\AuthenticatedSessionController::store` memeriksa `$user->is_active` setelah `LoginRequest::authenticate()`:
 
-- `is_active=false` and `otp_verified_at IS NULL` → log out, stash `otp_user_id` in session, redirect to `verification.otp` ("Email Anda belum diverifikasi…").
-- `is_active=false` and `otp_verified_at` set (dosen waiting admin approval) → log out, redirect to login with `errors.email = "Akun Anda belum diaktifkan. Silakan hubungi admin untuk konfirmasi."`
-- `is_active=true` → normal session regenerate + role-based redirect via `match`.
+- `is_active=false` dan `otp_verified_at IS NULL` → logout, simpan `otp_user_id` di session, redirect ke `verification.otp` ("Email Anda belum diverifikasi…").
+- `is_active=false` dan `otp_verified_at` terisi (dosen menunggu persetujuan admin) → logout, redirect ke login dengan `errors.email = "Akun Anda belum diaktifkan. Silakan hubungi admin untuk konfirmasi."`
+- `is_active=true` → regenerate session normal + redirect berbasis role via `match`.
 
-### Admin approval
+### Persetujuan admin
 
-Admin lists pending dosen at `/admin/users` (the index counts `User::where('role','dosen')->where('is_active', false)`). Activation is `PATCH /admin/users/{id}/toggle-active` (`UserController::toggleActive`) which flips `is_active`.
+Admin mendaftar dosen yang menunggu di `/admin/users` (index menghitung `User::where('role','dosen')->where('is_active', false)`). Aktivasi adalah `PATCH /admin/users/{id}/toggle-active` (`UserController::toggleActive`) yang membalik `is_active`.
 
-### Password reset
+### Reset password
 
-Standard Breeze `/forgot-password` → `password.email` → mail. The notification is the project's custom `App\Notifications\ResetPasswordNotification` (Indonesian template) overridden in `User::sendPasswordResetNotification()`.
+Standar Breeze `/forgot-password` → `password.email` → mail. Notifikasinya adalah `App\Notifications\ResetPasswordNotification` kustom proyek (template Indonesia) yang di-override di `User::sendPasswordResetNotification()`.
 
 ---
 
-## Auth-related notifications
+## Notifikasi terkait auth
 
-| Notification | Channel | Queue |
+| Notifikasi | Channel | Queue |
 |---|---|---|
-| `OtpVerificationNotification` | `mail` | `ShouldQueue` (runs sync under default `QUEUE_CONNECTION=sync`) |
-| `ResetPasswordNotification` | inherits `Illuminate\Auth\Notifications\ResetPassword` → mail | `ShouldQueue` |
+| `OtpVerificationNotification` | `mail` | `ShouldQueue` (berjalan sync di bawah default `QUEUE_CONNECTION=sync`) |
+| `ResetPasswordNotification` | mewarisi `Illuminate\Auth\Notifications\ResetPassword` → mail | `ShouldQueue` |
 
-See [features/notifications.md](features/notifications.md) for the full notification catalog and queue semantics.
+Lihat [features/notifications.md](features/notifications.md) untuk katalog notifikasi lengkap dan semantik queue.
 
 ---
 
-## Auth route reference (`routes/auth.php`)
+## Referensi route auth (`routes/auth.php`)
 
-| Method + URL | Name | Controller |
+| Method + URL | Nama | Controller |
 |---|---|---|
 | `GET /register` | `register` | `RegisteredUserController@create` |
 | `POST /register` | — | `RegisteredUserController@store` |
@@ -243,10 +243,10 @@ See [features/notifications.md](features/notifications.md) for the full notifica
 | `POST /reset-password` | `password.store` | `NewPasswordController@store` |
 | `GET /verify-otp` | `verification.otp` | `OtpVerificationController@create` |
 | `POST /verify-otp` | `verification.otp.store` | `OtpVerificationController@store` |
-| `POST /verify-otp/resend` (throttle 3/min) | `verification.otp.resend` | `OtpVerificationController@resend` |
+| `POST /verify-otp/resend` (throttle 3/menit) | `verification.otp.resend` | `OtpVerificationController@resend` |
 | `GET /verify-email` (auth) | `verification.notice` | `EmailVerificationPromptController` |
-| `GET /verify-email/{id}/{hash}` (auth, signed, throttle 6/min) | `verification.verify` | `VerifyEmailController` |
-| `POST /email/verification-notification` (auth, throttle 6/min) | `verification.send` | `EmailVerificationNotificationController@store` |
+| `GET /verify-email/{id}/{hash}` (auth, signed, throttle 6/menit) | `verification.verify` | `VerifyEmailController` |
+| `POST /email/verification-notification` (auth, throttle 6/menit) | `verification.send` | `EmailVerificationNotificationController@store` |
 | `GET /confirm-password` (auth) | `password.confirm` | `ConfirmablePasswordController@show` |
 | `POST /confirm-password` (auth) | — | `ConfirmablePasswordController@store` |
 | `PUT /password` (auth) | `password.update` | `PasswordController@update` |

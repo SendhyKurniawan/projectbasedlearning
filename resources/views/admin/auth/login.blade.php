@@ -1,5 +1,6 @@
+{{-- Halaman login khusus portal admin. --}}
 <x-guest-layout>
- <!-- Session Status -->
+ <!-- Status sesi (mis. pesan setelah aksi tertentu) -->
  <x-auth-session-status class="mb-4" :status="session('status')" />
 
  <div class="mb-6 text-center">

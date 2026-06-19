@@ -8,12 +8,16 @@ use App\Models\Submission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+// Controller pengerjaan exercise (latihan koding) oleh mahasiswa.
+// Tidak ada auto-grading: validasi keyword hanya jadi "hint" untuk dosen, skor tetap dinilai manual.
 class ExerciseController extends Controller
 {
+    // Tampilkan halaman pengerjaan exercise (sertakan submission yang sudah ada, jika ada).
     public function solve(Assignment $assignment)
     {
         $mahasiswa = auth()->user();
 
+        // Pastikan assignment memang bertipe 'exercise'.
         if ($assignment->type !== 'exercise') {
             abort(404);
         }
@@ -36,6 +40,8 @@ class ExerciseController extends Controller
         return view('mahasiswa.exercises.solve', compact('assignment', 'existing'));
     }
 
+    // Kumpulkan jawaban kode. Simpan validation_result sebagai hint; skor dibiarkan null
+    // (status 'submitted', auto_graded=false) untuk dinilai manual oleh dosen.
     public function submit(Request $request)
     {
         $request->validate([
@@ -63,7 +69,7 @@ class ExerciseController extends Controller
             return redirect()->back()->with('error', 'Anda sudah mengumpulkan exercise ini.');
         }
 
-        // Keyword validation runs as a hint for the dosen, not for scoring.
+        // Validasi keyword dijalankan sebagai petunjuk (hint) untuk dosen, bukan untuk penilaian.
         $validationResult = $this->validateCode($assignment, $request->code_answer);
 
         Submission::create([
@@ -82,6 +88,8 @@ class ExerciseController extends Controller
             ->with('success', 'Code berhasil dikumpulkan! Menunggu penilaian dosen.');
     }
 
+    // Hitung kecocokan kode terhadap required_keywords di exercise_config; hasilnya berupa
+    // ringkasan (lolos/skor/umpan balik) yang disimpan sebagai hint, BUKAN nilai resmi.
     private function validateCode($assignment, $code)
     {
         $config = $assignment->exercise_config;

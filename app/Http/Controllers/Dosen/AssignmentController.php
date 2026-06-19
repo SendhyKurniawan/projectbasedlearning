@@ -12,8 +12,11 @@ use App\Notifications\AcademicUpdateNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
+// Controller utama pengelolaan tugas oleh dosen: CRUD tugas (tugas/quiz/exercise),
+// fan-out ke kelas siblings, atur urutan, lihat & nilai submission, dan kelola soal quiz.
 class AssignmentController extends Controller
 {
+    // Daftar tugas sebuah matkul (beserta jumlah submission) + siblings untuk fan-out.
     public function index(Course $course)
     {
         $this->authorize('view', $course);
@@ -29,6 +32,7 @@ class AssignmentController extends Controller
         return view('dosen.assignments.index', compact('course', 'assignments', 'siblings'));
     }
 
+    // Form buat tugas (materi untuk prasyarat + siblings untuk fan-out).
     public function create(Course $course)
     {
         $this->authorize('create', $course);
@@ -39,6 +43,8 @@ class AssignmentController extends Controller
         return view('dosen.assignments.create', compact('course', 'materials', 'siblings'));
     }
 
+    // Simpan tugas baru. Quiz hanya dibuatkan "shell" lalu diarahkan ke pengisian soal;
+    // tugas/exercise langsung jadi + notifikasi mahasiswa, lalu fan-out ke siblings.
     public function store(Request $request, Course $course)
     {
         $this->authorize('create', $course);
@@ -59,11 +65,13 @@ class AssignmentController extends Controller
             'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
+        // Keamanan fan-out: batasi target hanya ke siblings milik matkul ini.
         $allowedSiblingIds = $course->siblings()->pluck('id');
         $targetIds = collect($request->sibling_ids ?? [])
             ->map(fn($id) => (int) $id)
             ->intersect($allowedSiblingIds);
 
+        // Mode kelompok hanya berlaku untuk tipe 'tugas'.
         $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
 
         $sharedData = [
@@ -79,6 +87,7 @@ class AssignmentController extends Controller
             'grading_mode' => $isGroup ? ($request->grading_mode ?: 'equal') : 'equal',
         ];
 
+        // Closure pembuat tugas untuk satu matkul: hitung nomor urut (quiz/tugas) & order.
         $createForCourse = function (Course $target) use ($sharedData) {
             $count = Assignment::where('course_id', $target->id)->where('type', $sharedData['type'])->count();
             $maxOrder = $target->assignments()->max('order') ?? 0;
@@ -114,7 +123,7 @@ class AssignmentController extends Controller
             ));
         }
 
-        // Fan-out to selected sibling courses
+        // Fan-out: buat tugas serupa + notifikasi untuk tiap kelas sibling terpilih.
         $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
         foreach ($targetCourses as $sibling) {
             $sibAssignment = $createForCourse($sibling);
@@ -137,6 +146,7 @@ class AssignmentController extends Controller
             ->with('success', $msg);
     }
 
+    // Form edit tugas.
     public function edit(Assignment $assignment)
     {
         $assignment->loadMissing('course');
@@ -149,6 +159,7 @@ class AssignmentController extends Controller
         return view('dosen.assignments.edit', compact('assignment', 'course', 'materials'));
     }
 
+    // Perbarui tugas & beri tahu mahasiswa (pengaturan kelompok dikunci bila sudah ada submission).
     public function update(Request $request, Assignment $assignment)
     {
         $this->authorize('update', $assignment);
@@ -179,7 +190,7 @@ class AssignmentController extends Controller
         $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
         $hasSubmission = $assignment->submissions()->exists();
 
-        // Lock group settings once submissions exist to keep data consistent.
+        // Kunci pengaturan kelompok begitu sudah ada submission, agar data tetap konsisten.
         if ($hasSubmission) {
             $data['is_group'] = $assignment->is_group;
             $data['max_group_size'] = $assignment->max_group_size;
@@ -208,6 +219,7 @@ class AssignmentController extends Controller
             ->with('success', 'Berhasil diperbarui!');
     }
 
+    // Hapus tugas.
     public function destroy(Assignment $assignment)
     {
         $this->authorize('delete', $assignment);
@@ -221,6 +233,7 @@ class AssignmentController extends Controller
             ->with('success', 'Berhasil dihapus!');
     }
 
+    // Salin satu tugas ke beberapa kelas siblings (quiz disalin tanpa soal — shell saja).
     public function copy(Request $request, Assignment $assignment)
     {
         $assignment->loadMissing('course');
@@ -232,6 +245,7 @@ class AssignmentController extends Controller
             'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
 
+        // Batasi target ke siblings milik matkul ini saja.
         $allowedSiblingIds = $course->siblings()->pluck('id');
         $targetIds = collect($request->sibling_ids)
             ->map(fn($id) => (int) $id)
@@ -267,10 +281,11 @@ class AssignmentController extends Controller
         return back()->with('success', $msg);
     }
 
+    // Simpan urutan baru tugas hasil drag-and-drop (normalisasi nilai 'order' agar tetap naik).
     public function reorder(Request $request, Course $course)
     {
         $this->authorize('update', $course);
-        
+
         $request->validate([
             'ordered_ids' => 'required|array',
             'ordered_ids.*' => 'exists:assignments,id',
@@ -302,6 +317,7 @@ class AssignmentController extends Controller
         return response()->json(['message' => 'Urutan berhasil diperbarui']);
     }
 
+    // Halaman daftar submission/pengerjaan. Quiz → tampilan percobaan; tugas kelompok → muat grup.
     public function submissions(Assignment $assignment)
     {
         $assignment->loadMissing('course');
@@ -329,6 +345,7 @@ class AssignmentController extends Controller
         return view('dosen.assignments.submissions', compact('assignment', 'course', 'submissions', 'groups'));
     }
 
+    // Lihat detail satu percobaan quiz seorang mahasiswa (jawaban per soal).
     public function showQuizAttempt(Assignment $assignment, Submission $submission)
     {
         $assignment->loadMissing('course');
@@ -345,6 +362,7 @@ class AssignmentController extends Controller
         return view('dosen.assignments.quiz_attempt_show', compact('assignment', 'submission'));
     }
 
+    // Beri nilai satu submission individu + kirim notifikasi nilai ke mahasiswa.
     public function grade(Request $request, Submission $submission)
     {
         $submission->loadMissing(['assignment.course']);
@@ -376,6 +394,7 @@ class AssignmentController extends Controller
             ->with('success', 'Nilai berhasil diberikan!');
     }
 
+    // Beri nilai tugas kelompok. Mode 'individual' → skor per anggota; 'equal' → skor sama untuk semua.
     public function gradeGroup(Request $request, Group $group)
     {
         $group->loadMissing(['assignment.course', 'submissions.mahasiswa']);
@@ -428,8 +447,9 @@ class AssignmentController extends Controller
         return redirect()->back()->with('success', 'Nilai kelompok berhasil disimpan!');
     }
 
-    // Question management
+    // ===== Pengelolaan soal quiz =====
 
+    // Daftar soal sebuah quiz.
     public function questions(Assignment $assignment)
     {
         $this->authorize('view', $assignment->course);
@@ -439,6 +459,7 @@ class AssignmentController extends Controller
         return view('dosen.assignments.questions.index', compact('assignment', 'questions'));
     }
 
+    // Form tambah soal.
     public function createQuestion(Assignment $assignment)
     {
         $this->authorize('view', $assignment->course);
@@ -446,6 +467,7 @@ class AssignmentController extends Controller
         return view('dosen.assignments.questions.create', compact('assignment'));
     }
 
+    // Simpan soal baru; untuk pilihan ganda, simpan opsi-opsinya dalam satu transaksi.
     public function storeQuestion(Request $request, Assignment $assignment)
     {
         $assignment->loadMissing('course');
@@ -482,6 +504,7 @@ class AssignmentController extends Controller
             ->with('success', 'Pertanyaan berhasil ditambahkan!');
     }
 
+    // Form edit soal.
     public function editQuestion(\App\Models\QuizQuestion $question)
     {
         $question->loadMissing(['assignment.course', 'options']);
@@ -493,6 +516,7 @@ class AssignmentController extends Controller
         return view('dosen.assignments.questions.edit', compact('question', 'assignment'));
     }
 
+    // Perbarui soal; untuk pilihan ganda, opsi lama dihapus lalu ditulis ulang (dalam transaksi).
     public function updateQuestion(Request $request, \App\Models\QuizQuestion $question)
     {
         $question->loadMissing('assignment.course');
@@ -530,6 +554,7 @@ class AssignmentController extends Controller
             ->with('success', 'Pertanyaan berhasil diperbarui!');
     }
 
+    // Hapus soal.
     public function destroyQuestion(\App\Models\QuizQuestion $question)
     {
         $question->loadMissing('assignment.course');

@@ -1,3 +1,4 @@
+{{-- Partial form ubah informasi profil (nama/email/identitas). --}}
 @php
  /** @var \App\Models\User $user */
 @endphp

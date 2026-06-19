@@ -1,3 +1,4 @@
+{{-- Partial penampil lampiran/berkas sebuah pengumpulan (dosen). --}}
 @php
     /** @var \App\Models\Submission|null $item */
     $item = $item ?? null;

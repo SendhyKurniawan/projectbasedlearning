@@ -1,18 +1,18 @@
-# Getting Started
+# Memulai
 
-## Prerequisites
+## Prasyarat
 
-- **PHP 8.2+** with extensions: `pdo_mysql`, `gd`, `zip`, `bcmath`, `intl`, `mbstring`, `xml`, `pdo_sqlite` (for Pest's `RefreshDatabase` tests)
+- **PHP 8.2+** dengan ekstensi: `pdo_mysql`, `gd`, `zip`, `bcmath`, `intl`, `mbstring`, `xml`, `pdo_sqlite` (untuk test `RefreshDatabase` pada Pest)
 - **Composer 2**
-- **Node 20+** with NPM 10+
-- **Docker** + Docker Compose (for the containerized path or local Piston / Mailhog / MySQL)
+- **Node 20+** dengan NPM 10+
+- **Docker** + Docker Compose (untuk jalur kontainer atau Piston / Mailhog / MySQL lokal)
 - **Git**
 
 ---
 
-## Docker path (matches production)
+## Jalur Docker (mirip produksi)
 
-The Docker path uses MySQL 8, Mailhog, and a bundled Piston code-execution sandbox — the same composition that runs in production behind Caddy.
+Jalur Docker memakai MySQL 8, Mailhog, dan sandbox eksekusi kode Piston bawaan — komposisi yang sama dengan yang berjalan di produksi di belakang Caddy.
 
 ```bash
 git clone <repo> pjbl && cd pjbl
@@ -21,84 +21,84 @@ docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate --seed
 ```
 
-Then:
+Lalu:
 
-- App: `http://localhost:8000`
+- Aplikasi: `http://localhost:8000`
 - phpMyAdmin: `http://localhost:8081`
-- MailHog UI: `http://localhost:8025`
+- UI MailHog: `http://localhost:8025`
 
-The `app` container's entrypoint copies `.env.example` → `.env` on first boot (if `.env` doesn't already exist) and waits for the `db` container's healthcheck before starting PHP-FPM.
+Entrypoint kontainer `app` menyalin `.env.example` → `.env` saat boot pertama (bila `.env` belum ada) dan menunggu healthcheck kontainer `db` sebelum menjalankan PHP-FPM.
 
-> The host-side port for the app is `127.0.0.1:8000` (bound to localhost only). In production, Caddy on the host proxies HTTPS:443 → `127.0.0.1:8000`. Locally you hit `http://localhost:8000` directly.
+> Port sisi host untuk aplikasi adalah `127.0.0.1:8000` (hanya terikat ke localhost). Di produksi, Caddy pada host mem-proxy HTTPS:443 → `127.0.0.1:8000`. Secara lokal Anda mengakses `http://localhost:8000` langsung.
 
-### Vite during dev
+### Vite saat pengembangan
 
-Run Vite inside the container or natively on the host. Inside:
+Jalankan Vite di dalam kontainer atau native di host. Di dalam kontainer:
 
 ```bash
 docker compose exec app npm install
 docker compose exec app npm run dev
 ```
 
-If you add new Vite entry points later, **remove the `app_build` volume before re-deploying** — it shadows new builds. See [deployment.md](deployment.md#vite-assets-gotcha).
+Bila nanti Anda menambah entry point Vite baru, **hapus volume `app_build` sebelum re-deploy** — volume itu membayangi build baru. Lihat [deployment.md](deployment.md#vite-assets-gotcha).
 
 ---
 
-## Native path (no Docker)
+## Jalur native (tanpa Docker)
 
 ```bash
 git clone <repo> pjbl && cd pjbl
 composer setup        # install → .env → key:generate → migrate → npm install → npm run build → composer optimize
-composer dev          # concurrent: php artisan serve + queue:listen + pail + vite
+composer dev          # bersamaan: php artisan serve + queue:listen + pail + vite
 ```
 
-`composer setup` copies `.env.example` to `.env` if missing, generates `APP_KEY`, runs migrations (force), installs node modules, builds production assets, then caches config/routes/views/events.
+`composer setup` menyalin `.env.example` ke `.env` bila belum ada, men-generate `APP_KEY`, menjalankan migrasi (force), memasang node modules, mem-build aset produksi, lalu meng-cache config/route/view/event.
 
-`composer dev` runs four processes via `concurrently`:
+`composer dev` menjalankan empat proses via `concurrently`:
 
-| Name | Command |
+| Nama | Perintah |
 |---|---|
 | `server` | `php artisan serve` (default `http://127.0.0.1:8000`) |
 | `queue` | `php artisan queue:listen --tries=1 --timeout=0` |
-| `logs` | `php artisan pail --timeout=0` (real-time log tail) |
+| `logs` | `php artisan pail --timeout=0` (tail log real-time) |
 | `vite` | `npm run dev` |
 
-For native dev you'll want to either run MySQL locally or override the database vars to use SQLite. Quick SQLite setup:
+Untuk dev native, Anda perlu menjalankan MySQL lokal atau menimpa variabel database agar memakai SQLite. Setup SQLite cepat:
 
 ```bash
 touch database/database.sqlite
-# .env overrides:
+# override di .env:
 DB_CONNECTION=sqlite
-DB_DATABASE=/absolute/path/to/database/database.sqlite
-# (or leave blank — Laravel resolves a relative `database/database.sqlite` if env value omitted)
+DB_DATABASE=/path/absolut/ke/database/database.sqlite
+# (atau kosongkan — Laravel akan memakai `database/database.sqlite` relatif bila nilai env diabaikan)
 ```
 
-The default `.env.example` is wired for MySQL with Docker hostnames (`DB_HOST=db`, `DB_PORT=3306`). When running natively against a host MySQL, change `DB_HOST=127.0.0.1`.
+`.env.example` default disetel untuk MySQL dengan hostname Docker (`DB_HOST=db`, `DB_PORT=3306`). Saat berjalan native terhadap MySQL host, ubah menjadi `DB_HOST=127.0.0.1`.
 
 ---
 
-## Environment variables
+## Variabel lingkungan
 
-Full reference. Values shown are the `.env.example` defaults.
+Referensi lengkap. Nilai yang ditampilkan adalah default `.env.example`.
 
 ### App
 
-| Variable | Default | Notes |
+| Variabel | Default | Catatan |
 |---|---|---|
-| `APP_NAME` | `PBL Workspace` | shown in UI, email subjects, push titles |
-| `APP_ENV` | `local` | switch to `production` when deploying |
-| `APP_KEY` | _(empty, run `key:generate`)_ | |
-| `APP_DEBUG` | `true` | **must be `false`** in production |
-| `APP_URL` | `http://localhost:8000` | absolute URL incl. scheme; prod example `https://polimedia.pblworkspace.com` |
-| `APP_LOCALE` | `id` | UI strings are Indonesian; date helpers use Carbon's locale |
+| `APP_NAME` | `PBL Workspace` | tampil di UI, subjek email, judul push |
+| `APP_ENV` | `local` | ganti ke `production` saat deploy |
+| `APP_KEY` | _(kosong, jalankan `key:generate`)_ | |
+| `APP_DEBUG` | `true` | **harus `false`** di produksi |
+| `APP_URL` | `http://localhost:8000` | URL absolut termasuk skema; contoh prod `https://polimedia.pblworkspace.com` |
+| `APP_LOCALE` | `id` | string UI berbahasa Indonesia; helper tanggal memakai locale Carbon |
 | `APP_FALLBACK_LOCALE` | `en` | |
-| `APP_FAKER_LOCALE` | `en_US` | factories |
+| `APP_FAKER_LOCALE` | `en_US` | factory |
 | `APP_MAINTENANCE_DRIVER` | `file` | |
 | `BCRYPT_ROUNDS` | `10` | |
 
 ### Logging
 
-| Variable | Default |
+| Variabel | Default |
 |---|---|
 | `LOG_CHANNEL` | `stack` |
 | `LOG_STACK` | `single` |
@@ -107,10 +107,10 @@ Full reference. Values shown are the `.env.example` defaults.
 
 ### Database
 
-| Variable | Default | Notes |
+| Variabel | Default | Catatan |
 |---|---|---|
-| `DB_CONNECTION` | `mysql` | Default is MySQL to match Docker. Use `sqlite` for native + zero-setup dev. |
-| `DB_HOST` | `db` | Docker service hostname; `127.0.0.1` for native |
+| `DB_CONNECTION` | `mysql` | Default MySQL agar selaras dengan Docker. Pakai `sqlite` untuk dev native tanpa setup. |
+| `DB_HOST` | `db` | hostname service Docker; `127.0.0.1` untuk native |
 | `DB_PORT` | `3306` | |
 | `DB_DATABASE` | `pjbl` | |
 | `DB_USERNAME` | `pjbl` | |
@@ -118,77 +118,77 @@ Full reference. Values shown are the `.env.example` defaults.
 
 ### Session / Cache / Queue / Broadcast / Filesystem
 
-| Variable | Default | Notes |
+| Variabel | Default | Catatan |
 |---|---|---|
-| `SESSION_DRIVER` | `database` | `file` is faster for single-server local; `redis` for multi-server |
-| `SESSION_LIFETIME` | `120` (minutes) | |
+| `SESSION_DRIVER` | `database` | `file` lebih cepat untuk lokal single-server; `redis` untuk multi-server |
+| `SESSION_LIFETIME` | `120` (menit) | |
 | `SESSION_ENCRYPT` | `false` | |
 | `SESSION_PATH` | `/` | |
-| `SESSION_DOMAIN` | `null` | production: set to your apex domain (e.g. `polimedia.pblworkspace.com`) |
-| `CACHE_STORE` | `database` | switch to `redis` in prod if Redis is available |
-| `QUEUE_CONNECTION` | `sync` | dispatches inline; switch to `database` in prod and run a worker |
-| `BROADCAST_CONNECTION` | `log` | no Pusher/Reverb. Do not call `broadcast()` without setting up a driver first |
-| `FILESYSTEM_DISK` | `local` | uploaded content via the `public` disk (`storage/app/public`) — `php artisan storage:link` once |
+| `SESSION_DOMAIN` | `null` | produksi: set ke domain apex Anda (mis. `polimedia.pblworkspace.com`) |
+| `CACHE_STORE` | `database` | ganti ke `redis` di prod bila Redis tersedia |
+| `QUEUE_CONNECTION` | `sync` | dispatch inline; ganti ke `database` di prod dan jalankan worker |
+| `BROADCAST_CONNECTION` | `log` | tanpa Pusher/Reverb. Jangan panggil `broadcast()` tanpa menyiapkan driver dulu |
+| `FILESYSTEM_DISK` | `local` | konten unggahan lewat disk `public` (`storage/app/public`) — jalankan `php artisan storage:link` sekali |
 
 ### Mail
 
-| Variable | Default | Notes |
+| Variabel | Default | Catatan |
 |---|---|---|
 | `MAIL_MAILER` | `smtp` | |
-| `MAIL_HOST` | `mailhog` | Docker hostname for the Mailhog container; native: `127.0.0.1` |
-| `MAIL_PORT` | `1025` | Mailhog SMTP port |
+| `MAIL_HOST` | `mailhog` | hostname Docker kontainer Mailhog; native: `127.0.0.1` |
+| `MAIL_PORT` | `1025` | port SMTP Mailhog |
 | `MAIL_USERNAME` | `null` | |
 | `MAIL_PASSWORD` | `null` | |
 | `MAIL_ENCRYPTION` | `null` | |
 | `MAIL_FROM_ADDRESS` | `noreply@pbl.test` | |
 | `MAIL_FROM_NAME` | `${APP_NAME}` | |
 
-GCP blocks outbound port 25; for production use a relay (Resend / Brevo / Postmark / Mailgun / SES).
+GCP memblokir port keluar 25; untuk produksi gunakan relay (Resend / Brevo / Postmark / Mailgun / SES).
 
-### AWS (optional, only if you switch `FILESYSTEM_DISK` to S3)
+### AWS (opsional, hanya bila `FILESYSTEM_DISK` diganti ke S3)
 
-| Variable | Default |
+| Variabel | Default |
 |---|---|
-| `AWS_ACCESS_KEY_ID` | _(empty)_ |
-| `AWS_SECRET_ACCESS_KEY` | _(empty)_ |
+| `AWS_ACCESS_KEY_ID` | _(kosong)_ |
+| `AWS_SECRET_ACCESS_KEY` | _(kosong)_ |
 | `AWS_DEFAULT_REGION` | `us-east-1` |
-| `AWS_BUCKET` | _(empty)_ |
+| `AWS_BUCKET` | _(kosong)_ |
 | `AWS_USE_PATH_STYLE_ENDPOINT` | `false` |
 
 ### Jitsi (self-hosted)
 
-| Variable | Default | Notes |
+| Variabel | Default | Catatan |
 |---|---|---|
-| `JITSI_DOMAIN` | `meet.polimedia.pblworkspace.com` | public hostname; the front-end builds room URLs as `https://{domain}/{room_name}?jwt=…` |
-| `JITSI_JWT_APP_ID` | _(empty)_ | must match the Jitsi server's `JWT_APP_ID` (e.g. `pjbl`). Required — `JitsiTokenService::mint()` throws without it. |
-| `JITSI_JWT_APP_SECRET` | _(empty)_ | must match the Jitsi server's `JWT_APP_SECRET`. 32-byte hex; never commit. |
+| `JITSI_DOMAIN` | `meet.polimedia.pblworkspace.com` | hostname publik; front-end membangun URL ruang sebagai `https://{domain}/{room_name}?jwt=…` |
+| `JITSI_JWT_APP_ID` | _(kosong)_ | harus cocok dengan `JWT_APP_ID` server Jitsi (mis. `pjbl`). Wajib — `JitsiTokenService::mint()` melempar error tanpa ini. |
+| `JITSI_JWT_APP_SECRET` | _(kosong)_ | harus cocok dengan `JWT_APP_SECRET` server Jitsi. Hex 32-byte; jangan pernah di-commit. |
 
-For local-only conference development without a real Jitsi server, set `JITSI_DOMAIN` to anything ("meet.local"), and any non-empty `JITSI_JWT_APP_ID` + secret. The minted token will be technically valid; opening the meeting tab will just 404 unless you actually point at a server.
+Untuk pengembangan konferensi lokal saja tanpa server Jitsi sungguhan, set `JITSI_DOMAIN` ke apa pun ("meet.local"), serta `JITSI_JWT_APP_ID` + secret non-kosong apa pun. Token yang dihasilkan secara teknis valid; membuka tab meeting hanya akan 404 kecuali Anda benar-benar mengarah ke server.
 
-### Code execution (Piston)
+### Eksekusi kode (Piston)
 
-| Variable | Default | Notes |
+| Variabel | Default | Catatan |
 |---|---|---|
-| `PISTON_URL` | `http://piston:2000/api/v2` | points at the bundled `piston` container in Docker; for native dev, use `https://emkc.org/api/v2/piston` |
-| `PISTON_TIMEOUT` | `10` | seconds before the proxy returns `502 Execution service unavailable.` |
+| `PISTON_URL` | `http://piston:2000/api/v2` | mengarah ke kontainer `piston` bawaan di Docker; untuk dev native pakai `https://emkc.org/api/v2/piston` |
+| `PISTON_TIMEOUT` | `10` | detik sebelum proxy mengembalikan `502 Execution service unavailable.` |
 
-Allowed languages (`config/code_execution.php`): `java`, `php`, `csharp` (Piston runs C# as `csharp.net`).
+Bahasa yang diizinkan (`config/code_execution.php`): `java`, `php`, `csharp` (Piston menjalankan C# sebagai `csharp.net`).
 
 ### WebPush (VAPID)
 
-| Variable | Default | Notes |
+| Variabel | Default | Catatan |
 |---|---|---|
-| `VAPID_PUBLIC_KEY` | _(empty)_ | required for push notifications. Generate with `php artisan webpush:vapid`. |
-| `VAPID_PRIVATE_KEY` | _(empty)_ | same command. |
-| `VAPID_SUBJECT` | `mailto:admin@example.com` | contact email for the push service. |
+| `VAPID_PUBLIC_KEY` | _(kosong)_ | wajib untuk push notification. Generate dengan `php artisan webpush:vapid`. |
+| `VAPID_PRIVATE_KEY` | _(kosong)_ | perintah yang sama. |
+| `VAPID_SUBJECT` | `mailto:admin@example.com` | email kontak untuk layanan push. |
 
-If `VAPID_PUBLIC_KEY` is empty, the layout silently skips subscribing the browser — push just doesn't work until you fill it.
+Bila `VAPID_PUBLIC_KEY` kosong, layout diam-diam melewati proses subscribe browser — push tidak berfungsi sampai diisi.
 
 ---
 
-## Default seeded accounts
+## Akun hasil seed default
 
-`DatabaseSeeder` runs (in order): `AcademicYearSeeder`, `SemesterSeeder`, `DepartmentSeeder`, `StudyProgramSeeder`, `StudentClassSeeder`, `UserSeeder`, `CourseSeeder`, `DummyDataSeeder`, `AssignmentSeeder`.
+`DatabaseSeeder` berjalan (berurutan): `AcademicYearSeeder`, `SemesterSeeder`, `DepartmentSeeder`, `StudyProgramSeeder`, `StudentClassSeeder`, `UserSeeder`, `CourseSeeder`, `DummyDataSeeder`, `AssignmentSeeder`.
 
 | Role | Email | Password |
 |---|---|---|
@@ -197,28 +197,28 @@ If `VAPID_PUBLIC_KEY` is empty, the layout silently skips subscribing the browse
 | Dosen | `budi.dosen@pjbl.test` | `password` |
 | Dosen | `siti.dosen@pjbl.test` | `password` |
 | Mahasiswa | `mahasiswa@pjbl.test` | `password` (`student_class_id=1`) |
-| Mahasiswa | `ahmad.mhs@pjbl.test`, `dewi.mhs@…`, `cahya.mhs@…`, `rina.mhs@…`, `fajar.mhs@…` | `password` (random `student_class_id ∈ {1,2}`) |
+| Mahasiswa | `ahmad.mhs@pjbl.test`, `dewi.mhs@…`, `cahya.mhs@…`, `rina.mhs@…`, `fajar.mhs@…` | `password` (`student_class_id` acak ∈ {1,2}) |
 
-Admin login is at `/admin/login` (separate Breeze controller); the other roles log in at `/login`.
+Login admin ada di `/admin/login` (controller Breeze terpisah); role lain login di `/login`.
 
 ---
 
-## Daily commands
+## Perintah harian
 
 ```bash
-composer dev          # start dev server (serve + queue + pail + vite)
-composer test         # run Pest suite (clears config cache first)
-vendor/bin/pint       # fix PHP code style
-npm run build         # production asset build
-npm run dev           # vite only (HMR)
-npm run audit:contrast  # check WCAG contrast on the design token palette
+composer dev          # jalankan dev server (serve + queue + pail + vite)
+composer test         # jalankan suite Pest (membersihkan cache config dulu)
+vendor/bin/pint       # rapikan gaya kode PHP
+npm run build         # build aset produksi
+npm run dev           # vite saja (HMR)
+npm run audit:contrast  # cek kontras WCAG pada palet design token
 
-php artisan migrate:fresh --seed     # reset DB + reseed
-php artisan storage:link             # link public storage to storage/app/public
-php artisan webpush:vapid            # generate VAPID keys (write into .env)
+php artisan migrate:fresh --seed     # reset DB + seed ulang
+php artisan storage:link             # tautkan storage publik ke storage/app/public
+php artisan webpush:vapid            # generate kunci VAPID (tulis ke .env)
 ```
 
-Docker variants:
+Varian Docker:
 
 ```bash
 docker compose up -d
@@ -229,13 +229,13 @@ docker compose logs -f app
 
 ---
 
-## First-time troubleshooting
+## Troubleshooting awal
 
-- **`SQLSTATE[HY000] [2002]`** — MySQL not up yet or hostname wrong. Inside docker, host should be `db`; outside, use `127.0.0.1` with port forwarded.
-- **`Vite manifest not found at: public/build/manifest.json`** — Run `npm run build` (prod) or `npm run dev` (HMR).
-- **Push notifications never arrive** — `VAPID_PUBLIC_KEY` empty, `Notification.requestPermission()` blocked, or the service worker (`/sw.js`) failed to register. Check the browser console.
-- **Conference page 500s** — `JITSI_JWT_APP_ID` or `JITSI_JWT_APP_SECRET` missing. `JitsiTokenService::mint()` throws `RuntimeException` before rendering.
-- **Exercise "Run" returns 502** — Piston container not running, or `PISTON_URL` unreachable. Inside docker: `docker compose ps piston`.
-- **Login OK but stuck on login screen** — Account has `is_active=false`. Mahasiswa with unverified OTP get redirected to `/verify-otp`; dosen waiting admin approval see the "Akun belum diaktifkan" error.
+- **`SQLSTATE[HY000] [2002]`** — MySQL belum siap atau hostname salah. Di dalam docker host harus `db`; di luar pakai `127.0.0.1` dengan port di-forward.
+- **`Vite manifest not found at: public/build/manifest.json`** — Jalankan `npm run build` (prod) atau `npm run dev` (HMR).
+- **Push notification tidak pernah datang** — `VAPID_PUBLIC_KEY` kosong, `Notification.requestPermission()` diblokir, atau service worker (`/sw.js`) gagal terdaftar. Cek konsol browser.
+- **Halaman konferensi 500** — `JITSI_JWT_APP_ID` atau `JITSI_JWT_APP_SECRET` hilang. `JitsiTokenService::mint()` melempar `RuntimeException` sebelum merender.
+- **"Run" pada exercise mengembalikan 502** — kontainer Piston tidak berjalan, atau `PISTON_URL` tak terjangkau. Di dalam docker: `docker compose ps piston`.
+- **Login OK tapi terjebak di layar login** — Akun memiliki `is_active=false`. Mahasiswa dengan OTP belum terverifikasi diarahkan ke `/verify-otp`; dosen yang menunggu persetujuan admin melihat error "Akun belum diaktifkan".
 
-See [auth-roles.md](auth-roles.md) for the registration/OTP/admin-approval flow.
+Lihat [auth-roles.md](auth-roles.md) untuk alur registrasi/OTP/persetujuan admin.

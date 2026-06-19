@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
 use NotificationChannels\WebPush\WebPushChannel;
 
+// Notifikasi pembaruan akademik (materi/tugas/konferensi baru, dll). Dikirim ke in-app + Web Push.
 class AcademicUpdateNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -24,11 +25,13 @@ class AcademicUpdateNotification extends Notification implements ShouldQueue
         $this->actionUrl = $actionUrl;
     }
 
+    // Kirim ke channel database (in-app) sekaligus Web Push (browser).
     public function via(object $notifiable): array
     {
         return ['database', WebPushChannel::class];
     }
 
+    // Bentuk payload untuk Web Push (judul, ikon, isi, aksi buka URL).
     public function toWebPush($notifiable, $notification)
     {
         return (new WebPushMessage)

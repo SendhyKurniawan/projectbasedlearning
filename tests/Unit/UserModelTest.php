@@ -2,7 +2,7 @@
 
 use App\Models\User;
 
-// Role helpers testing using plain model instantiation, no DB/facades needed
+// Uji helper role (isAdmin/isDosen/isMahasiswa/hasRole) — instansiasi model murni, tanpa DB/facade.
 test('isAdmin returns true for admin role', function () {
     $user = new User(['role' => 'admin']);
     expect($user->isAdmin())->toBeTrue();

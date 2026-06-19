@@ -6,6 +6,7 @@ use App\Models\Semester;
 use App\Models\AcademicYear;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+// Factory pembuat data Semester palsu (otomatis membuat tahun ajaran terkait, default nonaktif).
 class SemesterFactory extends Factory
 {
     protected $model = Semester::class;
@@ -21,6 +22,7 @@ class SemesterFactory extends Factory
         ];
     }
 
+    // State: jadikan semester aktif.
     public function active(): static
     {
         return $this->state(fn (array $attributes) => [

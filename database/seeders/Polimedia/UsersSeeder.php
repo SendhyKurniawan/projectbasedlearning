@@ -11,13 +11,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Creates the people, all pre-activated so they log in without the OTP step:
- *   - 1 admin (handout)                                   [global]
- *   - 1 dosen per prodi (demo prodi's dosen = handout)    [global, teaches every term]
- *   - N mahasiswa per kelas, per semester                 [all 8 terms]
+ * Membuat akun pengguna, semuanya sudah aktif sehingga bisa login tanpa langkah OTP:
+ *   - 1 admin (akun bagikan)                                 [global]
+ *   - 1 dosen per prodi (dosen prodi demo = akun bagikan)    [global, mengajar tiap term]
+ *   - N mahasiswa per kelas, per semester                    [semua 8 term]
  *
- * The handout `mahasiswa@` leads the active-term demo kelas. Students are
- * bulk-inserted (one shared password hash) to keep the ~thousands of rows fast.
+ * Akun bagikan `mahasiswa@` memimpin kelas demo pada term aktif. Mahasiswa di-insert
+ * massal (satu hash password bersama) agar ribuan baris tetap cepat dibuat.
  */
 class UsersSeeder extends Seeder
 {
@@ -44,7 +44,7 @@ class UsersSeeder extends Seeder
     public function run(): void
     {
         $now = now();
-        // Hash the shared password once (bcrypt is slow); every account reuses it.
+        // Hash password bersama sekali saja (bcrypt lambat); semua akun memakainya ulang.
         $passwordHash = Hash::make(PolimediaData::SHARED_PASSWORD);
 
         $this->seedStaff($passwordHash, $now);
@@ -57,7 +57,7 @@ class UsersSeeder extends Seeder
         ));
     }
 
-    /** Admin + one dosen per prodi (Eloquent — the 'hashed' cast keeps the hash as-is). */
+    /** Admin + satu dosen per prodi (pakai Eloquent — cast 'hashed' membiarkan hash apa adanya). */
     private function seedStaff(string $passwordHash, $now): void
     {
         DB::transaction(function () use ($passwordHash, $now) {
@@ -86,7 +86,7 @@ class UsersSeeder extends Seeder
         });
     }
 
-    /** Bulk-insert mahasiswa for every kelas in every semester. */
+    /** Insert massal mahasiswa untuk tiap kelas di tiap semester. */
     private function seedStudents(string $passwordHash, $now): int
     {
         $ts = $now->toDateTimeString();
@@ -116,6 +116,7 @@ class UsersSeeder extends Seeder
                     ->orderBy('name')->get();
 
                 foreach ($classes as $idx => $class) {
+                    // Kelas demo = kelas pertama prodi demo pada term aktif (untuk akun bagikan).
                     $isDemoClass = $isActiveTerm
                         && PolimediaData::isDemoProdi($code)
                         && $idx === PolimediaData::DEMO_KELAS_INDEX;

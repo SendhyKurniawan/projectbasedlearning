@@ -1,7 +1,11 @@
+{{-- Sidebar navigasi. Menu ditentukan berdasarkan peran user (admin/dosen/mahasiswa).
+     Data matkul dosen ($dosenCourseGroups) & matkul pertama mahasiswa ($mahasiswaFirstCourse)
+     disuntikkan oleh SidebarComposer. Item aktif ditandai via request()->routeIs(). --}}
 <aside :class="open ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-30 w-72 bg-surface-container-low transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col h-full shrink-0 py-8 px-6 overflow-y-auto">
- <!-- Brand Header -->
+ <!-- Header brand + tautan ke dashboard sesuai peran -->
  <div class="mb-10 flex items-center gap-3">
  @php
+ // Tentukan route dashboard sesuai peran user untuk tautan logo.
  $dashboardRoute = match(auth()->user()->role ?? '') {
  'admin' => 'admin.dashboard',
  'dosen' => 'dosen.dashboard',
@@ -19,19 +23,21 @@
  </div>
  </a>
  
- <!-- Mobile Close Button -->
+ <!-- Tombol tutup sidebar (mobile) -->
  <button @click="open = false" class="lg:hidden ml-auto text-outline hover:text-on-surface-variant focus:outline-none">
  <span class="material-symbols-outlined">close</span>
  </button>
  </div>
 
- <!-- Navigation -->
+ <!-- Menu navigasi (berbeda per peran) -->
  <nav class="flex-1 space-y-1">
  @php
+ // Kelas CSS untuk item menu aktif vs tidak aktif.
  $activeClass = 'flex items-center gap-3 px-4 py-3 text-on-primary font-bold bg-primary-container transition-all rounded-lg';
  $inactiveClass = 'flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors duration-200 rounded-lg';
  @endphp
  @auth
+ {{-- ===== Menu Admin ===== --}}
  @if(auth()->user()->role === 'admin')
  <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('admin.dashboard')) style="font-variation-settings: 'FILL' 1;" @endif>dashboard</span>
@@ -61,6 +67,7 @@
  <span class="text-sm font-body">Kelas Virtual</span>
  </a>
 
+ {{-- ===== Menu Dosen (termasuk akordeon matkul per grup siblings) ===== --}}
  @elseif(auth()->user()->role === 'dosen')
  <a href="{{ route('dosen.dashboard') }}" class="{{ request()->routeIs('dosen.dashboard') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('dosen.dashboard')) style="font-variation-settings: 'FILL' 1;" @endif>dashboard</span>
@@ -136,6 +143,7 @@
  </div>
  @endif
  
+ {{-- ===== Menu Mahasiswa ===== --}}
  @elseif(auth()->user()->role === 'mahasiswa')
  <a href="{{ route('mahasiswa.dashboard') }}" class="{{ request()->routeIs('mahasiswa.dashboard') ? $activeClass : $inactiveClass }}">
  <span class="material-symbols-outlined" @if(request()->routeIs('mahasiswa.dashboard')) style="font-variation-settings: 'FILL' 1;" @endif>dashboard</span>
@@ -177,7 +185,7 @@
  </a>
  </nav>
 
- <!-- Bottom Section: User Profile + Actions -->
+ <!-- Bagian bawah: profil user + tautan profil & logout -->
  <div class="mt-auto pt-6 border-t border-outline-variant/30 space-y-4">
  <div class="flex items-center gap-3">
  <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary text-sm">

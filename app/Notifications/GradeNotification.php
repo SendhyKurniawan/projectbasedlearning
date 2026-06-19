@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notification;
 use NotificationChannels\WebPush\WebPushMessage;
 use NotificationChannels\WebPush\WebPushChannel;
 
+// Notifikasi untuk mahasiswa saat tugasnya selesai dinilai. Dikirim ke in-app + Web Push.
 class GradeNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -21,6 +22,7 @@ class GradeNotification extends Notification implements ShouldQueue
         $this->courseId = $courseId;
     }
 
+    // Kirim ke channel database (in-app) sekaligus Web Push (browser).
     public function via(object $notifiable): array
     {
         return ['database', WebPushChannel::class];

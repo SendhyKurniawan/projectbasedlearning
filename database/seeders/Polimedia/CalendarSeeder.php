@@ -7,11 +7,11 @@ use App\Models\Semester;
 use Illuminate\Database\Seeder;
 
 /**
- * Seeds a realistic 4-year academic calendar: 4 academic years, each with a
- * Ganjil and Genap semester (8 semesters total). Only the latest Ganjil
- * (PolimediaData::ACTIVE_*) is active — the app expects exactly one active term.
+ * Mengisi kalender akademik 4 tahun yang realistis: 4 tahun ajaran, masing-masing
+ * dengan semester Ganjil & Genap (total 8 semester). Hanya Ganjil terbaru
+ * (PolimediaData::ACTIVE_*) yang aktif — aplikasi mengharuskan tepat satu term aktif.
  *
- * Replaces the single-term AcademicYearSeeder + SemesterSeeder.
+ * Menggantikan AcademicYearSeeder + SemesterSeeder yang hanya satu term.
  */
 class CalendarSeeder extends Seeder
 {

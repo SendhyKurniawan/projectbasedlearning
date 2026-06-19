@@ -33,3 +33,10 @@ _ide_helper_models.php
 .fallow/
 .playwright-mcp/
 *.pk
+
+# AI assistant / non-app artifacts (kept out of repo)
+CLAUDE.md
+/usertestacc/
+/docs/testing/
+/docs/_status-dokumentasi.md
+/scripts/fill-sus-form.mjs

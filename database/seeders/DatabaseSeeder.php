@@ -6,18 +6,20 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+// Seeder utama: titik masuk `php artisan db:seed`. Memanggil rangkaian seeder PoliMedia
+// secara berurutan (kalender → struktur akademik → pengguna → konten matkul).
 class DatabaseSeeder extends Seeder
 {
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Isi (seed) basis data aplikasi.
      */
     public function run(): void
     {
         $this->call([
-            // Real Politeknik Negeri Media Kreatif (PoliMedia) Jakarta testing ground,
-            // over a 4-year calendar (8 semesters). Regenerate structure with:
+            // Data nyata kampus PoliMedia (Politeknik Negeri Media Kreatif) Jakarta sebagai
+            // lingkungan uji, mencakup kalender 4 tahun (8 semester). Regenerasi struktur:
             //   python scripts/pddikti/fetch_polimedia.py
             \Database\Seeders\Polimedia\CalendarSeeder::class,
             \Database\Seeders\Polimedia\StructureSeeder::class,

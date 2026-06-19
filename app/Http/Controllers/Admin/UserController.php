@@ -9,8 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
+// Controller manajemen pengguna oleh admin: CRUD user + persetujuan akun dosen + hapus massal.
 class UserController extends Controller
 {
+    // Daftar user dengan filter pencarian, role, dan status aktif; juga hitung dosen pending.
     public function index(Request $request)
     {
         $query = User::with('studentClass:id,name,study_program_id', 'studentClass.studyProgram:id,name,department_id,level')->select('id', 'name', 'email', 'nim', 'nip', 'role', 'is_active', 'student_class_id', 'created_at');
@@ -40,12 +42,14 @@ class UserController extends Controller
         return view('admin.users.index', compact('users', 'pendingDosen'));
     }
 
+    // Form tambah user (sediakan daftar kelas untuk mahasiswa).
     public function create()
     {
         $classes = StudentClass::with('studyProgram')->get();
         return view('admin.users.create', compact('classes'));
     }
 
+    // Simpan user baru: hash password, langsung aktif (is_active = true).
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -67,6 +71,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil dibuat.');
     }
 
+    // Form edit user.
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
@@ -74,6 +79,7 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user', 'classes'));
     }
 
+    // Perbarui user; password hanya di-hash & diubah bila diisi (selain itu dibiarkan).
     public function update(Request $request, string $id)
     {
         $user = User::findOrFail($id);
@@ -89,6 +95,7 @@ class UserController extends Controller
             'password'  => ['nullable', 'confirmed', Password::defaults()],
         ]);
 
+        // Jika password diisi → hash; jika kosong → jangan ubah password lama.
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
@@ -103,7 +110,8 @@ class UserController extends Controller
             ->with('success', 'User berhasil diperbarui.');
     }
 
-    // Toggle active/inactive (also approves pending dosen accounts).
+    // Aktif/nonaktifkan akun (sekaligus menyetujui akun dosen yang masih pending).
+    // Tidak boleh mengubah status akun sendiri.
     public function toggleActive(string $id)
     {
         $user = User::findOrFail($id);
@@ -121,6 +129,7 @@ class UserController extends Controller
         return back()->with('success', $msg);
     }
 
+    // Hapus user (tidak boleh menghapus akun sendiri).
     public function destroy(string $id)
     {
         $user = User::findOrFail($id);
@@ -135,6 +144,7 @@ class UserController extends Controller
             ->with('success', 'User berhasil dihapus.');
     }
 
+    // Hapus banyak user sekaligus; akun sendiri otomatis dikecualikan dari daftar.
     public function bulkDestroy(Request $request)
     {
         $request->validate([

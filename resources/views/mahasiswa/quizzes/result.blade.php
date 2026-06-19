@@ -1,3 +1,4 @@
+{{-- Halaman hasil quiz (mahasiswa). --}}
 <x-app-layout>
     <div class="max-w-4xl mx-auto space-y-12 pb-20">
         <!-- Header & Breadcrumbs -->

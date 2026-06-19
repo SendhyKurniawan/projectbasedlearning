@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Semester;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+// Factory pembuat data Course palsu (otomatis membuat dosen & semester terkait).
 class CourseFactory extends Factory
 {
     protected $model = Course::class;

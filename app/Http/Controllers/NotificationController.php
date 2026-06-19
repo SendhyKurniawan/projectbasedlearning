@@ -5,20 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// Controller notifikasi in-app: daftar notifikasi user & aksi tandai-sudah-dibaca.
 class NotificationController extends Controller
 {
     /**
-     * Display a listing of the user's notifications.
+     * Tampilkan daftar notifikasi milik user (paginasi 15).
      */
     public function index()
     {
         $notifications = Auth::user()->notifications()->paginate(15);
-        
+
         return view('notifications.index', compact('notifications'));
     }
 
     /**
-     * Mark a specific notification as read and redirect if URL exists.
+     * Tandai satu notifikasi sebagai dibaca, lalu arahkan ke URL-nya bila tersedia.
      */
     public function readAndRedirect($id)
     {
@@ -34,7 +35,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark a specific notification as read.
+     * Tandai satu notifikasi sebagai dibaca (tanpa redirect).
      */
     public function markRead($id)
     {
@@ -46,7 +47,7 @@ class NotificationController extends Controller
     }
 
     /**
-     * Mark all notifications as read.
+     * Tandai semua notifikasi yang belum dibaca sebagai sudah dibaca.
      */
     public function markAllRead()
     {

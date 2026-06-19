@@ -7,8 +7,10 @@ use App\Models\User;
 use App\Notifications\TestNotification;
 use Illuminate\Http\Request;
 
+// Controller alat bantu debug: mengirim push notification percobaan ke seorang user.
 class PushDebugController extends Controller
 {
+    // Tampilkan daftar user beserta langganan push (subscription) mereka.
     public function index()
     {
         $users = User::with('pushSubscriptions')->get();
@@ -16,6 +18,7 @@ class PushDebugController extends Controller
         return view('admin.debug.push', compact('users'));
     }
 
+    // Kirim notifikasi percobaan ke user terpilih (judul & pesan opsional).
     public function send(Request $request)
     {
         $request->validate([

@@ -15,8 +15,11 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// Controller buku nilai (grade book) dosen: rekap nilai per matkul, ekspor CSV, dan nilai cepat.
 class GradeController extends Controller
 {
+    // Tampilkan buku nilai: matkul milik dosen difilter berlapis (tahun ajaran/semester/
+    // jurusan/prodi/kelas), lalu dikelompokkan per siblings beserta nilai tiap mahasiswa.
     public function index(Request $request)
     {
         $dosenId = Auth::id();
@@ -94,9 +97,10 @@ class GradeController extends Controller
         ));
     }
 
-    // Export per-kelas grade recap as CSV.
+    // Ekspor rekap nilai satu kelas sebagai berkas CSV (kolom: NIM, Nama, tiap tugas, rata-rata).
     public function export(Course $course)
     {
+        // Pastikan dosen berhak melihat matkul ini (lewat CoursePolicy).
         $this->authorize('view', $course);
 
         $course->load('studentClass', 'assignments', 'students.submissions');
@@ -138,9 +142,10 @@ class GradeController extends Controller
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
-    // Inline single-cell grade edit (PATCH).
+    // Nilai cepat satu sel (PATCH via AJAX): isi/ubah skor & feedback satu mahasiswa.
     public function quickGrade(Request $request, Assignment $assignment, User $mahasiswa)
     {
+        // Pastikan dosen berhak mengubah tugas ini (lewat AssignmentPolicy).
         $this->authorize('update', $assignment);
 
         $data = $request->validate([
@@ -161,7 +166,7 @@ class GradeController extends Controller
             ]
         );
 
-        // Only set submitted_at on first grade so we don't overwrite an existing timestamp.
+        // Set submitted_at hanya saat penilaian pertama agar timestamp lama tidak tertimpa.
         if (! $submission->submitted_at) {
             $submission->update(['submitted_at' => now()]);
         }

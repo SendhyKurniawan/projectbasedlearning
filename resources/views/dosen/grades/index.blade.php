@@ -1,3 +1,4 @@
+{{-- Halaman daftar rekap nilai (dosen). --}}
 @push('styles')
     @vite('resources/css/pages/dosen/grades.css')
 @endpush

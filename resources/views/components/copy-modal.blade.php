@@ -1,3 +1,5 @@
+{{-- Komponen modal (Alpine) untuk menyalin sebuah konten ke kelas siblings.
+     copyRoute = endpoint POST aksi salin; siblings = daftar kelas tujuan; itemTitle = judul konten. --}}
 @props([
     'copyRoute',
     'siblings',
@@ -5,6 +7,7 @@
 ])
 
 @if($siblings->count() > 0)
+{{-- State Alpine `open` mengatur tampil/sembunyi modal --}}
 <div x-data="{ open: false }">
     <button @click.prevent.stop="open = true" type="button"
         class="p-2 text-on-surface-variant hover:text-tertiary hover:bg-tertiary-container/30 rounded-lg transition-colors"

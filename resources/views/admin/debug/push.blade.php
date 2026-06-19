@@ -1,3 +1,4 @@
+{{-- Halaman alat debug admin untuk mengirim push notification percobaan. --}}
 @push('styles')
     @vite('resources/css/pages/admin/debug-push.css')
 @endpush

@@ -1,5 +1,6 @@
 <?php
 
+// Uji verifikasi email: render halaman, verifikasi via signed URL valid, dan tolak hash salah.
 use App\Models\User;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;

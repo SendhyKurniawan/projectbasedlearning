@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Conference;
 use App\Services\JitsiTokenService;
 
+// Controller pemantauan konferensi oleh admin: lihat sesi aktif/berakhir, masuk room, akhiri sesi.
 class ConferenceController extends Controller
 {
+    // Inject service pembuat token Jitsi (HS256 JWT).
     public function __construct(private JitsiTokenService $jitsi)
     {
     }
 
+    // Daftar konferensi: yang aktif (live/scheduled) di atas, yang sudah berakhir dipaginasi.
     public function index()
     {
         $activeConferences = Conference::with(['course:id,kode_matkul,nama_matkul,dosen_id', 'course.dosen:id,name', 'dosen:id,name'])
@@ -28,8 +31,10 @@ class ConferenceController extends Controller
         return view('admin.conferences.index', compact('activeConferences', 'endedConferences'));
     }
 
+    // Masuk room konferensi sebagai admin (moderator). Mint JWT lalu render view room.
     public function room(Conference $conference)
     {
+        // Hanya boleh masuk jika konferensi sedang berlangsung.
         if (!$conference->isLive()) {
             return redirect()
                 ->route('admin.conferences.index')
@@ -49,6 +54,7 @@ class ConferenceController extends Controller
         return view('admin.conferences.room', compact('conference', 'meetUrl'));
     }
 
+    // Akhiri sesi konferensi (set status ended); dukung respons JSON untuk pemanggilan AJAX.
     public function end(Conference $conference)
     {
         $conference->update([

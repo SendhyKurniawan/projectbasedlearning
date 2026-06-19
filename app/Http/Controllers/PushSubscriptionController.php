@@ -6,12 +6,13 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
+// Controller langganan Web Push: daftarkan/hapus subscription browser milik user (dipanggil via JS).
 class PushSubscriptionController extends Controller
 {
     use ValidatesRequests;
 
     /**
-     * Update user's subscription to push notifications.
+     * Simpan/perbarui langganan push notification milik user (endpoint + kunci dari browser).
      */
     public function store(Request $request)
     {
@@ -27,7 +28,7 @@ class PushSubscriptionController extends Controller
 
         $user = $request->user();
 
-        // Check if user is authenticated
+        // Pastikan user sudah terautentikasi.
         if (!$user) {
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
@@ -38,7 +39,7 @@ class PushSubscriptionController extends Controller
     }
 
     /**
-     * Delete user's push notification subscription.
+     * Hapus langganan push notification milik user (mis. saat menonaktifkan notifikasi).
      */
     public function destroy(Request $request)
     {
