@@ -40,3 +40,4 @@ CLAUDE.md
 /docs/testing/
 /docs/_status-dokumentasi.md
 /scripts/fill-sus-form.mjs
+/deploy.sh

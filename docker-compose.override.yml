@@ -16,6 +16,22 @@ services:
     depends_on:
       - web
 
+  coturn:
+    image: coturn/coturn:latest
+    container_name: pjbl-coturn
+    restart: unless-stopped
+    # host networking avoids Docker NAT issues for the TURN relay port range
+    network_mode: host
+    # cap TURN relay logs so they can't fill the disk (was an unbounded 4GB json log)
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    volumes:
+      - /home/sendhy27_gmail_com/coturn/turnserver.conf:/etc/coturn/turnserver.conf:ro
+    command: ["-c", "/etc/coturn/turnserver.conf"]
+
 volumes:
   caddy_data:
     external: true
