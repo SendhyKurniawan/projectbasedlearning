@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest-layout title="Atur Ulang Kata Sandi">
  <!-- Page Header -->
  <div class="mb-8">
  <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Buat Password Baru</h2>

@@ -1,5 +1,5 @@
 {{-- Halaman verifikasi OTP saat registrasi: input kode 6 digit + tombol kirim ulang. --}}
-<x-guest-layout>
+<x-guest-layout title="Verifikasi OTP">
  <!-- Header halaman -->
  <div class="mb-8">
  <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Verifikasi Email</h2>

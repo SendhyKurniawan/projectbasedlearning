@@ -1,5 +1,7 @@
 {{-- Layout tamu (<x-guest-layout>): kerangka halaman publik/autentikasi (login, register, dll).
-     Kiri = panel branding (desktop), kanan = form ($slot). --}}
+     Kiri = panel branding (desktop), kanan = form ($slot).
+     Override judul SEO per-halaman: <x-guest-layout title="Masuk">. --}}
+@props(['title' => null])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
  <head>
@@ -16,7 +18,8 @@
   })();
  </script>
 
- <title>{{ config('app.name', 'PBL Workspace') }}</title>
+ {{-- Metadata SEO terpusat. Halaman publik (login/register) → indexable. --}}
+ @include('layouts.partials.seo', ['seoTitle' => $title])
 
  <!-- Fonts: Scholar Tech Design System -->
  <link rel="preconnect" href="https://fonts.googleapis.com">

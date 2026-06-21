@@ -1,4 +1,4 @@
-﻿<x-guest-layout>
+﻿<x-guest-layout title="Masuk">
  <!-- Page Header -->
  <div class="mb-10">
  <h2 class="font-headline text-3xl font-extrabold text-on-surface tracking-tight mb-2">Login</h2>

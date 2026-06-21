@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 // Dikelompokkan per peran: grup /admin, /dosen, /mahasiswa (dijaga middleware role),
 // plus grup berbagi (auth saja) untuk profil, notifikasi, diskusi, pengumuman, dll.
 
+// SEO: robots.txt & sitemap.xml dinamis (domain mengikuti APP_URL). Publik, tanpa middleware.
+Route::get('/robots.txt', [App\Http\Controllers\SeoController::class, 'robots']);
+Route::get('/sitemap.xml', [App\Http\Controllers\SeoController::class, 'sitemap']);
+
 // Halaman root: arahkan user ke dashboard sesuai peran, atau ke login bila belum masuk.
 Route::get('/', function () {
     if (auth()->check()) {

@@ -16,7 +16,8 @@
   })();
  </script>
 
- <title>{{ config('app.name', 'PBL Workspace') }}</title>
+ {{-- Metadata SEO terpusat. Halaman aplikasi privat (di balik login) → noindex. --}}
+ @include('layouts.partials.seo', ['seoNoindex' => true])
 
  <!-- Fonts: Scholar Tech Design System -->
  <link rel="preconnect" href="https://fonts.googleapis.com">
