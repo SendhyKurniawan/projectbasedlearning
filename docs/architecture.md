@@ -194,6 +194,7 @@ Bahasa editor exercise di sisi dosen mencakup lebih banyak (`html`, `css`, `java
 - [notifications.md](features/notifications.md) — channel database + WebPush, queueing
 - [discussions.md](features/discussions.md) — satu-satunya komponen Livewire
 - [schedule.md](features/schedule.md) — tampilan mendatang mahasiswa di `/mahasiswa/jadwal`
+- SEO/metadata — `SeoController` (robots.txt/sitemap.xml dinamis) + `layouts/partials/seo.blade.php` (title/OG/Twitter/JSON-LD); lihat [frontend.md](frontend.md#seo--metadata)
 
 Operasional:
 

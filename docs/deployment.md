@@ -156,6 +156,17 @@ Lihat [getting-started.md](getting-started.md) untuk referensi lengkap. Yang kri
 
 ---
 
+## SEO: robots.txt & sitemap.xml
+
+`SeoController` (`app/Http/Controllers/SeoController.php`) menyajikan `/robots.txt` dan `/sitemap.xml` **secara dinamis** — bukan berkas statis — sehingga domain yang ditampilkan selalu mengikuti `APP_URL`. Ini menggantikan `public/robots.txt` statis yang lama.
+
+- `/sitemap.xml` hanya mendaftar URL publik: `/`, `/login`, `/register`.
+- `/robots.txt` mengizinkan halaman publik dan melarang seluruh area ber-login (`/admin`, `/dosen`, `/mahasiswa`, `/profile`, `/notifications`, `/discussions`, `/announcements`, `/conferences`), lalu menunjuk ke sitemap.
+
+Karena kedua route membangun URL dari `url()`/`config('app.url')`, pastikan `APP_URL` produksi sudah benar (lihat tabel variabel lingkungan di atas) — nilai yang salah akan membocorkan domain lain di `robots.txt`/`sitemap.xml`.
+
+---
+
 ## Provisioning: Jitsi (self-hosted)
 
 Ruang konferensi berjalan di Jitsi self-hosted di `meet.polimedia.pblworkspace.com`, di belakang Caddy berkontainer pada VM yang sama. Langkah lengkap (DNS, firewall, Caddy, instalasi `docker-jitsi-meet`, pembangkitan secret JWT, redirect SSO, verifikasi end-to-end, rollback) ada di [ops/jitsi-self-host.md](ops/jitsi-self-host.md).

@@ -11,6 +11,7 @@ Mulai dari **getting-started.md** bila Anda menyiapkan lingkungan lokal. Mulai d
 | Dokumen | Cakupan |
 |---|---|
 | [getting-started.md](getting-started.md) | Prasyarat, setup native + Docker, referensi variabel env, akun hasil seed, perintah harian, troubleshooting awal |
+| [arsitektur-dan-perancangan.md](arsitektur-dan-perancangan.md) | Penjelasan menyeluruh & edukatif — pola monolith, stack, MVC, perancangan DB, server/infrastruktur, keamanan, plus glosarium istilah teknis |
 | [architecture.md](architecture.md) | Sistem tiga role, hierarki akademik, siblings + `course_group_key`, copy fan-out, alur request, eksekusi kode Piston, konvensi |
 | [auth-roles.md](auth-roles.md) | Enum `role`, middleware route, `CheckRole` + `CheckAssignmentUnlocked`, policy, login admin, alur registrasi + OTP + persetujuan admin |
 | [database.md](database.md) | Referensi skema per tabel, composite key, konvensi (query mentah `DB::table('enrollments')`), gotcha |
@@ -60,7 +61,7 @@ Mulai dari **getting-started.md** bila Anda menyiapkan lingkungan lokal. Mulai d
 | Dokumen | Cakupan |
 |---|---|
 | [bab4-implementasi.md](bab4-implementasi.md) | Referensi implementasi rinci (Indonesia) — panduan pengembangan & implementasi akurat-produksi untuk bab BAB 4 skripsi |
-| [struktur_database_baru.md](struktur_database_baru.md) | Catatan desain struktur basis data (Indonesia) |
+| [lampiran-snippet-kode.md](lampiran-snippet-kode.md) | Lampiran cuplikan kode inti (skripsi): model siblings, middleware role, policy, JWT Jitsi, proxy eksekusi, OTP, auto-grading, copy fan-out |
 | [PAGES_GUIDE.md](PAGES_GUIDE.md) | Referensi per halaman untuk layar UI tiap role |
 
 ---

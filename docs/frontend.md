@@ -194,6 +194,28 @@ Seri spesifik dashboard yang diproduksi controller:
 
 ---
 
+## SEO / metadata
+
+`resources/views/layouts/partials/seo.blade.php` memusatkan seluruh metadata SEO (title, description, canonical, `theme-color`, Open Graph, Twitter Card, dan JSON-LD `EducationalOrganization`). Partial ini di-`@include` oleh **kedua** layout — `layouts/app.blade.php` (in-app) dan `layouts/guest.blade.php` (publik/auth).
+
+Override per-halaman dengan menyetel variabel sebelum `@include`:
+
+```blade
+@include('layouts.partials.seo', [
+    'seoTitle'       => 'Judul Spesifik',
+    'seoDescription' => 'Deskripsi halaman ini.',
+    'seoNoindex'     => true, // true untuk halaman privat/ber-login
+])
+```
+
+`<x-guest-layout>` juga menerima prop `title` yang diteruskan sebagai `seoTitle` — dipakai oleh view `auth/*` (login, register, forgot-password, reset-password, verify-otp).
+
+- **Halaman in-app (post-login)**: `seoNoindex = true` → `<meta name="robots" content="noindex, nofollow">`, tanpa JSON-LD.
+- **Halaman publik** (`/`, `/login`, `/register`, dll.): `index, follow`, plus Open Graph + Twitter Card (memakai `public/og-image.png`, 1200×630) dan JSON-LD `EducationalOrganization`.
+- `SeoController` (`app/Http/Controllers/SeoController.php`) menyajikan `/robots.txt` dan `/sitemap.xml` secara dinamis — lihat [deployment.md](deployment.md#seo-robotstxt--sitemapxml).
+
+---
+
 ## Design system
 
 `resources/css/design-system.css` mengekspos token bergaya Material You:
