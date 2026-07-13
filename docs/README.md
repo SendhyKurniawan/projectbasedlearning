@@ -12,6 +12,8 @@ Mulai dari **getting-started.md** bila Anda menyiapkan lingkungan lokal. Mulai d
 |---|---|
 | [getting-started.md](getting-started.md) | Prasyarat, setup native + Docker, referensi variabel env, akun hasil seed, perintah harian, troubleshooting awal |
 | [arsitektur-dan-perancangan.md](arsitektur-dan-perancangan.md) | Penjelasan menyeluruh & edukatif — pola monolith, stack, MVC, perancangan DB, server/infrastruktur, keamanan, plus glosarium istilah teknis |
+| [proses-perancangan.md](proses-perancangan.md) | Narasi proses perancangan untuk sidang — metodologi iteratif, analisis kebutuhan, tahapan perancangan, pengujian, deployment, plus antisipasi pertanyaan penguji |
+| [proses-perancangan-jitsi.md](proses-perancangan-jitsi.md) | Narasi proses perancangan fitur konferensi untuk sidang — evolusi LiveKit → JaaS → Jitsi self-hosted, rancangan JWT/keamanan, bukti uji kapasitas 100 peserta, antisipasi pertanyaan penguji |
 | [architecture.md](architecture.md) | Sistem tiga role, hierarki akademik, siblings + `course_group_key`, copy fan-out, alur request, eksekusi kode Piston, konvensi |
 | [auth-roles.md](auth-roles.md) | Enum `role`, middleware route, `CheckRole` + `CheckAssignmentUnlocked`, policy, login admin, alur registrasi + OTP + persetujuan admin |
 | [database.md](database.md) | Referensi skema per tabel, composite key, konvensi (query mentah `DB::table('enrollments')`), gotcha |
