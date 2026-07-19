@@ -111,7 +111,8 @@
                                 LANJUTKAN BACA
                             </a>
                         @elseif($nextTask['type'] === 'assignment')
-                            <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $nextTask['item']->id]) }}" class="block w-full px-4 bg-white text-primary font-black text-center py-3.5 rounded-xl hover:bg-primary-fixed transition-all uppercase tracking-widest text-xs">
+                            @php $nextTaskHasSteps = $nextTask['item']->type === 'tugas' && $nextTask['item']->hasSteps(); @endphp
+                            <a href="{{ $nextTaskHasSteps ? route('mahasiswa.assignments.steps.show', $nextTask['item']) : route('mahasiswa.submissions.create', ['assignment_id' => $nextTask['item']->id]) }}" class="block w-full px-4 bg-white text-primary font-black text-center py-3.5 rounded-xl hover:bg-primary-fixed transition-all uppercase tracking-widest text-xs">
                                 KERJAKAN TUGAS
                             </a>
                         @endif
@@ -295,9 +296,17 @@
                                 </div>
                             </div>
                             
+                            @php
+                                $cardHasSteps = $item['item']->hasSteps();
+                                $stepTotal = $cardHasSteps ? $item['item']->steps()->count() : 0;
+                                $stepDone = $cardHasSteps ? $item['item']->stepsCompletedCountFor(auth()->id()) : 0;
+                            @endphp
                             <div class="flex items-center gap-3 mb-6 px-1">
                                 <span class="material-symbols-outlined text-[16px] text-error">calendar_clock</span>
                                 <span class="text-[11px] font-bold text-on-surface-variant ">Batas Akhir: {{ $item['item']->deadline->format('d M, H:i') }}</span>
+                                @if($cardHasSteps)
+                                    <span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-lg">Step {{ $stepDone }}/{{ $stepTotal }}</span>
+                                @endif
                             </div>
 
                             <div class="flex items-center justify-between pt-4 border-t border-outline-variant/10">
@@ -306,8 +315,8 @@
                                         <span class="material-symbols-outlined text-[18px]">lock</span> Terkunci
                                     </span>
                                 @elseif(!$hasScore)
-                                    <a href="{{ route('mahasiswa.submissions.create', ['assignment_id' => $item['item']->id]) }}" class="px-6 py-2.5 bg-primary text-on-primary font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all">
-                                        {{ $isCompleted ? 'RE-SUBMIT' : 'KERJAKAN' }}
+                                    <a href="{{ $cardHasSteps ? route('mahasiswa.assignments.steps.show', $item['item']) : route('mahasiswa.submissions.create', ['assignment_id' => $item['item']->id]) }}" class="px-6 py-2.5 bg-primary text-on-primary font-black text-[10px] uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all">
+                                        {{ $cardHasSteps ? ($stepDone > 0 ? 'LANJUTKAN STEP' : 'MULAI STEP') : ($isCompleted ? 'RE-SUBMIT' : 'KERJAKAN') }}
                                     </a>
                                 @else
                                     <div class="px-6 py-2.5 bg-surface-variant text-on-surface-variant font-black text-[10px] uppercase tracking-widest rounded-xl opacity-70">

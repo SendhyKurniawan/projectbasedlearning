@@ -175,6 +175,14 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::post('/submissions/{submission}/grade', [Dosen\AssignmentController::class, 'grade'])->name('submissions.grade');
     Route::post('/groups/{group}/grade', [Dosen\AssignmentController::class, 'gradeGroup'])->name('groups.grade');
     
+    // Pengelolaan step (tahapan) tugas ber-step + penilaian per step.
+    Route::get('/assignments/{assignment}/steps', [Dosen\AssignmentStepController::class, 'index'])->name('assignments.steps.index');
+    Route::post('/assignments/{assignment}/steps', [Dosen\AssignmentStepController::class, 'store'])->name('assignments.steps.store');
+    Route::put('/steps/{step}', [Dosen\AssignmentStepController::class, 'update'])->name('assignments.steps.update');
+    Route::delete('/steps/{step}', [Dosen\AssignmentStepController::class, 'destroy'])->name('assignments.steps.destroy');
+    Route::post('/step-submissions/{stepSubmission}/grade', [Dosen\AssignmentStepController::class, 'gradeSubmission'])->name('step-submissions.grade');
+    Route::post('/steps/{step}/groups/{group}/grade', [Dosen\AssignmentStepController::class, 'gradeGroup'])->name('assignments.steps.grade-group');
+
     // Pengelolaan soal quiz terpadu.
     Route::get('/assignments/{assignment}/questions', [Dosen\AssignmentController::class, 'questions'])->name('assignments.questions.index');
     Route::get('/assignments/{assignment}/questions/create', [Dosen\AssignmentController::class, 'createQuestion'])->name('assignments.questions.create');
@@ -217,6 +225,10 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
 
     // Pengumpulan tugas (kecuali index/show); dijaga middleware syarat materi prasyarat terbuka.
     Route::resource('submissions', Mahasiswa\SubmissionController::class)->except(['index', 'show'])->middleware('check.assignment.unlocked');
+
+    // Pengerjaan tugas ber-step (stepper + submit per step); prasyarat materi tetap dijaga.
+    Route::get('/assignments/{assignment}/steps', [Mahasiswa\AssignmentStepController::class, 'show'])->name('assignments.steps.show')->middleware('check.assignment.unlocked');
+    Route::post('/assignments/{assignment}/steps/{step}/submit', [Mahasiswa\AssignmentStepController::class, 'submit'])->name('assignments.steps.submit')->middleware('check.assignment.unlocked');
 
     // Pengerjaan quiz (secara fungsional berada di bawah payung Submission).
     Route::get('/assignments/{assignment}/quiz', [Mahasiswa\QuizController::class, 'show'])->name('quizzes.show');

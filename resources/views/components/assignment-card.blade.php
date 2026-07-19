@@ -22,6 +22,9 @@
                     <span class="px-2 py-0.5 bg-warning-light text-on-warning text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">QUIZ</span>
                 @else
                     <span class="px-2 py-0.5 bg-secondary-container/30 text-on-secondary-container text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">TUGAS</span>
+                    @if($assignment->hasSteps())
+                        <span class="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black rounded uppercase tracking-tighter whitespace-nowrap">{{ $assignment->steps()->count() }} STEP</span>
+                    @endif
                 @endif
     
                 @if($assignment->deadline < now())
@@ -52,6 +55,11 @@
         @if($assignment->type === 'quiz')
             <a href="{{ route('dosen.assignments.questions.index', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-secondary-container hover:text-secondary rounded-xl transition-all" title="Kelola Pertanyaan">
                 <span class="material-symbols-outlined text-[20px]">help_center</span>
+            </a>
+        @endif
+        @if($assignment->type === 'tugas')
+            <a href="{{ route('dosen.assignments.steps.index', $assignment) }}" class="flex-1 md:flex-none flex justify-center items-center p-3 text-on-surface-variant bg-surface-container-high hover:bg-secondary-container hover:text-secondary rounded-xl transition-all" title="Kelola Step">
+                <span class="material-symbols-outlined text-[20px]">stairs</span>
             </a>
         @endif
         @if($siblings->count() > 0)

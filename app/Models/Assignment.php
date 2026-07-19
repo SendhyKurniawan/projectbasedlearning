@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $id
@@ -30,12 +30,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Group> $groups
  * @property-read int|null $groups_count
  * @property-read \App\Models\Material|null $requiredMaterial
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Assignment active()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Assignment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Assignment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Assignment past()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Assignment query()
  * @method static \Database\Factories\AssignmentFactory factory($count = null, $state = [])
+ *
  * @mixin \Eloquent
  * @mixin IdeHelperAssignment
  */
@@ -63,6 +65,7 @@ class Assignment extends Model
         'is_group',
         'max_group_size',
         'grading_mode',
+        'step_grading_mode', // final = satu nilai akhir, per_step = akumulasi nilai step
     ];
 
     // Casting kolom: deadline jadi datetime, exercise_config disimpan sebagai JSON (array).
@@ -106,6 +109,12 @@ class Assignment extends Model
         return $this->belongsTo(Material::class, 'required_material_id');
     }
 
+    // Step (tahapan) tugas ber-step, urut sesuai step_number.
+    public function steps()
+    {
+        return $this->hasMany(AssignmentStep::class)->orderBy('step_number');
+    }
+
     // Method bantu
 
     /**
@@ -115,13 +124,45 @@ class Assignment extends Model
      */
     public function isUnlockedFor($studentId): bool
     {
-        if (!$this->required_material_id) {
+        if (! $this->required_material_id) {
             return true;
         }
 
         return MaterialView::where('material_id', $this->required_material_id)
             ->where('student_id', $studentId)
             ->exists();
+    }
+
+    // Cek apakah tugas ini punya step progresi.
+    public function hasSteps(): bool
+    {
+        return $this->steps()->exists();
+    }
+
+    /**
+     * Step aktif untuk seorang mahasiswa: step pertama (urutan terkecil) yang belum
+     * ia kumpulkan. Null berarti semua step sudah selesai (atau tidak ada step).
+     */
+    public function currentStepFor($mahasiswaId): ?AssignmentStep
+    {
+        return $this->steps()
+            ->whereDoesntHave('submissions', fn ($q) => $q->where('mahasiswa_id', $mahasiswaId))
+            ->orderBy('step_number')
+            ->first();
+    }
+
+    // Semua step sudah dikumpulkan oleh mahasiswa ini (gate submission final).
+    public function allStepsCompletedBy($mahasiswaId): bool
+    {
+        return $this->currentStepFor($mahasiswaId) === null;
+    }
+
+    // Jumlah step yang sudah dikumpulkan mahasiswa ini.
+    public function stepsCompletedCountFor($mahasiswaId): int
+    {
+        return StepSubmission::whereIn('assignment_step_id', $this->steps()->pluck('id'))
+            ->where('mahasiswa_id', $mahasiswaId)
+            ->count();
     }
 
     // Scope query

@@ -36,6 +36,12 @@ class Group extends Model
         return $this->hasMany(Submission::class);
     }
 
+    // Pengumpulan step yang dibuat atas nama kelompok (tugas ber-step).
+    public function stepSubmissions()
+    {
+        return $this->hasMany(StepSubmission::class);
+    }
+
     // Mahasiswa pembuat/ketua kelompok.
     public function creator()
     {

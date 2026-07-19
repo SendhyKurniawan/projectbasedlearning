@@ -8,7 +8,6 @@ use App\Models\Group;
 use App\Models\GroupMember;
 use App\Models\Submission;
 use App\Models\User;
-use App\Notifications\AcademicUpdateNotification;
 use App\Notifications\SubmissionNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,9 +25,21 @@ class SubmissionController extends Controller
         $assignment = Assignment::with('course')->findOrFail($assignment_id);
 
         $mahasiswa = auth()->user();
-        if (!$mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
+        if (! $mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
+        }
+
+        // Tugas ber-step: pengumpulan final hanya untuk mode 'final' setelah semua step
+        // selesai; mode 'per_step' dinilai per step (tidak ada pengumpulan final).
+        if ($assignment->hasSteps()) {
+            if ($assignment->step_grading_mode === 'per_step') {
+                return redirect()->route('mahasiswa.assignments.steps.show', $assignment);
+            }
+            if (! $assignment->allStepsCompletedBy($mahasiswa->id)) {
+                return redirect()->route('mahasiswa.assignments.steps.show', $assignment)
+                    ->with('error', 'Selesaikan semua step terlebih dahulu sebelum mengumpulkan tugas akhir.');
+            }
         }
 
         $existing = Submission::where('assignment_id', $assignment_id)
@@ -40,18 +51,18 @@ class SubmissionController extends Controller
 
         if ($assignment->is_group) {
             $existingGroup = Group::where('assignment_id', $assignment->id)
-                ->whereHas('members', fn($q) => $q->where('mahasiswa_id', $mahasiswa->id))
+                ->whereHas('members', fn ($q) => $q->where('mahasiswa_id', $mahasiswa->id))
                 ->with(['members.mahasiswa', 'creator'])
                 ->first();
 
-            if (!$existingGroup) {
+            if (! $existingGroup) {
                 // Kandidat anggota tidak termasuk diri sendiri & mahasiswa yang sudah masuk kelompok pada tugas ini.
-                $busyMahasiswaIds = GroupMember::whereHas('group', fn($q) => $q->where('assignment_id', $assignment->id))
+                $busyMahasiswaIds = GroupMember::whereHas('group', fn ($q) => $q->where('assignment_id', $assignment->id))
                     ->pluck('mahasiswa_id')
                     ->toArray();
 
                 $classmates = User::where('role', 'mahasiswa')
-                    ->whereHas('enrollments', fn($q) => $q->where('courses.id', $assignment->course_id))
+                    ->whereHas('enrollments', fn ($q) => $q->where('courses.id', $assignment->course_id))
                     ->where('id', '!=', $mahasiswa->id)
                     ->whereNotIn('id', $busyMahasiswaIds)
                     ->orderBy('name')
@@ -64,9 +75,31 @@ class SubmissionController extends Controller
 
     // Simpan pengumpulan. Aturan validasi menyesuaikan format (file/url) & mode (individu/kelompok).
     // Untuk kelompok: bentuk Group + GroupMember + satu Submission per anggota (dalam transaksi).
-    public function store(Request $request)
+    public function store(Request $request, \App\Services\GroupFormationService $groupService)
     {
         $assignment = Assignment::findOrFail($request->assignment_id);
+
+        $mahasiswa = auth()->user();
+
+        // Tugas ber-step: pengumpulan final hanya untuk mode 'final' setelah semua step selesai.
+        if ($assignment->hasSteps()) {
+            if ($assignment->step_grading_mode === 'per_step') {
+                return redirect()->route('mahasiswa.assignments.steps.show', $assignment);
+            }
+            if (! $assignment->allStepsCompletedBy($mahasiswa->id)) {
+                return redirect()->route('mahasiswa.assignments.steps.show', $assignment)
+                    ->with('error', 'Selesaikan semua step terlebih dahulu sebelum mengumpulkan tugas akhir.');
+            }
+        }
+
+        // Kelompok bisa sudah terbentuk lebih dulu (saat step pertama tugas ber-step).
+        $existingGroup = null;
+        if ($assignment->is_group) {
+            $existingGroup = Group::where('assignment_id', $assignment->id)
+                ->whereHas('members', fn ($q) => $q->where('mahasiswa_id', $mahasiswa->id))
+                ->with('members')
+                ->first();
+        }
 
         $rules = [
             'assignment_id' => 'required|exists:assignments,id',
@@ -79,7 +112,8 @@ class SubmissionController extends Controller
             $rules['file'] = 'required|file|max:10240';
         }
 
-        if ($assignment->is_group) {
+        // Pemilihan anggota hanya saat kelompok belum terbentuk.
+        if ($assignment->is_group && ! $existingGroup) {
             $rules['member_ids'] = 'required|array|min:1';
             $rules['member_ids.*'] = 'integer|exists:users,id';
             $rules['group_name'] = 'nullable|string|max:120';
@@ -87,9 +121,7 @@ class SubmissionController extends Controller
 
         $request->validate($rules);
 
-        $mahasiswa = auth()->user();
-
-        if (!$mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
+        if (! $mahasiswa->enrollments()->where('courses.id', $assignment->course_id)->exists()) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Anda tidak terdaftar di course ini.');
         }
@@ -110,53 +142,27 @@ class SubmissionController extends Controller
         } else {
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
-                $filename = time() . '_' . $mahasiswa->id . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.$mahasiswa->id.'_'.$file->getClientOriginalName();
                 $file_path = $file->storeAs('submissions', $filename, 'public');
             }
         }
 
         if ($assignment->is_group) {
-            $memberIds = collect($request->member_ids)->map(fn($id) => (int) $id)->unique();
+            $memberIds = collect($request->member_ids ?? [])->map(fn ($id) => (int) $id)->unique();
 
-            $invalidEnroll = User::whereIn('id', $memberIds)
-                ->whereDoesntHave('enrollments', fn($q) => $q->where('courses.id', $assignment->course_id))
-                ->exists();
-            if ($invalidEnroll) {
-                return redirect()->back()->withInput()
-                    ->with('error', 'Beberapa anggota yang dipilih tidak terdaftar pada course ini.');
+            if (! $existingGroup) {
+                $error = $groupService->validateMembers($assignment, $mahasiswa, $memberIds);
+                if ($error) {
+                    return redirect()->back()->withInput()->with('error', $error);
+                }
             }
 
-            $alreadyMember = GroupMember::whereHas('group', fn($q) => $q->where('assignment_id', $assignment->id))
-                ->whereIn('mahasiswa_id', $memberIds->push($mahasiswa->id))
-                ->exists();
-            if ($alreadyMember) {
-                return redirect()->back()->withInput()
-                    ->with('error', 'Anda atau salah satu anggota sudah tergabung di kelompok lain untuk tugas ini.');
-            }
+            DB::transaction(function () use ($assignment, $mahasiswa, $memberIds, $request, $file_path, $url_link, $existingGroup, $groupService) {
+                // Pakai kelompok yang sudah terbentuk (tugas ber-step) atau bentuk baru via service.
+                $group = $existingGroup ?: $groupService->formGroup($assignment, $mahasiswa, $memberIds, $request->group_name);
+                $group->loadMissing('members');
 
-            // max_group_size sudah termasuk si pengumpul.
-            if ($assignment->max_group_size && ($memberIds->count() + 1) > $assignment->max_group_size) {
-                return redirect()->back()->withInput()
-                    ->with('error', 'Jumlah anggota melebihi batas maksimal kelompok.');
-            }
-
-            DB::transaction(function () use ($assignment, $mahasiswa, $memberIds, $request, $file_path, $url_link) {
-                $groupName = $request->group_name ?: 'Kelompok ' . ($assignment->groups()->count() + 1);
-
-                $group = Group::create([
-                    'assignment_id' => $assignment->id,
-                    'group_name' => $groupName,
-                    'created_by_mahasiswa_id' => $mahasiswa->id,
-                ]);
-
-                $allMemberIds = $memberIds->reject(fn($id) => $id === $mahasiswa->id)->push($mahasiswa->id)->unique();
-
-                foreach ($allMemberIds as $mid) {
-                    GroupMember::create([
-                        'group_id' => $group->id,
-                        'mahasiswa_id' => $mid,
-                    ]);
-
+                foreach ($group->members->pluck('mahasiswa_id') as $mid) {
                     Submission::create([
                         'assignment_id' => $assignment->id,
                         'mahasiswa_id' => $mid,
@@ -166,15 +172,6 @@ class SubmissionController extends Controller
                         'notes' => $request->notes,
                         'submitted_at' => now(),
                     ]);
-                }
-
-                $others = User::whereIn('id', $allMemberIds->reject(fn($id) => $id === $mahasiswa->id))->get();
-                if ($others->isNotEmpty()) {
-                    Notification::send($others, new AcademicUpdateNotification(
-                        'Ditambahkan ke Kelompok',
-                        "{$mahasiswa->name} menambahkan Anda ke kelompok '{$groupName}' untuk tugas '{$assignment->title}'.",
-                        route('mahasiswa.courses.show', $assignment->course_id)
-                    ));
                 }
             });
         } else {
@@ -268,7 +265,7 @@ class SubmissionController extends Controller
                 }
 
                 $file = $request->file('file');
-                $filename = time() . '_' . auth()->id() . '_' . $file->getClientOriginalName();
+                $filename = time().'_'.auth()->id().'_'.$file->getClientOriginalName();
                 $data['file_path'] = $file->storeAs('submissions', $filename, 'public');
             }
         }

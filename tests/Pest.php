@@ -3,23 +3,19 @@
 // Konfigurasi Pest: mengikat kelas test case + trait ke tiap folder (Browser/Feature),
 // mendaftarkan expectation kustom, dan helper global.
 
-pest()->extend(Tests\DuskTestCase::class)
-//  ->use(Illuminate\Foundation\Testing\DatabaseMigrations::class)
-    ->in('Browser');
-
-pest()->extend(Tests\DuskTestCase::class)
-//  ->use(Illuminate\Foundation\Testing\DatabaseMigrations::class)
-    ->in('Browser');
-
-pest()->extend(Tests\DuskTestCase::class)
-    ->beforeEach(function () {
-        // Seed hanya saat DB kosong untuk menghindari konflik seeder paralel.
-        // Jalankan `php artisan migrate:fresh --seeder=DuskSeeder` untuk memaksa seed bersih.
-        if (\App\Models\User::count() === 0) {
-            $this->seed(\Database\Seeders\DuskSeeder::class);
-        }
-    })
-    ->in('Browser');
+// Binding Dusk hanya bila kelasnya tersedia (laravel/dusk tidak selalu terpasang,
+// mis. lingkungan CI/lokal tanpa dev-dependency browser testing).
+if (class_exists(Tests\DuskTestCase::class)) {
+    pest()->extend(Tests\DuskTestCase::class)
+        ->beforeEach(function () {
+            // Seed hanya saat DB kosong untuk menghindari konflik seeder paralel.
+            // Jalankan `php artisan migrate:fresh --seeder=DuskSeeder` untuk memaksa seed bersih.
+            if (\App\Models\User::count() === 0) {
+                $this->seed(\Database\Seeders\DuskSeeder::class);
+            }
+        })
+        ->in('Browser');
+}
 
 /*
 |--------------------------------------------------------------------------

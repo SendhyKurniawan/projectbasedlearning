@@ -39,6 +39,10 @@
             </div>
         @endif
 
+        @if(isset($steps) && $steps->isNotEmpty())
+            @include('dosen.assignments._step_progress', ['assignment' => $assignment, 'steps' => $steps])
+        @endif
+
         @if($assignment->is_group)
             @include('dosen.assignments._group_submissions', ['assignment' => $assignment, 'course' => $course, 'groups' => $groups])
         @elseif($submissions->isEmpty())

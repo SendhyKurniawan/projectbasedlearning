@@ -89,13 +89,22 @@ docker compose down -v && docker compose up -d --build
 
 ## Kredensial Default
 
-Setelah menjalankan seeder, gunakan akun berikut untuk pengujian:
+Setelah menjalankan seeder, gunakan akun berikut untuk pengujian.
+Seluruh akun aktif (`is_active = true`) sehingga bisa langsung login tanpa OTP,
+dengan password `password`.
 
-| Role          | Email                 | Password   |
-| :------------ | :-------------------- | :--------- |
-| **Admin**     | `admin@pjbl.test`     | `password` |
-| **Dosen**     | `dosen@pjbl.test`     | `password` |
-| **Mahasiswa** | `mahasiswa@pjbl.test` | `password` |
+| Role          | Email                   | Password   |
+| :------------ | :---------------------- | :--------- |
+| **Admin**     | `admin@pjbl.test`       | `password` |
+| **Dosen**     | `dosen@pjbl.test`       | `password` |
+| **Dosen**     | `budi.dosen@pjbl.test`  | `password` |
+| **Dosen**     | `siti.dosen@pjbl.test`  | `password` |
+| **Mahasiswa** | `mahasiswa@pjbl.test`   | `password` |
+| **Mahasiswa** | `ahmad.mhs@pjbl.test`   | `password` |
+| **Mahasiswa** | `dewi.mhs@pjbl.test`    | `password` |
+| **Mahasiswa** | `cahya.mhs@pjbl.test`   | `password` |
+| **Mahasiswa** | `rina.mhs@pjbl.test`    | `password` |
+| **Mahasiswa** | `fajar.mhs@pjbl.test`   | `password` |
 
 ## Pengujian (Playwright)
 

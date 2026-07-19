@@ -61,6 +61,8 @@ class AssignmentController extends Controller
             'is_group' => 'nullable|boolean',
             'max_group_size' => 'nullable|integer|min:2|max:20',
             'grading_mode' => 'nullable|in:equal,individual',
+            'has_steps' => 'nullable|in:0,1,true,false',
+            'step_grading_mode' => 'nullable|in:final,per_step',
             'sibling_ids' => 'nullable|array',
             'sibling_ids.*' => 'integer|exists:courses,id',
         ]);
@@ -68,11 +70,12 @@ class AssignmentController extends Controller
         // Keamanan fan-out: batasi target hanya ke siblings milik matkul ini.
         $allowedSiblingIds = $course->siblings()->pluck('id');
         $targetIds = collect($request->sibling_ids ?? [])
-            ->map(fn($id) => (int) $id)
+            ->map(fn ($id) => (int) $id)
             ->intersect($allowedSiblingIds);
 
-        // Mode kelompok hanya berlaku untuk tipe 'tugas'.
+        // Mode kelompok & step progresi hanya berlaku untuk tipe 'tugas'.
         $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
+        $hasSteps = $request->type === 'tugas' && $request->boolean('has_steps');
 
         $sharedData = [
             'title' => $request->title,
@@ -85,12 +88,14 @@ class AssignmentController extends Controller
             'is_group' => $isGroup,
             'max_group_size' => $isGroup ? $request->max_group_size : null,
             'grading_mode' => $isGroup ? ($request->grading_mode ?: 'equal') : 'equal',
+            'step_grading_mode' => $hasSteps ? ($request->step_grading_mode ?: 'final') : 'final',
         ];
 
         // Closure pembuat tugas untuk satu matkul: hitung nomor urut (quiz/tugas) & order.
         $createForCourse = function (Course $target) use ($sharedData) {
             $count = Assignment::where('course_id', $target->id)->where('type', $sharedData['type'])->count();
             $maxOrder = $target->assignments()->max('order') ?? 0;
+
             return Assignment::create(array_merge($sharedData, [
                 'course_id' => $target->id,
                 'quiz_number' => $sharedData['type'] === 'quiz' ? $count + 1 : null,
@@ -110,11 +115,26 @@ class AssignmentController extends Controller
             if ($targetIds->count()) {
                 $msg .= " Shell quiz dibuat di {$targetIds->count()} kelas lain — tambahkan pertanyaan secara terpisah.";
             }
+
             return redirect()->route('dosen.assignments.questions.index', $assignment)->with('success', $msg);
         }
 
+        // Tugas ber-step: buat tugas dulu lalu arahkan dosen mengisi step (pola shell quiz).
+        if ($hasSteps) {
+            $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
+            foreach ($targetCourses as $sibling) {
+                $createForCourse($sibling);
+            }
+            $msg = 'Tugas berhasil dibuat! Silakan tambahkan step pengerjaan.';
+            if ($targetIds->count()) {
+                $msg .= " Salinan tugas dibuat di {$targetIds->count()} kelas lain — tambahkan step di sana secara terpisah, atau gunakan menu Salin setelah step lengkap.";
+            }
+
+            return redirect()->route('dosen.assignments.steps.index', $assignment)->with('success', $msg);
+        }
+
         $typeLabel = ucfirst($request->type);
-        $students = User::whereHas('enrollments', fn($q) => $q->where('course_id', $course->id))->get();
+        $students = User::whereHas('enrollments', fn ($q) => $q->where('course_id', $course->id))->get();
         if ($students->isNotEmpty()) {
             Notification::send($students, new AcademicUpdateNotification(
                 "{$typeLabel} Baru Ditambahkan",
@@ -127,7 +147,7 @@ class AssignmentController extends Controller
         $targetCourses = $targetIds->isNotEmpty() ? Course::whereIn('id', $targetIds)->get() : collect();
         foreach ($targetCourses as $sibling) {
             $sibAssignment = $createForCourse($sibling);
-            $sibStudents = User::whereHas('enrollments', fn($q) => $q->where('course_id', $sibling->id))->get();
+            $sibStudents = User::whereHas('enrollments', fn ($q) => $q->where('course_id', $sibling->id))->get();
             if ($sibStudents->isNotEmpty()) {
                 Notification::send($sibStudents, new AcademicUpdateNotification(
                     "{$typeLabel} Baru Ditambahkan",
@@ -179,31 +199,35 @@ class AssignmentController extends Controller
             'is_group' => 'nullable|boolean',
             'max_group_size' => 'nullable|integer|min:2|max:20',
             'grading_mode' => 'nullable|in:equal,individual',
+            'step_grading_mode' => 'nullable|in:final,per_step',
         ]);
 
         $data = $request->only([
-            'title', 'description', 'deadline', 'max_score', 'type'
+            'title', 'description', 'deadline', 'max_score', 'type',
         ]);
         $data['duration_minutes'] = $request->has_duration ? $request->duration_minutes : null;
         $data['submission_format'] = $request->type === 'tugas' ? $request->submission_format : 'pdf';
 
         $isGroup = $request->type === 'tugas' && $request->boolean('is_group');
-        $hasSubmission = $assignment->submissions()->exists();
+        $hasSubmission = $assignment->submissions()->exists()
+            || \App\Models\StepSubmission::whereIn('assignment_step_id', $assignment->steps()->pluck('id'))->exists();
 
-        // Kunci pengaturan kelompok begitu sudah ada submission, agar data tetap konsisten.
+        // Kunci pengaturan kelompok & mode penilaian step begitu sudah ada pengerjaan.
         if ($hasSubmission) {
             $data['is_group'] = $assignment->is_group;
             $data['max_group_size'] = $assignment->max_group_size;
             $data['grading_mode'] = $assignment->grading_mode;
+            $data['step_grading_mode'] = $assignment->step_grading_mode;
         } else {
             $data['is_group'] = $isGroup;
             $data['max_group_size'] = $isGroup ? $request->max_group_size : null;
             $data['grading_mode'] = $isGroup ? ($request->grading_mode ?: 'equal') : 'equal';
+            $data['step_grading_mode'] = $request->step_grading_mode ?: $assignment->step_grading_mode;
         }
 
         $assignment->update($data);
 
-        $students = User::whereHas('enrollments', function($q) use ($course) {
+        $students = User::whereHas('enrollments', function ($q) use ($course) {
             $q->where('course_id', $course->id);
         })->get();
         if ($students->isNotEmpty()) {
@@ -248,7 +272,7 @@ class AssignmentController extends Controller
         // Batasi target ke siblings milik matkul ini saja.
         $allowedSiblingIds = $course->siblings()->pluck('id');
         $targetIds = collect($request->sibling_ids)
-            ->map(fn($id) => (int) $id)
+            ->map(fn ($id) => (int) $id)
             ->intersect($allowedSiblingIds);
 
         if ($targetIds->isEmpty()) {
@@ -259,18 +283,29 @@ class AssignmentController extends Controller
             'title', 'description', 'deadline', 'max_score', 'type',
             'submission_format', 'duration_minutes', 'is_group',
             'max_group_size', 'grading_mode', 'exercise_config',
+            'step_grading_mode',
         ]);
+
+        $steps = $assignment->steps()->get();
 
         $targetCourses = Course::whereIn('id', $targetIds)->get();
         foreach ($targetCourses as $sibling) {
-            $count    = Assignment::where('course_id', $sibling->id)->where('type', $sharedData['type'])->count();
+            $count = Assignment::where('course_id', $sibling->id)->where('type', $sharedData['type'])->count();
             $maxOrder = $sibling->assignments()->max('order') ?? 0;
-            Assignment::create(array_merge($sharedData, [
-                'course_id'         => $sibling->id,
-                'quiz_number'       => $sharedData['type'] === 'quiz'  ? $count + 1 : null,
-                'assignment_number' => $sharedData['type'] !== 'quiz'  ? $count + 1 : null,
-                'order'             => $maxOrder + 1,
+            $newAssignment = Assignment::create(array_merge($sharedData, [
+                'course_id' => $sibling->id,
+                'quiz_number' => $sharedData['type'] === 'quiz' ? $count + 1 : null,
+                'assignment_number' => $sharedData['type'] !== 'quiz' ? $count + 1 : null,
+                'order' => $maxOrder + 1,
             ]));
+
+            // Salin step progresi secara penuh (beda dengan soal quiz yang shell-only).
+            foreach ($steps as $step) {
+                $newAssignment->steps()->create($step->only([
+                    'step_number', 'title', 'description', 'deadline',
+                    'submission_format', 'max_score',
+                ]));
+            }
         }
 
         $msg = "'{$assignment->title}' disalin ke {$targetIds->count()} kelas lain.";
@@ -292,13 +327,13 @@ class AssignmentController extends Controller
         ]);
 
         $assignments = Assignment::whereIn('id', $request->ordered_ids)
-                                 ->where('course_id', $course->id)
-                                 ->orderBy('order')
-                                 ->get();
-        
+            ->where('course_id', $course->id)
+            ->orderBy('order')
+            ->get();
+
         $orders = $assignments->pluck('order')->toArray();
         sort($orders);
-        
+
         $currentOrder = 1;
         foreach ($orders as &$ord) {
             if ($ord < $currentOrder) {
@@ -307,13 +342,13 @@ class AssignmentController extends Controller
             $currentOrder = $ord + 1;
         }
         unset($ord);
-        
+
         foreach ($request->ordered_ids as $index => $id) {
             Assignment::where('id', $id)
-                    ->where('course_id', $course->id)
-                    ->update(['order' => $orders[$index] ?? ($index + 1)]);
+                ->where('course_id', $course->id)
+                ->update(['order' => $orders[$index] ?? ($index + 1)]);
         }
-        
+
         return response()->json(['message' => 'Urutan berhasil diperbarui']);
     }
 
@@ -342,7 +377,10 @@ class AssignmentController extends Controller
                 ->get();
         }
 
-        return view('dosen.assignments.submissions', compact('assignment', 'course', 'submissions', 'groups'));
+        // Tugas ber-step: muat step + pengumpulan per step untuk matriks progres & penilaian.
+        $steps = $assignment->steps()->with(['submissions.mahasiswa', 'submissions.group'])->get();
+
+        return view('dosen.assignments.submissions', compact('assignment', 'course', 'submissions', 'groups', 'steps'));
     }
 
     // Lihat detail satu percobaan quiz seorang mahasiswa (jawaban per soal).
@@ -352,7 +390,7 @@ class AssignmentController extends Controller
         if ($assignment->course->dosen_id !== auth()->id()) {
             abort(403);
         }
-        
+
         if ($submission->assignment_id !== $assignment->id) {
             abort(404);
         }
@@ -372,14 +410,14 @@ class AssignmentController extends Controller
         $this->authorize('view', $course);
 
         $request->validate([
-            'score' => 'required|integer|min:0|max:' . $assignment->max_score,
+            'score' => 'required|integer|min:0|max:'.$assignment->max_score,
             'feedback' => 'nullable|string',
         ]);
 
         $submission->update([
             'score' => $request->score,
             'feedback' => $request->feedback,
-            'status' => 'graded'
+            'status' => 'graded',
         ]);
 
         $student = $submission->mahasiswa;
@@ -408,7 +446,7 @@ class AssignmentController extends Controller
         if ($assignment->grading_mode === 'individual') {
             $request->validate([
                 'scores' => 'required|array',
-                'scores.*' => 'nullable|integer|min:0|max:' . $maxScore,
+                'scores.*' => 'nullable|integer|min:0|max:'.$maxScore,
                 'feedbacks' => 'nullable|array',
                 'feedbacks.*' => 'nullable|string',
             ]);
@@ -425,7 +463,7 @@ class AssignmentController extends Controller
             }
         } else {
             $request->validate([
-                'score' => 'required|integer|min:0|max:' . $maxScore,
+                'score' => 'required|integer|min:0|max:'.$maxScore,
                 'feedback' => 'nullable|string',
             ]);
 
@@ -456,6 +494,7 @@ class AssignmentController extends Controller
 
         $assignment->loadMissing('course');
         $questions = $assignment->questions()->with('options')->get();
+
         return view('dosen.assignments.questions.index', compact('assignment', 'questions'));
     }
 
@@ -513,6 +552,7 @@ class AssignmentController extends Controller
         $this->authorize('view', $course);
 
         $assignment = $question->assignment;
+
         return view('dosen.assignments.questions.edit', compact('question', 'assignment'));
     }
 

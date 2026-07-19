@@ -24,7 +24,7 @@
  <div class="">
  <div class="bg-surface-container-lowest overflow-hidden shadow-sm rounded-2xl">
  <div class="p-6">
- <form action="{{ route('dosen.assignments.store', $course) }}" method="POST" x-data="{ type: '{{ old('type', 'tugas') }}', has_duration: {{ old('has_duration', 'true') === 'true' ? 'true' : 'false' }}, submission_format: '{{ old('submission_format', 'pdf') }}', is_group: {{ old('is_group') ? 'true' : 'false' }}, grading_mode: '{{ old('grading_mode', 'equal') }}' }">
+ <form action="{{ route('dosen.assignments.store', $course) }}" method="POST" x-data="{ type: '{{ old('type', 'tugas') }}', has_duration: {{ old('has_duration', 'true') === 'true' ? 'true' : 'false' }}, submission_format: '{{ old('submission_format', 'pdf') }}', is_group: {{ old('is_group') ? 'true' : 'false' }}, grading_mode: '{{ old('grading_mode', 'equal') }}', has_steps: {{ old('has_steps') ? 'true' : 'false' }}, step_grading_mode: '{{ old('step_grading_mode', 'final') }}' }">
  @csrf
 
  <!-- Assignment Type -->
@@ -151,6 +151,36 @@
  <p class="text-error text-sm mt-1">{{ $message }}</p>
  @enderror
  </div>
+ </div>
+ </div>
+
+ <div class="border-t border-outline-variant/20 pt-4">
+ <label class="inline-flex items-center cursor-pointer">
+ <input type="checkbox" name="has_steps" value="1" class="w-4 h-4 text-primary bg-surface-container-low border-outline-variant/30 rounded focus:ring-primary focus:ring-2" x-model="has_steps" :disabled="type !== 'tugas'">
+ <span class="ms-2 text-sm font-medium text-on-surface">Tugas Berjenjang (Multi-Step)</span>
+ </label>
+ <p class="text-xs text-on-surface-variant mt-1 ml-6">
+ Tugas dipecah menjadi step berurutan (Step 1 → Step 2 → dst). Mahasiswa harus mengumpulkan hasil tiap step sebelum lanjut. Step diisi setelah tugas disimpan.
+ </p>
+
+ <div x-show="has_steps" class="mt-4 space-y-2 pl-6">
+ <label class="block text-sm font-medium text-on-surface-variant mb-2">
+ Mode Penilaian Step
+ </label>
+ <label class="flex items-start gap-2 cursor-pointer p-3 rounded-md border border-outline-variant/30 hover:bg-surface-container-low" :class="step_grading_mode === 'final' ? 'border-primary bg-primary/5' : ''">
+ <input type="radio" name="step_grading_mode" value="final" x-model="step_grading_mode" class="mt-1 text-primary focus:ring-primary" :disabled="!has_steps">
+ <span>
+ <span class="block text-sm font-medium text-on-surface">Nilai Akhir Saja</span>
+ <span class="block text-xs text-on-surface-variant">Step hanya melacak progres; setelah semua step selesai, mahasiswa mengumpulkan tugas akhir yang dinilai sekali.</span>
+ </span>
+ </label>
+ <label class="flex items-start gap-2 cursor-pointer p-3 rounded-md border border-outline-variant/30 hover:bg-surface-container-low" :class="step_grading_mode === 'per_step' ? 'border-primary bg-primary/5' : ''">
+ <input type="radio" name="step_grading_mode" value="per_step" x-model="step_grading_mode" class="mt-1 text-primary focus:ring-primary" :disabled="!has_steps">
+ <span>
+ <span class="block text-sm font-medium text-on-surface">Nilai per Step</span>
+ <span class="block text-xs text-on-surface-variant">Setiap step diberi bobot & dinilai; nilai akhir = akumulasi nilai step (tanpa pengumpulan akhir terpisah).</span>
+ </span>
+ </label>
  </div>
  </div>
  </div>
