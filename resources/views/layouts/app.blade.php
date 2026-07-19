@@ -106,7 +106,7 @@
  navigator.serviceWorker.register('/sw.js').then(function(registration) {
  Notification.requestPermission().then(function(permission) {
  if (permission === 'granted') {
- const vapidPublicKey = "{{ env('VAPID_PUBLIC_KEY') }}";
+ const vapidPublicKey = "{{ config('webpush.vapid.public_key') }}";
  if (vapidPublicKey) {
  registration.pushManager.subscribe({
  userVisibleOnly: true,

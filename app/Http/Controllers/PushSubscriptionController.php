@@ -33,7 +33,11 @@ class PushSubscriptionController extends Controller
             return response()->json(['error' => 'Unauthenticated.'], 401);
         }
 
-        $user->updatePushSubscription($endpoint, $key, $token);
+        // Simpan dengan content encoding modern (RFC 8291). Tanpa ini, kolom
+        // content_encoding tersimpan NULL dan minishlink/web-push (1) melempar
+        // "Subscription should have a content encoding" saat payload ada, dan
+        // (2) melewati header Authorization VAPID → FCM balas 401.
+        $user->updatePushSubscription($endpoint, $key, $token, 'aes128gcm');
 
         return response()->json(['success' => true], 200);
     }
