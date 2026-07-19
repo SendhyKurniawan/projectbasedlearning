@@ -55,17 +55,6 @@
  A digital workspace for Project-Based Learning, where rigorous structure meets high-tech collaboration.
  </p>
  </div>
- <!-- Bento-style Stats -->
- <div class="relative z-10 grid grid-cols-2 gap-4 mt-12 items-start">
- <div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
- <div class="text-secondary-container font-headline font-bold text-3xl mb-1">PBL</div>
- <div class="text-white/50 text-sm">Project-Based Learning</div>
- </div>
- <div class="bg-white/5 backdrop-blur-xl p-6 rounded-2xl border border-white/10">
- <div class="text-secondary-container font-headline font-bold text-3xl mb-1">Live</div>
- <div class="text-white/50 text-sm">Real-time Collaboration</div>
- </div>
- </div>
  <!-- Background Overlay -->
  <div class="absolute inset-0 architectural-gradient opacity-80 z-0"></div>
  </section>
